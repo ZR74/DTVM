@@ -11,29 +11,29 @@ zen::evm::EVMFrame *zen::evm::EVMResource::CurrentFrame = nullptr;
 zen::evm::InterpreterExecContext *zen::evm::EVMResource::CurrentContext =
     nullptr;
 
-namespace {
-uint64_t uint256ToUint64(const intx::uint256 &Value) {
-  return static_cast<uint64_t>(Value & 0xFFFFFFFFFFFFFFFFULL);
-}
-} // namespace
-
 using namespace zen;
 using namespace zen::evm;
 using namespace zen::runtime;
 
+/* ---------- Define gas cost macros begin ---------- */
+
 #define DEFINE_CALCULATE_GAS(OpName, OpCode)                                   \
   template <> uint64_t OpName##Handler::calculateGas() {                       \
-    static auto Table = evmc_get_instruction_metrics_table(EVMC_CANCUN);       \
+    static auto Table = evmc_get_instruction_metrics_table(DEFAULT_REVISION);  \
     static const auto Cost = Table[OpCode].gas_cost;                           \
     return Cost;                                                               \
   }
 
 #define DEFINE_NOT_TEMPLATE_CALCULATE_GAS(OpName, OpCode)                      \
   uint64_t OpName##Handler::calculateGas() {                                   \
-    static auto Table = evmc_get_instruction_metrics_table(EVMC_CANCUN);       \
+    static auto Table = evmc_get_instruction_metrics_table(DEFAULT_REVISION);  \
     static const auto Cost = Table[OpCode].gas_cost;                           \
     return Cost;                                                               \
   }
+
+/* ---------- Define gas cost macros end ---------- */
+
+/* ---------- Implement gas cost begin ---------- */
 
 // Arithmetic operations
 DEFINE_CALCULATE_GAS(Add, OP_ADD);
@@ -99,9 +99,12 @@ DEFINE_NOT_TEMPLATE_CALCULATE_GAS(PUSH, OP_PUSH1);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(DUP, OP_DUP1);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(SWAP, OP_SWAP1);
 
+/* ---------- Implement gas cost end ---------- */
+
+/* ---------- Implement utility functions begin ---------- */
+namespace {
 // Calculate memory expansion gas cost
-uint64_t zen::evm::calculateMemoryExpansionCost(uint64_t CurrentSize,
-                                                uint64_t NewSize) {
+uint64_t calculateMemoryExpansionCost(uint64_t CurrentSize, uint64_t NewSize) {
   if (NewSize <= CurrentSize) {
     return 0; // No expansion needed
   }
@@ -123,6 +126,33 @@ uint64_t zen::evm::calculateMemoryExpansionCost(uint64_t CurrentSize,
 
   return NewCost - CurrentCost;
 }
+
+// Expand memory and charge gas
+void expandMemoryAndChargeGas(EVMFrame *Frame, uint64_t RequiredSize) {
+  EVM_REQUIRE(RequiredSize <= MAX_REQUIRED_MEMORY_SIZE,
+              EVMTooLargeRequiredMemory);
+  uint64_t CurrentSize = Frame->Memory.size();
+
+  // Calculate and charge memory expansion gas
+  uint64_t MemoryExpansionCost =
+      calculateMemoryExpansionCost(CurrentSize, RequiredSize);
+  EVM_REQUIRE(Frame->GasLeft >= MemoryExpansionCost, EVMOutOfGas);
+  Frame->GasLeft -= MemoryExpansionCost;
+
+  // Expand memory if needed
+  if (RequiredSize > CurrentSize) {
+    Frame->Memory.resize(RequiredSize, 0);
+  }
+}
+
+// Convert uint256 to uint64
+uint64_t uint256ToUint64(const intx::uint256 &Value) {
+  return static_cast<uint64_t>(Value & 0xFFFFFFFFFFFFFFFFULL);
+}
+} // anonymous namespace
+/* ---------- Implement utility functions end ---------- */
+
+/* ---------- Implement opcode handlers begin ---------- */
 
 void GasHandler::doExecute() {
   using Base = EVMOpcodeHandlerBase<GasHandler>;
@@ -184,7 +214,7 @@ void SarHandler::doExecute() {
   intx::uint256 Shift = Frame->pop();
   intx::uint256 Value = Frame->pop();
 
-  intx::uint256 Res = 0;
+  intx::uint256 Res;
   if (Shift < 256) {
     intx::uint256 IsNegative = (Value >> 255) & 1;
     Res = Value >> Shift;
@@ -222,8 +252,7 @@ void BalanceHandler::doExecute() {
     constexpr auto WarmAccountAccessCost = 100;
     constexpr auto AdditionalColdAccountAccessCost =
         ColdAccountAccessCost - WarmAccountAccessCost;
-    EVM_THROW_IF(Frame->GasLeft, <, AdditionalColdAccountAccessCost,
-                 EVMOutOfGas);
+    EVM_REQUIRE(Frame->GasLeft >= AdditionalColdAccountAccessCost, EVMOutOfGas);
     Frame->GasLeft -= AdditionalColdAccountAccessCost;
   }
 
@@ -248,21 +277,8 @@ void MStoreHandler::doExecute() {
   intx::uint256 Value = Frame->pop();
 
   uint64_t Offset = uint256ToUint64(OffsetVal);
-  EVM_THROW_IF(Offset, >, UINT32_MAX, IntegerOverflow);
-
   uint64_t ReqSize = Offset + 32;
-  uint64_t CurrentSize = Frame->Memory.size();
-
-  // Calculate and charge memory expansion gas
-  uint64_t MemoryExpansionCost =
-      calculateMemoryExpansionCost(CurrentSize, ReqSize);
-  EVM_THROW_IF(Frame->GasLeft, <, MemoryExpansionCost, EVMOutOfGas);
-  Frame->GasLeft -= MemoryExpansionCost;
-
-  // TODO: use EVMMemory class in the future
-  if (ReqSize > CurrentSize) {
-    Frame->Memory.resize(ReqSize, 0);
-  }
+  expandMemoryAndChargeGas(Frame, ReqSize);
 
   uint8_t ValueBytes[32];
   intx::be::store(ValueBytes, Value);
@@ -279,21 +295,9 @@ void MStore8Handler::doExecute() {
   intx::uint256 Value = Frame->pop();
 
   uint64_t Offset = uint256ToUint64(OffsetVal);
-  EVM_THROW_IF(Offset, >, UINT32_MAX, IntegerOverflow);
-
   uint64_t ReqSize = Offset + 1;
-  uint64_t CurrentSize = Frame->Memory.size();
+  expandMemoryAndChargeGas(Frame, ReqSize);
 
-  // Calculate and charge memory expansion gas
-  uint64_t MemoryExpansionCost =
-      calculateMemoryExpansionCost(CurrentSize, ReqSize);
-  EVM_THROW_IF(Frame->GasLeft, <, MemoryExpansionCost, EVMOutOfGas);
-  Frame->GasLeft -= MemoryExpansionCost;
-
-  // TODO: use EVMMemory class in the future
-  if (ReqSize > CurrentSize) {
-    Frame->Memory.resize(ReqSize, 0);
-  }
   uint8_t ByteValue = static_cast<uint8_t>(Value & intx::uint256{0xFF});
   Frame->Memory[Offset] = ByteValue;
 }
@@ -304,23 +308,10 @@ void MLoadHandler::doExecute() {
   EVM_FRAME_CHECK(Frame);
   EVM_STACK_CHECK(Frame, 1);
   intx::uint256 OffsetVal = Frame->pop();
+
   uint64_t Offset = uint256ToUint64(OffsetVal);
-
-  EVM_THROW_IF(Offset, >, UINT32_MAX, IntegerOverflow);
-
   uint64_t ReqSize = Offset + 32;
-  uint64_t CurrentSize = Frame->Memory.size();
-
-  // Calculate and charge memory expansion gas
-  uint64_t MemoryExpansionCost =
-      calculateMemoryExpansionCost(CurrentSize, ReqSize);
-  EVM_THROW_IF(Frame->GasLeft, <, MemoryExpansionCost, EVMOutOfGas);
-  Frame->GasLeft -= MemoryExpansionCost;
-
-  // TODO: use EVMMemory class in the future
-  if (ReqSize > CurrentSize) {
-    Frame->Memory.resize(ReqSize, 0);
-  }
+  expandMemoryAndChargeGas(Frame, ReqSize);
 
   uint8_t ValueBytes[32];
   // TODO: use EVMMemory class in the future
@@ -344,9 +335,9 @@ void JumpHandler::doExecute() {
   // We can assume that valid destination can't greater than uint64_t
   uint64_t Dest = uint256ToUint64(Frame->pop());
 
-  EVM_THROW_IF(Dest, >=, CodeSize, EVMBadJumpDestination);
-  EVM_THROW_IF(static_cast<evmc_opcode>(Code[Dest]), !=,
-               evmc_opcode::OP_JUMPDEST, EVMBadJumpDestination);
+  EVM_REQUIRE(Dest < CodeSize, EVMBadJumpDestination);
+  EVM_REQUIRE(static_cast<evmc_opcode>(Code[Dest]) == evmc_opcode::OP_JUMPDEST,
+              EVMBadJumpDestination);
 
   Frame->Pc = Dest;
   Context->IsJump = true;
@@ -369,9 +360,9 @@ void JumpIHandler::doExecute() {
   if (!Cond) {
     return;
   }
-  EVM_THROW_IF(Dest, >=, CodeSize, EVMBadJumpDestination);
-  EVM_THROW_IF(static_cast<evmc_opcode>(Code[Dest]), !=,
-               evmc_opcode::OP_JUMPDEST, EVMBadJumpDestination);
+  EVM_REQUIRE(Dest < CodeSize, EVMBadJumpDestination);
+  EVM_REQUIRE(static_cast<evmc_opcode>(Code[Dest]) == evmc_opcode::OP_JUMPDEST,
+              EVMBadJumpDestination);
 
   Frame->Pc = Dest;
   Context->IsJump = true;
@@ -410,17 +401,12 @@ void ReturnHandler::doExecute() {
   EVM_STACK_CHECK(Frame, 2);
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 SizeVal = Frame->pop();
+
   uint64_t Offset = uint256ToUint64(OffsetVal);
   uint64_t Size = uint256ToUint64(SizeVal);
-
-  // Check for overflow: Offset + Size > UINT32_MAX
-  EVM_THROW_IF(Offset + Size, >, UINT32_MAX, IntegerOverflow);
-
   uint64_t ReqSize = Offset + Size;
-  // TODO: use EVMMemory class in the future
-  if (ReqSize > Frame->Memory.size()) {
-    Frame->Memory.resize(ReqSize, 0);
-  }
+  expandMemoryAndChargeGas(Frame, ReqSize);
+
   // TODO: use EVMMemory class in the future
   std::vector<uint8_t> ReturnData(Frame->Memory.begin() + Offset,
                                   Frame->Memory.begin() + Offset + Size);
@@ -444,17 +430,12 @@ void RevertHandler::doExecute() {
   EVM_STACK_CHECK(Frame, 2);
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 SizeVal = Frame->pop();
+
   uint64_t Offset = uint256ToUint64(OffsetVal);
   uint64_t Size = uint256ToUint64(SizeVal);
-
-  // Check for overflow: Offset + Size > UINT32_MAX
-  EVM_THROW_IF(Offset + Size, >, UINT32_MAX, IntegerOverflow);
-
   uint64_t ReqSize = Offset + Size;
-  // TODO: use EVMMemory class in the future
-  if (ReqSize > Frame->Memory.size()) {
-    Frame->Memory.resize(ReqSize, 0);
-  }
+  expandMemoryAndChargeGas(Frame, ReqSize);
+
   std::vector<uint8_t> RevertData(Frame->Memory.begin() + Offset,
                                   Frame->Memory.begin() + Offset + Size);
 
@@ -482,7 +463,7 @@ void PUSHHandler::doExecute() {
   // PUSH1 ~ PUSH32
   uint32_t NumBytes =
       OpcodeByte - static_cast<uint8_t>(evmc_opcode::OP_PUSH1) + 1;
-  EVM_THROW_IF(Frame->Pc + NumBytes, >=, CodeSize, UnexpectedEnd);
+  EVM_REQUIRE(Frame->Pc + NumBytes < CodeSize, UnexpectedEnd);
   uint8_t ValueBytes[32];
   memset(ValueBytes, 0, sizeof(ValueBytes));
   std::memcpy(ValueBytes + (32 - NumBytes), Code + Frame->Pc + 1, NumBytes);
@@ -502,7 +483,7 @@ void DUPHandler::doExecute() {
   uint8_t OpcodeByte = Code[Frame->Pc];
   // DUP1 ~ DUP16
   uint32_t N = OpcodeByte - static_cast<uint8_t>(evmc_opcode::OP_DUP1) + 1;
-  EVM_THROW_IF(Frame->stackHeight(), <, N, UnexpectedNumArgs);
+  EVM_REQUIRE(Frame->stackHeight() >= N, UnexpectedNumArgs);
   intx::uint256 V = Frame->peek(N - 1);
   Frame->push(V);
 }
@@ -518,8 +499,10 @@ void SWAPHandler::doExecute() {
   uint8_t OpcodeByte = Code[Frame->Pc];
   // SWAP1 ~ SWAP16
   uint32_t N = OpcodeByte - static_cast<uint8_t>(evmc_opcode::OP_SWAP1) + 1;
-  EVM_THROW_IF(Frame->stackHeight(), <, N + 1, UnexpectedNumArgs);
+  EVM_REQUIRE(Frame->stackHeight() >= (N + 1), UnexpectedNumArgs);
   intx::uint256 &Top = Frame->peek(0);
   intx::uint256 &Nth = Frame->peek(N);
   std::swap(Top, Nth);
 }
+
+/* ---------- Implement opcode handlers end ---------- */

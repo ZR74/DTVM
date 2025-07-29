@@ -20,15 +20,9 @@
     throw zen::common::getError(zen::common::ErrorCode::EVMFrameNotFound);     \
   }
 
-// Generic condition check + exception throwing macro
-#define EVM_THROW_IF(Lhs, Op, Rhs, errorCode)                                  \
-  if ((Lhs)Op(Rhs)) {                                                          \
-    throw zen::common::getError(zen::common::ErrorCode::errorCode);            \
-  }
-
 // Simple boolean condition check macro
 #define EVM_REQUIRE(Condition, errorCode)                                      \
-  if (!Condition) {                                                            \
+  if (!(Condition)) {                                                          \
     throw zen::common::getError(zen::common::ErrorCode::errorCode);            \
   }
 
@@ -67,7 +61,7 @@ protected:
 public:
   void execute() {
     uint64_t GasCost = static_cast<Derived *>(this)->calculateGas();
-    EVM_THROW_IF(getFrame()->GasLeft, <, GasCost, EVMOutOfGas);
+    EVM_REQUIRE(getFrame()->GasLeft >= GasCost, EVMOutOfGas);
     getFrame()->GasLeft -= GasCost;
     static_cast<Derived *>(this)->doExecute();
   };
@@ -280,9 +274,6 @@ public:
   EVM_REGISTRY_GET(DUP);
   EVM_REGISTRY_GET(SWAP);
 };
-
-// Utility functions
-uint64_t calculateMemoryExpansionCost(uint64_t CurrentSize, uint64_t NewSize);
 
 } // namespace zen::evm
 
