@@ -105,6 +105,7 @@ DEFINE_NOT_TEMPLATE_CALCULATE_GAS(SelfBalance, OP_SELFBALANCE);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(BaseFee, OP_BASEFEE);
 // Storage operations
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(SLoad, OP_SLOAD);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(SStore, OP_SSTORE);
 
 // Memory operations
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(MStore, OP_MSTORE);
@@ -653,6 +654,30 @@ void SLoadHandler::doExecute() {
   intx::uint256 Value = intx::be::load<intx::uint256>(
       Frame->Host->get_storage(Frame->Msg->recipient, KeyAddr));
   Frame->push(Value);
+}
+void SStoreHandler::doExecute() {
+  auto *Frame = getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_REQUIRE(!Frame->isStaticMode(), EVMStaticModeViolation);
+
+  EVM_STACK_CHECK(Frame, 2);
+  const auto Key = intx::be::store<evmc::bytes32>(Frame->pop());
+  const auto Value = intx::be::store<evmc::bytes32>(Frame->pop());
+
+  const auto GasCostCold =
+      (Frame->Rev >= EVMC_BERLIN &&
+       Frame->Host->access_account(Frame->Msg->recipient) == EVMC_ACCESS_COLD)
+          ? COLD_SLOAD_COST
+          : 0;
+  const auto Status =
+      Frame->Host->set_storage(Frame->Msg->recipient, Key, Value);
+
+  const auto [GasCostWarm, GasReFund] = SstoreCosts[Frame->Rev][Status];
+
+  const auto GasCost = GasCostCold + GasCostWarm;
+  EVM_REQUIRE(Frame->GasLeft >= GasCost, EVMOutOfGas);
+  Frame->GasLeft -= GasCost;
+  Frame->GasRefund += GasReFund;
 }
 
 // Memory operations

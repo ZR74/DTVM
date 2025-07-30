@@ -6,6 +6,7 @@
 
 #include "common/errors.h"
 #include "evm/evm.h"
+#include "evm/gas_storage_cost.h"
 #include "evmc/evmc.hpp"
 #include "intx/intx.hpp"
 
@@ -70,6 +71,7 @@ struct EVMFrame {
       MTx = Host->get_tx_context();
     return MTx;
   }
+  bool isStaticMode() const { return (Msg->flags & EVMC_STATIC) != 0; }
 };
 
 class InterpreterExecContext {

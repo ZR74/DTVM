@@ -20,5 +20,6 @@ constexpr auto ACCOUNT_CREATION_COST = 25000;
 constexpr auto CALL_GAS_STIPEND = 2300;
 
 constexpr auto MAX_SIZE_OF_INITCODE = 0xC000;
+
 } // namespace evm
 } // namespace zen

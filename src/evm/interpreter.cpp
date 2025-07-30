@@ -341,7 +341,7 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_SSTORE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getSStoreHandler().execute();
       break;
     }
 
