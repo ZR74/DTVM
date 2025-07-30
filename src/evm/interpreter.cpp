@@ -36,6 +36,8 @@ void BaseInterpreter::interpret() {
   Context.allocFrame(Context.getInstance()->getGas());
   EVMFrame *Frame = Context.getCurFrame();
 
+  Context.setStatus(EVMC_SUCCESS);
+
   const EVMModule *Mod = Context.getInstance()->getModule();
 
   EVMResource::setExecutionContext(Frame, &Context);
@@ -376,43 +378,14 @@ void BaseInterpreter::interpret() {
       break;
     }
 
-    case evmc_opcode::OP_LOG0: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_LOG1: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_LOG2: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_LOG3: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
+    case evmc_opcode::OP_LOG0:
+    case evmc_opcode::OP_LOG1:
+    case evmc_opcode::OP_LOG2:
+    case evmc_opcode::OP_LOG3:
     case evmc_opcode::OP_LOG4: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_CREATE: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_CALL: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_CALLCODE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getLogHandler(
+          static_cast<evmc_opcode>(OpcodeByte))
+          .execute();
       break;
     }
 
@@ -422,21 +395,6 @@ void BaseInterpreter::interpret() {
       if (!Frame) {
         return;
       }
-      break;
-    }
-
-    case evmc_opcode::OP_DELEGATECALL: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_CREATE2: {
-      ZEN_ASSERT_TODO();
-      break;
-    }
-
-    case evmc_opcode::OP_STATICCALL: {
-      ZEN_ASSERT_TODO();
       break;
     }
 
@@ -454,7 +412,11 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_SELFDESTRUCT: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getSelfDestructHandler().execute();
+      Frame = Context.getCurFrame();
+      if (!Frame) {
+        return;
+      }
       break;
     }
 
@@ -462,17 +424,37 @@ void BaseInterpreter::interpret() {
       if (OpcodeByte >= static_cast<uint8_t>(evmc_opcode::OP_PUSH1) &&
           OpcodeByte <= static_cast<uint8_t>(evmc_opcode::OP_PUSH32)) {
         // PUSH1 ~ PUSH32
-        EVMOpcodeHandlerRegistry::getPUSHHandler().execute();
+        EVMOpcodeHandlerRegistry::getPushHandler(
+            static_cast<evmc_opcode>(OpcodeByte))
+            .execute();
         break;
       } else if (OpcodeByte >= static_cast<uint8_t>(evmc_opcode::OP_DUP1) &&
                  OpcodeByte <= static_cast<uint8_t>(evmc_opcode::OP_DUP16)) {
         // DUP1 ~ DUP16
-        EVMOpcodeHandlerRegistry::getDUPHandler().execute();
+        EVMOpcodeHandlerRegistry::getDupHandler(
+            static_cast<evmc_opcode>(OpcodeByte))
+            .execute();
         break;
       } else if (OpcodeByte >= static_cast<uint8_t>(evmc_opcode::OP_SWAP1) &&
                  OpcodeByte <= static_cast<uint8_t>(evmc_opcode::OP_SWAP16)) {
         // SWAP1 ~ SWAP16
-        EVMOpcodeHandlerRegistry::getSWAPHandler().execute();
+        EVMOpcodeHandlerRegistry::getSwapHandler(
+            static_cast<evmc_opcode>(OpcodeByte))
+            .execute();
+        break;
+      } else if (OpcodeByte == evmc_opcode::OP_CREATE or
+                 OpcodeByte == evmc_opcode::OP_CREATE2) {
+        EVMOpcodeHandlerRegistry::getCreateHandler(
+            static_cast<evmc_opcode>(OpcodeByte))
+            .execute();
+        break;
+      } else if (OpcodeByte == evmc_opcode::OP_CALL or
+                 OpcodeByte == evmc_opcode::OP_CALLCODE or
+                 OpcodeByte == evmc_opcode::OP_DELEGATECALL or
+                 OpcodeByte == evmc_opcode::OP_STATICCALL) {
+        EVMOpcodeHandlerRegistry::getCallHandler(
+            static_cast<evmc_opcode>(OpcodeByte))
+            .execute();
         break;
       } else {
         throw getError(ErrorCode::UnsupportedOpcode);
@@ -481,6 +463,43 @@ void BaseInterpreter::interpret() {
 
     if (IsJumpSuccess) {
       continue;
+    }
+
+    if (Context.getStatus() != EVMC_SUCCESS) {
+      // Handle execution errors according to EVM specification
+      evmc_status_code Status = Context.getStatus();
+
+      switch (Status) {
+      case EVMC_REVERT:
+        // REVERT: Keep remaining gas and return data
+        // Gas and return data are already set by RevertHandler
+        break;
+
+      case EVMC_OUT_OF_GAS:
+      case EVMC_STACK_OVERFLOW:
+      case EVMC_STACK_UNDERFLOW:
+      case EVMC_INVALID_INSTRUCTION:
+      case EVMC_UNDEFINED_INSTRUCTION:
+      case EVMC_BAD_JUMP_DESTINATION:
+      case EVMC_INVALID_MEMORY_ACCESS:
+      case EVMC_CALL_DEPTH_EXCEEDED:
+      case EVMC_STATIC_MODE_VIOLATION:
+      case EVMC_INSUFFICIENT_BALANCE:
+        // Fatal errors: consume all remaining gas and clear return data
+        Frame->GasLeft = 0;
+        Frame->GasRefund = 0;
+        Context.setReturnData(std::vector<uint8_t>());
+        break;
+
+      case EVMC_FAILURE:
+      default:
+        // Generic failure: consume all remaining gas and clear return data
+        Frame->GasLeft = 0;
+        Frame->GasRefund = 0;
+        Context.setReturnData(std::vector<uint8_t>());
+      }
+
+      break;
     }
 
     Frame->Pc++;

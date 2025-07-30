@@ -7,6 +7,7 @@
 #include "common/errors.h"
 #include "evm/interpreter.h"
 #include "evmc/instructions.h"
+#include <cstdint>
 
 // EVM error checking macro definitions
 #define EVM_STACK_CHECK(FramePtr, N)                                           \
@@ -29,6 +30,13 @@
 #define EVM_REGISTRY_GET(OpName)                                               \
   static OpName##Handler get##OpName##Handler() {                              \
     static OpName##Handler OpName;                                             \
+    return OpName;                                                             \
+  }
+
+#define EVM_REGISTRY_GET_MULTIOPCODE(OpName)                                   \
+  static OpName##Handler get##OpName##Handler(evmc_opcode OpCode) {            \
+    static OpName##Handler OpName;                                             \
+    OpName.OpCode = OpCode;                                                    \
     return OpName;                                                             \
   }
 
@@ -61,7 +69,10 @@ protected:
 public:
   void execute() {
     uint64_t GasCost = static_cast<Derived *>(this)->calculateGas();
-    EVM_REQUIRE(getFrame()->GasLeft >= GasCost, EVMOutOfGas);
+    if ((uint64_t)getFrame()->GasLeft < GasCost) {
+      getContext()->setStatus(EVMC_OUT_OF_GAS);
+      return;
+    }
     getFrame()->GasLeft -= GasCost;
     static_cast<Derived *>(this)->doExecute();
   };
@@ -70,9 +81,12 @@ public:
 template <typename UnaryOp>
 class UnaryOpHandler : public EVMOpcodeHandlerBase<UnaryOpHandler<UnaryOp>> {
 public:
+  static EVMFrame *getFrame() { return EVMResource::getCurFrame(); }
+  static InterpreterExecContext *getContext() {
+    return EVMResource::getInterpreterExecContext();
+  }
   static void doExecute() {
-    using Base = EVMOpcodeHandlerBase<UnaryOpHandler<UnaryOp>>;
-    auto *Frame = Base::getFrame();
+    auto *Frame = getFrame();
     EVM_STACK_CHECK(Frame, 1);
 
     intx::uint256 A = Frame->pop();
@@ -86,9 +100,12 @@ public:
 template <typename BinaryOp>
 class BinaryOpHandler : public EVMOpcodeHandlerBase<BinaryOpHandler<BinaryOp>> {
 public:
+  static EVMFrame *getFrame() { return EVMResource::getCurFrame(); }
+  static InterpreterExecContext *getContext() {
+    return EVMResource::getInterpreterExecContext();
+  }
   static void doExecute() {
-    using Base = EVMOpcodeHandlerBase<BinaryOpHandler<BinaryOp>>;
-    auto *Frame = Base::getFrame();
+    auto *Frame = getFrame();
     EVM_STACK_CHECK(Frame, 2);
 
     intx::uint256 A = Frame->pop();
@@ -104,9 +121,12 @@ template <typename TernaryOp>
 class TernaryOpHandler
     : public EVMOpcodeHandlerBase<TernaryOpHandler<TernaryOp>> {
 public:
+  static EVMFrame *getFrame() { return EVMResource::getCurFrame(); }
+  static InterpreterExecContext *getContext() {
+    return EVMResource::getInterpreterExecContext();
+  }
   static void doExecute() {
-    using Base = EVMOpcodeHandlerBase<TernaryOpHandler<TernaryOp>>;
-    auto *Frame = Base::getFrame();
+    auto *Frame = getFrame();
     EVM_STACK_CHECK(Frame, 3);
 
     intx::uint256 A = Frame->pop();
@@ -179,6 +199,22 @@ DEFINE_BINARY_OP(Sgt, intx::slt(B, A));
 #define DEFINE_UNIMPLEMENT_HANDLER(OpName)                                     \
   class OpName##Handler : public EVMOpcodeHandlerBase<OpName##Handler> {       \
   public:                                                                      \
+    static EVMFrame *getFrame() { return EVMResource::getCurFrame(); }         \
+    static InterpreterExecContext *getContext() {                              \
+      return EVMResource::getInterpreterExecContext();                         \
+    }                                                                          \
+    static void doExecute();                                                   \
+    static uint64_t calculateGas();                                            \
+  };
+
+#define DEFINE_MULTIOPCODE_UNIMPLEMENT_HANDLER(OpName)                         \
+  class OpName##Handler : public EVMOpcodeHandlerBase<OpName##Handler> {       \
+  public:                                                                      \
+    inline static evmc_opcode OpCode = OP_INVALID;                             \
+    static EVMFrame *getFrame() { return EVMResource::getCurFrame(); }         \
+    static InterpreterExecContext *getContext() {                              \
+      return EVMResource::getInterpreterExecContext();                         \
+    }                                                                          \
     static void doExecute();                                                   \
     static uint64_t calculateGas();                                            \
   };
@@ -238,9 +274,19 @@ DEFINE_UNIMPLEMENT_HANDLER(Return);
 DEFINE_UNIMPLEMENT_HANDLER(Revert);
 
 // Stack operations
-DEFINE_UNIMPLEMENT_HANDLER(PUSH);
-DEFINE_UNIMPLEMENT_HANDLER(DUP);
-DEFINE_UNIMPLEMENT_HANDLER(SWAP);
+DEFINE_MULTIOPCODE_UNIMPLEMENT_HANDLER(Push);
+DEFINE_MULTIOPCODE_UNIMPLEMENT_HANDLER(Dup);
+DEFINE_MULTIOPCODE_UNIMPLEMENT_HANDLER(Swap);
+
+// Call operations
+DEFINE_MULTIOPCODE_UNIMPLEMENT_HANDLER(Create);
+DEFINE_MULTIOPCODE_UNIMPLEMENT_HANDLER(Call);
+
+// Logging operations
+DEFINE_MULTIOPCODE_UNIMPLEMENT_HANDLER(Log);
+
+// Self-destruct operation
+DEFINE_UNIMPLEMENT_HANDLER(SelfDestruct);
 
 // Registry class to manage execution context
 class EVMOpcodeHandlerRegistry {
@@ -319,9 +365,16 @@ public:
   EVM_REGISTRY_GET(Return);
   EVM_REGISTRY_GET(Revert);
   // Stack operations
-  EVM_REGISTRY_GET(PUSH);
-  EVM_REGISTRY_GET(DUP);
-  EVM_REGISTRY_GET(SWAP);
+  EVM_REGISTRY_GET_MULTIOPCODE(Push);
+  EVM_REGISTRY_GET_MULTIOPCODE(Dup);
+  EVM_REGISTRY_GET_MULTIOPCODE(Swap);
+  // Call operations
+  EVM_REGISTRY_GET_MULTIOPCODE(Create);
+  EVM_REGISTRY_GET_MULTIOPCODE(Call);
+  // Logging operations
+  EVM_REGISTRY_GET_MULTIOPCODE(Log);
+  // Self-destruct operation
+  EVM_REGISTRY_GET(SelfDestruct);
 };
 
 } // namespace zen::evm
