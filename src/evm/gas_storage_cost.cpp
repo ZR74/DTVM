@@ -1,7 +1,7 @@
 // Copyright (C) 2021-2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-#include "evm/evm.h"
+#include "evm/gas_storage_cost.h"
 
 namespace zen {
 namespace evm {
@@ -18,7 +18,7 @@ struct StorageCostSpec {
 /// TODO: This can be moved to instruction traits and be used in other places:
 /// e.g.
 ///       SLOAD cost, replacement for warm_storage_read_cost.
-const auto storageCostSpec = []() noexcept {
+const auto StorageCostSpecTable = []() noexcept {
   std::array<StorageCostSpec, EVMC_MAX_REVISION + 1> Tbl{};
 
   // Legacy cost schedule.
@@ -54,7 +54,7 @@ extern const std::array<
 
       for (size_t Rev = EVMC_FRONTIER; Rev <= EVMC_MAX_REVISION; ++Rev) {
         auto &E = Tbl[Rev];
-        if (const auto C = storageCostSpec[Rev]; !C.NetCost) // legacy
+        if (const auto C = StorageCostSpecTable[Rev]; !C.NetCost) // legacy
         {
           E[EVMC_STORAGE_ADDED] = {C.Set, 0};
           E[EVMC_STORAGE_DELETED] = {C.ReSet, C.Clear};
