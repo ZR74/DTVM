@@ -658,7 +658,7 @@ void SLoadHandler::doExecute() {
 void SStoreHandler::doExecute() {
   auto *Frame = getFrame();
   EVM_FRAME_CHECK(Frame);
-  EVM_REQUIRE(!Frame->in_static_mode(), EVMStaticModeViolation);
+  EVM_REQUIRE(!Frame->isStaticMode(), EVMStaticModeViolation);
 
   EVM_STACK_CHECK(Frame, 2);
   const auto Key = intx::be::store<evmc::bytes32>(Frame->pop());
@@ -672,7 +672,7 @@ void SStoreHandler::doExecute() {
   const auto Status =
       Frame->Host->set_storage(Frame->Msg->recipient, Key, Value);
 
-  const auto [GasCostWarm, GasReFund] = sstore_costs[Frame->Rev][Status];
+  const auto [GasCostWarm, GasReFund] = SstoreCosts[Frame->Rev][Status];
 
   const auto GasCost = GasCostCold + GasCostWarm;
   EVM_REQUIRE(Frame->GasLeft >= GasCost, EVMOutOfGas);
