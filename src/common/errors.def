@@ -179,6 +179,9 @@ DEFINE_ERROR(Execution,     None,   EVMFrameNotFound,          "EVMFrame is null
 // EVM Error: About Memory
 DEFINE_ERROR(Execution,     None,   EVMTooLargeRequiredMemory, "EVM Required Memory is too large") 
 
+// EVM Error: About Storage
+DEFINE_ERROR(Execution,     None,   EVMStaticModeViolation, "Prohibit modification of the storage") 
+
 #endif
 
 #ifdef DEFINE_DWASM_ERROR

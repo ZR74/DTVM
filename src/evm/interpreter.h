@@ -70,6 +70,7 @@ struct EVMFrame {
       MTx = Host->get_tx_context();
     return MTx;
   }
+  bool in_static_mode() const { return (Msg->flags & EVMC_STATIC) != 0; }
 };
 
 class InterpreterExecContext {

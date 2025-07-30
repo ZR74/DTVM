@@ -248,6 +248,7 @@ DEFINE_UNIMPLEMENT_HANDLER(SelfBalance);
 DEFINE_UNIMPLEMENT_HANDLER(BaseFee);
 // storage operations
 DEFINE_UNIMPLEMENT_HANDLER(SLoad);
+DEFINE_UNIMPLEMENT_HANDLER(SStore);
 
 // Arithmetic operations
 DEFINE_UNIMPLEMENT_HANDLER(SignExtend);
@@ -348,7 +349,7 @@ public:
   EVM_REGISTRY_GET(BaseFee);
   // storage operations
   EVM_REGISTRY_GET(SLoad);
-
+  EVM_REGISTRY_GET(SStore);
   // Memory operations
   EVM_REGISTRY_GET(MStore);
   EVM_REGISTRY_GET(MStore8);
