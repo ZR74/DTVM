@@ -74,6 +74,30 @@ DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Sar, OP_SAR);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Address, OP_ADDRESS);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Balance, OP_BALANCE);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Origin, OP_ORIGIN);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Caller, OP_CALLER);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(CallValue, OP_CALLVALUE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(CallDataLoad, OP_CALLDATALOAD);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(CallDataSize, OP_CALLDATASIZE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(CallDataCopy, OP_CALLDATACOPY);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(CodeSize, OP_CODESIZE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(CodeCopy, OP_CODECOPY);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(GasPrice, OP_GASPRICE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(ExtCodeSize, OP_EXTCODESIZE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(ExtCodeCopy, OP_EXTCODECOPY);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(ReturnDataSize, OP_RETURNDATASIZE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(ReturnDataCopy, OP_RETURNDATACOPY);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(ExtCodeHash, OP_EXTCODEHASH);
+// Block message
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(BlockHash, OP_BLOCKHASH);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(CoinBase, OP_COINBASE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(TimeStamp, OP_TIMESTAMP);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Number, OP_NUMBER);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(PrevRanDao, OP_PREVRANDAO);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(ChainId, OP_CHAINID);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(SelfBalance, OP_SELFBALANCE);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(BaseFee, OP_BASEFEE);
+// Storage operations
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(SLoad, OP_SLOAD);
 
 // Memory operations
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(MStore, OP_MSTORE);
@@ -143,6 +167,26 @@ void expandMemoryAndChargeGas(EVMFrame *Frame, uint64_t RequiredSize) {
   if (RequiredSize > CurrentSize) {
     Frame->Memory.resize(RequiredSize, 0);
   }
+}
+
+// Check memory requirements of a reasonable size.
+void checkMemoryExpandAndChargeGas(EVMFrame *Frame, const intx::uint256 &Offset,
+                                   uint64_t Size) {
+  EVM_REQUIRE(Offset <= std::numeric_limits<uint64_t>::max(),
+              EVMTooLargeRequiredMemory);
+  EVM_REQUIRE(static_cast<uint64_t>(Offset) < UINT64_MAX - Size,
+              IntegerOverflow);
+  const auto NewSize = static_cast<uint64_t>(Offset) + Size;
+  expandMemoryAndChargeGas(Frame, NewSize);
+}
+void checkMemoryExpandAndChargeGas(EVMFrame *Frame, const intx::uint256 &Offset,
+                                   const intx::uint256 &Size) {
+  if (Size == 0) {
+    return; // No memory required
+  }
+  EVM_REQUIRE(Size <= std::numeric_limits<uint64_t>::max(),
+              EVMTooLargeRequiredMemory);
+  checkMemoryExpandAndChargeGas(Frame, Offset, static_cast<uint64_t>(Size));
 }
 
 // Convert uint256 to uint64
@@ -248,12 +292,9 @@ void BalanceHandler::doExecute() {
 
   if (Frame->Rev >= EVMC_BERLIN &&
       Frame->Host->access_account(Addr) == EVMC_ACCESS_COLD) {
-    constexpr auto ColdAccountAccessCost = 2600;
-    constexpr auto WarmAccountAccessCost = 100;
-    constexpr auto AdditionalColdAccountAccessCost =
-        ColdAccountAccessCost - WarmAccountAccessCost;
-    EVM_REQUIRE(Frame->GasLeft >= AdditionalColdAccountAccessCost, EVMOutOfGas);
-    Frame->GasLeft -= AdditionalColdAccountAccessCost;
+    EVM_REQUIRE(Frame->GasLeft >= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST,
+                EVMOutOfGas);
+    Frame->GasLeft -= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST;
   }
 
   intx::uint256 Balance =
@@ -266,6 +307,336 @@ void OriginHandler::doExecute() {
   EVM_FRAME_CHECK(Frame);
   Frame->push(intx::be::load<intx::uint256>(Frame->get_tx_context().tx_origin));
 }
+void CallerHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CallerHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(intx::be::load<intx::uint256>(Frame->Msg->sender));
+}
+void CallValueHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CallValueHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(intx::be::load<intx::uint256>(Frame->Msg->value));
+}
+void CallDataLoadHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CallDataLoadHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 1);
+  intx::uint256 OffsetVal = Frame->pop();
+  uint64_t Offset = uint256ToUint64(OffsetVal);
+
+  if (Offset >= Frame->Msg->input_size) {
+    Frame->push(intx::uint256(0));
+    return;
+  }
+
+  uint8_t DataBytes[32] = {0};
+  std::memcpy(DataBytes, Frame->Msg->input_data + Offset,
+              std::min<size_t>(32, Frame->Msg->input_size - Offset));
+
+  intx::uint256 Value = intx::be::load<intx::uint256>(DataBytes);
+  Frame->push(Value);
+}
+void CallDataSizeHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CallDataSizeHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(intx::uint256(Frame->Msg->input_size));
+}
+void CallDataCopyHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CallDataCopyHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 3);
+  intx::uint256 DestOffsetVal = Frame->pop();
+  intx::uint256 OffsetVal = Frame->pop();
+  intx::uint256 SizeVal = Frame->pop();
+  // Ensure memory is large enough
+  checkMemoryExpandAndChargeGas(Frame, DestOffsetVal, SizeVal);
+
+  uint64_t DestOffset = uint256ToUint64(DestOffsetVal);
+  uint64_t Offset = uint256ToUint64(OffsetVal);
+  uint64_t Size = uint256ToUint64(SizeVal);
+
+  auto src = Frame->Msg->input_size < Offset ? Frame->Msg->input_size : Offset;
+  auto copy_size = std::min(Size, Frame->Msg->input_size - src);
+
+  // Copy data to memory
+  if (copy_size > 0) {
+    std::memcpy(Frame->Memory.data() + DestOffset, Frame->Msg->input_data + src,
+                copy_size);
+  }
+  if (Size > copy_size) {
+    // Fill the rest with zeros if Size is larger than the actual copied size
+    std::memset(Frame->Memory.data() + DestOffset + copy_size, 0,
+                Size - copy_size);
+  }
+}
+void CodeSizeHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CodeSizeHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+
+  auto *Context = Base::getContext();
+  auto *Inst = Context->getInstance();
+  auto *Mod = Inst->getModule();
+  size_t CodeSize = Mod->CodeSize;
+
+  Frame->push(intx::uint256(CodeSize));
+}
+void CodeCopyHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CodeCopyHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 3);
+
+  auto *Context = Base::getContext();
+  auto *Inst = Context->getInstance();
+  auto *Mod = Inst->getModule();
+  const uint8_t *Code = Mod->Code;
+  size_t CodeSize = Mod->CodeSize;
+
+  intx::uint256 DestOffsetVal = Frame->pop();
+  intx::uint256 OffsetVal = Frame->pop();
+  intx::uint256 SizeVal = Frame->pop();
+  // Ensure memory is large enough
+  checkMemoryExpandAndChargeGas(Frame, DestOffsetVal, SizeVal);
+
+  uint64_t DestOffset = uint256ToUint64(DestOffsetVal);
+  uint64_t Offset = uint256ToUint64(OffsetVal);
+  uint64_t Size = uint256ToUint64(SizeVal);
+
+  // Copy code to memory
+  if (Offset < CodeSize) {
+    auto copy_size = std::min(Size, CodeSize - Offset);
+    std::memcpy(Frame->Memory.data() + DestOffset, Code + Offset, copy_size);
+    if (Size > copy_size) {
+      // Fill the rest with zeros if Size is larger than the actual copied size
+      std::memset(Frame->Memory.data() + DestOffset + copy_size, 0,
+                  Size - copy_size);
+    }
+  } else {
+    // If Offset is beyond the code size, fill with zeros
+    if (Size > 0) {
+      std::memset(Frame->Memory.data() + DestOffset, 0, Size);
+    }
+  }
+}
+void GasPriceHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<GasPriceHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(
+      intx::be::load<intx::uint256>(Frame->get_tx_context().tx_gas_price));
+}
+void ExtCodeSizeHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<ExtCodeSizeHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 1);
+  intx::uint256 X = Frame->pop();
+  const auto Addr = intx::be::trunc<evmc::address>(X);
+
+  if (Frame->Rev >= EVMC_BERLIN &&
+      Frame->Host->access_account(Addr) == EVMC_ACCESS_COLD) {
+    EVM_REQUIRE(Frame->GasLeft >= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST,
+                EVMOutOfGas);
+    Frame->GasLeft -= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST;
+  }
+
+  size_t CodeSize = Frame->Host->get_code_size(Addr);
+  Frame->push(intx::uint256(CodeSize));
+}
+void ExtCodeCopyHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<ExtCodeCopyHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 4);
+  intx::uint256 X = Frame->pop();
+  intx::uint256 DestOffsetVal = Frame->pop();
+  intx::uint256 OffsetVal = Frame->pop();
+  intx::uint256 SizeVal = Frame->pop();
+  const auto Addr = intx::be::trunc<evmc::address>(X);
+
+  // Ensure memory is large enough
+  checkMemoryExpandAndChargeGas(Frame, DestOffsetVal, SizeVal);
+
+  uint64_t DestOffset = uint256ToUint64(DestOffsetVal);
+  uint64_t Offset = uint256ToUint64(OffsetVal);
+  uint64_t Size = uint256ToUint64(SizeVal);
+
+  if (Frame->Rev >= EVMC_BERLIN &&
+      Frame->Host->access_account(Addr) == EVMC_ACCESS_COLD) {
+    EVM_REQUIRE(Frame->GasLeft >= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST,
+                EVMOutOfGas);
+    Frame->GasLeft -= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST;
+  }
+
+  size_t CodeSize = Frame->Host->get_code_size(Addr);
+
+  if (Offset >= CodeSize) {
+    // If Offset is beyond the code size, fill with zeros
+    if (Size > 0) {
+      std::memset(Frame->Memory.data() + DestOffset, 0, Size);
+    }
+  } else {
+    // Copy code to memory
+    auto copy_size = std::min(Size, CodeSize - Offset);
+    size_t CopiedSize = Frame->Host->copy_code(
+        Addr, Offset, Frame->Memory.data() + DestOffset, copy_size);
+    if (CopiedSize < Size) {
+      // If the copied size is less than requested, fill the rest with zeros
+      std::memset(Frame->Memory.data() + DestOffset + CopiedSize, 0,
+                  Size - CopiedSize);
+    }
+  }
+}
+void ReturnDataSizeHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<ReturnDataSizeHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  auto *Context = Base::getContext();
+  const auto &ReturnData = Context->getReturnData();
+  Frame->push(ReturnData.size());
+}
+void ReturnDataCopyHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<ReturnDataCopyHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 3);
+  intx::uint256 DestOffsetVal = Frame->pop();
+  intx::uint256 OffsetVal = Frame->pop();
+  intx::uint256 SizeVal = Frame->pop();
+  // Ensure memory is large enough
+  checkMemoryExpandAndChargeGas(Frame, DestOffsetVal, SizeVal);
+
+  uint64_t DestOffset = uint256ToUint64(DestOffsetVal);
+  uint64_t Offset = uint256ToUint64(OffsetVal);
+  uint64_t Size = uint256ToUint64(SizeVal);
+
+  auto *Context = Base::getContext();
+  const auto &ReturnData = Context->getReturnData();
+
+  if (Offset >= ReturnData.size()) {
+    // If Offset is beyond the return data size, fill with zeros
+    if (Size > 0) {
+      std::memset(Frame->Memory.data() + DestOffset, 0, Size);
+    }
+    return;
+  }
+
+  // Copy return data to memory
+  auto copy_size = std::min(Size, ReturnData.size() - Offset);
+
+  std::memcpy(Frame->Memory.data() + DestOffset, ReturnData.data() + Offset,
+              copy_size);
+
+  if (Size > copy_size) {
+    // Fill the rest with zeros if Size is larger than the actual copied size
+    std::memset(Frame->Memory.data() + DestOffset + copy_size, 0,
+                Size - copy_size);
+  }
+}
+void ExtCodeHashHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<ExtCodeHashHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 1);
+  intx::uint256 X = Frame->pop();
+  const auto Addr = intx::be::trunc<evmc::address>(X);
+
+  if (Frame->Rev >= EVMC_BERLIN &&
+      Frame->Host->access_account(Addr) == EVMC_ACCESS_COLD) {
+    EVM_REQUIRE(Frame->GasLeft >= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST,
+                EVMOutOfGas);
+    Frame->GasLeft -= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST;
+  }
+
+  Frame->push(intx::be::load<intx::uint256>(Frame->Host->get_code_hash(Addr)));
+}
+
+// block message operations
+void BlockHashHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<BlockHashHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 1);
+  intx::uint256 BlockNumberVal = Frame->pop();
+
+  const auto UpperBound = Frame->get_tx_context().block_number;
+  const auto LowerBound = std::max(UpperBound - 256, decltype(UpperBound){0});
+  int64_t BlockNumber = static_cast<int64_t>(BlockNumberVal);
+  const auto Header = (BlockNumberVal < UpperBound && BlockNumber >= LowerBound)
+                          ? Frame->Host->get_block_hash(BlockNumber)
+                          : evmc::bytes32{};
+  Frame->push(intx::be::load<intx::uint256>(Header));
+}
+void CoinBaseHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<CoinBaseHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(
+      intx::be::load<intx::uint256>(Frame->get_tx_context().block_coinbase));
+}
+void TimeStampHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<TimeStampHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(intx::uint256(Frame->get_tx_context().block_timestamp));
+}
+void NumberHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<NumberHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(intx::uint256(Frame->get_tx_context().block_number));
+}
+void PrevRanDaoHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<PrevRanDaoHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(
+      intx::be::load<intx::uint256>(Frame->get_tx_context().block_prev_randao));
+}
+void ChainIdHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<ChainIdHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(intx::be::load<intx::uint256>(Frame->get_tx_context().chain_id));
+}
+void SelfBalanceHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<SelfBalanceHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(intx::be::load<intx::uint256>(
+      Frame->Host->get_balance(Frame->Msg->recipient)));
+}
+void BaseFeeHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<BaseFeeHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(
+      intx::be::load<intx::uint256>(Frame->get_tx_context().block_base_fee));
+}
+// Storage operations
+void SLoadHandler::doExecute() {
+  using Base = EVMOpcodeHandlerBase<SLoadHandler>;
+  auto *Frame = Base::getFrame();
+  EVM_FRAME_CHECK(Frame);
+  EVM_STACK_CHECK(Frame, 1);
+  intx::uint256 Key = Frame->pop();
+  const auto KeyAddr = intx::be::store<evmc::bytes32>(Key);
+  if (Frame->Rev >= EVMC_BERLIN &&
+      Frame->Host->access_account(Frame->Msg->recipient) == EVMC_ACCESS_COLD) {
+    EVM_REQUIRE(Frame->GasLeft >= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST,
+                EVMOutOfGas);
+    Frame->GasLeft -= ADDITIONAL_COLD_ACCOUNT_ACCESS_COST;
+  }
+  intx::uint256 Value = intx::be::load<intx::uint256>(
+      Frame->Host->get_storage(Frame->Msg->recipient, KeyAddr));
+  Frame->push(Value);
+}
 
 // Memory operations
 void MStoreHandler::doExecute() {
@@ -276,9 +647,8 @@ void MStoreHandler::doExecute() {
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 Value = Frame->pop();
 
+  checkMemoryExpandAndChargeGas(Frame, OffsetVal, 32);
   uint64_t Offset = uint256ToUint64(OffsetVal);
-  uint64_t ReqSize = Offset + 32;
-  expandMemoryAndChargeGas(Frame, ReqSize);
 
   uint8_t ValueBytes[32];
   intx::be::store(ValueBytes, Value);
@@ -294,9 +664,8 @@ void MStore8Handler::doExecute() {
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 Value = Frame->pop();
 
+  checkMemoryExpandAndChargeGas(Frame, OffsetVal, 1);
   uint64_t Offset = uint256ToUint64(OffsetVal);
-  uint64_t ReqSize = Offset + 1;
-  expandMemoryAndChargeGas(Frame, ReqSize);
 
   uint8_t ByteValue = static_cast<uint8_t>(Value & intx::uint256{0xFF});
   Frame->Memory[Offset] = ByteValue;
@@ -309,9 +678,8 @@ void MLoadHandler::doExecute() {
   EVM_STACK_CHECK(Frame, 1);
   intx::uint256 OffsetVal = Frame->pop();
 
+  checkMemoryExpandAndChargeGas(Frame, OffsetVal, 32);
   uint64_t Offset = uint256ToUint64(OffsetVal);
-  uint64_t ReqSize = Offset + 32;
-  expandMemoryAndChargeGas(Frame, ReqSize);
 
   uint8_t ValueBytes[32];
   // TODO: use EVMMemory class in the future
@@ -402,10 +770,9 @@ void ReturnHandler::doExecute() {
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 SizeVal = Frame->pop();
 
+  checkMemoryExpandAndChargeGas(Frame, OffsetVal, SizeVal);
   uint64_t Offset = uint256ToUint64(OffsetVal);
   uint64_t Size = uint256ToUint64(SizeVal);
-  uint64_t ReqSize = Offset + Size;
-  expandMemoryAndChargeGas(Frame, ReqSize);
 
   // TODO: use EVMMemory class in the future
   std::vector<uint8_t> ReturnData(Frame->Memory.begin() + Offset,
@@ -431,10 +798,9 @@ void RevertHandler::doExecute() {
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 SizeVal = Frame->pop();
 
+  checkMemoryExpandAndChargeGas(Frame, OffsetVal, SizeVal);
   uint64_t Offset = uint256ToUint64(OffsetVal);
   uint64_t Size = uint256ToUint64(SizeVal);
-  uint64_t ReqSize = Offset + Size;
-  expandMemoryAndChargeGas(Frame, ReqSize);
 
   std::vector<uint8_t> RevertData(Frame->Memory.begin() + Offset,
                                   Frame->Memory.begin() + Offset + Size);

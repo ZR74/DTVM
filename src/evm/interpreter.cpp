@@ -203,92 +203,92 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_CALLER: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCallerHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_CALLVALUE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCallValueHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_CALLDATALOAD: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCallDataLoadHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_CALLDATASIZE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCallDataSizeHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_CALLDATACOPY: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCallDataCopyHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_CODESIZE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCodeSizeHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_CODECOPY: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCodeCopyHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_GASPRICE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getGasPriceHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_EXTCODESIZE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getExtCodeSizeHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_EXTCODECOPY: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getExtCodeCopyHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_RETURNDATASIZE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getReturnDataSizeHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_RETURNDATACOPY: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getReturnDataCopyHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_EXTCODEHASH: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getExtCodeHashHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_BLOCKHASH: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getBlockHashHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_COINBASE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getCoinBaseHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_TIMESTAMP: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getTimeStampHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_NUMBER: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getNumberHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_PREVRANDAO: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getPrevRanDaoHandler().execute();
       break;
     }
 
@@ -298,17 +298,17 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_CHAINID: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getChainIdHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_SELFBALANCE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getSelfBalanceHandler().execute();
       break;
     }
 
     case evmc_opcode::OP_BASEFEE: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getBaseFeeHandler().execute();
       break;
     }
 
@@ -334,7 +334,7 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_SLOAD: {
-      ZEN_ASSERT_TODO();
+      EVMOpcodeHandlerRegistry::getSLoadHandler().execute();
       break;
     }
 
