@@ -13,12 +13,34 @@ using namespace zen::runtime;
 using zen::common::ErrorCode;
 using zen::common::getError;
 
-EVMFrame *InterpreterExecContext::allocFrame(uint64_t GasLimit) {
+EVMFrame *InterpreterExecContext::allocFrame(
+    evmc_message *ParentMsg, uint64_t GasLimit, evmc_call_kind Kind,
+    evmc::address Recipient, evmc::address Sender,
+    std::vector<uint8_t> CallData, intx::uint256 Value) {
   FrameStack.emplace_back();
 
   EVMFrame &Frame = FrameStack.back();
-  Frame.GasLimit = GasLimit;
-  Frame.GasLeft = GasLimit;
+
+  Frame.Msg = std::make_unique<evmc_message>();
+  Frame.Msg->kind = Kind;
+  Frame.Msg->flags = ParentMsg->flags;
+  Frame.Msg->depth = ParentMsg->depth + 1;
+  Frame.Msg->gas = GasLimit;
+  Frame.Msg->value = intx::be::store<evmc::bytes32>(Value);
+  Frame.Msg->recipient = Recipient;
+  Frame.Msg->sender = Sender;
+  Frame.Msg->input_data = CallData.data();
+  Frame.Msg->input_size = CallData.size();
+
+  return &Frame;
+}
+
+EVMFrame *InterpreterExecContext::allocFrame(evmc_message *Msg) {
+  FrameStack.emplace_back();
+
+  EVMFrame &Frame = FrameStack.back();
+
+  Frame.Msg = std::make_unique<evmc_message>(*Msg);
 
   return &Frame;
 }
@@ -33,8 +55,9 @@ void InterpreterExecContext::freeBackFrame() {
 }
 
 void BaseInterpreter::interpret() {
-  Context.allocFrame(Context.getInstance()->getGas());
   EVMFrame *Frame = Context.getCurFrame();
+
+  EVM_FRAME_CHECK(Frame);
 
   Context.setStatus(EVMC_SUCCESS);
 
@@ -44,6 +67,8 @@ void BaseInterpreter::interpret() {
 
   size_t CodeSize = Mod->CodeSize;
   uint8_t *Code = Mod->Code;
+
+  Frame->Host = Context.getInstance()->getRuntime()->getEVMHost();
 
   while (Frame->Pc < CodeSize) {
     uint8_t OpcodeByte = Code[Frame->Pc];
@@ -420,6 +445,11 @@ void BaseInterpreter::interpret() {
       break;
     }
 
+    case evmc_opcode::OP_PUSH0: { // PUSH0 (EIP-3855)
+      Frame->push(0);
+      break;
+    }
+
     default:
       if (OpcodeByte >= static_cast<uint8_t>(evmc_opcode::OP_PUSH1) &&
           OpcodeByte <= static_cast<uint8_t>(evmc_opcode::OP_PUSH32)) {
@@ -486,7 +516,7 @@ void BaseInterpreter::interpret() {
       case EVMC_STATIC_MODE_VIOLATION:
       case EVMC_INSUFFICIENT_BALANCE:
         // Fatal errors: consume all remaining gas and clear return data
-        Frame->GasLeft = 0;
+        Frame->Msg->gas = 0;
         Frame->GasRefund = 0;
         Context.setReturnData(std::vector<uint8_t>());
         break;
@@ -494,7 +524,7 @@ void BaseInterpreter::interpret() {
       case EVMC_FAILURE:
       default:
         // Generic failure: consume all remaining gas and clear return data
-        Frame->GasLeft = 0;
+        Frame->Msg->gas = 0;
         Frame->GasRefund = 0;
         Context.setReturnData(std::vector<uint8_t>());
       }

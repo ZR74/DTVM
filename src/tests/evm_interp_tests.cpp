@@ -111,6 +111,15 @@ TEST_P(EVMSampleTest, ExecuteSample) {
   InterpreterExecContext Ctx(Inst);
 
   BaseInterpreter Interpreter(Ctx);
+
+  evmc_message Msg = {
+      .kind = EVMC_CREATE,
+      .flags = 0,
+      .depth = 0,
+      .gas = (long)GasLimit,
+  };
+  Ctx.allocFrame(&Msg);
+
   EXPECT_NO_THROW({ Interpreter.interpret(); });
 
   const auto &Ret = Ctx.getReturnData();
