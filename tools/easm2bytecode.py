@@ -45,7 +45,7 @@ def evm_to_bytecode(input_file_path, output_file_path):
         "SAR": "1D",
 
         # 2x: cryptographic operations
-        "SHA3": "20",
+        "KECCAK256": "20",
 
         # 3x: environmental information
         "ADDRESS": "30",
@@ -70,10 +70,11 @@ def evm_to_bytecode(input_file_path, output_file_path):
         "COINBASE": "41",
         "TIMESTAMP": "42",
         "NUMBER": "43",
-        "DIFFICULTY": "44",
+        "PREVRANDAO": "44",
         "GASLIMIT": "45",
         "CHAINID": "46",
         "SELFBALANCE": "47",
+        "BASEFEE": "48",
 
         # 5x: storage and memory operations
         "POP": "50",
@@ -90,6 +91,7 @@ def evm_to_bytecode(input_file_path, output_file_path):
         "JUMPDEST": "5B",
 
         # 6x: Push operations
+        "PUSH0": "5F",  # Note: PUSH0 is not a standard EVM instruction, but used for clarity
         "PUSH1": "60",
         "PUSH2": "61",
         "PUSH3": "62",

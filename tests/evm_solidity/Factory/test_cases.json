@@ -1,0 +1,36 @@
+{
+  "main_contract": "SimpleFactory",
+  "deploy_contracts": ["SimpleFactory"],
+  "test_cases": [
+    {
+      "name": "test_initial_count",
+      "function": "getCount()",
+      "calldata": "A87D942C",
+      "expected": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "test_deploy_first_contract",
+      "function": "deploy(string)",
+      "calldata": "C760231600000000000000000000000000000000000000000000000000000000000000200568656c6c6f000000000000000000000000000000000000000000000000000000",
+      "expected": "000000000000000000000000[FIRST_CONTRACT_ADDRESS]"
+    },
+    {
+      "name": "test_count_after_first_deploy",
+      "function": "getCount()",
+      "calldata": "A87D942C",
+      "expected": "0000000000000000000000000000000000000000000000000000000000000001"
+    },
+    {
+      "name": "test_deploy_second_contract",
+      "function": "deploy(string)",
+      "calldata": "C7602316000000000000000000000000000000000000000000000000000000000000002005776f726c64000000000000000000000000000000000000000000000000000000",
+      "expected": "000000000000000000000000[SECOND_CONTRACT_ADDRESS]"
+    },
+    {
+      "name": "test_count_after_second_deploy",
+      "function": "getCount()",
+      "calldata": "A87D942C",
+      "expected": "0000000000000000000000000000000000000000000000000000000000000002"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "main_contract": "CallerContract",
+  "deploy_contracts": ["CalleeContract", "CallerContract"],
+  "test_cases": [
+    {
+      "name": "test_initial_x_value",
+      "function": "getCalleeX()",
+      "expected": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "test_set_x_to_10",
+      "function": "setCalleeX(uint256)",
+      "calldata": "5F6CCE240000000000000000000000000000000000000000000000000000000000000000a",
+      "expected": ""
+    },
+    {
+      "name": "test_get_x_after_set",
+      "function": "getCalleeX()",
+      "expected": "000000000000000000000000000000000000000000000000000000000000000a"
+    },
+    {
+      "name": "test_increment_x",
+      "function": "callIncrementX()",
+      "expected": ""
+    },
+    {
+      "name": "test_x_after_increment",
+      "function": "getCalleeX()",
+      "expected": "000000000000000000000000000000000000000000000000000000000000000b"
+    },
+    {
+      "name": "test_add_5_and_3",
+      "function": "callAdd(uint256,uint256)",
+      "calldata": "9F8BE8190000000000000000000000000000000000000000000000000000000000000000500000000000000000000000000000000000000000000000000000000000000003",
+      "expected": "0000000000000000000000000000000000000000000000000000000000000008"
+    }
+  ]
+}
+    

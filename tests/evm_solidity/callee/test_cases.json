@@ -1,0 +1,47 @@
+{
+  "main_contract": "CalleeContract",
+  "deploy_contracts": ["CalleeContract"],
+  "test_cases": [
+    {
+      "name": "test_set_x_50",
+      "function": "setX(uint256)",
+      "calldata": "4018D9AA0000000000000000000000000000000000000000000000000000000000000032",
+      "expected": ""
+    },
+    {
+      "name": "test_set_x_100",
+      "function": "setX(uint256)",
+      "calldata": "4018D9AA0000000000000000000000000000000000000000000000000000000000000064",
+      "expected": ""
+    },
+    {
+      "name": "test_add_10_20",
+      "function": "add(uint256,uint256)",
+      "calldata": "771602f7000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000014",
+      "expected": "000000000000000000000000000000000000000000000000000000000000001e"
+    },
+    {
+      "name": "test_add_zero",
+      "function": "add(uint256,uint256)",
+      "calldata": "771602f700000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "expected": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "test_increment_x_from_0",
+      "function": "incrementX()",
+      "calldata": "40f006BE",
+      "expected": ""
+    },
+    {
+      "name": "test_increment_x_from_100",
+      "function": "incrementX()",
+      "calldata": "40f006BE",
+      "precondition": {
+        "function": "setX(uint256)",
+        "calldata": "4018D9AA0000000000000000000000000000000000000000000000000000000000000064"
+      },
+      "expected": ""
+    }
+  ]
+}
+    

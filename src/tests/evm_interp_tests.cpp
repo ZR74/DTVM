@@ -70,6 +70,13 @@ std::string readAnswerFile(const std::string &FilePath) {
 } // namespace
 
 class EVMSampleTest : public ::testing::TestWithParam<std::string> {};
+std::string toLowerHex(const std::string &Hex) {
+  std::string Result = Hex;
+  for (char &C : Result) {
+    C = std::tolower(static_cast<unsigned char>(C));
+  }
+  return Result;
+}
 
 TEST_P(EVMSampleTest, ExecuteSample) {
   const std::string &FilePath = GetParam();
@@ -128,7 +135,7 @@ TEST_P(EVMSampleTest, ExecuteSample) {
   // Read expected answer
   std::string ExpectedAnswer = readAnswerFile(FilePath);
   if (!ExpectedAnswer.empty()) {
-    EXPECT_EQ(HexRet, ExpectedAnswer)
+    EXPECT_EQ(toLowerHex(HexRet), toLowerHex(ExpectedAnswer))
         << "Test: " << std::filesystem::path(FilePath).filename().string()
         << "\nExpected: " << ExpectedAnswer << "\nActual:   " << HexRet;
   } else {

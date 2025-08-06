@@ -45,18 +45,12 @@ for dir in "$BASE_DIR"/*/; do
         if [ -f "$sol_file" ]; then
             echo "Compiling $sol_file..."
             
-            # Change to the directory containing the .sol file
-            cd "$dir" || continue
-            
             # Compile the Solidity file
-            if solc --combined-json abi,bin,bin-runtime "$dirname.sol" > "$dirname.json"; then
+            if solc --combined-json abi,bin,bin-runtime "$dir$dirname.sol" > "$dir$dirname.json"; then
                 echo "✓ Successfully compiled $dirname.sol to $dirname.json"
             else
                 echo "✗ Failed to compile $dirname.sol"
             fi
-            
-            # Return to the original directory
-            cd - > /dev/null || exit 1
         else
             echo "Warning: $sol_file not found, skipping directory $dirname"
         fi

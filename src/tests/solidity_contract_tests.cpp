@@ -206,6 +206,11 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
                   if (TestCase.HasMember("function") &&
                       TestCase["function"].IsString()) {
                     Test.Function = TestCase["function"].GetString();
+                    std::cout << "Function: " << Test.Function << std::endl;
+                    std::cout << "Selector: "
+                              << computeFunctionSelector(Test.Function)
+                              << std::endl;
+                
                   }
 
                   if (TestCase.HasMember("calldata") &&

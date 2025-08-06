@@ -1,0 +1,56 @@
+{
+  "main_contract": "EnvInfoContract",
+  "deploy_contracts": ["EnvInfoContract"],
+  "test_cases": [
+    {
+      "name": "test_contract_address",
+      "function": "getContractAddress()",
+      "calldata": "32A2C5D0",
+      "expected": "000000000000000000000000[CONTRACT_ADDRESS]"
+    },
+    {
+      "name": "test_block_number",
+      "function": "getBlockNumber()",
+      "calldata": "42CBB15C",
+      "expected": "00000000000000000000000000000000000000000000000000000000[BLOCK_NUMBER]"
+    },
+    {
+      "name": "test_block_timestamp",
+      "function": "getBlockTimestamp()",
+      "calldata": "796B89B9",
+      "expected": "00000000000000000000000000000000000000000000000000000000[TIMESTAMP]"
+    },
+    {
+      "name": "test_block_difficulty",
+      "function": "getBlockDifficulty()",
+      "calldata": "12e05dd1",
+      "expected": "00000000000000000000000000000000000000000000000000000000[DIFFICULTY]"
+    },
+    {
+      "name": "test_chain_id",
+      "function": "getChainId()",
+      "calldata": "3408e470",
+      "expected": "00000000000000000000000000000000000000000000000000000000[CHAIN_ID]"
+    },
+    {
+      "name": "test_caller_address_owner",
+      "function": "getCallerAddress()",
+      "calldata": "46b3353b",
+      "expected": "000000000000000000000000[OWNER_ADDRESS]"
+    },
+    {
+      "name": "test_caller_address_user",
+      "function": "getCallerAddress()",
+      "calldata": "46b3353b",
+      "expected": "000000000000000000000000[USER_ADDRESS]"
+    },
+    {
+      "name": "test_call_value",
+      "function": "getCallValue()",
+      "calldata": "c6c01dd21",
+      "value": "100000000000000000",
+      "expected": "0000000000000000000000000000000000000000000000000000000005f5e100"
+    }
+  ]
+}
+    
