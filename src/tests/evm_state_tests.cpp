@@ -22,6 +22,7 @@
 using namespace zen;
 using namespace zen::evm;
 using namespace zen::runtime;
+using namespace zen::evm_test_utils;
 
 namespace {
 
@@ -52,7 +53,7 @@ public:
       // Create temporary hex file from contract code using RAII
       std::string HexCode = "0x" + zen::utils::toHex(It->second.code.data(),
                                                      It->second.code.size());
-      test_utils::TempHexFile TempFile(HexCode);
+      TempHexFile TempFile(HexCode);
       if (!TempFile.isValid()) {
         return ParentResult;
       }
@@ -131,16 +132,15 @@ struct TestSummary {
   std::vector<TestResult> FailedTestDetails;
 };
 
-bool executeStateTest(const test_utils::StateTestFixture &Fixture,
-                      const std::string &Fork,
-                      const test_utils::ForkPostResult &ExpectedResult) {
+bool executeStateTest(const StateTestFixture &Fixture, const std::string &Fork,
+                      const ForkPostResult &ExpectedResult) {
   try {
     // Parse transaction data
-    test_utils::ParsedTransaction PT = test_utils::createTransactionFromIndex(
-        *Fixture.Transaction, ExpectedResult);
+    ParsedTransaction PT =
+        createTransactionFromIndex(*Fixture.Transaction, ExpectedResult);
 
     // Find the target account (contract to call)
-    const test_utils::ParsedAccount *TargetAccount = nullptr;
+    const ParsedAccount *TargetAccount = nullptr;
     for (const auto &PA : Fixture.PreState) {
       if (std::memcmp(PA.Address.bytes, PT.Message->recipient.bytes, 20) == 0) {
         TargetAccount = &PA;
@@ -169,7 +169,7 @@ bool executeStateTest(const test_utils::StateTestFixture &Fixture,
     std::string HexCode =
         "0x" + zen::utils::toHex(TargetAccount->Account.code.data(),
                                  TargetAccount->Account.code.size());
-    test_utils::TempHexFile TempFile(HexCode);
+    TempHexFile TempFile(HexCode);
 
     RuntimeConfig Config;
     Config.Mode = common::RunMode::InterpMode;
@@ -179,8 +179,7 @@ bool executeStateTest(const test_utils::StateTestFixture &Fixture,
     TempMockedHost->tx_context = Fixture.Environment;
 
     for (const auto &PA : Fixture.PreState) {
-      test_utils::addAccountToMockedHost(*TempMockedHost, PA.Address,
-                                         PA.Account);
+      addAccountToMockedHost(*TempMockedHost, PA.Address, PA.Account);
     }
 
     auto RT = Runtime::newEVMRuntime(Config, TempMockedHost.get());
@@ -346,10 +345,9 @@ bool executeStateTest(const test_utils::StateTestFixture &Fixture,
       }
     }
 
-    return test_utils::verifyStateRoot(*MockedHost,
-                                       ExpectedResult.ExpectedHash) &&
-           test_utils::verifyLogsHash(MockedHost->recorded_logs,
-                                      ExpectedResult.ExpectedLogs);
+    return verifyStateRoot(*MockedHost, ExpectedResult.ExpectedHash) &&
+           verifyLogsHash(MockedHost->recorded_logs,
+                          ExpectedResult.ExpectedLogs);
 
   } catch (const std::exception &E) {
     std::cout << "Exception in executeStateTest for " << Fixture.TestName
@@ -366,14 +364,14 @@ public:
   bool loadTestFixtures() {
     LoadedFixtures.clear();
 
-    auto JsonFiles = test_utils::findJsonFiles(TestDirectory);
+    auto JsonFiles = findJsonFiles(TestDirectory);
     if (Debug) {
       std::cout << "Found " << JsonFiles.size() << " JSON test files in "
                 << TestDirectory << std::endl;
     }
 
     for (const auto &FilePath : JsonFiles) {
-      auto Fixtures = test_utils::parseStateTestFile(FilePath);
+      auto Fixtures = parseStateTestFile(FilePath);
       for (auto &Fixture : Fixtures) {
         LoadedFixtures.push_back(std::move(Fixture));
       }
@@ -461,16 +459,15 @@ public:
 
 private:
   std::string TestDirectory;
-  std::vector<test_utils::StateTestFixture> LoadedFixtures;
+  std::vector<StateTestFixture> LoadedFixtures;
 
-  TestResult executeTestCase(const test_utils::StateTestFixture &Fixture,
+  TestResult executeTestCase(const StateTestFixture &Fixture,
                              const std::string &ForkName,
                              const rapidjson::Value &PostResult) {
     TestResult Result{Fixture.TestName, ForkName, false, ""};
 
     try {
-      test_utils::ForkPostResult ExpectedResult =
-          test_utils::parseForkPostResult(PostResult);
+      ForkPostResult ExpectedResult = parseForkPostResult(PostResult);
       Result.Passed = executeStateTest(Fixture, ForkName, ExpectedResult);
       if (!Result.Passed) {
         Result.ErrorMessage = "Test execution failed";

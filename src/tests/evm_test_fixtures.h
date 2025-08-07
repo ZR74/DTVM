@@ -11,8 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace zen {
-namespace test_utils {
+namespace zen::evm_test_utils {
 
 struct ParsedAccount {
   evmc::address Address;
@@ -66,7 +65,6 @@ ParsedTransaction
 createTransactionFromIndex(const rapidjson::Document &Transaction,
                            const ForkPostResult &Result);
 
-} // namespace test_utils
-} // namespace zen
+} // namespace zen::evm_test_utils
 
 #endif // ZEN_TESTS_EVM_TEST_FIXTURES_H

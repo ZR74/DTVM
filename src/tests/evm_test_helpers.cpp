@@ -9,8 +9,7 @@
 #include <evmc/hex.hpp>
 #include <iostream>
 
-namespace zen {
-namespace test_utils {
+namespace zen::evm_test_utils {
 
 void addAccountToMockedHost(evmc::MockedHost &Host, const evmc::address &Addr,
                             const evmc::MockedAccount &Account) {
@@ -165,5 +164,4 @@ bool verifyStateRoot(evmc::MockedHost &Host, const std::string &ExpectedHash) {
   return CalculatedHash == ExpectedHash;
 }
 
-} // namespace test_utils
-} // namespace zen
+} // namespace zen::evm_test_utils

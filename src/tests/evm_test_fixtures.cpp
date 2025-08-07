@@ -13,8 +13,7 @@
 #include <rapidjson/istreamwrapper.h>
 #include <stdexcept>
 
-namespace zen {
-namespace test_utils {
+namespace zen::evm_test_utils {
 
 namespace {
 static std::string stripHexPrefix(const std::string &HexStr) {
@@ -337,5 +336,4 @@ createTransactionFromIndex(const rapidjson::Document &Transaction,
   return PT;
 }
 
-} // namespace test_utils
-} // namespace zen
+} // namespace zen::evm_test_utils

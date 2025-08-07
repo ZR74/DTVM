@@ -20,6 +20,7 @@
 using namespace zen;
 using namespace zen::evm;
 using namespace zen::runtime;
+using namespace zen::evm_test_utils;
 
 namespace {
 bool Debug = false;
@@ -287,9 +288,9 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
     auto DeployBytecode = utils::fromHex(ContractData.DeployBytecode);
     ASSERT_TRUE(DeployBytecode) << "Failed to convert deploy hex to bytecode";
 
-    test_utils::TempHexFile TempDeployFile(ContractTest.ContractPath,
-                                           "temp_deploy_" + NowContractName,
-                                           ContractData.DeployBytecode);
+    TempHexFile TempDeployFile(ContractTest.ContractPath,
+                               "temp_deploy_" + NowContractName,
+                               ContractData.DeployBytecode);
 
     auto DeployModRet = RT->loadEVMModule(TempDeployFile.getPath());
     ASSERT_TRUE(DeployModRet)
@@ -336,9 +337,9 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
         << "Deploy result does not match runtime bytecode for "
         << NowContractName;
 
-    test_utils::TempHexFile TempRuntimeFile(ContractTest.ContractPath,
-                                            "temp_runtime_" + NowContractName,
-                                            DeployResultHex);
+    TempHexFile TempRuntimeFile(ContractTest.ContractPath,
+                                "temp_runtime_" + NowContractName,
+                                DeployResultHex);
 
     auto CallModRet = RT->loadEVMModule(TempRuntimeFile.getPath());
     ASSERT_TRUE(CallModRet)

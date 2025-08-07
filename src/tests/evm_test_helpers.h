@@ -12,8 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace zen {
-namespace test_utils {
+namespace zen::evm_test_utils {
 
 class TempHexFile {
 private:
@@ -113,7 +112,6 @@ bool verifyLogsHash(const std::vector<evmc::MockedHost::log_record> &Logs,
 
 bool verifyStateRoot(evmc::MockedHost &Host, const std::string &ExpectedHash);
 
-} // namespace test_utils
-} // namespace zen
+} // namespace zen::evm_test_utils
 
 #endif // ZEN_TESTS_EVM_TEST_HELPERS_H
