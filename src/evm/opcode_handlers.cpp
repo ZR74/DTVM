@@ -190,12 +190,11 @@ bool chargeGas(EVMFrame *Frame, uint64_t GasCost) {
 // copy cose and charge gas
 constexpr int64_t numWords(uint64_t Size) noexcept {
   /// The size of the EVM 256-bit word.
-  constexpr auto wordSize = 32;
-  return static_cast<int64_t>((Size + (wordSize - 1)) / wordSize);
+  constexpr auto WORD_SIZE = 32;
+  return static_cast<int64_t>((Size + (WORD_SIZE - 1)) / WORD_SIZE);
 }
 bool copyCodeAndChargeGas(EVMFrame *Frame, uint64_t Size) {
-  constexpr auto WordCopyCost = 3;
-  return chargeGas(Frame, numWords(Size) * WordCopyCost);
+  return chargeGas(Frame, numWords(Size) * WORD_COPY_COST);
 }
 
 // Expand memory and charge gas
