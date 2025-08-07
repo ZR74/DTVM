@@ -58,7 +58,10 @@ if(ZEN_ENABLE_SPEC_TEST)
   add_executable(cAPITests c_api_tests.cpp)
   add_executable(evmInterpTests evm_interp_tests.cpp)
   add_executable(solidityContractTests solidity_contract_tests.cpp)
-  add_executable(evmStateTests evm_state_tests.cpp evm_test_utils.cpp)
+  add_executable(
+    evmStateTests evm_state_tests.cpp evm_test_fixtures.cpp
+                  evm_test_helpers.cpp
+  )
   add_executable(mptCompareCpp mpt_compare_cpp.cpp)
 
   target_link_libraries(

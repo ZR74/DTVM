@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "evm/interpreter.h"
-#include "evm_test_utils.h"
+#include "evm_test_fixtures.h"
+#include "evm_test_helpers.h"
 #include "host/evm/crypto.h"
 #include "runtime/runtime.h"
 #include "utils/others.h"

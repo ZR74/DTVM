@@ -11,7 +11,7 @@
 #include <gtest/gtest.h>
 
 #include "evm/interpreter.h"
-#include "evm_test_utils.h"
+#include "evm_test_helpers.h"
 #include "evmc/mocked_host.hpp"
 #include "host/evm/crypto.h"
 #include "utils/others.h"

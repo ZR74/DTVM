@@ -1,30 +1,42 @@
 // Copyright (C) 2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ZEN_TESTS_EVM_TEST_UTILS_H
-#define ZEN_TESTS_EVM_TEST_UTILS_H
+#ifndef ZEN_TESTS_EVM_TEST_HELPERS_H
+#define ZEN_TESTS_EVM_TEST_HELPERS_H
 
-#include "evm/interpreter.h"
 #include "evmc/mocked_host.hpp"
 
 #include <filesystem>
 #include <fstream>
-#include <memory>
-#include <rapidjson/document.h>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 namespace zen {
 namespace test_utils {
 
-// RAII class for temporary hex files
+// RAII class for managing temporary hex files during testing
+// This class automatically creates unique temporary files and cleans them up
+// when the object goes out of scope. It provides move semantics to avoid
+// accidental copying and premature cleanup.
+//
+// Usage relationship with other test components:
+// 1. Test fixtures (StateTestFixture) contain bytecode as hex strings
+// 2. EVM interpreter requires bytecode files for execution
+// 3. TempHexFile bridges this gap by creating temporary files
+// 4. Files are automatically cleaned up when test completes
+//
+// The move-only design ensures:
+// - No accidental file duplication
+// - Proper cleanup timing (only when original object destructs)
+// - Exception safety during test execution
+// - Clear ownership semantics in test code
 class TempHexFile {
 private:
   std::string FilePath;
   bool Valid = false;
 
 public:
+  // Creates a temporary hex file in the system temp directory
   explicit TempHexFile(const std::string &HexCode) {
     if (HexCode.empty() || HexCode == "0x") {
       return;
@@ -60,7 +72,7 @@ public:
     Valid = true;
   }
 
-  // Constructor for custom path and suffix
+  // Creates a temporary hex file at a specific location with custom suffix
   TempHexFile(const std::string &BasePath, const std::string &Suffix,
               const std::string &Content) {
     if (Content.empty()) {
@@ -78,17 +90,17 @@ public:
     Valid = true;
   }
 
+  // Automatically cleans up the temporary file
   ~TempHexFile() {
     if (Valid && !FilePath.empty()) {
       std::filesystem::remove(FilePath);
     }
   }
 
-  // Delete copy constructor and assignment operator
+  // Move-only semantics to prevent accidental copying and double cleanup
   TempHexFile(const TempHexFile &) = delete;
   TempHexFile &operator=(const TempHexFile &) = delete;
 
-  // Allow move semantics
   TempHexFile(TempHexFile &&Other) noexcept
       : FilePath(std::move(Other.FilePath)), Valid(Other.Valid) {
     Other.Valid = false;
@@ -110,70 +122,23 @@ public:
   const std::string &getPath() const { return FilePath; }
 };
 
-struct ParsedAccount {
-  evmc::address Address;
-  evmc::MockedAccount Account;
-};
+// Hash calculation and verification utilities for EVM state testing
+// These functions implement the specific hashing algorithms required
+// for verifying EVM state transitions and log outputs
 
-struct ParsedTransaction {
-  evmc_tx_context TxContext;
-  std::unique_ptr<evmc_message> Message;
-  std::vector<uint8_t> CallData;
-};
-
-struct StateTestFixture {
-  std::string TestName;
-  std::vector<ParsedAccount> PreState;
-  evmc_tx_context Environment;
-  std::unique_ptr<rapidjson::Document> Transaction;
-  std::unique_ptr<rapidjson::Document> Post;
-
-  // Make it movable but not copyable
-  StateTestFixture() = default;
-  StateTestFixture(const StateTestFixture &) = delete;
-  StateTestFixture &operator=(const StateTestFixture &) = delete;
-  StateTestFixture(StateTestFixture &&) = default;
-  StateTestFixture &operator=(StateTestFixture &&) = default;
-};
-
-struct ForkPostResult {
-  std::string ExpectedHash;
-  std::string ExpectedLogs;
-  std::string ExpectedException;
-  std::vector<uint8_t> ExpectedTxBytes;
-  struct {
-    size_t Data = 0;
-    size_t Gas = 0;
-    size_t Value = 0;
-  } Indexes;
-};
-
-std::vector<ParsedAccount> parsePreAccounts(const rapidjson::Value &Pre);
-
-void addAccountToMockedHost(evmc::MockedHost &Host, const evmc::address &Addr,
-                            const evmc::MockedAccount &Account);
-
-evmc::address parseAddress(const std::string &HexAddr);
-evmc::bytes32 parseBytes32(const std::string &HexStr);
-evmc::uint256be parseUint256(const std::string &HexStr);
-std::vector<uint8_t> parseHexData(const std::string &HexStr);
-
-// State test specific functions
-std::vector<std::string> findJsonFiles(const std::string &RootPath);
-std::vector<StateTestFixture> parseStateTestFile(const std::string &FilePath);
-ForkPostResult parseForkPostResult(const rapidjson::Value &PostResult);
-ParsedTransaction
-createTransactionFromIndex(const rapidjson::Document &Transaction,
-                           const ForkPostResult &Result);
-
-// State verification functions
+// Calculates the RLP-encoded Keccak-256 hash of log records
 std::string
 calculateLogsHash(const std::vector<evmc::MockedHost::log_record> &Logs);
-bool verifyStateRoot(evmc::MockedHost &Host, const std::string &ExpectedHash);
+
+// Verifies that the given logs produce the expected hash
 bool verifyLogsHash(const std::vector<evmc::MockedHost::log_record> &Logs,
                     const std::string &ExpectedHash);
+
+// Verifies the state root hash by building a Merkle Patricia Trie
+// from all accounts in the mocked host and comparing the root hash
+bool verifyStateRoot(evmc::MockedHost &Host, const std::string &ExpectedHash);
 
 } // namespace test_utils
 } // namespace zen
 
-#endif // ZEN_TESTS_EVM_TEST_UTILS_H
+#endif // ZEN_TESTS_EVM_TEST_HELPERS_H
