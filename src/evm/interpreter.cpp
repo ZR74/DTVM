@@ -95,11 +95,9 @@ void BaseInterpreter::interpret() {
   size_t CodeSize = Mod->CodeSize;
   uint8_t *Code = Mod->Code;
 
-
   if (!Frame->Host) {
     Frame->Host = Context.getInstance()->getRuntime()->getEVMHost();
   }
-
 
   while (Frame->Pc < CodeSize) {
     uint8_t OpcodeByte = Code[Frame->Pc];

@@ -59,7 +59,6 @@ if(ZEN_ENABLE_SPEC_TEST)
   add_executable(evmStateTests evm_state_tests.cpp evm_test_utils.cpp)
   add_executable(mptCompareCpp mpt_compare_cpp.cpp)
 
-
   target_link_libraries(
     specUnitTests
     PRIVATE dtvmcore rapidjson gtest_main CLI11::CLI11
