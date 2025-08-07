@@ -51,6 +51,8 @@ if(ZEN_ENABLE_SPEC_TEST)
 
   add_custom_target(spec_jsons DEPENDS ${SPEC_JSONS})
 
+  add_subdirectory(mpt)
+
   add_executable(specUnitTests spec_unit_tests.cpp spectest.cpp test_utils.cpp)
   add_executable(mempoolTests mempool_tests.cpp)
   add_executable(cAPITests c_api_tests.cpp)
@@ -103,11 +105,11 @@ if(ZEN_ENABLE_SPEC_TEST)
       )
       target_link_libraries(
         evmStateTests
-        PRIVATE dtvmcore rapidjson gtest_main -fsanitize=address
+        PRIVATE dtvmcore rapidjson mpt gtest_main -fsanitize=address
         PUBLIC ${GTEST_BOTH_LIBRARIES}
       )
       target_link_libraries(
-        mptCompareCpp PRIVATE dtvmcore rapidjson -fsanitize=address
+        mptCompareCpp PRIVATE dtvmcore rapidjson mpt -fsanitize=address
       )
     else()
       target_link_libraries(
@@ -137,11 +139,16 @@ if(ZEN_ENABLE_SPEC_TEST)
       )
       target_link_libraries(
         evmStateTests
-        PRIVATE dtvmcore rapidjson gtest_main -fsanitize=address -static-libasan
+        PRIVATE dtvmcore
+                rapidjson
+                mpt
+                gtest_main
+                -fsanitize=address
+                -static-libasan
         PUBLIC ${GTEST_BOTH_LIBRARIES}
       )
       target_link_libraries(
-        mptCompareCpp PRIVATE dtvmcore rapidjson -fsanitize=address
+        mptCompareCpp PRIVATE dtvmcore rapidjson mpt -fsanitize=address
                               -static-libasan
       )
     endif()
@@ -168,10 +175,10 @@ if(ZEN_ENABLE_SPEC_TEST)
     )
     target_link_libraries(
       evmStateTests
-      PRIVATE dtvmcore rapidjson gtest_main
+      PRIVATE dtvmcore rapidjson mpt gtest_main
       PUBLIC ${GTEST_BOTH_LIBRARIES}
     )
-    target_link_libraries(mptCompareCpp PRIVATE dtvmcore rapidjson)
+    target_link_libraries(mptCompareCpp PRIVATE dtvmcore rapidjson mpt)
   endif()
 
   add_dependencies(specUnitTests spec_jsons)

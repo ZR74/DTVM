@@ -1,8 +1,8 @@
 // Copyright (C) 2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ZEN_EVM_RLP_ENCODING_H
-#define ZEN_EVM_RLP_ENCODING_H
+#ifndef ZEN_TEST_MPT_RLP_ENCODING_H
+#define ZEN_TEST_MPT_RLP_ENCODING_H
 
 #include <cstddef>
 #include <cstdint>
@@ -21,4 +21,4 @@ std::vector<uint8_t> encodeList(const std::vector<std::vector<uint8_t>> &Items);
 
 } // namespace zen::evm::rlp
 
-#endif // ZEN_EVM_RLP_ENCODING_H
+#endif // ZEN_TEST_MPT_RLP_ENCODING_H

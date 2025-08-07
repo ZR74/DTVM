@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "evm_test_utils.h"
-#include "evm/merkle_patricia_trie.h"
 #include "host/evm/crypto.h"
+#include "mpt/merkle_patricia_trie.h"
 #include "runtime/runtime.h"
 #include "utils/others.h"
 

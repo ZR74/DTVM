@@ -1,8 +1,8 @@
 // Copyright (C) 2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-#ifndef ZEN_EVM_MERKLE_PATRICIA_TRIE_H
-#define ZEN_EVM_MERKLE_PATRICIA_TRIE_H
+#ifndef ZEN_TEST_MPT_MERKLE_PATRICIA_TRIE_H
+#define ZEN_TEST_MPT_MERKLE_PATRICIA_TRIE_H
 
 #include <array>
 #include <cstdint>
@@ -182,4 +182,4 @@ public:
 
 } // namespace zen::evm::mpt
 
-#endif // ZEN_EVM_MERKLE_PATRICIA_TRIE_H
+#endif // ZEN_TEST_MPT_MERKLE_PATRICIA_TRIE_H
