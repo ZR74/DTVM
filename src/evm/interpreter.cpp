@@ -32,6 +32,8 @@ EVMFrame *InterpreterExecContext::allocFrame(
   Frame.Msg->input_data = CallData.data();
   Frame.Msg->input_size = CallData.size();
 
+  GasUsed = GasLimit;
+
   return &Frame;
 }
 
@@ -42,6 +44,8 @@ EVMFrame *InterpreterExecContext::allocFrame(evmc_message *Msg) {
 
   Frame.Msg = std::make_unique<evmc_message>(*Msg);
 
+  GasUsed = Frame.Msg->gas;
+
   return &Frame;
 }
 
@@ -51,7 +55,30 @@ void InterpreterExecContext::freeBackFrame() {
   if (FrameStack.empty())
     return;
 
+  GasUsed = GasUsed - FrameStack.back().Msg->gas;
+
   FrameStack.pop_back();
+}
+
+void InterpreterExecContext::setMessage(evmc_message &Msg) {
+  EVM_FRAME_CHECK(getCurFrame());
+  getCurFrame()->Msg = std::make_unique<evmc_message>(Msg);
+}
+
+void InterpreterExecContext::setCallData(const std::vector<uint8_t> &Data) {
+  EVM_FRAME_CHECK(getCurFrame());
+  getCurFrame()->CallData = Data;
+  getCurFrame()->Msg->input_data = getCurFrame()->CallData.data();
+  getCurFrame()->Msg->input_size = getCurFrame()->CallData.size();
+}
+
+void InterpreterExecContext::setTxContext(const evmc_tx_context &TxContext) {
+  EVM_FRAME_CHECK(getCurFrame());
+  getCurFrame()->MTx = TxContext;
+}
+
+void InterpreterExecContext::setResource() {
+  EVMResource::setExecutionContext(getCurFrame(), this);
 }
 
 void BaseInterpreter::interpret() {
@@ -68,7 +95,11 @@ void BaseInterpreter::interpret() {
   size_t CodeSize = Mod->CodeSize;
   uint8_t *Code = Mod->Code;
 
-  Frame->Host = Context.getInstance()->getRuntime()->getEVMHost();
+
+  if (!Frame->Host) {
+    Frame->Host = Context.getInstance()->getRuntime()->getEVMHost();
+  }
+
 
   while (Frame->Pc < CodeSize) {
     uint8_t OpcodeByte = Code[Frame->Pc];
@@ -410,6 +441,22 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_JUMPDEST: {
+      Frame->Msg->gas -= 1;
+      break;
+    }
+
+    case OP_TLOAD: {
+      EVMOpcodeHandlerRegistry::getTLoadHandler().execute();
+      break;
+    }
+
+    case OP_TSTORE: {
+      EVMOpcodeHandlerRegistry::getTStoreHandler().execute();
+      break;
+    }
+
+    case OP_MCOPY: {
+      EVMOpcodeHandlerRegistry::getMCopyHandler().execute();
       break;
     }
 
@@ -471,6 +518,8 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_PUSH0: { // PUSH0 (EIP-3855)
+      Frame->Msg->gas -= 2;
+
       Frame->push(0);
       break;
     }
