@@ -519,7 +519,7 @@ std::vector<uint8_t> uint256beToBytes(const evmc::uint256be &Value) {
 // Calculate storage root for an account
 std::vector<uint8_t> calculateStorageRoot(
     const std::unordered_map<evmc::bytes32, evmc::StorageValue> &Storage) {
-  zen::evm::MerklePatriciaTrie StorageTrie;
+  zen::evm::mpt::MerklePatriciaTrie StorageTrie;
 
   for (const auto &[Key, StorageValue] : Storage) {
     // Skip empty values (deleted storage slots)
@@ -584,7 +584,7 @@ std::vector<uint8_t> encodeAccount(const evmc::MockedAccount &Account) {
 } // anonymous namespace
 
 bool verifyStateRoot(evmc::MockedHost &Host, const std::string &ExpectedHash) {
-  zen::evm::MerklePatriciaTrie StateTrie;
+  zen::evm::mpt::MerklePatriciaTrie StateTrie;
 
   // Build state trie from all accounts
   for (const auto &[Address, Account] : Host.accounts) {

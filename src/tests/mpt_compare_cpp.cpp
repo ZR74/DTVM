@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-using namespace zen::evm;
+using namespace zen::evm::mpt;
 
 class MptCompareCpp {
 private:

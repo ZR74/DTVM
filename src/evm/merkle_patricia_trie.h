@@ -11,7 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace zen::evm {
+namespace zen::evm::mpt {
 
 // Nibble type (4-bit value)
 using Nibble = uint8_t;
@@ -180,6 +180,6 @@ public:
   std::shared_ptr<Node> getRoot() const { return Root; }
 };
 
-} // namespace zen::evm
+} // namespace zen::evm::mpt
 
 #endif // ZEN_EVM_MERKLE_PATRICIA_TRIE_H

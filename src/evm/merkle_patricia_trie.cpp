@@ -7,7 +7,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace zen::evm {
+namespace zen::evm::mpt {
 
 // RLP encoding constants
 const uint8_t RLP_OFFSET_SHORT_STRING = 0x80;
@@ -718,4 +718,4 @@ std::shared_ptr<Node> MerklePatriciaTrie::remove(std::shared_ptr<Node> Node,
   return Node;
 }
 
-} // namespace zen::evm
+} // namespace zen::evm::mpt
