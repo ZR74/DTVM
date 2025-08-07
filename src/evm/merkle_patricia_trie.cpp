@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "evm/merkle_patricia_trie.h"
+#include "evm/rlp_encoding.h"
 #include "host/evm/crypto.h"
 #include <algorithm>
 #include <cassert>
@@ -9,12 +10,8 @@
 
 namespace zen::evm::mpt {
 
-// RLP encoding constants
-const uint8_t RLP_OFFSET_SHORT_STRING = 0x80;
-const uint8_t RLP_OFFSET_SHORT_LIST = 0xc0;
-
 // Empty node hash (Keccak256 of empty string)
-static const std::vector<uint8_t> EMPTY_NODE_HASH = {
+static const std::vector<uint8_t> EmptyNodeHash = {
     0x56, 0xe8, 0x1f, 0x17, 0x1b, 0xcc, 0x55, 0xa6, 0xff, 0x83, 0x45,
     0xe6, 0x92, 0xc0, 0xf8, 0x6e, 0x5b, 0x48, 0xe0, 0x1b, 0x99, 0x6c,
     0xad, 0xc0, 0x01, 0x62, 0x2f, 0xb5, 0xe3, 0x63, 0xb4, 0x21};
@@ -42,53 +39,6 @@ std::shared_ptr<ExtensionNode> asExtensionNode(std::shared_ptr<Node> Node) {
   return safeCast<ExtensionNode>(Node, NodeType::Extension);
 }
 
-// RLP encoding helper functions
-std::vector<uint8_t> encodeLength(size_t Length, uint8_t Offset) {
-  std::vector<uint8_t> Result;
-
-  if (Length < 56) {
-    Result.push_back(static_cast<uint8_t>(Length + Offset));
-  } else {
-    std::vector<uint8_t> LengthBytes;
-    size_t Temp = Length;
-    while (Temp > 0) {
-      LengthBytes.insert(LengthBytes.begin(),
-                         static_cast<uint8_t>(Temp & 0xFF));
-      Temp >>= 8;
-    }
-    Result.push_back(static_cast<uint8_t>(LengthBytes.size() + Offset + 55));
-    Result.insert(Result.end(), LengthBytes.begin(), LengthBytes.end());
-  }
-
-  return Result;
-}
-
-std::vector<uint8_t> encodeString(const std::vector<uint8_t> &Input) {
-  if (Input.empty()) {
-    return {RLP_OFFSET_SHORT_STRING};
-  }
-
-  if (Input.size() == 1 && Input[0] < RLP_OFFSET_SHORT_STRING) {
-    return Input;
-  }
-
-  auto LengthBytes = encodeLength(Input.size(), RLP_OFFSET_SHORT_STRING);
-  LengthBytes.insert(LengthBytes.end(), Input.begin(), Input.end());
-  return LengthBytes;
-}
-
-std::vector<uint8_t>
-encodeList(const std::vector<std::vector<uint8_t>> &Items) {
-  std::vector<uint8_t> Payload;
-  for (const auto &Item : Items) {
-    auto Encoded = encodeString(Item);
-    Payload.insert(Payload.end(), Encoded.begin(), Encoded.end());
-  }
-
-  auto LengthBytes = encodeLength(Payload.size(), RLP_OFFSET_SHORT_LIST);
-  LengthBytes.insert(LengthBytes.end(), Payload.begin(), Payload.end());
-  return LengthBytes;
-}
 } // anonymous namespace
 
 // Nibbles utility functions implementation
@@ -198,10 +148,10 @@ std::shared_ptr<EmptyNode> EmptyNode::getInstance() {
   return Instance;
 }
 
-std::vector<uint8_t> EmptyNode::hash() const { return EMPTY_NODE_HASH; }
+std::vector<uint8_t> EmptyNode::hash() const { return EmptyNodeHash; }
 
 std::vector<uint8_t> EmptyNode::serialize() const {
-  return {RLP_OFFSET_SHORT_STRING}; // Empty string in RLP
+  return {zen::evm::rlp::RLP_OFFSET_SHORT_STRING}; // Empty string in RLP
 }
 
 // LeafNode implementation
@@ -224,7 +174,7 @@ std::vector<uint8_t> LeafNode::serialize() const {
   Items.push_back(nibbles::toPrefixed(Path, true)); // isLeaf = true
   Items.push_back(Value);
 
-  return encodeList(Items);
+  return zen::evm::rlp::encodeList(Items);
 }
 
 // BranchNode implementation
@@ -315,7 +265,7 @@ std::vector<uint8_t> BranchNode::serialize() const {
   // Add value (empty if no value)
   Items.push_back(Value.value_or(std::vector<uint8_t>{}));
 
-  return encodeList(Items);
+  return zen::evm::rlp::encodeList(Items);
 }
 
 // ExtensionNode implementation
@@ -344,7 +294,7 @@ std::vector<uint8_t> ExtensionNode::serialize() const {
     }
   }
 
-  return encodeList(Items);
+  return zen::evm::rlp::encodeList(Items);
 }
 
 // MerklePatriciaTrie implementation
