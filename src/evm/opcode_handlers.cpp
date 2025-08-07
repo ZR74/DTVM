@@ -135,6 +135,7 @@ DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Revert, OP_REVERT);
 
 // Stack operations
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Push, OP_PUSH1);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Push0, OP_PUSH0);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Dup, OP_DUP1);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Swap, OP_SWAP1);
 
@@ -1033,6 +1034,12 @@ void PushHandler::doExecute() {
   intx::uint256 Val = intx::be::load<intx::uint256>(ValueBytes);
   Frame->push(Val);
   Frame->Pc += NumBytes;
+}
+
+void Push0Handler::doExecute() {
+  auto *Frame = getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(0);
 }
 
 void DupHandler::doExecute() {

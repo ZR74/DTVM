@@ -434,7 +434,9 @@ void BaseInterpreter::interpret() {
     }
 
     case evmc_opcode::OP_JUMPDEST: {
-      Frame->Msg->gas -= 1;
+      static auto *Table = evmc_get_instruction_metrics_table(Frame->Rev);
+      static const auto Cost = Table[OP_JUMPDEST].gas_cost;
+      Frame->Msg->gas -= Cost;
       break;
     }
 
@@ -450,6 +452,11 @@ void BaseInterpreter::interpret() {
 
     case OP_MCOPY: {
       EVMOpcodeHandlerRegistry::getMCopyHandler().execute();
+      break;
+    }
+
+    case evmc_opcode::OP_PUSH0: { // PUSH0 (EIP-3855)
+      EVMOpcodeHandlerRegistry::getPush0Handler().execute();
       break;
     }
 
@@ -492,13 +499,6 @@ void BaseInterpreter::interpret() {
       if (!Frame) {
         return;
       }
-      break;
-    }
-
-    case evmc_opcode::OP_PUSH0: { // PUSH0 (EIP-3855)
-      Frame->Msg->gas -= 2;
-
-      Frame->push(0);
       break;
     }
 
