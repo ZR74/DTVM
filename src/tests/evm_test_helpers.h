@@ -5,6 +5,7 @@
 #define ZEN_TESTS_EVM_TEST_HELPERS_H
 
 #include "evmc/mocked_host.hpp"
+#include "mpt/rlp_encoding.h"
 
 #include <filesystem>
 #include <fstream>
@@ -14,29 +15,12 @@
 namespace zen {
 namespace test_utils {
 
-// RAII class for managing temporary hex files during testing
-// This class automatically creates unique temporary files and cleans them up
-// when the object goes out of scope. It provides move semantics to avoid
-// accidental copying and premature cleanup.
-//
-// Usage relationship with other test components:
-// 1. Test fixtures (StateTestFixture) contain bytecode as hex strings
-// 2. EVM interpreter requires bytecode files for execution
-// 3. TempHexFile bridges this gap by creating temporary files
-// 4. Files are automatically cleaned up when test completes
-//
-// The move-only design ensures:
-// - No accidental file duplication
-// - Proper cleanup timing (only when original object destructs)
-// - Exception safety during test execution
-// - Clear ownership semantics in test code
 class TempHexFile {
 private:
   std::string FilePath;
   bool Valid = false;
 
 public:
-  // Creates a temporary hex file in the system temp directory
   explicit TempHexFile(const std::string &HexCode) {
     if (HexCode.empty() || HexCode == "0x") {
       return;
@@ -46,7 +30,6 @@ public:
     auto TempPath = TempDir / "dtvm_XXXXXX.hex";
     FilePath = TempPath.string();
 
-    // Create unique filename
     auto BaseStr = TempPath.stem().string();
     auto Extension = TempPath.extension();
     for (int I = 0; I < 1000; ++I) {
@@ -72,7 +55,6 @@ public:
     Valid = true;
   }
 
-  // Creates a temporary hex file at a specific location with custom suffix
   TempHexFile(const std::string &BasePath, const std::string &Suffix,
               const std::string &Content) {
     if (Content.empty()) {
@@ -90,14 +72,12 @@ public:
     Valid = true;
   }
 
-  // Automatically cleans up the temporary file
   ~TempHexFile() {
     if (Valid && !FilePath.empty()) {
       std::filesystem::remove(FilePath);
     }
   }
 
-  // Move-only semantics to prevent accidental copying and double cleanup
   TempHexFile(const TempHexFile &) = delete;
   TempHexFile &operator=(const TempHexFile &) = delete;
 
@@ -122,20 +102,15 @@ public:
   const std::string &getPath() const { return FilePath; }
 };
 
-// Hash calculation and verification utilities for EVM state testing
-// These functions implement the specific hashing algorithms required
-// for verifying EVM state transitions and log outputs
+void addAccountToMockedHost(evmc::MockedHost &Host, const evmc::address &Addr,
+                            const evmc::MockedAccount &Account);
 
-// Calculates the RLP-encoded Keccak-256 hash of log records
 std::string
 calculateLogsHash(const std::vector<evmc::MockedHost::log_record> &Logs);
 
-// Verifies that the given logs produce the expected hash
 bool verifyLogsHash(const std::vector<evmc::MockedHost::log_record> &Logs,
                     const std::string &ExpectedHash);
 
-// Verifies the state root hash by building a Merkle Patricia Trie
-// from all accounts in the mocked host and comparing the root hash
 bool verifyStateRoot(evmc::MockedHost &Host, const std::string &ExpectedHash);
 
 } // namespace test_utils

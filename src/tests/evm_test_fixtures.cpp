@@ -130,11 +130,6 @@ std::vector<ParsedAccount> parsePreAccounts(const rapidjson::Value &Pre) {
   return Accounts;
 }
 
-void addAccountToMockedHost(evmc::MockedHost &Host, const evmc::address &Addr,
-                            const evmc::MockedAccount &Account) {
-  Host.accounts[Addr] = Account;
-}
-
 std::vector<std::string> findJsonFiles(const std::string &RootPath) {
   std::vector<std::string> JsonFiles;
 
