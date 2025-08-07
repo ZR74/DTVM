@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+// Copyright (C) 2025 the DTVM authors. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
 
 // MPT comparison script - JavaScript side
 const { Trie } = require('@ethereumjs/trie');

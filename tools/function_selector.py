@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import sys
+# pip install pycryptodome
 from Crypto.Hash import keccak
 
 def calculate_selector(signature):
