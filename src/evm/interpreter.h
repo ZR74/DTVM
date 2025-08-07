@@ -100,7 +100,6 @@ public:
 
   uint64_t getGasUsed() const { return GasUsed; }
 
-  void setMessage(evmc_message &Msg);
   void setCallData(const std::vector<uint8_t> &Data);
   void setTxContext(const evmc_tx_context &TxContext);
   void setResource();

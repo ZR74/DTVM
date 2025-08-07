@@ -60,11 +60,6 @@ void InterpreterExecContext::freeBackFrame() {
   FrameStack.pop_back();
 }
 
-void InterpreterExecContext::setMessage(evmc_message &Msg) {
-  EVM_FRAME_CHECK(getCurFrame());
-  getCurFrame()->Msg = std::make_unique<evmc_message>(Msg);
-}
-
 void InterpreterExecContext::setCallData(const std::vector<uint8_t> &Data) {
   EVM_FRAME_CHECK(getCurFrame());
   getCurFrame()->CallData = Data;
