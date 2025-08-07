@@ -458,21 +458,6 @@ void BaseInterpreter::interpret() {
       break;
     }
 
-    case OP_TLOAD: {
-      EVMOpcodeHandlerRegistry::getTLoadHandler().execute();
-      break;
-    }
-
-    case OP_TSTORE: {
-      EVMOpcodeHandlerRegistry::getTStoreHandler().execute();
-      break;
-    }
-
-    case OP_MCOPY: {
-      EVMOpcodeHandlerRegistry::getMCopyHandler().execute();
-      break;
-    }
-
     case evmc_opcode::OP_LOG0:
     case evmc_opcode::OP_LOG1:
     case evmc_opcode::OP_LOG2:
