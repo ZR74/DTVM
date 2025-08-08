@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# Copyright (C) 2025 the DTVM authors. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
 import json, sys
 from typing import Dict, Any
 
