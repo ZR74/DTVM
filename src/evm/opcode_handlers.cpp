@@ -135,6 +135,7 @@ DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Revert, OP_REVERT);
 
 // Stack operations
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Push, OP_PUSH1);
+DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Push0, OP_PUSH0);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Dup, OP_DUP1);
 DEFINE_NOT_TEMPLATE_CALCULATE_GAS(Swap, OP_SWAP1);
 
@@ -711,7 +712,8 @@ void SLoadHandler::doExecute() {
   intx::uint256 Key = Frame->pop();
   const auto KeyAddr = intx::be::store<evmc::bytes32>(Key);
   if (Frame->Rev >= EVMC_BERLIN &&
-      Frame->Host->access_account(Frame->Msg->recipient) == EVMC_ACCESS_COLD) {
+      Frame->Host->access_storage(Frame->Msg->recipient, KeyAddr) ==
+          EVMC_ACCESS_COLD) {
     if (Frame->Msg->gas < ADDITIONAL_COLD_ACCOUNT_ACCESS_COST) {
       Context->setStatus(EVMC_OUT_OF_GAS);
       return;
@@ -732,11 +734,11 @@ void SStoreHandler::doExecute() {
   const auto Key = intx::be::store<evmc::bytes32>(Frame->pop());
   const auto Value = intx::be::store<evmc::bytes32>(Frame->pop());
 
-  const auto GasCostCold =
-      (Frame->Rev >= EVMC_BERLIN &&
-       Frame->Host->access_account(Frame->Msg->recipient) == EVMC_ACCESS_COLD)
-          ? COLD_SLOAD_COST
-          : 0;
+  const auto GasCostCold = (Frame->Rev >= EVMC_BERLIN &&
+                            Frame->Host->access_storage(
+                                Frame->Msg->recipient, Key) == EVMC_ACCESS_COLD)
+                               ? COLD_SLOAD_COST
+                               : 0;
   const auto Status =
       Frame->Host->set_storage(Frame->Msg->recipient, Key, Value);
 
@@ -1034,6 +1036,12 @@ void PushHandler::doExecute() {
   Frame->Pc += NumBytes;
 }
 
+void Push0Handler::doExecute() {
+  auto *Frame = getFrame();
+  EVM_FRAME_CHECK(Frame);
+  Frame->push(0);
+}
+
 void DupHandler::doExecute() {
   auto *Frame = getFrame();
   EVM_FRAME_CHECK(Frame);
@@ -1260,6 +1268,7 @@ void CallHandler::doExecute() {
   }
 
   const auto Result = Frame->Host->call(NewMsg);
+  Context->setResource();
   if (Result.status_code == EVMC_SUCCESS) {
     Frame->pop(); // pop the assume value
     Frame->push(intx::uint256(1));

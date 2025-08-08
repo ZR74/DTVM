@@ -11,6 +11,7 @@
 #include <gtest/gtest.h>
 
 #include "evm/interpreter.h"
+#include "evm_test_helpers.h"
 #include "evmc/mocked_host.hpp"
 #include "host/evm/crypto.h"
 #include "utils/others.h"
@@ -19,19 +20,10 @@
 using namespace zen;
 using namespace zen::evm;
 using namespace zen::runtime;
+using namespace zen::evm_test_utils;
 
 namespace {
 bool Debug = false;
-
-std::string createTempHexFile(const std::string &BasePath,
-                              const std::string &Suffix,
-                              const std::string &Content) {
-  std::string TempPath = BasePath + "/" + Suffix + ".hex";
-  std::ofstream TempFile(TempPath);
-  TempFile << Content;
-  TempFile.close();
-  return TempPath;
-}
 
 std::string toLowerHex(const std::string &Hex) {
   std::string Result = Hex;
@@ -296,11 +288,11 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
     auto DeployBytecode = utils::fromHex(ContractData.DeployBytecode);
     ASSERT_TRUE(DeployBytecode) << "Failed to convert deploy hex to bytecode";
 
-    std::string TempDeployPath = createTempHexFile(
-        ContractTest.ContractPath, "temp_deploy_" + NowContractName,
-        ContractData.DeployBytecode);
+    TempHexFile TempDeployFile(ContractTest.ContractPath,
+                               "temp_deploy_" + NowContractName,
+                               ContractData.DeployBytecode);
 
-    auto DeployModRet = RT->loadEVMModule(TempDeployPath);
+    auto DeployModRet = RT->loadEVMModule(TempDeployFile.getPath());
     ASSERT_TRUE(DeployModRet)
         << "Failed to load deploy module for " << NowContractName;
 
@@ -345,11 +337,11 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
         << "Deploy result does not match runtime bytecode for "
         << NowContractName;
 
-    std::string TempRuntimePath =
-        createTempHexFile(ContractTest.ContractPath,
-                          "temp_runtime_" + NowContractName, DeployResultHex);
+    TempHexFile TempRuntimeFile(ContractTest.ContractPath,
+                                "temp_runtime_" + NowContractName,
+                                DeployResultHex);
 
-    auto CallModRet = RT->loadEVMModule(TempRuntimePath);
+    auto CallModRet = RT->loadEVMModule(TempRuntimeFile.getPath());
     ASSERT_TRUE(CallModRet)
         << "Failed to load runtime module for " << NowContractName;
 
@@ -365,9 +357,6 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
     EVMInstance *CallInst = *CallInstRet;
 
     DeployedContracts[NowContractName] = {CallInst};
-
-    std::filesystem::remove(TempDeployPath);
-    std::filesystem::remove(TempRuntimePath);
 
     if (Debug)
       std::cout << "✓ Contract " << NowContractName << " deployed successfully"

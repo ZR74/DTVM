@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (C) 2025 the DTVM authors. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # Script to compile all Solidity files in subdirectories to JSON using solc
 # Usage: ./solc_batch_compile.sh [directory]
@@ -37,24 +39,24 @@ for dir in "$BASE_DIR"/*/; do
     if [ -d "$dir" ]; then
         # Get the directory name (without path)
         dirname=$(basename "$dir")
-        
+
         # Check if the corresponding .sol file exists
         sol_file="$dir$dirname.sol"
         json_file="$dir$dirname.json"
-        
+
         if [ -f "$sol_file" ]; then
             echo "Compiling $sol_file..."
-            
+
             # Change to the directory containing the .sol file
             cd "$dir" || continue
-            
+
             # Compile the Solidity file
             if solc --combined-json abi,bin,bin-runtime "$dirname.sol" > "$dirname.json"; then
                 echo "✓ Successfully compiled $dirname.sol to $dirname.json"
             else
                 echo "✗ Failed to compile $dirname.sol"
             fi
-            
+
             # Return to the original directory
             cd - > /dev/null || exit 1
         else
