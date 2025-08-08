@@ -3,8 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # requires:
-# pip install "eth-hash[pycryptodome]" rlp trie
-# cmake --build build -j --target mptCompareCpp
+# python requirements: eth-hash, trie, rlp
+#   - you can install the requirements by running `pip3 install -r requirements.txt`
+# Build the C++ MPT comparison binary before running this script:
+#   - you can build the binary by running `cmake --build build -j --target mptCompareCpp`
 
 # MPT Comparison Script - Compare C++ and Python MPT implementations
 # Usage: ./compare_mpt.sh <json_file>
