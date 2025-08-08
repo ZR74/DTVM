@@ -3,11 +3,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # requires:
-# npm install @ethereumjs/trie @ethereumjs/rlp ethereum-cryptography
+# pip install "eth-hash[pycryptodome]" rlp trie
 # cmake --build build -j --target mptCompareCpp
 
-# MPT Comparison Script - Compare C++ and JavaScript MPT implementations
+# MPT Comparison Script - Compare C++ and Python MPT implementations
 # Usage: ./compare_mpt.sh <json_file>
+
+set -o pipefail
 
 if [ $# -ne 1 ]; then
     echo "Usage: $0 <json_file>"
@@ -22,89 +24,102 @@ if [ ! -f "$JSON_FILE" ]; then
     exit 1
 fi
 
+PY_BIN="$(command -v python3 || command -v python)"
+if [ -z "$PY_BIN" ]; then
+    echo "Error: python3/python not found in PATH"
+    exit 1
+fi
+
+if [ ! -f "./tools/mpt_compare_py.py" ]; then
+    echo "Error: Python script './tools/mpt_compare_py.py' not found!"
+    exit 1
+fi
+
+normalize_hex() {
+  local s="$1"
+  s="${s#0x}"
+  s="${s#0X}"
+  echo "${s,,}"
+}
+
 echo "=== MPT Implementation Comparison ==="
 echo "Input file: $JSON_FILE"
 echo ""
 
-# Run C++ implementation
+# Run C++
 echo "--- C++ Implementation ---"
 CPP_OUTPUT=$(./build/mptCompareCpp "$JSON_FILE")
 CPP_EXIT_CODE=$?
-
 if [ $CPP_EXIT_CODE -ne 0 ]; then
     echo "ERROR: C++ implementation failed"
     echo "$CPP_OUTPUT"
     exit 1
 fi
-
 echo "$CPP_OUTPUT" > /tmp/cpp_result.json
 
-# Run JavaScript implementation
-echo "--- JavaScript Implementation ---"
-JS_OUTPUT=$(node ./tools/mpt_compare_js.js "$JSON_FILE")
-JS_EXIT_CODE=$?
-
-if [ $JS_EXIT_CODE -ne 0 ]; then
-    echo "ERROR: JavaScript implementation failed"
-    echo "$JS_OUTPUT"
+# Run Python
+echo "--- Python Implementation ---"
+PY_OUTPUT=$("$PY_BIN" ./tools/mpt_compare_py.py "$JSON_FILE")
+PY_EXIT_CODE=$?
+if [ $PY_EXIT_CODE -ne 0 ]; then
+    echo "ERROR: Python implementation failed"
+    echo "$PY_OUTPUT"
     exit 1
 fi
+echo "$PY_OUTPUT" > /tmp/py_result.json
 
-echo "$JS_OUTPUT" > /tmp/js_result.json
+# State root (prefer jq; fallback grep/sed)
+if command -v jq &> /dev/null; then
+    CPP_STATE_ROOT_RAW=$(jq -r '.stateRoot' /tmp/cpp_result.json)
+    PY_STATE_ROOT_RAW=$(jq -r '.stateRoot' /tmp/py_result.json)
+else
+    CPP_STATE_ROOT_RAW=$(echo "$CPP_OUTPUT" | grep -o '"stateRoot"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"/\1/')
+    PY_STATE_ROOT_RAW=$(echo "$PY_OUTPUT" | grep -o '"stateRoot"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"/\1/')
+fi
 
-# Extract state roots for comparison
-CPP_STATE_ROOT=$(echo "$CPP_OUTPUT" | grep -o '"stateRoot"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"/\1/')
-JS_STATE_ROOT=$(echo "$JS_OUTPUT" | grep -o '"stateRoot"[[:space:]]*:[[:space:]]*"[^"]*"' | sed 's/.*"\([^"]*\)"/\1/')
+CPP_STATE_ROOT=$(normalize_hex "$CPP_STATE_ROOT_RAW")
+PY_STATE_ROOT=$(normalize_hex "$PY_STATE_ROOT_RAW")
 
 echo ""
 echo "=== Results Comparison ==="
-echo "C++ State Root:  $CPP_STATE_ROOT"
-echo "JS State Root:   $JS_STATE_ROOT"
+echo "C++ State Root:    0x$CPP_STATE_ROOT"
+echo "Python State Root: 0x$PY_STATE_ROOT"
 
-if [ "$CPP_STATE_ROOT" = "$JS_STATE_ROOT" ]; then
+if [ "$CPP_STATE_ROOT" = "$PY_STATE_ROOT" ]; then
     echo "✅ SUCCESS: State roots match!"
     echo ""
 
-    # Compare detailed account processing
     echo "=== Detailed Account Comparison ==="
-
-    # Extract and compare account data using jq if available
     if command -v jq &> /dev/null; then
-        echo "Comparing account details..."
-
-        # Compare each account's processed data
+        echo "Comparing account details (normalized hex)..."
         ACCOUNTS_MATCH=true
 
-        for account in $(echo "$CPP_OUTPUT" | jq -r '.accounts[].address'); do
-            CPP_ACCOUNT=$(echo "$CPP_OUTPUT" | jq ".accounts[] | select(.address == \"$account\")")
-            JS_ACCOUNT=$(echo "$JS_OUTPUT" | jq ".accounts[] | select(.address == \"$account\")")
+        for account in $(jq -r '.accounts[].address' /tmp/cpp_result.json); do
+            CPP_ACCOUNT=$(jq ".accounts[] | select(.address == \"$account\")" /tmp/cpp_result.json)
+            PY_ACCOUNT=$(jq ".accounts[] | select(.address == \"$account\")" /tmp/py_result.json)
 
-            CPP_HASH=$(echo "$CPP_ACCOUNT" | jq -r '.addressHash')
-            JS_HASH=$(echo "$JS_ACCOUNT" | jq -r '.addressHash')
+            for field in addressHash accountRLP storageRoot codeHash; do
+                CPP_VAL_RAW=$(echo "$CPP_ACCOUNT" | jq -r ".${field}")
+                PY_VAL_RAW=$(echo "$PY_ACCOUNT" | jq -r ".${field}")
 
-            if [ "$CPP_HASH" != "$JS_HASH" ]; then
-                echo "❌ Address hash mismatch for $account"
-                echo "   C++: $CPP_HASH"
-                echo "   JS:  $JS_HASH"
-                ACCOUNTS_MATCH=false
-            fi
+                CPP_VAL=$(normalize_hex "$CPP_VAL_RAW")
+                PY_VAL=$(normalize_hex "$PY_VAL_RAW")
 
-            CPP_RLP=$(echo "$CPP_ACCOUNT" | jq -r '.accountRLP')
-            JS_RLP=$(echo "$JS_ACCOUNT" | jq -r '.accountRLP')
+                if [ "$CPP_VAL" != "$PY_VAL" ]; then
+                    echo "❌ $field mismatch for $account"
+                    echo "   C++:    $CPP_VAL_RAW"
+                    echo "   Python: $PY_VAL_RAW"
+                    ACCOUNTS_MATCH=false
+                fi
+            done
 
-            if [ "$CPP_RLP" != "$JS_RLP" ]; then
-                echo "❌ Account RLP mismatch for $account"
-                echo "   C++: $CPP_RLP"
-                echo "   JS:  $JS_RLP"
-                ACCOUNTS_MATCH=false
-            fi
         done
 
         if [ "$ACCOUNTS_MATCH" = true ]; then
             echo "✅ All account details match perfectly!"
         fi
     else
-        echo "Note: Install 'jq' for detailed account comparison"
+        echo "Note: Install 'jq' for detailed (normalized) account comparison"
     fi
 else
     echo "❌ FAILURE: State roots do not match!"
@@ -114,13 +129,13 @@ else
     echo "C++ Output:"
     echo "$CPP_OUTPUT"
     echo ""
-    echo "JavaScript Output:"
-    echo "$JS_OUTPUT"
+    echo "Python Output:"
+    echo "$PY_OUTPUT"
 fi
 
 echo ""
 echo "=== Summary ==="
-if [ "$CPP_STATE_ROOT" = "$JS_STATE_ROOT" ]; then
+if [ "$CPP_STATE_ROOT" = "$PY_STATE_ROOT" ]; then
     echo "✅ Both implementations produce identical results"
     exit 0
 else
