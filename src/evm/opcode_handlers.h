@@ -8,6 +8,8 @@
 #include "evm/interpreter.h"
 #include "evmc/instructions.h"
 #include <cstdint>
+#include <iostream>
+#include "evm/recursiveHost.hpp"
 
 // EVM error checking macro definitions
 #define EVM_STACK_CHECK(FramePtr, N)                                           \

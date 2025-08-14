@@ -722,6 +722,12 @@ void SLoadHandler::doExecute() {
   }
   intx::uint256 Value = intx::be::load<intx::uint256>(
       Frame->Host->get_storage(Frame->Msg->recipient, KeyAddr));
+  const auto Key1 = intx::be::store<evmc::bytes32>(Key);
+  const auto Value1 = intx::be::store<evmc::bytes32>(Value);
+  // std::cout << "[SLOAD] 当前合约地址: 0x" << utils::toHex(Frame->Msg->recipient.bytes, 20) << std::endl;
+  // std::cout << "[SLOAD] Host实例地址: " << static_cast<void*>(Frame->Host) << std::endl;
+  // std::cout << "[SLOAD] 读取Key: 0x" << utils::toHex(Key1.bytes,32) 
+  //         << ", 读取值: 0x" << utils::toHex(Value1.bytes,32) << std::endl;
   Frame->push(Value);
 }
 void SStoreHandler::doExecute() {
@@ -733,6 +739,11 @@ void SStoreHandler::doExecute() {
   EVM_STACK_CHECK(Frame, 2);
   const auto Key = intx::be::store<evmc::bytes32>(Frame->pop());
   const auto Value = intx::be::store<evmc::bytes32>(Frame->pop());
+  
+  // std::cout << "[SSTORE] 当前合约地址: 0x" << utils::toHex(Frame->Msg->recipient.bytes, 20) << std::endl;
+  // std::cout << "[SSTORE] Host实例地址: " << static_cast<void*>(Frame->Host) << std::endl;
+  // std::cout << "[SSTORE] 待存储的Key: 0x" << zen::utils::toHex(Key.bytes, 32) << std::endl;
+  // std::cout << "[SSTORE] 待存储的Value: 0x" << zen::utils::toHex(Value.bytes, 32) << std::endl;
 
   const auto GasCostCold = (Frame->Rev >= EVMC_BERLIN &&
                             Frame->Host->access_storage(
@@ -741,6 +752,8 @@ void SStoreHandler::doExecute() {
                                : 0;
   const auto Status =
       Frame->Host->set_storage(Frame->Msg->recipient, Key, Value);
+  // std::cout << "[SSTORE] 存储操作状态: " << static_cast<int>(Status) 
+  //           << " (0=未修改, 1=新增, 2=修改, 3=删除)" << std::endl;
 
   const auto [GasCostWarm, GasReFund] = SstoreCosts[Frame->Rev][Status];
 
@@ -786,6 +799,10 @@ void MStoreHandler::doExecute() {
   EVM_STACK_CHECK(Frame, 2);
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 Value = Frame->pop();
+  // const auto Key1 = intx::be::store<evmc::bytes32>(OffsetVal);
+  // const auto Value1 = intx::be::store<evmc::bytes32>(Value);
+  // std::cout << "[EVM] 执行 MSTORE，偏移: 0x" << utils::toHex(Key1.bytes,32) 
+  //               << ", 值: 0x" << utils::toHex(Value1.bytes, 32)  << std::endl;
 
   uint64_t Offset = uint256ToUint64(OffsetVal);
   if (!checkMemoryExpandAndChargeGas(Frame, Offset, 32)) {
@@ -964,6 +981,11 @@ void ReturnHandler::doExecute() {
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 SizeVal = Frame->pop();
 
+  // const auto Key1 = intx::be::store<evmc::bytes32>(OffsetVal);
+  // const auto Value1 = intx::be::store<evmc::bytes32>(SizeVal);
+  // std::cout << "[EVM] 执行 RETURN，偏移: 0x" << utils::toHex(Key1.bytes,32) 
+  //               << ", size: 0x" << utils::toHex(Value1.bytes, 32)  << std::endl;
+
   uint64_t Offset = uint256ToUint64(OffsetVal);
   uint64_t Size = uint256ToUint64(SizeVal);
   if (!checkMemoryExpandAndChargeGas(Frame, Offset, Size)) {
@@ -975,6 +997,9 @@ void ReturnHandler::doExecute() {
   std::vector<uint8_t> ReturnData(Frame->Memory.begin() + Offset,
                                   Frame->Memory.begin() + Offset + Size);
   Context->setReturnData(std::move(ReturnData));
+
+  // std::string return_data = utils::toHex(Frame->Memory.data() + Offset, Size);
+  // std::cout << "[EVM] RETURN 数据: 0x" << return_data << std::endl;
 
   Context->setStatus(EVMC_SUCCESS);
   // Return remaining gas to parent frame before freeing current frame
@@ -1140,8 +1165,9 @@ void CreateHandler::doExecute() {
   if (Frame->Rev >= EVMC_TANGERINE_WHISTLE) {
     NewMsg.gas = NewMsg.gas - NewMsg.gas / 64;
   }
-
+  std::cout<<"create result"<<std::endl;
   evmc::Result Result = Frame->Host->call(NewMsg);
+  
   chargeGas(Frame,
             NewMsg.gas - Result.gas_left); // it's safe to charge gas here
   Frame->GasRefund += Result.gas_refund;
@@ -1266,10 +1292,13 @@ void CallHandler::doExecute() {
   if (NeedValue) {
     NewMsg.gas += CALL_GAS_STIPEND;
   }
+  std::cout<<"This call: callHandler call"<<std::endl;
+
 
   const auto Result = Frame->Host->call(NewMsg);
   Context->setResource();
   if (Result.status_code == EVMC_SUCCESS) {
+    std::cout<<"Call Success!"<<std::endl;
     Frame->pop(); // pop the assume value
     Frame->push(intx::uint256(1));
   }
@@ -1282,6 +1311,7 @@ void CallHandler::doExecute() {
     std::memcpy(Frame->Memory.data() + uint256ToUint64(OutputOffset),
                 Result.output_data, CopySize);
   }
+  std::cout << "[CallHandler] OutputOffset: 0x" << intx::to_string(OutputOffset, 16) << std::endl;
 
   const auto GasUsed = NewMsg.gas - Result.gas_left;
   chargeGas(Frame, GasUsed); // it's safe to charge gas here

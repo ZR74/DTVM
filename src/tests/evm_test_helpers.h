@@ -28,6 +28,7 @@ public:
     auto TempDir = std::filesystem::temp_directory_path();
     auto TempPath = TempDir / "dtvm_XXXXXX.hex";
     FilePath = TempPath.string();
+    std::cout<<"TempHexFile"<<FilePath<<std::endl;
 
     auto BaseStr = TempPath.stem().string();
     auto Extension = TempPath.extension();
@@ -61,7 +62,7 @@ public:
     }
 
     FilePath = BasePath + "/" + Suffix + ".hex";
-
+    std::cout<<"TempHexFile"<<FilePath<<std::endl;
     std::ofstream File(FilePath);
     if (!File) {
       throw std::runtime_error("Failed to create temp file: " + FilePath);
@@ -73,6 +74,7 @@ public:
 
   ~TempHexFile() {
     if (Valid && !FilePath.empty()) {
+      std::cout<<"TempHexFile remove"<<FilePath<<std::endl;
       std::filesystem::remove(FilePath);
     }
   }

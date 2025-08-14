@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "common/const_string_pool.h"
+#include <iostream>
 
 namespace zen::common {
 
@@ -76,8 +77,16 @@ void ConstStringPool::destroyPool() {
     for (I = 0; I < EntriesSize; ++I) {
       P = EntriesArray[I];
       if (!(reinterpret_cast<uintptr_t>(P) & 0x1)) {
-        ZEN_ASSERT((I < WASM_SYMBOLS_END && P->RefCount == 1) ||
-                   (I >= WASM_SYMBOLS_END && P->RefCount == 0));
+        // 先检查是否符合条件，不符合则打印日志
+        bool condition = (I < WASM_SYMBOLS_END && P->RefCount == 1) || 
+                         (I >= WASM_SYMBOLS_END && P->RefCount == 0);
+        if (!condition) {
+          // 打印关键信息：索引、引用计数、符号内容（若为字符串）
+          std::cout << "Assertion failed! I=" << I 
+          << ", RefCount=" << P->RefCount 
+          << ", Symbol: " << (P->Str8 ? reinterpret_cast<const char*>(P->Str8) : "null") << std::endl;
+        }
+        ZEN_ASSERT(condition); // 原断言
         MPool.deallocate(P);
       }
     }

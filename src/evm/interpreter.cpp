@@ -6,6 +6,7 @@
 #include "evm/opcode_handlers.h"
 #include "evmc/instructions.h"
 #include "runtime/evm_instance.h"
+#include <iostream>
 
 using namespace zen;
 using namespace zen::evm;
@@ -98,7 +99,7 @@ void BaseInterpreter::interpret() {
     uint8_t OpcodeByte = Code[Frame->Pc];
     evmc_opcode Op = static_cast<evmc_opcode>(OpcodeByte);
     bool IsJumpSuccess = false;
-
+    
     switch (Op) {
     case evmc_opcode::OP_STOP:
       Context.freeBackFrame();
