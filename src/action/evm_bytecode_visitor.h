@@ -5,15 +5,19 @@
 #define ZEN_ACTION_EVM_BYTECODE_VISITOR_H
 
 #include "compiler/evm_frontend/evm_mir_compiler.h"
+#include "evm/evm.h"
 #include "evmc/evmc.h"
 #include "evmc/instructions.h"
+#include "runtime/evm_module.h"
 
 namespace COMPILER {
 
 template <typename IRBuilder> class EVMByteCodeVisitor {
   typedef typename IRBuilder::CompilerContext CompilerContext;
   typedef typename IRBuilder::Operand Operand;
-  typedef VMEvalStack<Operand> EvalStack;
+  typedef zen::action::VMEvalStack<Operand> EvalStack;
+  using Byte = zen::common::Byte;
+  using Bytes = zen::common::Bytes;
 
 public:
   EVMByteCodeVisitor(IRBuilder &Builder, CompilerContext *Ctx)
@@ -39,15 +43,16 @@ private:
   }
 
   bool decode() {
-    const uint8_t *Bytecode = Ctx->getBytecode();
+    const uint8_t *Bytecode =
+        reinterpret_cast<const uint8_t *>(Ctx->getBytecode());
     size_t BytecodeSize = Ctx->getBytecodeSize();
     const uint8_t *Ip = Bytecode;
     const uint8_t *IpEnd = Bytecode + BytecodeSize;
 
     while (Ip < IpEnd) {
       evmc_opcode Opcode = static_cast<evmc_opcode>(*Ip);
-      ptrdiff_t diff = Ip - Bytecode;
-      PC = static_cast<uint64_t>(diff >= 0 ? diff : 0);
+      ptrdiff_t Diff = Ip - Bytecode;
+      PC = static_cast<uint64_t>(Diff >= 0 ? Diff : 0);
       Ip++;
 
       switch (Opcode) {
@@ -331,11 +336,11 @@ private:
         ZEN_ASSERT_TODO();
       }
 
-      case OP_BLOBHASH: {
+      case zen::evm::OP_BLOBHASH: {
         ZEN_ASSERT_TODO();
       }
 
-      case OP_BLOBBASEFEE: {
+      case zen::evm::OP_BLOBBASEFEE: {
         ZEN_ASSERT_TODO();
       }
 
@@ -363,15 +368,15 @@ private:
         ZEN_ASSERT_TODO();
       }
 
-      case OP_TLOAD: {
+      case zen::evm::OP_TLOAD: {
         ZEN_ASSERT_TODO();
       }
 
-      case OP_TSTORE: {
+      case zen::evm::OP_TSTORE: {
         ZEN_ASSERT_TODO();
       }
 
-      case OP_MCOPY: {
+      case zen::evm::OP_MCOPY: {
         ZEN_ASSERT_TODO();
       }
 
@@ -497,10 +502,12 @@ private:
   }
 
   Bytes readBytes(uint8_t Count) {
-    if (PC + Count > Module.CodeSize) {
+    if (PC + Count > Ctx->getBytecodeSize()) {
       throw getError(common::ErrorCode::UnexpectedEnd);
     }
-    Bytes Result(Module.Code + PC, Module.Code + PC + Count);
+    const uint8_t *Bytecode =
+        reinterpret_cast<const uint8_t *>(Ctx->getBytecode());
+    Bytes Result(reinterpret_cast<const std::byte *>(Bytecode + PC), Count);
     PC += Count;
     return Result;
   }
