@@ -127,26 +127,26 @@ public:
       // TODO: bit_width returns int after [LWG
       // 3656](https://cplusplus.github.io/LWG/issue3656).
       // NOLINTNEXTLINE(readability-redundant-casting)
-      const auto numNonzeroBytes =
+      const auto NumNonzeroBytes =
           static_cast<int>((std::__bit_width(SenderNonce) + 7) / 8);
-      *p++ = static_cast<uint8_t>(RLP_STR_BASE + numNonzeroBytes);
+      *P++ = static_cast<uint8_t>(RLP_STR_BASE + NumNonzeroBytes);
       intx::be::unsafe::store(P, SenderNonce);
-      size_t Shift = MAX_NONCE_SIZE - numNonzeroBytes;
+      size_t Shift = MAX_NONCE_SIZE - NumNonzeroBytes;
       if (Shift > 0) {
         for (size_t I = 0; I < MAX_NONCE_SIZE - Shift; ++I) {
-          P[I] = P[I + shift];
+          P[I] = P[I + Shift];
         }
-        P += MAX_NONCE_SIZE - shift;
+        P += MAX_NONCE_SIZE - Shift;
       }
     }
 
-    const auto totalSize = static_cast<size_t>(P - Buffer);
+    const auto TotalSize = static_cast<size_t>(P - Buffer);
     Buffer[0] = static_cast<uint8_t>(
-        RLP_LIST_BASE + (totalSize - 1)); // Set the RLP list prefix.
+        RLP_LIST_BASE + (TotalSize - 1)); // Set the RLP list prefix.
 
-    const auto baseHash = keccak256({Buffer, totalSize});
+    const auto BaseHash = keccak256({Buffer, TotalSize});
     evmc::address Addr;
-    std::copy_n(&baseHash.bytes[sizeof(baseHash) - ADDRESS_SIZE], ADDRESS_SIZE,
+    std::copy_n(&BaseHash.bytes[sizeof(BaseHash) - ADDRESS_SIZE], ADDRESS_SIZE,
                 Addr.bytes);
     return Addr;
   }
