@@ -23,26 +23,27 @@ class RecursiveHost : public evmc::MockedHost {
 private:
   Runtime *RT = nullptr;
   Isolation *Iso = nullptr;
+  std::vector<uint8_t> ReturnData;
 
 public:
   RecursiveHost(Runtime *RT, Isolation *Iso) : RT(RT), Iso(Iso) {}
 
   evmc::Result call(const evmc_message &Msg) noexcept override {
     // 1. 打印当前调用的基本信息（选择器、目标地址）
-    std::cout << "\n[RecursiveHost] 收到跨合约调用:" << std::endl;
-    std::cout << "  目标地址: 0x" << zen::utils::toHex(Msg.recipient.bytes, 20) << std::endl;
-    std::cout << "  调用选择器: 0x" << zen::utils::toHex(Msg.input_data, 4) << std::endl; // 前4字节是选择器
-    std::cout << "  输入数据长度: " << Msg.input_size << " 字节" << std::endl;
+    // std::cout << "\n[RecursiveHost] 收到跨合约调用:" << std::endl;
+    // std::cout << "  目标地址: 0x" << zen::utils::toHex(Msg.recipient.bytes, 20) << std::endl;
+    // std::cout << "  调用选择器: 0x" << zen::utils::toHex(Msg.input_data, 4) << std::endl; // 前4字节是选择器
+    // std::cout << "  输入数据长度: " << Msg.input_size << " 字节" << std::endl;
     // First call the parent MockedHost to record the call
     evmc::Result ParentResult = evmc::MockedHost::call(Msg);
     //print Msg.recipient
-    std::cout << "0x"; // 以太坊地址前缀
-    // 遍历20字节，每个字节转换为2位十六进制
-    for (uint8_t b : Msg.recipient.bytes) {
-        // 设置宽度为2，不足补0，以十六进制输出
-        std::cout << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(b);
-    }
-    std::cout << std::dec<<std::endl; // 恢复十进制输出，避免影响后续输出
+    // std::cout << "0x"; // 以太坊地址前缀
+    // // 遍历20字节，每个字节转换为2位十六进制
+    // for (uint8_t b : Msg.recipient.bytes) {
+    //     // 设置宽度为2，不足补0，以十六进制输出
+    //     std::cout << std::setw(2) << std::setfill('0') << std::hex << static_cast<int>(b);
+    // }
+    // std::cout << std::dec<<std::endl; // 恢复十进制输出，避免影响后续输出
 
     // Try to find the target contract
     auto It = accounts.find(Msg.recipient);
@@ -96,13 +97,13 @@ public:
       Result.status_code = Ctx.getStatus();
       Result.gas_left = CallMsg.gas;
 
-      const auto &ReturnData = Ctx.getReturnData();
+      ReturnData = Ctx.getReturnData();
       if (!ReturnData.empty()) {
         Result.output_data = ReturnData.data();
         Result.output_size = ReturnData.size();
       }
-      // // 在 RecursiveHost::call 中，执行 Interpreter.interpret() 后
-      // std::string host_return = utils::toHex(ReturnData.data(), ReturnData.size());
+      // // // 在 RecursiveHost::call 中，执行 Interpreter.interpret() 后
+      // std::string host_return = utils::toHex(Result.output_data, Result.output_size);
       // std::cout << "[RecursiveHost] 收集到的返回数据: 0x" << host_return << std::endl;
 
       return Result;

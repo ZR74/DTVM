@@ -252,7 +252,6 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
                   } else {
                     Test.Contract = ContractTest.MainContract;
                   }
-
                   ContractTest.TestCases.push_back(Test);
                 }
               }
@@ -293,7 +292,7 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
       }
     }
   }
-
+  
   return Tests;
 }
 // 辅助函数：将参数编码为Solidity ABI格式
@@ -556,6 +555,7 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
   // Step 2: Execute all test cases
   for (size_t I = 0; I < ContractTest.TestCases.size(); ++I) {
     const auto &TestCase = ContractTest.TestCases[I];
+    std::cout << "Now Testcase Function: " << TestCase.Function << std::endl;
 
     if (Debug)
       std::cout << "\n--- Test " << (I + 1) << "/"
@@ -575,6 +575,13 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
         << "Calldata must be provided for test: " << TestCase.Name;
 
     auto Calldata = utils::fromHex(TestCase.Calldata);
+    std::cout<<"TestCase.Calldata:"<<TestCase.Calldata<<std::endl;
+    for (size_t i = 0; i < Calldata->size(); ++i) {
+        // 每个字节转换为两位十六进制，不足两位补前导零
+        std::cout << std::hex << std::setw(2) << std::setfill('0') 
+                  << static_cast<int>(Calldata->data()[i]);
+    }
+    std::cout << std::dec << std::endl; // 恢复十进制输出格式
 
     evmc_message Msg = {
         .kind = EVMC_CALL,
@@ -585,6 +592,15 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
         .input_data = Calldata->data(),
         .input_size = Calldata->size(),
     };
+    // 打印 input_data 的十六进制内容
+    std::cout << "[调试] input_data (calldata) 内容: 0x";
+    for (size_t i = 0; i < Msg.input_size; ++i) {
+        // 每个字节转换为两位十六进制，不足两位补前导零
+        std::cout << std::hex << std::setw(2) << std::setfill('0') 
+                  << static_cast<int>(Msg.input_data[i]);
+    }
+    std::cout << std::dec << std::endl; // 恢复十进制输出格式
+
     CallCtx.allocFrame(&Msg);
     // Set the host for the execution frame
     auto *Frame = CallCtx.getCurFrame();

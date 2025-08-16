@@ -361,6 +361,8 @@ void CallerHandler::doExecute() {
 void CallValueHandler::doExecute() {
   auto *Frame = getFrame();
   EVM_FRAME_CHECK(Frame);
+  const auto Value1 = intx::be::store<evmc::bytes32>(intx::be::load<intx::uint256>(Frame->Msg->value));
+  std::cout << "[EVM] 执行 callvalue，值: 0x" << utils::toHex(Value1.bytes, 32)  << std::endl;
   Frame->push(intx::be::load<intx::uint256>(Frame->Msg->value));
 }
 void CallDataLoadHandler::doExecute() {
@@ -368,9 +370,11 @@ void CallDataLoadHandler::doExecute() {
   EVM_FRAME_CHECK(Frame);
   EVM_STACK_CHECK(Frame, 1);
   intx::uint256 OffsetVal = Frame->pop();
+  std::cout << "[EVM] 执行 calldataload，偏移量: 0x" << utils::toHex(intx::be::store<evmc::bytes32>(OffsetVal).bytes, 32)  << std::endl;
+
   uint64_t Offset = uint256ToUint64(OffsetVal);
 
-  if (Offset >= Frame->Msg->input_size) {
+  if (OffsetVal > Frame->Msg->input_size) {
     Frame->push(intx::uint256(0));
     return;
   }
@@ -380,12 +384,16 @@ void CallDataLoadHandler::doExecute() {
               std::min<size_t>(32, Frame->Msg->input_size - Offset));
 
   intx::uint256 Value = intx::be::load<intx::uint256>(DataBytes);
+  const auto Value1 = intx::be::store<evmc::bytes32>(Value);
+  std::cout << "[EVM] 执行 calldataload，值: 0x" << utils::toHex(Value1.bytes, 32)  << std::endl;
   Frame->push(Value);
 }
 void CallDataSizeHandler::doExecute() {
   auto *Frame = getFrame();
   EVM_FRAME_CHECK(Frame);
   Frame->push(intx::uint256(Frame->Msg->input_size));
+  const auto Value1 = intx::be::store<evmc::bytes32>(intx::uint256(Frame->Msg->input_size));
+  std::cout << "[EVM] 执行 calldatasize，值: 0x" << utils::toHex(Value1.bytes, 32)  << std::endl;
 }
 void CallDataCopyHandler::doExecute() {
   auto *Frame = getFrame();
@@ -404,6 +412,7 @@ void CallDataCopyHandler::doExecute() {
   uint64_t DestOffset = uint256ToUint64(DestOffsetVal);
   uint64_t Offset = uint256ToUint64(OffsetVal);
   uint64_t Size = uint256ToUint64(SizeVal);
+  std::cout<<"there calldatacopy"<<std::endl;
 
   auto Src = Frame->Msg->input_size < Offset ? Frame->Msg->input_size : Offset;
   auto CopySize = std::min(Size, Frame->Msg->input_size - Src);
@@ -438,6 +447,7 @@ void CodeCopyHandler::doExecute() {
   auto *Frame = getFrame();
   EVM_FRAME_CHECK(Frame);
   EVM_STACK_CHECK(Frame, 3);
+  std::cout<<"there codecopy"<<std::endl;
 
   auto *Context = getContext();
   auto *Inst = Context->getInstance();
@@ -734,6 +744,7 @@ void SStoreHandler::doExecute() {
   auto *Frame = getFrame();
   auto *Context = getContext();
   EVM_FRAME_CHECK(Frame);
+  // std::cout<<"There SStore"<<std::endl;
   EVM_REQUIRE(!Frame->isStaticMode(), EVMStaticModeViolation);
 
   EVM_STACK_CHECK(Frame, 2);
@@ -799,8 +810,8 @@ void MStoreHandler::doExecute() {
   EVM_STACK_CHECK(Frame, 2);
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 Value = Frame->pop();
-  // const auto Key1 = intx::be::store<evmc::bytes32>(OffsetVal);
-  // const auto Value1 = intx::be::store<evmc::bytes32>(Value);
+  const auto Key1 = intx::be::store<evmc::bytes32>(OffsetVal);
+  const auto Value1 = intx::be::store<evmc::bytes32>(Value);
   // std::cout << "[EVM] 执行 MSTORE，偏移: 0x" << utils::toHex(Key1.bytes,32) 
   //               << ", 值: 0x" << utils::toHex(Value1.bytes, 32)  << std::endl;
 
@@ -853,6 +864,10 @@ void MLoadHandler::doExecute() {
 
   intx::uint256 Value = intx::be::load<intx::uint256>(ValueBytes);
   Frame->push(Value);
+  const auto Value1 = intx::be::store<evmc::bytes32>(OffsetVal);
+  const auto Value2 = intx::be::store<evmc::bytes32>(Value);
+  // std::cout << "[EVM] 执行 MLOAD，偏移: 0x" << utils::toHex(Value1.bytes,32) 
+  //               << ", 值: 0x" << utils::toHex(Value2.bytes, 32)  << std::endl;
 }
 
 // Control flow operations
@@ -981,8 +996,8 @@ void ReturnHandler::doExecute() {
   intx::uint256 OffsetVal = Frame->pop();
   intx::uint256 SizeVal = Frame->pop();
 
-  // const auto Key1 = intx::be::store<evmc::bytes32>(OffsetVal);
-  // const auto Value1 = intx::be::store<evmc::bytes32>(SizeVal);
+  const auto Key1 = intx::be::store<evmc::bytes32>(OffsetVal);
+  const auto Value1 = intx::be::store<evmc::bytes32>(SizeVal);
   // std::cout << "[EVM] 执行 RETURN，偏移: 0x" << utils::toHex(Key1.bytes,32) 
   //               << ", size: 0x" << utils::toHex(Value1.bytes, 32)  << std::endl;
 
@@ -1292,13 +1307,13 @@ void CallHandler::doExecute() {
   if (NeedValue) {
     NewMsg.gas += CALL_GAS_STIPEND;
   }
-  std::cout<<"This call: callHandler call"<<std::endl;
+  // std::cout<<"This call: callHandler call"<<std::endl;
 
 
   const auto Result = Frame->Host->call(NewMsg);
   Context->setResource();
   if (Result.status_code == EVMC_SUCCESS) {
-    std::cout<<"Call Success!"<<std::endl;
+    // std::cout<<"Call Success!"<<std::endl;
     Frame->pop(); // pop the assume value
     Frame->push(intx::uint256(1));
   }
@@ -1310,8 +1325,10 @@ void CallHandler::doExecute() {
   if (CopySize > 0) {
     std::memcpy(Frame->Memory.data() + uint256ToUint64(OutputOffset),
                 Result.output_data, CopySize);
+    std::string Memcp=utils::toHex(Result.output_data,Result.output_size);
+    // std::cout << "[CallHandler] copy data: 0x" << Memcp << std::endl;
   }
-  std::cout << "[CallHandler] OutputOffset: 0x" << intx::to_string(OutputOffset, 16) << std::endl;
+  // std::cout << "[CallHandler] OutputOffset: 0x" << intx::to_string(OutputOffset, 16) << std::endl;
 
   const auto GasUsed = NewMsg.gas - Result.gas_left;
   chargeGas(Frame, GasUsed); // it's safe to charge gas here

@@ -1,7 +1,7 @@
 
-======= callee/callee.sol:CalleeContract =======
+======= tests/evm_solidity/callee/callee.sol:CalleeContract =======
 EVM assembly:
-    /* "callee/callee.sol":58:405  contract CalleeContract {... */
+    /* "tests/evm_solidity/callee/callee.sol":58:405  contract CalleeContract {... */
   mstore(0x40, 0x80)
   callvalue
   dup1
@@ -21,7 +21,7 @@ tag_1:
 stop
 
 sub_0: assembly {
-        /* "callee/callee.sol":58:405  contract CalleeContract {... */
+        /* "tests/evm_solidity/callee/callee.sol":58:405  contract CalleeContract {... */
       mstore(0x40, 0x80)
       callvalue
       dup1
@@ -60,7 +60,7 @@ sub_0: assembly {
       jumpi
     tag_2:
       revert(0x00, 0x00)
-        /* "callee/callee.sol":88:104  uint256 public x */
+        /* "tests/evm_solidity/callee/callee.sol":88:104  uint256 public x */
     tag_3:
       tag_8
       tag_9
@@ -79,7 +79,7 @@ sub_0: assembly {
       sub
       swap1
       return
-        /* "callee/callee.sol":111:167  function setX(uint256 _x) public {... */
+        /* "tests/evm_solidity/callee/callee.sol":111:167  function setX(uint256 _x) public {... */
     tag_4:
       tag_12
       0x04
@@ -99,14 +99,14 @@ sub_0: assembly {
       jump	// in
     tag_12:
       stop
-        /* "callee/callee.sol":351:403  function incrementX() public {... */
+        /* "tests/evm_solidity/callee/callee.sol":351:403  function incrementX() public {... */
     tag_5:
       tag_16
       tag_17
       jump	// in
     tag_16:
       stop
-        /* "callee/callee.sol":172:243  function getX() public view returns (uint256) {... */
+        /* "tests/evm_solidity/callee/callee.sol":172:243  function getX() public view returns (uint256) {... */
     tag_6:
       tag_18
       tag_19
@@ -125,7 +125,7 @@ sub_0: assembly {
       sub
       swap1
       return
-        /* "callee/callee.sol":249:345  function add(uint256 a, uint256 b) external pure returns (uint256) {... */
+        /* "tests/evm_solidity/callee/callee.sol":249:345  function add(uint256 a, uint256 b) external pure returns (uint256) {... */
     tag_7:
       tag_21
       0x04
@@ -157,33 +157,33 @@ sub_0: assembly {
       sub
       swap1
       return
-        /* "callee/callee.sol":88:104  uint256 public x */
+        /* "tests/evm_solidity/callee/callee.sol":88:104  uint256 public x */
     tag_9:
       sload(0x00)
       dup2
       jump	// out
-        /* "callee/callee.sol":111:167  function setX(uint256 _x) public {... */
+        /* "tests/evm_solidity/callee/callee.sol":111:167  function setX(uint256 _x) public {... */
     tag_15:
-        /* "callee/callee.sol":158:160  _x */
+        /* "tests/evm_solidity/callee/callee.sol":158:160  _x */
       dup1
-        /* "callee/callee.sol":154:155  x */
+        /* "tests/evm_solidity/callee/callee.sol":154:155  x */
       0x00
-        /* "callee/callee.sol":154:160  x = _x */
+        /* "tests/evm_solidity/callee/callee.sol":154:160  x = _x */
       dup2
       swap1
       sstore
       pop
-        /* "callee/callee.sol":111:167  function setX(uint256 _x) public {... */
+        /* "tests/evm_solidity/callee/callee.sol":111:167  function setX(uint256 _x) public {... */
       pop
       jump	// out
-        /* "callee/callee.sol":351:403  function incrementX() public {... */
+        /* "tests/evm_solidity/callee/callee.sol":351:403  function incrementX() public {... */
     tag_17:
-        /* "callee/callee.sol":395:396  1 */
+        /* "tests/evm_solidity/callee/callee.sol":395:396  1 */
       0x01
-        /* "callee/callee.sol":390:391  x */
+        /* "tests/evm_solidity/callee/callee.sol":390:391  x */
       0x00
       0x00
-        /* "callee/callee.sol":390:396  x += 1 */
+        /* "tests/evm_solidity/callee/callee.sol":390:396  x += 1 */
       dup3
       dup3
       sload
@@ -200,39 +200,39 @@ sub_0: assembly {
       swap1
       sstore
       pop
-        /* "callee/callee.sol":351:403  function incrementX() public {... */
+        /* "tests/evm_solidity/callee/callee.sol":351:403  function incrementX() public {... */
       jump	// out
-        /* "callee/callee.sol":172:243  function getX() public view returns (uint256) {... */
+        /* "tests/evm_solidity/callee/callee.sol":172:243  function getX() public view returns (uint256) {... */
     tag_19:
-        /* "callee/callee.sol":209:216  uint256 */
+        /* "tests/evm_solidity/callee/callee.sol":209:216  uint256 */
       0x00
-        /* "callee/callee.sol":235:236  x */
+        /* "tests/evm_solidity/callee/callee.sol":235:236  x */
       sload(0x00)
-        /* "callee/callee.sol":228:236  return x */
+        /* "tests/evm_solidity/callee/callee.sol":228:236  return x */
       swap1
       pop
-        /* "callee/callee.sol":172:243  function getX() public view returns (uint256) {... */
+        /* "tests/evm_solidity/callee/callee.sol":172:243  function getX() public view returns (uint256) {... */
       swap1
       jump	// out
-        /* "callee/callee.sol":249:345  function add(uint256 a, uint256 b) external pure returns (uint256) {... */
+        /* "tests/evm_solidity/callee/callee.sol":249:345  function add(uint256 a, uint256 b) external pure returns (uint256) {... */
     tag_24:
-        /* "callee/callee.sol":307:314  uint256 */
+        /* "tests/evm_solidity/callee/callee.sol":307:314  uint256 */
       0x00
-        /* "callee/callee.sol":337:338  b */
+        /* "tests/evm_solidity/callee/callee.sol":337:338  b */
       dup2
-        /* "callee/callee.sol":333:334  a */
+        /* "tests/evm_solidity/callee/callee.sol":333:334  a */
       dup4
-        /* "callee/callee.sol":333:338  a + b */
+        /* "tests/evm_solidity/callee/callee.sol":333:338  a + b */
       tag_32
       swap2
       swap1
       tag_29
       jump	// in
     tag_32:
-        /* "callee/callee.sol":326:338  return a + b */
+        /* "tests/evm_solidity/callee/callee.sol":326:338  return a + b */
       swap1
       pop
-        /* "callee/callee.sol":249:345  function add(uint256 a, uint256 b) external pure returns (uint256) {... */
+        /* "tests/evm_solidity/callee/callee.sol":249:345  function add(uint256 a, uint256 b) external pure returns (uint256) {... */
       swap3
       swap2
       pop
@@ -571,15 +571,15 @@ sub_0: assembly {
       pop
       jump	// out
 
-    auxdata: 0xa2646970667358221220de2729fc5845dc413f4beb1ccc5adf3f4329e4fbede068d8b0b5acf93894174d64736f6c634300081e0033
+    auxdata: 0xa26469706673582212201d0962a8b723955e09f5a8f945c08ec4d60d3bbf7ef33cadf5bae404598c741264736f6c634300081e0033
 }
 
 
-======= caller/caller.sol:CallerContract =======
+======= tests/evm_solidity/caller/caller.sol:CallerContract =======
 EVM assembly:
-    /* "caller/caller.sol":157:998  contract CallerContract {... */
+    /* "tests/evm_solidity/caller/caller.sol":157:998  contract CallerContract {... */
   mstore(0x40, 0x80)
-    /* "caller/caller.sol":314:463  constructor(address calleeAddress) {... */
+    /* "tests/evm_solidity/caller/caller.sol":314:463  constructor(address calleeAddress) {... */
   callvalue
   dup1
   iszero
@@ -608,12 +608,12 @@ tag_1:
   tag_3
   jump	// in
 tag_2:
-    /* "caller/caller.sol":442:455  calleeAddress */
+    /* "tests/evm_solidity/caller/caller.sol":442:455  calleeAddress */
   dup1
-    /* "caller/caller.sol":418:424  callee */
+    /* "tests/evm_solidity/caller/caller.sol":418:424  callee */
   0x00
   0x00
-    /* "caller/caller.sol":418:456  callee = CalleeContract(calleeAddress) */
+    /* "tests/evm_solidity/caller/caller.sol":418:456  callee = CalleeContract(calleeAddress) */
   0x0100
   exp
   dup2
@@ -632,9 +632,9 @@ tag_2:
   swap1
   sstore
   pop
-    /* "caller/caller.sol":314:463  constructor(address calleeAddress) {... */
+    /* "tests/evm_solidity/caller/caller.sol":314:463  constructor(address calleeAddress) {... */
   pop
-    /* "caller/caller.sol":157:998  contract CallerContract {... */
+    /* "tests/evm_solidity/caller/caller.sol":157:998  contract CallerContract {... */
   jump(tag_6)
     /* "#utility.yul":88:205   */
 tag_8:
@@ -787,7 +787,7 @@ tag_29:
   pop
   pop
   jump	// out
-    /* "caller/caller.sol":157:998  contract CallerContract {... */
+    /* "tests/evm_solidity/caller/caller.sol":157:998  contract CallerContract {... */
 tag_6:
   dataSize(sub_0)
   dup1
@@ -799,7 +799,7 @@ tag_6:
 stop
 
 sub_0: assembly {
-        /* "caller/caller.sol":157:998  contract CallerContract {... */
+        /* "tests/evm_solidity/caller/caller.sol":157:998  contract CallerContract {... */
       mstore(0x40, 0x80)
       callvalue
       dup1
@@ -838,7 +838,7 @@ sub_0: assembly {
       jumpi
     tag_2:
       revert(0x00, 0x00)
-        /* "caller/caller.sol":905:996  function getCalleeX() external view returns (uint256) {... */
+        /* "tests/evm_solidity/caller/caller.sol":905:996  function getCalleeX() external view returns (uint256) {... */
     tag_3:
       tag_8
       tag_9
@@ -857,7 +857,7 @@ sub_0: assembly {
       sub
       swap1
       return
-        /* "caller/caller.sol":510:583  function setCalleeX(uint256 _x) external {... */
+        /* "tests/evm_solidity/caller/caller.sol":510:583  function setCalleeX(uint256 _x) external {... */
     tag_4:
       tag_12
       0x04
@@ -877,7 +877,7 @@ sub_0: assembly {
       jump	// in
     tag_12:
       stop
-        /* "caller/caller.sol":629:740  function callAdd(uint256 a, uint256 b) external view returns (uint256) {... */
+        /* "tests/evm_solidity/caller/caller.sol":629:740  function callAdd(uint256 a, uint256 b) external view returns (uint256) {... */
     tag_5:
       tag_16
       0x04
@@ -909,7 +909,7 @@ sub_0: assembly {
       sub
       swap1
       return
-        /* "caller/caller.sol":225:253  CalleeContract public callee */
+        /* "tests/evm_solidity/caller/caller.sol":225:253  CalleeContract public callee */
     tag_6:
       tag_21
       tag_22
@@ -928,18 +928,18 @@ sub_0: assembly {
       sub
       swap1
       return
-        /* "caller/caller.sol":793:864  function callIncrementX() external {... */
+        /* "tests/evm_solidity/caller/caller.sol":793:864  function callIncrementX() external {... */
     tag_7:
       tag_25
       tag_26
       jump	// in
     tag_25:
       stop
-        /* "caller/caller.sol":905:996  function getCalleeX() external view returns (uint256) {... */
+        /* "tests/evm_solidity/caller/caller.sol":905:996  function getCalleeX() external view returns (uint256) {... */
     tag_9:
-        /* "caller/caller.sol":950:957  uint256 */
+        /* "tests/evm_solidity/caller/caller.sol":950:957  uint256 */
       0x00
-        /* "caller/caller.sol":976:982  callee */
+        /* "tests/evm_solidity/caller/caller.sol":976:982  callee */
       0x00
       0x00
       swap1
@@ -951,11 +951,11 @@ sub_0: assembly {
       div
       0xffffffffffffffffffffffffffffffffffffffff
       and
-        /* "caller/caller.sol":976:987  callee.getX */
+        /* "tests/evm_solidity/caller/caller.sol":976:987  callee.getX */
       0xffffffffffffffffffffffffffffffffffffffff
       and
       0x5197c7aa
-        /* "caller/caller.sol":976:989  callee.getX() */
+        /* "tests/evm_solidity/caller/caller.sol":976:989  callee.getX() */
       mload(0x40)
       dup2
       0xffffffff
@@ -1009,15 +1009,15 @@ sub_0: assembly {
       tag_31
       jump	// in
     tag_30:
-        /* "caller/caller.sol":969:989  return callee.getX() */
+        /* "tests/evm_solidity/caller/caller.sol":969:989  return callee.getX() */
       swap1
       pop
-        /* "caller/caller.sol":905:996  function getCalleeX() external view returns (uint256) {... */
+        /* "tests/evm_solidity/caller/caller.sol":905:996  function getCalleeX() external view returns (uint256) {... */
       swap1
       jump	// out
-        /* "caller/caller.sol":510:583  function setCalleeX(uint256 _x) external {... */
+        /* "tests/evm_solidity/caller/caller.sol":510:583  function setCalleeX(uint256 _x) external {... */
     tag_15:
-        /* "caller/caller.sol":561:567  callee */
+        /* "tests/evm_solidity/caller/caller.sol":561:567  callee */
       0x00
       0x00
       swap1
@@ -1029,13 +1029,13 @@ sub_0: assembly {
       div
       0xffffffffffffffffffffffffffffffffffffffff
       and
-        /* "caller/caller.sol":561:572  callee.setX */
+        /* "tests/evm_solidity/caller/caller.sol":561:572  callee.setX */
       0xffffffffffffffffffffffffffffffffffffffff
       and
       0x4018d9aa
-        /* "caller/caller.sol":573:575  _x */
+        /* "tests/evm_solidity/caller/caller.sol":573:575  _x */
       dup3
-        /* "caller/caller.sol":561:576  callee.setX(_x) */
+        /* "tests/evm_solidity/caller/caller.sol":561:576  callee.setX(_x) */
       mload(0x40)
       dup3
       0xffffffff
@@ -1084,14 +1084,14 @@ sub_0: assembly {
       pop
       pop
       pop
-        /* "caller/caller.sol":510:583  function setCalleeX(uint256 _x) external {... */
+        /* "tests/evm_solidity/caller/caller.sol":510:583  function setCalleeX(uint256 _x) external {... */
       pop
       jump	// out
-        /* "caller/caller.sol":629:740  function callAdd(uint256 a, uint256 b) external view returns (uint256) {... */
+        /* "tests/evm_solidity/caller/caller.sol":629:740  function callAdd(uint256 a, uint256 b) external view returns (uint256) {... */
     tag_19:
-        /* "caller/caller.sol":691:698  uint256 */
+        /* "tests/evm_solidity/caller/caller.sol":691:698  uint256 */
       0x00
-        /* "caller/caller.sol":717:723  callee */
+        /* "tests/evm_solidity/caller/caller.sol":717:723  callee */
       0x00
       0x00
       swap1
@@ -1103,15 +1103,15 @@ sub_0: assembly {
       div
       0xffffffffffffffffffffffffffffffffffffffff
       and
-        /* "caller/caller.sol":717:727  callee.add */
+        /* "tests/evm_solidity/caller/caller.sol":717:727  callee.add */
       0xffffffffffffffffffffffffffffffffffffffff
       and
       0x771602f7
-        /* "caller/caller.sol":728:729  a */
+        /* "tests/evm_solidity/caller/caller.sol":728:729  a */
       dup5
-        /* "caller/caller.sol":731:732  b */
+        /* "tests/evm_solidity/caller/caller.sol":731:732  b */
       dup5
-        /* "caller/caller.sol":717:733  callee.add(a, b) */
+        /* "tests/evm_solidity/caller/caller.sol":717:733  callee.add(a, b) */
       mload(0x40)
       dup4
       0xffffffff
@@ -1172,16 +1172,16 @@ sub_0: assembly {
       tag_31
       jump	// in
     tag_42:
-        /* "caller/caller.sol":710:733  return callee.add(a, b) */
+        /* "tests/evm_solidity/caller/caller.sol":710:733  return callee.add(a, b) */
       swap1
       pop
-        /* "caller/caller.sol":629:740  function callAdd(uint256 a, uint256 b) external view returns (uint256) {... */
+        /* "tests/evm_solidity/caller/caller.sol":629:740  function callAdd(uint256 a, uint256 b) external view returns (uint256) {... */
       swap3
       swap2
       pop
       pop
       jump	// out
-        /* "caller/caller.sol":225:253  CalleeContract public callee */
+        /* "tests/evm_solidity/caller/caller.sol":225:253  CalleeContract public callee */
     tag_22:
       0x00
       0x00
@@ -1196,9 +1196,9 @@ sub_0: assembly {
       and
       dup2
       jump	// out
-        /* "caller/caller.sol":793:864  function callIncrementX() external {... */
+        /* "tests/evm_solidity/caller/caller.sol":793:864  function callIncrementX() external {... */
     tag_26:
-        /* "caller/caller.sol":838:844  callee */
+        /* "tests/evm_solidity/caller/caller.sol":838:844  callee */
       0x00
       0x00
       swap1
@@ -1210,11 +1210,11 @@ sub_0: assembly {
       div
       0xffffffffffffffffffffffffffffffffffffffff
       and
-        /* "caller/caller.sol":838:855  callee.incrementX */
+        /* "tests/evm_solidity/caller/caller.sol":838:855  callee.incrementX */
       0xffffffffffffffffffffffffffffffffffffffff
       and
       0x40f006be
-        /* "caller/caller.sol":838:857  callee.incrementX() */
+        /* "tests/evm_solidity/caller/caller.sol":838:857  callee.incrementX() */
       mload(0x40)
       dup2
       0xffffffff
@@ -1257,7 +1257,7 @@ sub_0: assembly {
       pop
       pop
       pop
-        /* "caller/caller.sol":793:864  function callIncrementX() external {... */
+        /* "tests/evm_solidity/caller/caller.sol":793:864  function callIncrementX() external {... */
       jump	// out
         /* "#utility.yul":7:84   */
     tag_47:
@@ -1794,6 +1794,6 @@ sub_0: assembly {
       pop
       jump	// out
 
-    auxdata: 0xa2646970667358221220b08b57eb7ba292c65a25cd59aa57abe337696c62fefe0110dfe8d433a70b840364736f6c634300081e0033
+    auxdata: 0xa2646970667358221220c8a654eb36305f0b2d46d8061b51ef67f1351226f79bd7a10d8f78e79afc47cd64736f6c634300081e0033
 }
 
