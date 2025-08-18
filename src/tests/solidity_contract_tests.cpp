@@ -74,6 +74,16 @@ struct SolidityContractTestData {
   std::map<std::string, SolcContractData> ContractDataMap;
   std::string MainContract;
   std::vector<std::string> DeployContracts;
+
+  // Constructor arguments for contracts (if any)
+  //
+  // Data structure breakdown:
+  // - Outer map key: Name of the contract (to specify which contract's
+  // constructor to configure)
+  // - Inner vector: Sequence of constructor calls (supports multiple
+  // deployments with different args)
+  // - Pair first element: Reserved (not used for constructors, may be empty)
+  // - Pair second element: Constructor parameters in JSON format
   std::map<std::string, std::vector<std::pair<std::string, std::string>>>
       ConstructorArgs;
 };
@@ -271,6 +281,13 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
   return Tests;
 }
 // Encode the parameters into the Solidity ABI format
+//
+// @param Type  The Solidity type of the parameter. Supported values include:
+//              - "address": Ethereum address (20-byte value)
+//              - "uint256": 256-bit unsigned integer
+//              - "int256": 256-bit signed integer
+//              - "bool": Boolean value (true/false)
+//              - "string": UTF-8 string
 std::string
 encodeAbiParam(const std::string &Type, const std::string &Value,
                const std::map<std::string, evmc::address> &DeployedAddrs) {
@@ -287,14 +304,15 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
       std::string Encoded = "000000000000000000000000" + AddrHex;
       return Encoded;
     }
-  } else if (Type == "uint256") {
+  }
+  if (Type == "uint256") {
     std::string UintHex =
         (Value.substr(0, 2) == "0x") ? Value.substr(2) : Value;
     return std::string(64 - UintHex.size(), '0') + UintHex;
   }
   // TODO: Other types of implementations
   //  Unsupported ABI type
-  return "";
+  ZEN_ASSERT_TODO();
 }
 // Detect whether it is the bytecode of a library contract (starting with 20
 // consecutive zeros after the byte 73)
