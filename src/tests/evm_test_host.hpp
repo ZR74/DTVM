@@ -118,27 +118,20 @@ public:
                                      uint64_t SenderNonce) noexcept {
     static constexpr auto ADDRESS_SIZE = sizeof(Sender);
 
-    // 1. 编码Sender地址（evmc::address）为RLP字符串
     std::vector<uint8_t> SenderBytes(Sender.bytes, Sender.bytes + ADDRESS_SIZE);
     auto EncodedSender = zen::evm::rlp::encodeString(SenderBytes);
 
-    // 2. 编码SenderNonce（uint64_t）为RLP字符串
-    // 先将uint64_t转换为evmc_uint256be（256位大端序）
     evmc_uint256be NonceUint256 = {};
     intx::be::store(NonceUint256.bytes, intx::uint256{SenderNonce});
-    // 获取去除前导零的最小字节数组（直接得到有效字节）
     std::vector<uint8_t> NonceMinimalBytes = uint256beToBytes(NonceUint256);
     auto EncodedNonce = zen::evm::rlp::encodeString(NonceMinimalBytes);
 
-    // 3. 将地址和nonce的RLP编码组合为RLP列表
     std::vector<std::vector<uint8_t>> RlpListItems = {EncodedSender,
                                                       EncodedNonce};
     auto EncodedList = zen::evm::rlp::encodeList(RlpListItems);
 
-    // 4. 计算Keccak256哈希并截取后20字节作为地址
     const auto BaseHash = zen::host::evm::crypto::keccak256(EncodedList);
     evmc::address Addr;
-    // 注意：keccak256返回std::vector<uint8_t>，直接通过data()访问
     std::copy_n(&BaseHash.data()[BaseHash.size() - ADDRESS_SIZE], ADDRESS_SIZE,
                 Addr.bytes);
     return Addr;
