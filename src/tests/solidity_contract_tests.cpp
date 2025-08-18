@@ -11,8 +11,8 @@
 #include <gtest/gtest.h>
 
 #include "evm/interpreter.h"
-#include "evm_recursiveHost.hpp"
 #include "evm_test_helpers.h"
+#include "evm_test_host.hpp"
 #include "evmc/mocked_host.hpp"
 #include "host/evm/crypto.h"
 #include "utils/others.h"
@@ -341,17 +341,16 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
   Isolation *IsoForRecursive = RT->createManagedIsolation();
   ASSERT_TRUE(IsoForRecursive != nullptr)
       << "Failed to create Isolation for recursive host";
-  // Now create RecursiveHost with Runtime and Isolation references
-  auto RecursiveHostPtr =
-      std::make_unique<RecursiveHost>(RT.get(), IsoForRecursive);
-  RecursiveHost *MockedHost = RecursiveHostPtr.get();
+  // Now create ZenMockedEVMHost with Runtime and Isolation references
+  auto HostPtr = std::make_unique<ZenMockedEVMHost>(RT.get(), IsoForRecursive);
+  ZenMockedEVMHost *MockedHost = HostPtr.get();
 
   // Copy accounts and context from temporary host
   MockedHost->accounts = TempMockedHost->accounts;
   MockedHost->tx_context = TempMockedHost->tx_context;
 
-  // Switch to using RecursiveHost
-  std::unique_ptr<evmc::Host> Host = std::move(RecursiveHostPtr);
+  // Switch to using ZenMockedEVMHost
+  std::unique_ptr<evmc::Host> Host = std::move(HostPtr);
 
   uint8_t DeployerBytes[20] = {0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

@@ -1,32 +1,34 @@
-// recursive_host.cpp
 // Copyright (C) 2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+#ifndef ZEN_TESTS_EVM_TEST_HOST_HPP
+#define ZEN_TESTS_EVM_TEST_HOST_HPP
+
 #include "evm/interpreter.h"
 #include "evmc/mocked_host.hpp"
 #include "host/evm/crypto.h"
 #include "host/evm/keccak/keccak.hpp"
+#include "mpt/rlp_encoding.h"
 #include "runtime/isolation.h"
 #include "runtime/runtime.h"
-#include "tests/evm_test_helpers.h"
 #include "utils/others.h"
 #include <iostream>
 
 using namespace zen;
 using namespace zen::runtime;
-using namespace zen::evm_test_utils;
 
 namespace zen::evm {
 
 /// Recursive Host that can execute CALL instructions by creating new
 /// interpreters
-class RecursiveHost : public evmc::MockedHost {
+class ZenMockedEVMHost : public evmc::MockedHost {
 private:
   Runtime *RT = nullptr;
   Isolation *Iso = nullptr;
   std::vector<uint8_t> ReturnData;
+  static inline std::atomic<uint64_t> ModuleCounter = 0;
 
 public:
-  RecursiveHost(Runtime *RT, Isolation *Iso) : RT(RT), Iso(Iso) {}
+  ZenMockedEVMHost(Runtime *RT, Isolation *Iso) : RT(RT), Iso(Iso) {}
 
   evmc::Result call(const evmc_message &Msg) noexcept override {
     evmc::Result ParentResult = evmc::MockedHost::call(Msg);
@@ -39,15 +41,18 @@ public:
     }
 
     try {
-      // Create temporary hex file from contract code using RAII
-      std::string HexCode = "0x" + zen::utils::toHex(It->second.code.data(),
-                                                     It->second.code.size());
-      TempHexFile TempFile(HexCode);
-      if (!TempFile.isValid()) {
+      const auto &ContractCode = It->second.code;
+      if (ContractCode.empty()) {
         return ParentResult;
       }
-      // Load EVM module
-      auto ModRet = RT->loadEVMModule(TempFile.getPath());
+      uint64_t Counter = ModuleCounter++;
+      std::string ModName =
+          "evm_model_" + evmc::hex(evmc::bytes_view(Msg.recipient.bytes, 20)) +
+          "_" + std::to_string(Counter);
+      ;
+
+      auto ModRet =
+          RT->loadEVMModule(ModName, ContractCode.data(), ContractCode.size());
       if (!ModRet) {
         return ParentResult;
       }
@@ -95,61 +100,51 @@ public:
     }
   }
   using hash256 = evmc::bytes32;
-  hash256 keccak256(evmc::bytes_view data) noexcept {
-    // Call the underlying layer ethash::keccak256(const uint8_t*, size_t),and
-    // convert the return value type
-    hash256 result;
-    auto hash_result = ethash::keccak256(data.data(), data.size());
-    std::memcpy(&result, &hash_result, sizeof(result));
-    return result;
+  std::vector<uint8_t> uint256beToBytes(const evmc::uint256be &Value) {
+    const auto *Data = Value.bytes;
+    size_t Start = 0;
+
+    while (Start < sizeof(Value.bytes) && Data[Start] == 0) {
+      Start++;
+    }
+
+    if (Start == sizeof(Value.bytes)) {
+      return {};
+    }
+
+    return std::vector<uint8_t>(Data + Start, Data + sizeof(Value.bytes));
   }
   evmc::address computeCreateAddress(const evmc::address &Sender,
                                      uint64_t SenderNonce) noexcept {
-    static constexpr auto RLP_STR_BASE = 0x80;
-    static constexpr auto RLP_LIST_BASE = 0xc0;
     static constexpr auto ADDRESS_SIZE = sizeof(Sender);
-    static constexpr std::ptrdiff_t MAX_NONCE_SIZE = sizeof(SenderNonce);
 
-    uint8_t
-        Buffer[ADDRESS_SIZE + MAX_NONCE_SIZE + 3]; // 3 for RLP prefix bytes.
-    auto P = &Buffer[1]; // Skip RLP list prefix for now.
-    *P++ =
-        RLP_STR_BASE + ADDRESS_SIZE; // Set RLP string prefix for evmc::address.
-    P = std::copy_n(Sender.bytes, ADDRESS_SIZE, P);
+    // 1. 编码Sender地址（evmc::address）为RLP字符串
+    std::vector<uint8_t> SenderBytes(Sender.bytes, Sender.bytes + ADDRESS_SIZE);
+    auto EncodedSender = zen::evm::rlp::encodeString(SenderBytes);
 
-    if (SenderNonce < RLP_STR_BASE) // Short integer encoding including 0 as
-                                    // empty string (0x80).
-    {
-      *P++ =
-          SenderNonce != 0 ? static_cast<uint8_t>(SenderNonce) : RLP_STR_BASE;
-    } else // Prefixed integer encoding.
-    {
-      // TODO: bit_width returns int after [LWG
-      // 3656](https://cplusplus.github.io/LWG/issue3656).
-      // NOLINTNEXTLINE(readability-redundant-casting)
-      const auto NumNonzeroBytes =
-          static_cast<int>((std::__bit_width(SenderNonce) + 7) / 8);
-      *P++ = static_cast<uint8_t>(RLP_STR_BASE + NumNonzeroBytes);
-      intx::be::unsafe::store(P, SenderNonce);
-      size_t Shift = MAX_NONCE_SIZE - NumNonzeroBytes;
-      if (Shift > 0) {
-        for (size_t I = 0; I < MAX_NONCE_SIZE - Shift; ++I) {
-          P[I] = P[I + Shift];
-        }
-        P += MAX_NONCE_SIZE - Shift;
-      }
-    }
+    // 2. 编码SenderNonce（uint64_t）为RLP字符串
+    // 先将uint64_t转换为evmc_uint256be（256位大端序）
+    evmc_uint256be NonceUint256 = {};
+    intx::be::store(NonceUint256.bytes, intx::uint256{SenderNonce});
+    // 获取去除前导零的最小字节数组（直接得到有效字节）
+    std::vector<uint8_t> NonceMinimalBytes = uint256beToBytes(NonceUint256);
+    auto EncodedNonce = zen::evm::rlp::encodeString(NonceMinimalBytes);
 
-    const auto TotalSize = static_cast<size_t>(P - Buffer);
-    Buffer[0] = static_cast<uint8_t>(
-        RLP_LIST_BASE + (TotalSize - 1)); // Set the RLP list prefix.
+    // 3. 将地址和nonce的RLP编码组合为RLP列表
+    std::vector<std::vector<uint8_t>> RlpListItems = {EncodedSender,
+                                                      EncodedNonce};
+    auto EncodedList = zen::evm::rlp::encodeList(RlpListItems);
 
-    const auto BaseHash = keccak256({Buffer, TotalSize});
+    // 4. 计算Keccak256哈希并截取后20字节作为地址
+    const auto BaseHash = zen::host::evm::crypto::keccak256(EncodedList);
     evmc::address Addr;
-    std::copy_n(&BaseHash.bytes[sizeof(BaseHash) - ADDRESS_SIZE], ADDRESS_SIZE,
+    // 注意：keccak256返回std::vector<uint8_t>，直接通过data()访问
+    std::copy_n(&BaseHash.data()[BaseHash.size() - ADDRESS_SIZE], ADDRESS_SIZE,
                 Addr.bytes);
     return Addr;
   }
 };
 
 } // namespace zen::evm
+
+#endif // ZEN_TESTS_EVM_TEST_HOST_HPP
