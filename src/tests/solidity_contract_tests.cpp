@@ -329,7 +329,14 @@ std::string replaceLibraryPlaceholder(const std::string &ExpectedHex,
 } // namespace
 
 class SolidityContractTest
-    : public testing::TestWithParam<SolidityContractTestData> {};
+    : public testing::TestWithParam<SolidityContractTestData> {
+protected:
+  static void SetUpTestCase() {
+    auto logger = zen::utils::createConsoleLogger(
+        "evm_solidity_test_logger", zen::utils::LoggerLevel::Debug);
+    zen::setGlobalLogger(logger);
+  }
+};
 
 TEST_P(SolidityContractTest, ExecuteContractSequence) {
   const auto &ContractTest = GetParam();

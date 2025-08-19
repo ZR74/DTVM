@@ -12,6 +12,7 @@
 #include "runtime/runtime.h"
 #include "utils/others.h"
 #include <iostream>
+#include "utils/logging.h"
 
 using namespace zen;
 using namespace zen::runtime;
@@ -36,13 +37,16 @@ public:
     auto It = accounts.find(Msg.recipient);
     if (It == accounts.end() || It->second.code.empty()) {
       // No contract found, return parent result
-      std::cout << "No contract found, return parent result" << std::endl;
+       ZEN_LOG_DEBUG("No contract found for recipient {},return parent result", 
+                   evmc::hex(evmc::bytes_view(Msg.recipient.bytes, 20)).c_str());
       return ParentResult;
     }
 
     try {
       const auto &ContractCode = It->second.code;
       if (ContractCode.empty()) {
+        ZEN_LOG_DEBUG("Contract code is empty for recipient {}",
+                     evmc::hex(evmc::bytes_view(Msg.recipient.bytes, 20)).c_str());
         return ParentResult;
       }
       uint64_t Counter = ModuleCounter++;
@@ -54,6 +58,7 @@ public:
       auto ModRet =
           RT->loadEVMModule(ModName, ContractCode.data(), ContractCode.size());
       if (!ModRet) {
+        ZEN_LOG_ERROR("Failed to load EVM module: {}", ModName.c_str());
         return ParentResult;
       }
 
@@ -62,6 +67,7 @@ public:
       // Create EVM instance
       auto InstRet = Iso->createEVMInstance(*Mod, Msg.gas);
       if (!InstRet) {
+        ZEN_LOG_ERROR("Failed to create EVM instance for module: {}", ModName.c_str());
         return ParentResult;
       }
 
@@ -95,7 +101,7 @@ public:
 
     } catch (const std::exception &E) {
       // On error, return parent result
-      std::cout << "Error in recursive call: " << E.what() << std::endl;
+      ZEN_LOG_ERROR("Error in recursive call: {}", E.what());
       return ParentResult;
     }
   }

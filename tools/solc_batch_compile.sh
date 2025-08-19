@@ -1,4 +1,6 @@
 #!/bin/bash
+# Copyright (C) 2025 the DTVM authors. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 # Script to compile all Solidity files in subdirectories to JSON using solc
 # Usage: ./solc_batch_compile.sh [directory]
