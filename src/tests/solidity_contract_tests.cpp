@@ -75,15 +75,8 @@ struct SolidityContractTestData {
   std::string MainContract;
   std::vector<std::string> DeployContracts;
 
-  // Constructor arguments for contracts (if any)
-  //
-  // Data structure breakdown:
-  // - Outer map key: Name of the contract (to specify which contract's
-  // constructor to configure)
-  // - Inner vector: Sequence of constructor calls (supports multiple
-  // deployments with different args)
-  // - Pair first element: Reserved (not used for constructors, may be empty)
-  // - Pair second element: Constructor parameters in JSON format
+  // ConstructorArgs: contract_name -> [("reserved/unused", json_params), ...]
+  // Stores constructor arguments for smart contracts.
   std::map<std::string, std::vector<std::pair<std::string, std::string>>>
       ConstructorArgs;
 };
@@ -245,20 +238,19 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
             // Parse the constructor_args and store it in the structure
             if (Doc.HasMember("constructor_args") &&
                 Doc["constructor_args"].IsObject()) {
-              const auto &CtorArgsObj = Doc["constructor_args"].GetObject();
-              for (const auto &Entry : CtorArgsObj) {
+              for (const auto &Entry : Doc["constructor_args"].GetObject()) {
                 std::string ContractName = Entry.name.GetString();
-                if (Entry.value.IsArray()) {
-                  std::vector<std::pair<std::string, std::string>> Args;
-                  for (const auto &Arg : Entry.value.GetArray()) {
-                    if (Arg.HasMember("type") && Arg["type"].IsString() &&
-                        Arg.HasMember("value") && Arg["value"].IsString()) {
-                      Args.emplace_back(Arg["type"].GetString(),
-                                        Arg["value"].GetString());
-                    }
+                if (!Entry.value.IsArray())
+                  continue;
+                std::vector<std::pair<std::string, std::string>> Args;
+                for (const auto &Arg : Entry.value.GetArray()) {
+                  if (Arg.HasMember("type") && Arg["type"].IsString() &&
+                      Arg.HasMember("value") && Arg["value"].IsString()) {
+                    Args.emplace_back(Arg["type"].GetString(),
+                                      Arg["value"].GetString());
                   }
-                  ContractTest.ConstructorArgs[ContractName] = Args;
                 }
+                ContractTest.ConstructorArgs[ContractName] = Args;
               }
             }
           }
