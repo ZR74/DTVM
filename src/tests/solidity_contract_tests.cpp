@@ -297,10 +297,39 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
       return Encoded;
     }
   }
-  if (Type == "uint256") {
-    std::string UintHex =
-        (Value.substr(0, 2) == "0x") ? Value.substr(2) : Value;
-    return std::string(64 - UintHex.size(), '0') + UintHex;
+  if (type.substr(0, 4) == "uint") {
+    // uint8 uint256
+    std::string bitsStr = type.substr(4);
+    int bits = std::stoi(bitsStr);
+    assert((bits % 8 == 0) && (bits >= 8) && (bits <= 256) &&
+           "Invalid uint type");
+    std::string hexValue =
+        (value.substr(0, 2) == "0x") ? value.substr(2) : value;
+
+    size_t firstNonZero = hexValue.find_first_not_of('0');
+    if (firstNonZero != std::string::npos) {
+      hexValue = hexValue.substr(firstNonZero);
+    } else {
+      hexValue = "0";
+    }
+
+    size_t requiredLength = bits / 4;
+    assert(hexValue.size() <= requiredLength && "Value exceeds type capacity");
+
+    return std::string(requiredLength - hexValue.size(), '0') + hexValue;
+  }
+
+  if (type == "string") {
+    // 1. 计算字符串长度并编码为uint256
+    std::string lenHex = std::to_string(value.size());
+    std::string encodedLen = encodeAbiParam("uint256", lenHex, deployedAddrs);
+    // 2. 字符串内容的十六进制编码
+    std::string encodedData = utils::stringToHex(value);
+    // 3. 内容部分需要按32字节对齐（补零到最近的32字节倍数）
+    size_t padLength = (64 - (encodedData.size() % 64)) % 64;
+    encodedData += std::string(padLength, '0');
+    // 返回完整的字符串编码（长度 + 内容）
+    return encodedLen + encodedData;
   }
   // TODO: Other types of implementations
   //  Unsupported ABI type
