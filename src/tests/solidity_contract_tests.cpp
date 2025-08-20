@@ -272,6 +272,67 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
 
   return Tests;
 }
+
+struct AbiEncoded {
+  std::string StaticPart;
+  std::string DynamicPart;
+};
+
+static std::string decimalToHex(const std::string &DecimalStr) {
+  std::string TrimmedStr = DecimalStr;
+  zen::utils::trimString(TrimmedStr);
+  if (TrimmedStr.empty() || TrimmedStr == "0") {
+    return "0";
+  }
+  if (TrimmedStr[0] == '-') {
+    ZEN_LOG_DEBUG("Negative values are not supported. Value: {}",
+                  DecimalStr.c_str());
+    return "0";
+  }
+  for (char C : TrimmedStr) {
+    if (!std::isdigit(C)) {
+      ZEN_LOG_DEBUG(
+          "Invalid decimal string (contains non-digit characters). Value: {}",
+          DecimalStr.c_str());
+      return "0";
+    }
+  }
+  uint64_t Value;
+  try {
+    Value = std::stoull(TrimmedStr);
+  } catch (const std::out_of_range &E) {
+    ZEN_LOG_DEBUG("Value exceeds uint64_t range. Value: {}",
+                  DecimalStr.c_str());
+    return "0";
+  } catch (const std::invalid_argument &E) {
+    ZEN_LOG_DEBUG("Invalid decimal string (parsing failed). Value: {}",
+                  DecimalStr.c_str());
+    return "0";
+  }
+  std::stringstream S;
+  S << std::uppercase << std::hex << Value;
+  std::string HexStr = S.str();
+  if (HexStr.size() > 64) {
+    ZEN_LOG_DEBUG(
+        "Hex value exceeds 64 characters (uint256 max). Length: {}, Value: {}",
+        HexStr.size(), HexStr.c_str());
+    HexStr = HexStr.substr(HexStr.size() - 64);
+  }
+  if (HexStr.size() % 2 != 0) {
+    HexStr = "0" + HexStr;
+  }
+  return HexStr;
+}
+static std::string paddingLeft(const std::string &Input, size_t TargetLength,
+                               char PadChar) {
+  if (Input.size() >= TargetLength) {
+    return Input;
+  }
+  return std::string(TargetLength - Input.size(), PadChar) + Input;
+}
+static std::string padAddressTo32Bytes(const evmc::address &Addr) {
+  return "000000000000000000000000" + zen::utils::toHex(Addr.bytes, 20);
+}
 // Encode the parameters into the Solidity ABI format
 //
 // @param Type  The Solidity type of the parameter. Supported values include:
@@ -280,24 +341,6 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
 //              - "int256": 256-bit signed integer
 //              - "bool": Boolean value (true/false)
 //              - "string": UTF-8 string
-struct AbiEncoded {
-  std::string StaticPart;
-  std::string DynamicPart;
-};
-std::string decimalToHex(const std::string &DecimalStr) {
-  if (DecimalStr.empty())
-    return "0";
-  if (DecimalStr == "0")
-    return "0";
-  uint64_t Value = std::stoull(DecimalStr);
-  std::stringstream S;
-  S << std::hex << Value;
-  std::string HexStr = S.str();
-  if (HexStr.size() % 2 != 0) {
-    HexStr = "0" + HexStr;
-  }
-  return HexStr;
-}
 AbiEncoded
 encodeAbiParam(const std::string &Type, const std::string &Value,
                const std::map<std::string, evmc::address> &DeployedAddrs) {
@@ -306,12 +349,14 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
     std::string Encoded;
     auto It = DeployedAddrs.find(Value);
     if (It != DeployedAddrs.end()) {
-      Encoded = "000000000000000000000000" + utils::toHex(It->second.bytes, 20);
+      Encoded = padAddressTo32Bytes(It->second);
     } else {
       std::string AddrHex =
-          (Value.substr(0, 2) == "0x") ? Value.substr(2) : Value;
+          (Value.substr(0, 2) == "0x" || Value.substr(0, 2) == "0X")
+              ? Value.substr(2)
+              : Value;
       if (AddrHex.size() < 40) {
-        AddrHex = std::string(40 - AddrHex.size(), '0') + AddrHex;
+        AddrHex = paddingLeft(AddrHex, 40, '0');
       }
       Encoded = "000000000000000000000000" + AddrHex;
     }
@@ -319,7 +364,7 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
   }
   if (Type.substr(0, 4) == "uint") {
     std::string HexValue;
-    if (Value.substr(0, 2) == "0x") {
+    if (Value.substr(0, 2) == "0x" || Value.substr(0, 2) == "0X") {
       HexValue = Value.substr(2);
     } else {
       HexValue = decimalToHex(Value);
@@ -335,7 +380,7 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
                     "{}, Value: {}",
                     HexValue.size(), HexValue.c_str());
     }
-    std::string Encoded = std::string(64 - HexValue.size(), '0') + HexValue;
+    std::string Encoded = paddingLeft(HexValue, 64, '0');
     return {Encoded, ""};
   }
   if (Type == "string") {
