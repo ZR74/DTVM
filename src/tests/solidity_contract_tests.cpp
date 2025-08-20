@@ -280,60 +280,113 @@ std::vector<SolidityContractTestData> getAllSolidityContractTests() {
 //              - "int256": 256-bit signed integer
 //              - "bool": Boolean value (true/false)
 //              - "string": UTF-8 string
-std::string
+struct AbiEncoded {
+  std::string StaticPart;
+  std::string DynamicPart;
+};
+std::string decimalToHex(const std::string &DecimalStr) {
+  if (DecimalStr.empty())
+    return "0";
+  if (DecimalStr == "0")
+    return "0";
+  uint64_t Value = std::stoull(DecimalStr);
+  std::stringstream S;
+  S << std::hex << Value;
+  std::string HexStr = S.str();
+  if (HexStr.size() % 2 != 0) {
+    HexStr = "0" + HexStr;
+  }
+  return HexStr;
+}
+AbiEncoded
 encodeAbiParam(const std::string &Type, const std::string &Value,
                const std::map<std::string, evmc::address> &DeployedAddrs) {
 
   if (Type == "address") {
+    std::string Encoded;
     auto It = DeployedAddrs.find(Value);
     if (It != DeployedAddrs.end()) {
-      std::string Encoded =
-          "000000000000000000000000" + utils::toHex(It->second.bytes, 20);
-      return Encoded;
+      Encoded = "000000000000000000000000" + utils::toHex(It->second.bytes, 20);
     } else {
       std::string AddrHex =
           (Value.substr(0, 2) == "0x") ? Value.substr(2) : Value;
-      std::string Encoded = "000000000000000000000000" + AddrHex;
-      return Encoded;
+      if (AddrHex.size() < 40) {
+        AddrHex = std::string(40 - AddrHex.size(), '0') + AddrHex;
+      }
+      Encoded = "000000000000000000000000" + AddrHex;
     }
+    return {Encoded, ""};
   }
-  if (type.substr(0, 4) == "uint") {
-    // uint8 uint256
-    std::string bitsStr = type.substr(4);
-    int bits = std::stoi(bitsStr);
-    assert((bits % 8 == 0) && (bits >= 8) && (bits <= 256) &&
-           "Invalid uint type");
-    std::string hexValue =
-        (value.substr(0, 2) == "0x") ? value.substr(2) : value;
-
-    size_t firstNonZero = hexValue.find_first_not_of('0');
-    if (firstNonZero != std::string::npos) {
-      hexValue = hexValue.substr(firstNonZero);
+  if (Type.substr(0, 4) == "uint") {
+    std::string HexValue;
+    if (Value.substr(0, 2) == "0x") {
+      HexValue = Value.substr(2);
     } else {
-      hexValue = "0";
+      HexValue = decimalToHex(Value);
     }
-
-    size_t requiredLength = bits / 4;
-    assert(hexValue.size() <= requiredLength && "Value exceeds type capacity");
-
-    return std::string(requiredLength - hexValue.size(), '0') + hexValue;
+    size_t FirstNonZero = HexValue.find_first_not_of('0');
+    if (FirstNonZero != std::string::npos) {
+      HexValue = HexValue.substr(FirstNonZero);
+    } else {
+      HexValue = "0";
+    }
+    if (HexValue.size() > 64) {
+      ZEN_LOG_DEBUG("Hex value exceeds 64 characters (uint256 max). Length: "
+                    "{}, Value: {}",
+                    HexValue.size(), HexValue.c_str());
+    }
+    std::string Encoded = std::string(64 - HexValue.size(), '0') + HexValue;
+    return {Encoded, ""};
   }
-
-  if (type == "string") {
-    // 1. 计算字符串长度并编码为uint256
-    std::string lenHex = std::to_string(value.size());
-    std::string encodedLen = encodeAbiParam("uint256", lenHex, deployedAddrs);
-    // 2. 字符串内容的十六进制编码
-    std::string encodedData = utils::stringToHex(value);
-    // 3. 内容部分需要按32字节对齐（补零到最近的32字节倍数）
-    size_t padLength = (64 - (encodedData.size() % 64)) % 64;
-    encodedData += std::string(padLength, '0');
-    // 返回完整的字符串编码（长度 + 内容）
-    return encodedLen + encodedData;
+  if (Type == "string") {
+    std::string LenStr = std::to_string(Value.size());
+    AbiEncoded LenEncoded = encodeAbiParam("uint256", LenStr, DeployedAddrs);
+    std::string EncodedData = zen::utils::toHex(
+        reinterpret_cast<const uint8_t *>(Value.data()), Value.size());
+    std::string DynamicPart = LenEncoded.StaticPart + EncodedData;
+    std::string StaticPart(64, '0');
+    return {StaticPart, DynamicPart};
   }
-  // TODO: Other types of implementations
-  //  Unsupported ABI type
   ZEN_ASSERT_TODO();
+  return {"", ""};
+}
+
+std::string encodeConstructorParams(
+    const std::vector<std::pair<std::string, std::string>> &CtorArgs,
+    const std::map<std::string, evmc::address> &DeployedAddrs) {
+  std::vector<AbiEncoded> EncodedParams;
+  for (size_t I = 0; I < CtorArgs.size(); ++I) {
+    const auto &[Type, Value] = CtorArgs[I];
+    EncodedParams.push_back(encodeAbiParam(Type, Value, DeployedAddrs));
+  }
+  std::string StaticData;
+  std::string DynamicData;
+  for (size_t I = 0; I < EncodedParams.size(); ++I) {
+    StaticData += EncodedParams[I].StaticPart;
+    DynamicData += EncodedParams[I].DynamicPart;
+  }
+
+  size_t StaticTotalBytes = StaticData.size() / 2;
+  size_t CurrentOffset = StaticTotalBytes;
+
+  std::string FinalStaticData = StaticData;
+  size_t Pos = 0;
+  for (size_t I = 0; I < EncodedParams.size(); ++I) {
+    const auto &Enc = EncodedParams[I];
+    size_t ParamStaticLen = Enc.StaticPart.size();
+
+    if (!Enc.DynamicPart.empty()) {
+      std::stringstream SS;
+      SS << std::hex << std::setfill('0') << std::setw(64) << CurrentOffset;
+      std::string OffsetHex = SS.str();
+      std::transform(OffsetHex.begin(), OffsetHex.end(), OffsetHex.begin(),
+                     ::tolower);
+      FinalStaticData.replace(Pos, ParamStaticLen, OffsetHex);
+      CurrentOffset += Enc.DynamicPart.size() / 2;
+    }
+    Pos += ParamStaticLen;
+  }
+  return FinalStaticData + DynamicData;
 }
 // Detect whether it is the bytecode of a library contract (starting with 20
 // consecutive zeros after the byte 73)
@@ -427,10 +480,9 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
     }
 
     // Concatenation of deployed bytecode + constructor parameters
-    std::string DeployHex = ContractData.DeployBytecode;
-    for (const auto &[Type, Value] : Ctorargs) {
-      DeployHex += encodeAbiParam(Type, Value, DeployedAddresses);
-    }
+    std::string DeployHex =
+        ContractData.DeployBytecode +
+        encodeConstructorParams(Ctorargs, DeployedAddresses);
 
     if (Debug)
       std::cout << "Deploying contract: " << NowContractName << std::endl;
@@ -569,6 +621,7 @@ TEST_P(SolidityContractTest, ExecuteContractSequence) {
         .depth = 0,
         .gas = (long)GasLimit,
         .recipient = ContractInstance.Address,
+        .sender = DeployerAddr,
         .input_data = Calldata->data(),
         .input_size = Calldata->size(),
     };

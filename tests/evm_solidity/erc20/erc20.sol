@@ -25,7 +25,12 @@ contract MyERC20 {
         balanceOf[msg.sender] = totalSupply;
         emit Transfer(address(0), msg.sender, totalSupply);
     }
-
+    function getAllowanceValue(address from) public view returns (uint256){
+        return allowance[from][msg.sender];
+    }
+    function getBalanceOfValue(address from) public view returns (uint256){
+        return balanceOf[from];
+    }
     function transfer(address to, uint256 value) public returns (bool) {
         require(balanceOf[msg.sender] >= value, "Insufficient balance");
         require(to != address(0), "Transfer to the zero address");
