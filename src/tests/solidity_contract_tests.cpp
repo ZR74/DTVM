@@ -392,6 +392,8 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
     std::string StaticPart(64, '0');
     return {StaticPart, DynamicPart};
   }
+  // TODO: Unimplemented ABI types: bool, bytes, arrays, nested dynamic types,
+  // etc.
   ZEN_ASSERT_TODO();
   return {"", ""};
 }
