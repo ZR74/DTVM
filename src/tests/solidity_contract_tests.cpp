@@ -285,13 +285,13 @@ static std::string decimalToHex(const std::string &DecimalStr) {
     return "0";
   }
   if (TrimmedStr[0] == '-') {
-    ZEN_LOG_DEBUG("Negative values are not supported. Value: {}",
+    ZEN_LOG_ERROR("Negative values are not supported. Value: {}",
                   DecimalStr.c_str());
     return "0";
   }
   for (char C : TrimmedStr) {
     if (!std::isdigit(C)) {
-      ZEN_LOG_DEBUG(
+      ZEN_LOG_ERROR(
           "Invalid decimal string (contains non-digit characters). Value: {}",
           DecimalStr.c_str());
       return "0";
@@ -301,11 +301,11 @@ static std::string decimalToHex(const std::string &DecimalStr) {
   try {
     Value = std::stoull(TrimmedStr);
   } catch (const std::out_of_range &E) {
-    ZEN_LOG_DEBUG("Value exceeds uint64_t range. Value: {}",
+    ZEN_LOG_ERROR("Value exceeds uint64_t range. Value: {}",
                   DecimalStr.c_str());
     return "0";
   } catch (const std::invalid_argument &E) {
-    ZEN_LOG_DEBUG("Invalid decimal string (parsing failed). Value: {}",
+    ZEN_LOG_ERROR("Invalid decimal string (parsing failed). Value: {}",
                   DecimalStr.c_str());
     return "0";
   }
@@ -313,7 +313,7 @@ static std::string decimalToHex(const std::string &DecimalStr) {
   S << std::uppercase << std::hex << Value;
   std::string HexStr = S.str();
   if (HexStr.size() > 64) {
-    ZEN_LOG_DEBUG(
+    ZEN_LOG_ERROR(
         "Hex value exceeds 64 characters (uint256 max). Length: {}, Value: {}",
         HexStr.size(), HexStr.c_str());
     HexStr = HexStr.substr(HexStr.size() - 64);
@@ -376,7 +376,7 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
       HexValue = "0";
     }
     if (HexValue.size() > 64) {
-      ZEN_LOG_DEBUG("Hex value exceeds 64 characters (uint256 max). Length: "
+      ZEN_LOG_ERROR("Hex value exceeds 64 characters (uint256 max). Length: "
                     "{}, Value: {}",
                     HexValue.size(), HexValue.c_str());
     }
@@ -397,7 +397,19 @@ encodeAbiParam(const std::string &Type, const std::string &Value,
   ZEN_ASSERT_TODO();
   return {"", ""};
 }
-
+std::string encodeAbiOffset(uint64_t Offset) {
+  uint8_t OffsetBytes[8] = {0};
+  for (int I = 7; I >= 0; --I) {
+    OffsetBytes[I] = static_cast<uint8_t>(Offset & 0xFF);
+    Offset >>= 8;
+  }
+  std::string HexStr = zen::utils::toHex(OffsetBytes, 8);
+  if (HexStr.size() < 64) {
+    HexStr = paddingLeft(HexStr, 64, '0');
+  }
+  std::transform(HexStr.begin(), HexStr.end(), HexStr.begin(), ::tolower);
+  return HexStr;
+}
 std::string encodeConstructorParams(
     const std::vector<std::pair<std::string, std::string>> &CtorArgs,
     const std::map<std::string, evmc::address> &DeployedAddrs) {
@@ -423,11 +435,7 @@ std::string encodeConstructorParams(
     size_t ParamStaticLen = Enc.StaticPart.size();
 
     if (!Enc.DynamicPart.empty()) {
-      std::stringstream SS;
-      SS << std::hex << std::setfill('0') << std::setw(64) << CurrentOffset;
-      std::string OffsetHex = SS.str();
-      std::transform(OffsetHex.begin(), OffsetHex.end(), OffsetHex.begin(),
-                     ::tolower);
+      std::string OffsetHex = encodeAbiOffset(CurrentOffset);
       FinalStaticData.replace(Pos, ParamStaticLen, OffsetHex);
       CurrentOffset += Enc.DynamicPart.size() / 2;
     }
