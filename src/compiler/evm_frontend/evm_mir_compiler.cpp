@@ -360,6 +360,363 @@ EVMMirBuilder::Operand EVMMirBuilder::handleNot(const Operand &LHSOp) {
   return Operand(Result, EVMType::UINT256);
 }
 
+EVMMirBuilder::U256Inst
+EVMMirBuilder::handleLeftShift(const U256Inst &Value, MInstruction *ShiftAmount,
+                               MInstruction *IsLargeShift) {
+  MType *MirI64Type =
+      EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  U256Inst Result = {};
+
+  MInstruction *Zero = createIntConstInstruction(MirI64Type, 0);
+  MInstruction *One = createIntConstInstruction(MirI64Type, 1);
+  MInstruction *Const64 = createIntConstInstruction(MirI64Type, 64);
+
+  // EVM SHL operation: result = value << shift
+  // DMIR implementation maps 256-bit shift to 4x64-bit components
+  // shift_mod = shift % 64 (shift amount within 64-bit range)
+  // shift_comp = shift / 64 (which component index shift from)
+  // remaining_bits = 64 - shift_mod (remaining bits for carry calculation)
+  MInstruction *ShiftMod64 = createInstruction<BinaryInstruction>(
+      false, OP_urem, MirI64Type, ShiftAmount, Const64);
+  MInstruction *ComponentShift = createInstruction<BinaryInstruction>(
+      false, OP_udiv, MirI64Type, ShiftAmount, Const64);
+  MInstruction *RemainingBits = createInstruction<BinaryInstruction>(
+      false, OP_sub, MirI64Type, Const64, ShiftMod64);
+
+  MInstruction *MaxIndex =
+      createIntConstInstruction(MirI64Type, EVM_ELEMENTS_COUNT);
+
+  // Process each 64-bit component from low to high
+  // Example: For shift=72 (1*64 + 8), component_shift=1, shift_mod=8
+  // Component 0 gets bits from component -1 (invalid, use 0)
+  // Component 1 gets bits from component 0 shifted left by 8
+  // Component 2 gets bits from component 1 shifted left by 8
+  // Component 3 gets bits from component 2 shifted left by 8
+  for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
+    MInstruction *CurrentIdx = createIntConstInstruction(MirI64Type, I);
+
+    // Calculate source component index: current index - component shift
+    MInstruction *SrcIdx = createInstruction<BinaryInstruction>(
+        false, OP_sub, MirI64Type, CurrentIdx, ComponentShift);
+
+    // Validate source index bounds
+    // if (0 <= src_idx < EVM_ELEMENTS_COUNT) use Value[src_idx] else 0
+    MInstruction *IsValidLow = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_UGE, &Ctx.I64Type, SrcIdx, Zero);
+    MInstruction *IsValidHigh = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_ULT, &Ctx.I64Type, SrcIdx,
+        MaxIndex);
+    MInstruction *IsInBounds = createInstruction<BinaryInstruction>(
+        false, OP_and, MirI64Type, IsValidLow, IsValidHigh);
+
+    // Select source value from the appropriate component
+    // src_value = (src_idx == J) ? Value[J] : 0 for all J
+    MInstruction *SrcValue = Zero;
+    for (size_t J = 0; J < EVM_ELEMENTS_COUNT; ++J) {
+      MInstruction *TargetIdx = createIntConstInstruction(MirI64Type, J);
+      MInstruction *IsMatch = createInstruction<CmpInstruction>(
+          false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, SrcIdx,
+          TargetIdx);
+      SrcValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, Value[J], SrcValue);
+    }
+    SrcValue = createInstruction<SelectInstruction>(false, MirI64Type,
+                                                    IsInBounds, SrcValue, Zero);
+
+    // Calculate previous component index for carry bits
+    // prev_idx = src_idx - 1
+    MInstruction *PrevIdx = createInstruction<BinaryInstruction>(
+        false, OP_sub, MirI64Type, SrcIdx, One);
+
+    // Validate previous component bounds
+    // if (0 <= prev_idx < EVM_ELEMENTS_COUNT) use Value[prev_idx] else 0
+    MInstruction *IsValidPrevLow = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_UGE, &Ctx.I64Type, PrevIdx,
+        Zero);
+    MInstruction *IsValidPrevHigh = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_ULT, &Ctx.I64Type, PrevIdx,
+        MaxIndex);
+    MInstruction *IsPrevValid = createInstruction<BinaryInstruction>(
+        false, OP_and, MirI64Type, IsValidPrevLow, IsValidPrevHigh);
+
+    // Calculate carry bits from the previous component
+    // carry_bits = (prev_idx == K) ? (Value[K] >> remaining_bits) : 0
+    MInstruction *CarryValue = Zero;
+    for (size_t K = 0; K < EVM_ELEMENTS_COUNT; ++K) {
+      MInstruction *TargetIdx = createIntConstInstruction(MirI64Type, K);
+      MInstruction *IsMatch = createInstruction<CmpInstruction>(
+          false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, PrevIdx,
+          TargetIdx);
+      MInstruction *PrevValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, Value[K], Zero);
+      PrevValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsPrevValid, PrevValue, Zero);
+
+      // Extract carry bits by shifting right the remaining bits
+      MInstruction *CarryBits = createInstruction<BinaryInstruction>(
+          false, OP_ushr, MirI64Type, PrevValue, RemainingBits);
+      CarryValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, CarryBits, CarryValue);
+    }
+
+    // Shift the source value left by the modulo amount
+    // shifted_value = src_value << shift_mod
+    MInstruction *ShiftedValue = createInstruction<BinaryInstruction>(
+        false, OP_shl, MirI64Type, SrcValue, ShiftMod64);
+
+    // combined_value = shifted_value | carry_bits
+    MInstruction *CombinedValue = createInstruction<BinaryInstruction>(
+        false, OP_or, MirI64Type, ShiftedValue, CarryValue);
+
+    // Final result selection based on bounds checking and large shift flag
+    // result[I] = IsLargeShift ? 0 : (IsInBounds ? CombinedValue : 0)
+    Result[I] = createInstruction<SelectInstruction>(
+        false, MirI64Type, IsLargeShift, Zero,
+        createInstruction<SelectInstruction>(false, MirI64Type, IsInBounds,
+                                             CombinedValue, Zero));
+  }
+
+  return Result;
+}
+
+EVMMirBuilder::U256Inst
+EVMMirBuilder::handleLogicalRightShift(const U256Inst &Value,
+                                       MInstruction *ShiftAmount,
+                                       MInstruction *IsLargeShift) {
+  MType *MirI64Type =
+      EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  U256Inst Result = {};
+
+  MInstruction *Zero = createIntConstInstruction(MirI64Type, 0);
+  MInstruction *One = createIntConstInstruction(MirI64Type, 1);
+  MInstruction *Const64 = createIntConstInstruction(MirI64Type, 64);
+
+  // EVM SHR operation: result = value >> shift (logical right shift)
+  // DMIR implementation maps 256-bit shift to 4x64-bit components
+  // shift_mod = shift % 64 (shift amount within 64-bit range)
+  // shift_comp = shift / 64 (which component index shift from)
+  MInstruction *ShiftMod64 = createInstruction<BinaryInstruction>(
+      false, OP_urem, MirI64Type, ShiftAmount, Const64);
+  MInstruction *ComponentShift = createInstruction<BinaryInstruction>(
+      false, OP_udiv, MirI64Type, ShiftAmount, Const64);
+
+  MInstruction *MaxIndex =
+      createIntConstInstruction(MirI64Type, EVM_ELEMENTS_COUNT);
+
+  // Process each 64-bit component from low to high
+  // Example: For shift=72 (1*64 + 8), component_shift=1, shift_mod=8
+  // Component 0 gets bits from component 1 shifted right by 8
+  // Component 1 gets bits from component 2 shifted right by 8
+  // Component 2 gets bits from component 3 shifted right by 8
+  // Component 3 gets bits from component 4 (invalid, use 0)
+  for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
+    MInstruction *CurrentIdx = createIntConstInstruction(MirI64Type, I);
+
+    // Calculate source component index: current index + component shift
+    MInstruction *SrcIdx = createInstruction<BinaryInstruction>(
+        false, OP_add, MirI64Type, CurrentIdx, ComponentShift);
+
+    // Validate source index bounds
+    // if (0 <= src_idx < EVM_ELEMENTS_COUNT) use Value[src_idx] else 0
+    MInstruction *IsValidLow = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_UGE, &Ctx.I64Type, SrcIdx, Zero);
+    MInstruction *IsValidHigh = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_ULT, &Ctx.I64Type, SrcIdx,
+        MaxIndex);
+    MInstruction *IsInBounds = createInstruction<BinaryInstruction>(
+        false, OP_and, MirI64Type, IsValidLow, IsValidHigh);
+
+    // Select source value from the appropriate component
+    // src_value = (src_idx == J) ? Value[J] : 0 for all J
+    MInstruction *SrcValue = Zero;
+    for (size_t J = 0; J < EVM_ELEMENTS_COUNT; ++J) {
+      MInstruction *TargetIdx = createIntConstInstruction(MirI64Type, J);
+      MInstruction *IsMatch = createInstruction<CmpInstruction>(
+          false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, SrcIdx,
+          TargetIdx);
+      SrcValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, Value[J], SrcValue);
+    }
+    SrcValue = createInstruction<SelectInstruction>(false, MirI64Type,
+                                                    IsInBounds, SrcValue, Zero);
+
+    // Calculate next component index for carry bits
+    // next_idx = src_idx + 1
+    MInstruction *NextIdx = createInstruction<BinaryInstruction>(
+        false, OP_add, MirI64Type, SrcIdx, One);
+
+    // Validate next component bounds
+    // if (0 <= next_idx < EVM_ELEMENTS_COUNT) use Value[next_idx] else 0
+    MInstruction *IsValidNextLow = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_UGE, &Ctx.I64Type, NextIdx,
+        Zero);
+    MInstruction *IsValidNextHigh = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_ULT, &Ctx.I64Type, NextIdx,
+        MaxIndex);
+    MInstruction *IsNextValid = createInstruction<BinaryInstruction>(
+        false, OP_and, MirI64Type, IsValidNextLow, IsValidNextHigh);
+
+    // Calculate carry bits from the next component
+    // carry_bits = (next_idx == K) ? (Value[K] << (64 - shift_mod)) : 0
+    MInstruction *CarryValue = Zero;
+    for (size_t K = 0; K < EVM_ELEMENTS_COUNT; ++K) {
+      MInstruction *TargetIdx = createIntConstInstruction(MirI64Type, K);
+      MInstruction *IsMatch = createInstruction<CmpInstruction>(
+          false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, NextIdx,
+          TargetIdx);
+      MInstruction *NextValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, Value[K], Zero);
+      NextValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsNextValid, NextValue, Zero);
+
+      // Extract carry bits by shifting left the remaining bits
+      MInstruction *CarryBits = createInstruction<BinaryInstruction>(
+          false, OP_shl, MirI64Type, NextValue,
+          createInstruction<BinaryInstruction>(
+              false, OP_sub, MirI64Type,
+              createIntConstInstruction(MirI64Type, 64), ShiftMod64));
+      CarryValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, CarryBits, CarryValue);
+    }
+
+    // Shift the source value right by the modulo amount
+    // shifted_value = src_value >> shift_mod
+    MInstruction *ShiftedValue = createInstruction<BinaryInstruction>(
+        false, OP_ushr, MirI64Type, SrcValue, ShiftMod64);
+
+    // combined_value = shifted_value | carry_bits
+    MInstruction *CombinedValue = createInstruction<BinaryInstruction>(
+        false, OP_or, MirI64Type, ShiftedValue, CarryValue);
+
+    // Final result selection based on bounds checking and large shift flag
+    // result[I] = IsLargeShift ? 0 : (IsInBounds ? CombinedValue : 0)
+    Result[I] = createInstruction<SelectInstruction>(
+        false, MirI64Type, IsLargeShift, Zero,
+        createInstruction<SelectInstruction>(false, MirI64Type, IsInBounds,
+                                             CombinedValue, Zero));
+  }
+
+  return Result;
+}
+
+EVMMirBuilder::U256Inst
+EVMMirBuilder::handleArithmeticRightShift(const U256Inst &Value,
+                                          MInstruction *ShiftAmount,
+                                          MInstruction *IsLargeShift) {
+  MType *MirI64Type =
+      EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  U256Inst Result = {};
+
+  // Arithmetic right shift: sign-extend when shift >= 256
+  MInstruction *Zero = createIntConstInstruction(MirI64Type, 0);
+  MInstruction *AllOnes = createIntConstInstruction(MirI64Type, ~0ULL);
+
+  // Check sign bit (bit 63 of highest component)
+  MInstruction *HighComponent = Value[EVM_ELEMENTS_COUNT - 1];
+  MInstruction *Const63 = createIntConstInstruction(MirI64Type, 63);
+  MInstruction *SignBit = createInstruction<BinaryInstruction>(
+      false, OP_ushr, MirI64Type, HighComponent, Const63);
+
+  // Sign bit is 1 if negative
+  MInstruction *One = createIntConstInstruction(MirI64Type, 1);
+  MInstruction *IsNegative = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, SignBit, One);
+
+  // Large shift result: all 1s if negative, all 0s if positive
+  MInstruction *LargeShiftResult = createInstruction<SelectInstruction>(
+      false, MirI64Type, IsNegative, AllOnes, Zero);
+
+  // intra-component shifts = shift % 64
+  // shift_comp = shift / 64 (which component index shift from)
+  MInstruction *Const64 = createIntConstInstruction(MirI64Type, 64);
+  MInstruction *ShiftMod64 = createInstruction<BinaryInstruction>(
+      false, OP_urem, MirI64Type, ShiftAmount, Const64);
+  MInstruction *ComponentShift = createInstruction<BinaryInstruction>(
+      false, OP_udiv, MirI64Type, ShiftAmount, Const64);
+
+  MInstruction *MaxIndex =
+      createIntConstInstruction(MirI64Type, EVM_ELEMENTS_COUNT);
+
+  // Process each component from low to high
+  for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
+    MInstruction *CurrentIdx = createIntConstInstruction(MirI64Type, I);
+
+    MInstruction *SrcIdx = createInstruction<BinaryInstruction>(
+        false, OP_add, MirI64Type, CurrentIdx, ComponentShift);
+
+    // Validate source index bounds
+    // if (0 <= src_idx < EVM_ELEMENTS_COUNT) use Value[src_idx] else 0
+    MInstruction *IsValidLow = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_UGE, &Ctx.I64Type, SrcIdx, Zero);
+    MInstruction *IsValidHigh = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_ULT, &Ctx.I64Type, SrcIdx,
+        MaxIndex);
+    MInstruction *IsInBounds = createInstruction<BinaryInstruction>(
+        false, OP_and, MirI64Type, IsValidLow, IsValidHigh);
+
+    // Select source value from the component at SrcIdx index
+    MInstruction *SrcValue = LargeShiftResult;
+    for (size_t J = 0; J < EVM_ELEMENTS_COUNT; ++J) {
+      MInstruction *TargetIdx = createIntConstInstruction(MirI64Type, J);
+      MInstruction *IsMatch = createInstruction<CmpInstruction>(
+          false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, SrcIdx,
+          TargetIdx);
+      SrcValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, Value[J], SrcValue);
+    }
+    SrcValue = createInstruction<SelectInstruction>(
+        false, MirI64Type, IsInBounds, SrcValue, LargeShiftResult);
+
+    MInstruction *PrevIdx = createInstruction<BinaryInstruction>(
+        false, OP_sub, MirI64Type, SrcIdx, One);
+
+    // Validate previous component bounds
+    // if (0 <= prev_idx < EVM_ELEMENTS_COUNT) use Value[prev_idx] else 0
+    MInstruction *IsValidPrevLow = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_UGE, &Ctx.I64Type, PrevIdx,
+        Zero);
+    MInstruction *IsValidPrevHigh = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_ULT, &Ctx.I64Type, PrevIdx,
+        MaxIndex);
+    MInstruction *IsPrevValid = createInstruction<BinaryInstruction>(
+        false, OP_and, MirI64Type, IsValidPrevLow, IsValidPrevHigh);
+
+    // Calculate carry bits from the previous component (index-1)
+    MInstruction *CarryValue = Zero;
+    for (size_t K = 0; K < EVM_ELEMENTS_COUNT; ++K) {
+      MInstruction *TargetIdx = createIntConstInstruction(MirI64Type, K);
+      MInstruction *IsMatch = createInstruction<CmpInstruction>(
+          false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, PrevIdx,
+          TargetIdx);
+      MInstruction *PrevValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, Value[K], Zero);
+      PrevValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsPrevValid, PrevValue, Zero);
+
+      // Extract high bits from previous component as carry
+      MInstruction *CarryBits = createInstruction<BinaryInstruction>(
+          false, OP_ushr, MirI64Type, PrevValue,
+          createInstruction<BinaryInstruction>(
+              false, OP_sub, MirI64Type,
+              createIntConstInstruction(MirI64Type, 64), ShiftMod64));
+      CarryValue = createInstruction<SelectInstruction>(
+          false, MirI64Type, IsMatch, CarryBits, CarryValue);
+    }
+
+    MInstruction *ShiftedValue = createInstruction<BinaryInstruction>(
+        false, OP_sshr, MirI64Type, SrcValue, ShiftMod64);
+    MInstruction *CombinedValue = createInstruction<BinaryInstruction>(
+        false, OP_or, MirI64Type, ShiftedValue, CarryValue);
+
+    Result[I] = createInstruction<SelectInstruction>(
+        false, MirI64Type, IsLargeShift, LargeShiftResult,
+        createInstruction<SelectInstruction>(false, MirI64Type, IsInBounds,
+                                             CombinedValue, LargeShiftResult));
+  }
+
+  return Result;
+}
+
 // ==================== Environment Instruction Handlers ====================
 
 typename EVMMirBuilder::Operand EVMMirBuilder::handlePC() {
@@ -548,21 +905,6 @@ MInstruction *EVMMirBuilder::extractOperand(const Operand &Opnd) {
   }
 
   ZEN_UNREACHABLE();
-}
-
-ConstantInstruction *
-EVMMirBuilder::createUInt256ConstInstruction(const intx::uint256 &V) {
-  // This method now returns just the low component instruction
-  // For full U256 creation, use handlePush or createU256FromComponents
-
-  // Get EVMU256Type for semantic awareness
-  zen::common::EVMU256Type *U256Type = EVMFrontendContext::getEVMU256Type();
-
-  MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
-  // Use lower 64 bits as the primary component
-  uint64_t Value = static_cast<uint64_t>(V & 0xFFFFFFFFFFFFFFFFULL);
-  MConstant *Constant = MConstantInt::get(Ctx, *I64Type, Value);
-  return createInstruction<ConstantInstruction>(false, I64Type, *Constant);
 }
 
 typename EVMMirBuilder::Operand
