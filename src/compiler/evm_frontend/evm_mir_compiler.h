@@ -352,6 +352,13 @@ public:
   Operand handleBaseFee();
   Operand handleBlobHash();
   Operand handleBlobBaseFee();
+  Operand handleMSize();
+  Operand handleMLoad();
+  void handleMStore();
+  void handleMStore8();
+  void handleMCopy();
+  void handleReturn();
+  void handleInvalid();
 
   // ==================== Runtime Interface for JIT ====================
 
@@ -487,10 +494,13 @@ private:
   template <typename RetType>
   Operand callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *));
 
-  template <typename RetType, typename ArgType>
+  template <typename ArgType>
+  U256Inst convertOperandToInstruction(const Operand &Param);
+
+  template <typename RetType, typename... ArgTypes, typename... ParamTypes>
   Operand callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *,
-                                                ArgType),
-                         const Operand &Param);
+                                                ArgTypes...),
+                         const ParamTypes &...params);
 
   // Helper template functions for runtime call type mapping
   template <typename RetType> static MType *getMIRReturnType();

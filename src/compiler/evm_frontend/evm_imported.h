@@ -27,6 +27,15 @@ using SizeWithBytes32Fn = uint64_t (*)(zen::runtime::EVMInstance *,
                                        const uint8_t *);
 using U256WithBytes32Fn = intx::uint256 (*)(zen::runtime::EVMInstance *,
                                             const uint8_t *);
+using U256WithUInt64Fn = intx::uint256 (*)(zen::runtime::EVMInstance *,
+                                           uint64_t);
+using VoidWithUInt64U256Fn = void (*)(zen::runtime::EVMInstance *, uint64_t,
+                                      intx::uint256);
+using VoidWithUInt64UInt64Fn = void (*)(zen::runtime::EVMInstance *, uint64_t,
+                                        uint64_t);
+using VoidWithUInt64UInt64UInt64Fn = void (*)(zen::runtime::EVMInstance *,
+                                              uint64_t, uint64_t, uint64_t);
+using VoidFn = void (*)(zen::runtime::EVMInstance *);
 
 struct RuntimeFunctions {
   Bytes32Fn GetAddress;
@@ -51,6 +60,13 @@ struct RuntimeFunctions {
   U256Fn GetBaseFee;
   Bytes32WithUint64Fn GetBlobHash;
   U256Fn GetBlobBaseFee;
+  SizeFn GetMSize;
+  U256WithUInt64Fn GetMLoad;
+  VoidWithUInt64U256Fn SetMStore;
+  VoidWithUInt64U256Fn SetMStore8;
+  VoidWithUInt64UInt64UInt64Fn SetMCopy;
+  VoidWithUInt64UInt64Fn SetReturn;
+  VoidFn HandleInvalid;
 };
 
 const RuntimeFunctions &getRuntimeFunctionTable();
@@ -87,7 +103,17 @@ intx::uint256 evmGetBaseFee(zen::runtime::EVMInstance *Instance);
 const uint8_t *evmGetBlobHash(zen::runtime::EVMInstance *Instance,
                               uint64_t Index);
 intx::uint256 evmGetBlobBaseFee(zen::runtime::EVMInstance *Instance);
-
+uint64_t evmGetMSize(zen::runtime::EVMInstance *Instance);
+intx::uint256 evmGetMLoad(zen::runtime::EVMInstance *Instance, uint64_t Addr);
+void evmSetMStore(zen::runtime::EVMInstance *Instance, uint64_t Addr,
+                  intx::uint256 Value);
+void evmSetMStore8(zen::runtime::EVMInstance *Instance, uint64_t Addr,
+                   intx::uint256 Value);
+void evmSetMCopy(zen::runtime::EVMInstance *Instance, uint64_t DestAddr,
+                 uint64_t SrcAddr, uint64_t Length);
+void evmSetReturn(zen::runtime::EVMInstance *Instance, uint64_t MemOffset,
+                  uint64_t Length);
+void evmhandleInvalid(zen::runtime::EVMInstance *Instance);
 } // namespace COMPILER
 
 #endif // EVM_FRONTEND_EVM_IMPORTED_H

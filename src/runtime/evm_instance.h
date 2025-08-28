@@ -56,6 +56,14 @@ public:
 
   uint64_t getGas() const { return Gas; }
   void setGas(uint64_t NewGas) { Gas = NewGas; }
+  static uint64_t calculateMemoryExpansionCost(uint64_t CurrentSize,
+                                               uint64_t NewSize);
+  void consumeMemoryExpansionGas(uint64_t RequiredSize);
+  void expandMemory(uint64_t RequiredSize);
+
+  // ==================== Memory Methods ====================
+  size_t getMemorySize() const { return Memory.size(); }
+  std::vector<uint8_t> &getMemory() { return Memory; }
 
   // ==================== Evmc Message Stack Methods ====================
   // Note: These methods manage the call stack for JIT host interface functions
@@ -90,6 +98,10 @@ public:
   };
 
   ExecutionCache &getMessageCache() { return InstanceExecutionCache; }
+  void setReturnData(std::vector<uint8_t> Data) {
+    ReturnData = std::move(Data);
+  }
+  void exit(int32_t exitCode) { InstanceExitCode = exitCode; }
 
 private:
   EVMInstance(const EVMModule &M, Runtime &RT)
@@ -106,6 +118,9 @@ private:
   Error Err = ErrorCode::NoError;
 
   uint64_t Gas = 0;
+  // memory
+  std::vector<uint8_t> Memory;
+  std::vector<uint8_t> ReturnData;
 
   // Message stack for call hierarchy tracking
   std::vector<const evmc_message *> MessageStack;

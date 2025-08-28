@@ -386,15 +386,19 @@ private:
       }
 
       case OP_MLOAD: {
-        ZEN_ASSERT_TODO();
+        Operand Result = Builder.handleMLoad();
+        push(Result);
+        break;
       }
 
       case OP_MSTORE: {
-        ZEN_ASSERT_TODO();
+        Builder.handleMStore();
+        break;
       }
 
       case OP_MSTORE8: {
-        ZEN_ASSERT_TODO();
+        Builder.handleMStore8();
+        break;
       }
 
       case OP_SLOAD: {
@@ -406,7 +410,9 @@ private:
       }
 
       case OP_MSIZE: {
-        ZEN_ASSERT_TODO();
+        Operand Result = Builder.handleMSize();
+        push(Result);
+        break;
       }
 
       case OP_TLOAD: {
@@ -418,7 +424,8 @@ private:
       }
 
       case OP_MCOPY: {
-        ZEN_ASSERT_TODO();
+        Builder.handleMCopy();
+        break;
       }
 
       case OP_LOG0:
@@ -491,12 +498,18 @@ private:
 
       // Halt operations
       case OP_RETURN: {
-        ZEN_ASSERT_TODO();
+        Builder.handleReturn();
+        return true;
       }
 
       case OP_REVERT:
         // End execution
         return true;
+
+      case OP_INVALID: {
+        Builder.handleInvalid();
+        break;
+      }
 
       default:
         throw getErrorWithExtraMessage(ErrorCode::UnsupportedOpcode,

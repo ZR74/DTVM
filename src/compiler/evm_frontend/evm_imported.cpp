@@ -30,7 +30,14 @@ const RuntimeFunctions &getRuntimeFunctionTable() {
                                          .GetSelfBalance = &evmGetSelfBalance,
                                          .GetBaseFee = &evmGetBaseFee,
                                          .GetBlobHash = &evmGetBlobHash,
-                                         .GetBlobBaseFee = &evmGetBlobBaseFee};
+                                         .GetBlobBaseFee = &evmGetBlobBaseFee,
+                                         .GetMSize = &evmGetMSize,
+                                         .GetMLoad = &evmGetMLoad,
+                                         .SetMStore = &evmSetMStore,
+                                         .SetMStore8 = &evmSetMStore8,
+                                         .SetMCopy = &evmSetMCopy,
+                                         .SetReturn = &evmSetReturn,
+                                         .HandleInvalid = &evmhandleInvalid};
   return Table;
 }
 
@@ -264,6 +271,72 @@ intx::uint256 evmGetBlobBaseFee(zen::runtime::EVMInstance *Instance) {
   ZEN_ASSERT(Module && Module->Host);
   evmc_tx_context TxContext = Module->Host->get_tx_context();
   return intx::be::load<intx::uint256>(TxContext.blob_base_fee);
+}
+
+uint64_t evmGetMSize(zen::runtime::EVMInstance *Instance) {
+  return Instance->getMemorySize();
+}
+intx::uint256 evmGetMLoad(zen::runtime::EVMInstance *Instance,
+                          uint64_t Offset) {
+  uint64_t RequiredSize = Offset + 32;
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+  auto &Memory = Instance->getMemory();
+
+  uint8_t ValueBytes[32];
+  std::memcpy(ValueBytes, Memory.data() + Offset, 32);
+
+  intx::uint256 Result = intx::be::load<intx::uint256>(ValueBytes);
+  return Result;
+}
+void evmSetMStore(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                  intx::uint256 Value) {
+  uint64_t RequiredSize = Offset + 32;
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  auto &Memory = Instance->getMemory();
+  uint8_t ValueBytes[32];
+  intx::be::store(ValueBytes, Value);
+  std::memcpy(&Memory[Offset], ValueBytes, 32);
+}
+
+void evmSetMStore8(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                   intx::uint256 Value) {
+  uint64_t RequiredSize = Offset + 1;
+
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  auto &Memory = Instance->getMemory();
+  uint8_t ByteValue = static_cast<uint8_t>(Value & intx::uint256{0xFF});
+  Memory[Offset] = ByteValue;
+}
+
+void evmSetMCopy(zen::runtime::EVMInstance *Instance, uint64_t Dest,
+                 uint64_t Src, uint64_t Len) {
+  if (Len == 0) {
+    return;
+  }
+  uint64_t RequiredSize = std::max(Dest + Len, Src + Len);
+
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  auto &Memory = Instance->getMemory();
+  std::memmove(&Memory[Dest], &Memory[Src], Len);
+}
+void evmSetReturn(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                  uint64_t Len) {
+  auto &Memory = Instance->getMemory();
+  std::vector<uint8_t> ReturnData(Memory.begin() + Offset,
+                                  Memory.begin() + Offset + Len);
+  Instance->setReturnData(std::move(ReturnData));
+  // Immediately terminate the execution and return the success code (0)
+  Instance->exit(0);
+}
+void evmhandleInvalid(zen::runtime::EVMInstance *Instance) {
+  throw zen::common::getError(zen::common::ErrorCode::EVMInvalidInstruction);
 }
 
 } // namespace COMPILER
