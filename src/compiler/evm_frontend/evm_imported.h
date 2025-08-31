@@ -35,6 +35,10 @@ using VoidWithUInt64UInt64Fn = void (*)(zen::runtime::EVMInstance *, uint64_t,
                                         uint64_t);
 using VoidWithUInt64UInt64UInt64Fn = void (*)(zen::runtime::EVMInstance *,
                                               uint64_t, uint64_t, uint64_t);
+using VoidWithBytes32UInt64UInt64UInt64Fn = void (*)(
+    zen::runtime::EVMInstance *, const uint8_t *, uint64_t, uint64_t, uint64_t);
+using Bytes32WithUInt64UInt64Fn =
+    const uint8_t *(*)(zen::runtime::EVMInstance *, uint64_t, uint64_t);
 using VoidFn = void (*)(zen::runtime::EVMInstance *);
 
 struct RuntimeFunctions {
@@ -46,6 +50,7 @@ struct RuntimeFunctions {
   Bytes32WithUint64Fn GetCallDataLoad;
   SizeFn GetCallDataSize;
   SizeFn GetCodeSize;
+  VoidWithUInt64UInt64UInt64Fn SetCodeCopy;
   U256Fn GetGasPrice;
   SizeWithBytes32Fn GetExtCodeSize;
   Bytes32WithBytes32Fn GetExtCodeHash;
@@ -65,8 +70,13 @@ struct RuntimeFunctions {
   VoidWithUInt64U256Fn SetMStore;
   VoidWithUInt64U256Fn SetMStore8;
   VoidWithUInt64UInt64UInt64Fn SetMCopy;
+  VoidWithUInt64UInt64UInt64Fn SetCallDataCopy;
+  VoidWithBytes32UInt64UInt64UInt64Fn SetExtCodeCopy;
+  VoidWithUInt64UInt64UInt64Fn SetReturnDataCopy;
+  SizeFn GetReturnDataSize;
   VoidWithUInt64UInt64Fn SetReturn;
   VoidFn HandleInvalid;
+  Bytes32WithUInt64UInt64Fn GetKeccak256;
 };
 
 const RuntimeFunctions &getRuntimeFunctionTable();
@@ -85,6 +95,8 @@ const uint8_t *evmGetCallDataLoad(zen::runtime::EVMInstance *Instance,
                                   uint64_t Offset);
 uint64_t evmGetCallDataSize(zen::runtime::EVMInstance *Instance);
 uint64_t evmGetCodeSize(zen::runtime::EVMInstance *Instance);
+void evmSetCodeCopy(zen::runtime::EVMInstance *Instance, uint64_t DestOffset,
+                    uint64_t Offset, uint64_t Size);
 intx::uint256 evmGetGasPrice(zen::runtime::EVMInstance *Instance);
 uint64_t evmGetExtCodeSize(zen::runtime::EVMInstance *Instance,
                            const uint8_t *Address);
@@ -111,9 +123,19 @@ void evmSetMStore8(zen::runtime::EVMInstance *Instance, uint64_t Addr,
                    intx::uint256 Value);
 void evmSetMCopy(zen::runtime::EVMInstance *Instance, uint64_t DestAddr,
                  uint64_t SrcAddr, uint64_t Length);
+void evmSetCallDataCopy(zen::runtime::EVMInstance *Instance,
+                        uint64_t DestOffset, uint64_t Offset, uint64_t Size);
+void evmSetExtCodeCopy(zen::runtime::EVMInstance *Instance,
+                       const uint8_t *Address, uint64_t DestOffset,
+                       uint64_t Offset, uint64_t Size);
+void evmSetReturnDataCopy(zen::runtime::EVMInstance *Instance,
+                          uint64_t DestOffset, uint64_t Offset, uint64_t Size);
+uint64_t evmGetReturnDataSize(zen::runtime::EVMInstance *Instance);
 void evmSetReturn(zen::runtime::EVMInstance *Instance, uint64_t MemOffset,
                   uint64_t Length);
 void evmhandleInvalid(zen::runtime::EVMInstance *Instance);
+const uint8_t *evmGetKeccak256(zen::runtime::EVMInstance *Instance,
+                               uint64_t Offset, uint64_t Length);
 } // namespace COMPILER
 
 #endif // EVM_FRONTEND_EVM_IMPORTED_H

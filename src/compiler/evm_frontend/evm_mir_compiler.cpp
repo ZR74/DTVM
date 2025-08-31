@@ -773,6 +773,7 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleCallValue() {
 typename EVMMirBuilder::Operand EVMMirBuilder::handleCallDataLoad() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   Operand Offset = popOperand();
+  normalizeOperandU64(Offset);
   return callRuntimeFor<const uint8_t *, uint64_t>(
       RuntimeFunctions.GetCallDataLoad, Offset);
 }
@@ -790,6 +791,19 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleCallDataSize() {
 typename EVMMirBuilder::Operand EVMMirBuilder::handleCodeSize() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   return callRuntimeFor(RuntimeFunctions.GetCodeSize);
+}
+
+void EVMMirBuilder::handleCodeCopy() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand DestOffsetComponents = popOperand();
+  Operand OffsetComponents = popOperand();
+  Operand SizeComponents = popOperand();
+  normalizeOperandU64(DestOffsetComponents);
+  normalizeOperandU64(OffsetComponents);
+  normalizeOperandU64(SizeComponents);
+  callRuntimeFor<void, uint64_t, uint64_t, uint64_t>(
+      RuntimeFunctions.SetCodeCopy, DestOffsetComponents, OffsetComponents,
+      SizeComponents);
 }
 
 typename EVMMirBuilder::Operand EVMMirBuilder::handleExtCodeSize() {
@@ -858,6 +872,7 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleBlobHash() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   // Pop index from stack
   Operand Index = popOperand();
+  normalizeOperandU64(Index);
   return callRuntimeFor<const uint8_t *, uint64_t>(RuntimeFunctions.GetBlobHash,
                                                    Index);
 }
@@ -874,6 +889,7 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleMSize() {
 typename EVMMirBuilder::Operand EVMMirBuilder::handleMLoad() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   Operand AddrComponents = popOperand();
+  normalizeOperandU64(AddrComponents);
   return callRuntimeFor<intx::uint256, uint64_t>(RuntimeFunctions.GetMLoad,
                                                  AddrComponents);
 }
@@ -881,6 +897,7 @@ void EVMMirBuilder::handleMStore() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   Operand AddrComponents = popOperand();
   Operand ValueComponents = popOperand();
+  normalizeOperandU64(AddrComponents);
   callRuntimeFor<void, uint64_t, intx::uint256>(
       RuntimeFunctions.SetMStore, AddrComponents, ValueComponents);
 }
@@ -888,6 +905,7 @@ void EVMMirBuilder::handleMStore8() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   Operand AddrComponents = popOperand();
   Operand ValueComponents = popOperand();
+  normalizeOperandU64(AddrComponents);
   callRuntimeFor<void, uint64_t, intx::uint256>(
       RuntimeFunctions.SetMStore8, AddrComponents, ValueComponents);
 }
@@ -896,6 +914,9 @@ void EVMMirBuilder::handleMCopy() {
   Operand DestAddrComponents = popOperand();
   Operand SrcAddrComponents = popOperand();
   Operand LengthComponents = popOperand();
+  normalizeOperandU64(DestAddrComponents);
+  normalizeOperandU64(SrcAddrComponents);
+  normalizeOperandU64(LengthComponents);
   callRuntimeFor<void, uint64_t, uint64_t, uint64_t>(
       RuntimeFunctions.SetMCopy, DestAddrComponents, SrcAddrComponents,
       LengthComponents);
@@ -904,12 +925,24 @@ void EVMMirBuilder::handleReturn() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   Operand MemOffsetComponents = popOperand();
   Operand LengthComponents = popOperand();
+  normalizeOperandU64(MemOffsetComponents);
+  normalizeOperandU64(LengthComponents);
   callRuntimeFor<void, uint64_t, uint64_t>(
       RuntimeFunctions.SetReturn, MemOffsetComponents, LengthComponents);
 }
 void EVMMirBuilder::handleInvalid() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   callRuntimeFor(RuntimeFunctions.HandleInvalid);
+}
+
+typename EVMMirBuilder::Operand EVMMirBuilder::handleKeccak256() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand OffsetComponents = popOperand();
+  Operand LengthComponents = popOperand();
+  normalizeOperandU64(OffsetComponents);
+  normalizeOperandU64(LengthComponents);
+  return callRuntimeFor<const uint8_t *, uint64_t, uint64_t>(
+      RuntimeFunctions.GetKeccak256, OffsetComponents, LengthComponents);
 }
 
 // ==================== Private Helper Methods ====================
@@ -1234,6 +1267,62 @@ EVMMirBuilder::convertCallResult(MInstruction *CallInstr) {
   return Operand();
 }
 
+void EVMMirBuilder::normalizeOperandU64(Operand &Param) {
+  if (Param.getType() != EVMType::UINT256) {
+    return;
+  }
+  if (Param.isConstant()) {
+    normalizeOperandU64Const(Param);
+  } else {
+    normalizeOperandU64NonConst(Param);
+  }
+}
+
+void EVMMirBuilder::normalizeOperandU64Const(Operand &Param) {
+  const auto &C = Param.getConstValue();
+  bool FitsU64 = (C[1] == 0 && C[2] == 0 && C[3] == 0);
+
+  MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  uint64_t Selected = FitsU64 ? C[0] : UINT64_MAX; // sentinel for overflow
+
+  // Rebuild Param as a normalized U256 with low64=Selected, others=0
+  MInstruction *Low = createIntConstInstruction(I64Type, Selected);
+  MInstruction *Zero = createIntConstInstruction(I64Type, 0);
+  U256Inst NewVal = {Low, Zero, Zero, Zero};
+  Param = Operand(NewVal, EVMType::UINT256);
+}
+
+void EVMMirBuilder::normalizeOperandU64NonConst(Operand &Param) {
+  // Extract four 64-bit parts [low, mid-low, mid-high, high]
+  U256Inst Parts = extractU256Operand(Param);
+
+  MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  MInstruction *Zero = createIntConstInstruction(I64Type, 0);
+
+  // IsU64 = (part[1] == 0) && (part[2] == 0) && (part[3] == 0)
+  MInstruction *IsZero1 = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, Parts[1], Zero);
+  MInstruction *IsZero2 = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, Parts[2], Zero);
+  MInstruction *IsZero3 = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, Parts[3], Zero);
+
+  // Combine to a single condition using 64-bit ANDs
+  MInstruction *Cond12 = createInstruction<BinaryInstruction>(
+      false, OP_and, I64Type, IsZero1, IsZero2);
+  MInstruction *IsU64 = createInstruction<BinaryInstruction>(
+      false, OP_and, I64Type, Cond12, IsZero3);
+
+  // Select: valid -> low part; invalid -> UINT64_MAX (sentinel)
+  MInstruction *AllOnes = createIntConstInstruction(I64Type, UINT64_MAX);
+  MInstruction *Selected = createInstruction<SelectInstruction>(
+      false, I64Type, IsU64, Parts[0], AllOnes);
+
+  // Normalize Param to U256: [Selected, 0, 0, 0]
+  U256Inst NewVal = {Selected, Zero, Zero, Zero};
+  Param = Operand(NewVal, EVMType::UINT256);
+}
+
 // Template function for no-argument runtime calls
 template <typename RetType>
 typename EVMMirBuilder::Operand
@@ -1337,6 +1426,51 @@ MInstruction *EVMMirBuilder::getCurrentInstancePointer() {
   // Convert instance address back to pointer type
   return createInstruction<ConversionInstruction>(
       false, OP_inttoptr, createVoidPtrType(), InstanceAddr);
+}
+
+void EVMMirBuilder::handleCallDataCopy() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand DestOffsetComponents = popOperand();
+  Operand OffsetComponents = popOperand();
+  Operand SizeComponents = popOperand();
+  normalizeOperandU64(DestOffsetComponents);
+  normalizeOperandU64(OffsetComponents);
+  normalizeOperandU64(SizeComponents);
+  callRuntimeFor<void, uint64_t, uint64_t, uint64_t>(
+      RuntimeFunctions.SetCallDataCopy, DestOffsetComponents, OffsetComponents,
+      SizeComponents);
+}
+
+void EVMMirBuilder::handleExtCodeCopy() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand AddressComponents = popOperand();
+  Operand DestOffsetComponents = popOperand();
+  Operand OffsetComponents = popOperand();
+  Operand SizeComponents = popOperand();
+  normalizeOperandU64(DestOffsetComponents);
+  normalizeOperandU64(OffsetComponents);
+  normalizeOperandU64(SizeComponents);
+  callRuntimeFor<void, const uint8_t *, uint64_t, uint64_t, uint64_t>(
+      RuntimeFunctions.SetExtCodeCopy, AddressComponents, DestOffsetComponents,
+      OffsetComponents, SizeComponents);
+}
+
+void EVMMirBuilder::handleReturnDataCopy() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand DestOffsetComponents = popOperand();
+  Operand OffsetComponents = popOperand();
+  Operand SizeComponents = popOperand();
+  normalizeOperandU64(DestOffsetComponents);
+  normalizeOperandU64(OffsetComponents);
+  normalizeOperandU64(SizeComponents);
+  callRuntimeFor<void, uint64_t, uint64_t, uint64_t>(
+      RuntimeFunctions.SetReturnDataCopy, DestOffsetComponents,
+      OffsetComponents, SizeComponents);
+}
+
+typename EVMMirBuilder::Operand EVMMirBuilder::handleReturnDataSize() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  return callRuntimeFor<uint64_t>(RuntimeFunctions.GetReturnDataSize);
 }
 
 } // namespace COMPILER

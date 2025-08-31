@@ -230,7 +230,9 @@ private:
       }
 
       case OP_KECCAK256: {
-        ZEN_ASSERT_TODO();
+        Operand Result = Builder.handleKeccak256();
+        push(Result);
+        break;
       }
 
       case OP_ADDRESS: {
@@ -276,7 +278,8 @@ private:
       }
 
       case OP_CALLDATACOPY: {
-        ZEN_ASSERT_TODO();
+        Builder.handleCallDataCopy();
+        break;
       }
 
       case OP_CODESIZE: {
@@ -286,7 +289,8 @@ private:
       }
 
       case OP_CODECOPY: {
-        ZEN_ASSERT_TODO();
+        Builder.handleCodeCopy();
+        break;
       }
 
       case OP_GASPRICE: {
@@ -302,15 +306,19 @@ private:
       }
 
       case OP_EXTCODECOPY: {
-        ZEN_ASSERT_TODO();
+        Builder.handleExtCodeCopy();
+        break;
       }
 
       case OP_RETURNDATASIZE: {
-        ZEN_ASSERT_TODO();
+        Operand Result = Builder.handleReturnDataSize();
+        push(Result);
+        break;
       }
 
       case OP_RETURNDATACOPY: {
-        ZEN_ASSERT_TODO();
+        Builder.handleReturnDataCopy();
+        break;
       }
 
       case OP_EXTCODEHASH: {

@@ -3,41 +3,49 @@
 
 #include "compiler/evm_frontend/evm_imported.h"
 #include "common/errors.h"
+#include "host/evm/crypto.h"
 #include "runtime/evm_instance.h"
 #include "runtime/evm_module.h"
 
 namespace COMPILER {
 
 const RuntimeFunctions &getRuntimeFunctionTable() {
-  static const RuntimeFunctions Table = {.GetAddress = &evmGetAddress,
-                                         .GetBalance = &evmGetBalance,
-                                         .GetOrigin = &evmGetOrigin,
-                                         .GetCaller = &evmGetCaller,
-                                         .GetCallValue = &evmGetCallValue,
-                                         .GetCallDataLoad = &evmGetCallDataLoad,
-                                         .GetCallDataSize = &evmGetCallDataSize,
-                                         .GetCodeSize = &evmGetCodeSize,
-                                         .GetGasPrice = &evmGetGasPrice,
-                                         .GetExtCodeSize = &evmGetExtCodeSize,
-                                         .GetExtCodeHash = &evmGetExtCodeHash,
-                                         .GetBlockHash = &evmGetBlockHash,
-                                         .GetCoinBase = &evmGetCoinBase,
-                                         .GetTimestamp = &evmGetTimestamp,
-                                         .GetNumber = &evmGetNumber,
-                                         .GetPrevRandao = &evmGetPrevRandao,
-                                         .GetGasLimit = &evmGetGasLimit,
-                                         .GetChainId = &evmGetChainId,
-                                         .GetSelfBalance = &evmGetSelfBalance,
-                                         .GetBaseFee = &evmGetBaseFee,
-                                         .GetBlobHash = &evmGetBlobHash,
-                                         .GetBlobBaseFee = &evmGetBlobBaseFee,
-                                         .GetMSize = &evmGetMSize,
-                                         .GetMLoad = &evmGetMLoad,
-                                         .SetMStore = &evmSetMStore,
-                                         .SetMStore8 = &evmSetMStore8,
-                                         .SetMCopy = &evmSetMCopy,
-                                         .SetReturn = &evmSetReturn,
-                                         .HandleInvalid = &evmhandleInvalid};
+  static const RuntimeFunctions Table = {
+      .GetAddress = &evmGetAddress,
+      .GetBalance = &evmGetBalance,
+      .GetOrigin = &evmGetOrigin,
+      .GetCaller = &evmGetCaller,
+      .GetCallValue = &evmGetCallValue,
+      .GetCallDataLoad = &evmGetCallDataLoad,
+      .GetCallDataSize = &evmGetCallDataSize,
+      .GetCodeSize = &evmGetCodeSize,
+      .SetCodeCopy = &evmSetCodeCopy,
+      .GetGasPrice = &evmGetGasPrice,
+      .GetExtCodeSize = &evmGetExtCodeSize,
+      .GetExtCodeHash = &evmGetExtCodeHash,
+      .GetBlockHash = &evmGetBlockHash,
+      .GetCoinBase = &evmGetCoinBase,
+      .GetTimestamp = &evmGetTimestamp,
+      .GetNumber = &evmGetNumber,
+      .GetPrevRandao = &evmGetPrevRandao,
+      .GetGasLimit = &evmGetGasLimit,
+      .GetChainId = &evmGetChainId,
+      .GetSelfBalance = &evmGetSelfBalance,
+      .GetBaseFee = &evmGetBaseFee,
+      .GetBlobHash = &evmGetBlobHash,
+      .GetBlobBaseFee = &evmGetBlobBaseFee,
+      .GetMSize = &evmGetMSize,
+      .GetMLoad = &evmGetMLoad,
+      .SetMStore = &evmSetMStore,
+      .SetMStore8 = &evmSetMStore8,
+      .SetMCopy = &evmSetMCopy,
+      .SetCallDataCopy = &evmSetCallDataCopy,
+      .SetExtCodeCopy = &evmSetExtCodeCopy,
+      .SetReturnDataCopy = &evmSetReturnDataCopy,
+      .GetReturnDataSize = &evmGetReturnDataSize,
+      .SetReturn = &evmSetReturn,
+      .HandleInvalid = &evmhandleInvalid,
+      .GetKeccak256 = &evmGetKeccak256};
   return Table;
 }
 
@@ -335,8 +343,143 @@ void evmSetReturn(zen::runtime::EVMInstance *Instance, uint64_t Offset,
   // Immediately terminate the execution and return the success code (0)
   Instance->exit(0);
 }
+void evmSetCallDataCopy(zen::runtime::EVMInstance *Instance,
+                        uint64_t DestOffset, uint64_t Offset, uint64_t Size) {
+  uint64_t RequiredSize = DestOffset + Size;
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  const evmc_message *Msg = Instance->getCurrentMessage();
+  ZEN_ASSERT(Msg && "No current message set in EVMInstance");
+
+  auto &Memory = Instance->getMemory();
+
+  // Calculate actual source offset and copy size
+  uint64_t ActualOffset =
+      std::min(Offset, static_cast<uint64_t>(Msg->input_size));
+  uint64_t CopySize =
+      (ActualOffset < Msg->input_size)
+          ? std::min<uint64_t>(Size, static_cast<uint64_t>(Msg->input_size) -
+                                         ActualOffset)
+          : 0;
+
+  if (CopySize > 0) {
+    std::memcpy(Memory.data() + DestOffset, Msg->input_data + ActualOffset,
+                CopySize);
+  }
+
+  // Fill remaining bytes with zeros if needed
+  if (Size > CopySize) {
+    std::memset(Memory.data() + DestOffset + CopySize, 0, Size - CopySize);
+  }
+}
+
+void evmSetExtCodeCopy(zen::runtime::EVMInstance *Instance,
+                       const uint8_t *Address, uint64_t DestOffset,
+                       uint64_t Offset, uint64_t Size) {
+  uint64_t RequiredSize = DestOffset + Size;
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module && Module->Host);
+  evmc::address Addr;
+  std::memcpy(Addr.bytes, Address, sizeof(Addr.bytes));
+
+  auto &Memory = Instance->getMemory();
+  size_t CodeSize = Module->Host->get_code_size(Addr);
+
+  if (Offset >= CodeSize) {
+    // If offset is beyond code size, fill with zeros
+    std::memset(Memory.data() + DestOffset, 0, Size);
+  } else {
+    uint64_t CopySize =
+        std::min<uint64_t>(Size, static_cast<uint64_t>(CodeSize) - Offset);
+    size_t CopiedSize = Module->Host->copy_code(
+        Addr, Offset, Memory.data() + DestOffset, CopySize);
+
+    // Fill remaining bytes with zeros if needed
+    if (Size > CopiedSize) {
+      std::memset(Memory.data() + DestOffset + CopiedSize, 0,
+                  Size - CopiedSize);
+    }
+  }
+}
+
+void evmSetReturnDataCopy(zen::runtime::EVMInstance *Instance,
+                          uint64_t DestOffset, uint64_t Offset, uint64_t Size) {
+  uint64_t RequiredSize = DestOffset + Size;
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  const auto &ReturnData = Instance->getReturnData();
+  auto &Memory = Instance->getMemory();
+
+  if (Offset >= ReturnData.size()) {
+    std::memset(Memory.data() + DestOffset, 0, Size);
+  } else {
+    uint64_t CopySize = std::min<uint64_t>(
+        Size, static_cast<uint64_t>(ReturnData.size()) - Offset);
+    std::memcpy(Memory.data() + DestOffset, ReturnData.data() + Offset,
+                CopySize);
+
+    // Fill remaining bytes with zeros
+    if (Size > CopySize) {
+      std::memset(Memory.data() + DestOffset + CopySize, 0, Size - CopySize);
+    }
+  }
+}
+
+uint64_t evmGetReturnDataSize(zen::runtime::EVMInstance *Instance) {
+  const auto &ReturnData = Instance->getReturnData();
+  return ReturnData.size();
+}
+
 void evmhandleInvalid(zen::runtime::EVMInstance *Instance) {
   throw zen::common::getError(zen::common::ErrorCode::EVMInvalidInstruction);
+}
+
+void evmSetCodeCopy(zen::runtime::EVMInstance *Instance, uint64_t DestOffset,
+                    uint64_t Offset, uint64_t Size) {
+  uint64_t RequiredSize = DestOffset + Size;
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module);
+  const zen::common::Byte *Code = Module->Code;
+  size_t CodeSize = Module->CodeSize;
+
+  auto &Memory = Instance->getMemory();
+
+  if (Offset < CodeSize) {
+    auto CopySize = std::min(Size, CodeSize - Offset);
+    std::memcpy(Memory.data() + DestOffset, Code + Offset, CopySize);
+    if (Size > CopySize) {
+      std::memset(Memory.data() + DestOffset + CopySize, 0, Size - CopySize);
+    }
+  } else {
+    if (Size > 0) {
+      std::memset(Memory.data() + DestOffset, 0, Size);
+    }
+  }
+}
+
+const uint8_t *evmGetKeccak256(zen::runtime::EVMInstance *Instance,
+                               uint64_t Offset, uint64_t Length) {
+  uint64_t RequiredSize = Offset + Length;
+  Instance->consumeMemoryExpansionGas(RequiredSize);
+  Instance->expandMemory(RequiredSize);
+
+  auto &Memory = Instance->getMemory();
+  const uint8_t *InputData = Memory.data() + Offset;
+
+  auto &Cache = Instance->getMessageCache();
+  evmc::bytes32 HashResult;
+  zen::host::evm::crypto::keccak256(InputData, Length, HashResult.bytes);
+  Cache.Keccak256Results.push_back(HashResult);
+
+  return Cache.Keccak256Results.back().bytes;
 }
 
 } // namespace COMPILER

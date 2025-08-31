@@ -338,6 +338,7 @@ public:
   Operand handleCallDataLoad();
   Operand handleCallDataSize();
   Operand handleCodeSize();
+  void handleCodeCopy();
   Operand handleGasPrice();
   Operand handleExtCodeSize();
   Operand handleExtCodeHash();
@@ -357,8 +358,13 @@ public:
   void handleMStore();
   void handleMStore8();
   void handleMCopy();
+  void handleCallDataCopy();
+  void handleExtCodeCopy();
+  void handleReturnDataCopy();
+  Operand handleReturnDataSize();
   void handleReturn();
   void handleInvalid();
+  Operand handleKeccak256();
 
   // ==================== Runtime Interface for JIT ====================
 
@@ -507,6 +513,16 @@ private:
 
   template <typename RetType>
   Operand convertCallResult(MInstruction *CallInstr);
+
+  // Detect and normalize a UINT256 operand when used as UINT64.
+  // For constants, follow EVM semantics (no hard throw; clamp appropriately).
+  // For non-constants, generate SelectInstruction to produce UINT64_MAX on
+  // overflow.
+  void normalizeOperandU64(Operand &Param);
+
+  // Split normalization for const and non-const U256.
+  void normalizeOperandU64Const(Operand &Param);
+  void normalizeOperandU64NonConst(Operand &Param);
 
   Operand convertSingleInstrToU256Operand(MInstruction *SingleInstr);
   Operand convertU256InstrToU256Operand(MInstruction *U256Instr);
