@@ -505,7 +505,9 @@ void evmSetSStore(zen::runtime::EVMInstance *Instance, intx::uint256 Index,
                   intx::uint256 Value) {
   const zen::runtime::EVMModule *Module = Instance->getModule();
   ZEN_ASSERT(Module && Module->Host);
-  ZEN_ASSERT(!Instance->isStaticMode() && "Static mode violation");
+  if (Instance->isStaticMode()) {
+    throw zen::common::getError(zen::common::ErrorCode::EVMStaticModeViolation);
+  }
   const evmc_message *Msg = Instance->getCurrentMessage();
   evmc_revision Rev = Instance->getRevision();
   const auto Key = intx::be::store<evmc::bytes32>(Index);
@@ -537,7 +539,9 @@ void evmSetTStore(zen::runtime::EVMInstance *Instance, intx::uint256 Index,
                   intx::uint256 Value) {
   const zen::runtime::EVMModule *Module = Instance->getModule();
   ZEN_ASSERT(Module && Module->Host);
-  ZEN_ASSERT(!Instance->isStaticMode() && "Static mode violation");
+  if (Instance->isStaticMode()) {
+    throw zen::common::getError(zen::common::ErrorCode::EVMStaticModeViolation);
+  }
   const evmc_message *Msg = Instance->getCurrentMessage();
   const auto Key = intx::be::store<evmc::bytes32>(Index);
   const auto Val = intx::be::store<evmc::bytes32>(Value);
@@ -547,7 +551,9 @@ void evmHandleSelfDestruct(zen::runtime::EVMInstance *Instance,
                            const uint8_t *Beneficiary) {
   const zen::runtime::EVMModule *Module = Instance->getModule();
   ZEN_ASSERT(Module && Module->Host);
-  ZEN_ASSERT(!Instance->isStaticMode() && "Static mode violation");
+  if (Instance->isStaticMode()) {
+    throw zen::common::getError(zen::common::ErrorCode::EVMStaticModeViolation);
+  }
   const evmc_message *Msg = Instance->getCurrentMessage();
   evmc_revision Rev = Instance->getRevision();
 
