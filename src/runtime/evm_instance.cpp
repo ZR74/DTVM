@@ -57,12 +57,19 @@ void EVMInstance::consumeMemoryExpansionGas(uint64_t RequiredSize) {
   if (ExpansionCost > GasLeft) {
     throw common::getError(common::ErrorCode::EVMOutOfGas);
   }
-  setGas(GasLeft - ExpansionCost);
+  chargeGas(ExpansionCost);
 }
 void EVMInstance::expandMemory(uint64_t RequiredSize) {
   if (RequiredSize > Memory.size()) {
     Memory.resize(RequiredSize, 0);
   }
+}
+void EVMInstance::chargeGas(uint64_t GasCost) {
+  evmc_message *Msg = getCurrentMessage();
+  if ((uint64_t)Msg->gas < GasCost) {
+    throw common::getError(common::ErrorCode::EVMOutOfGas);
+  }
+  Msg->gas -= GasCost;
 }
 
 } // namespace zen::runtime

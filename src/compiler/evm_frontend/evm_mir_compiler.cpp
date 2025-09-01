@@ -934,6 +934,38 @@ void EVMMirBuilder::handleInvalid() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   callRuntimeFor(RuntimeFunctions.HandleInvalid);
 }
+typename EVMMirBuilder::Operand EVMMirBuilder::handleSLoad() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand KeyComponents = popOperand();
+  return callRuntimeFor<intx::uint256, intx::uint256>(RuntimeFunctions.GetSLoad,
+                                                      KeyComponents);
+}
+void EVMMirBuilder::handleSStore() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand KeyComponents = popOperand();
+  Operand ValueComponents = popOperand();
+  callRuntimeFor<void, intx::uint256, intx::uint256>(
+      RuntimeFunctions.SetSStore, KeyComponents, ValueComponents);
+}
+typename EVMMirBuilder::Operand EVMMirBuilder::handleTLoad() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand Index = popOperand();
+  return callRuntimeFor<intx::uint256, intx::uint256>(RuntimeFunctions.GetTLoad,
+                                                      Index);
+}
+void EVMMirBuilder::handleTStore() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand Index = popOperand();
+  Operand ValueComponents = popOperand();
+  callRuntimeFor<void, intx::uint256, intx::uint256>(RuntimeFunctions.SetTStore,
+                                                     Index, ValueComponents);
+}
+void EVMMirBuilder::handleSelfDestruct() {
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  Operand Beneficiary = popOperand();
+  callRuntimeFor<void, const uint8_t *>(RuntimeFunctions.HandleSelfDestruct,
+                                        Beneficiary);
+}
 
 typename EVMMirBuilder::Operand EVMMirBuilder::handleKeccak256() {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();

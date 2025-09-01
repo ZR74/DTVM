@@ -410,11 +410,14 @@ private:
       }
 
       case OP_SLOAD: {
-        ZEN_ASSERT_TODO();
+        Operand Result = Builder.handleSLoad();
+        push(Result);
+        break;
       }
 
       case OP_SSTORE: {
-        ZEN_ASSERT_TODO();
+        Builder.handleSStore();
+        break;
       }
 
       case OP_MSIZE: {
@@ -424,11 +427,14 @@ private:
       }
 
       case OP_TLOAD: {
-        ZEN_ASSERT_TODO();
+        Operand Result = Builder.handleTLoad();
+        push(Result);
+        break;
       }
 
       case OP_TSTORE: {
-        ZEN_ASSERT_TODO();
+        Builder.handleTStore();
+        break;
       }
 
       case OP_MCOPY: {
@@ -469,7 +475,8 @@ private:
       }
 
       case OP_SELFDESTRUCT: {
-        ZEN_ASSERT_TODO();
+        Builder.handleSelfDestruct();
+        break;
       }
 
       // Control flow operations

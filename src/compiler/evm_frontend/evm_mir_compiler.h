@@ -365,6 +365,11 @@ public:
   void handleReturn();
   void handleInvalid();
   Operand handleKeccak256();
+  Operand handleSLoad();
+  void handleSStore();
+  Operand handleTLoad();
+  void handleTStore();
+  void handleSelfDestruct();
 
   // ==================== Runtime Interface for JIT ====================
 

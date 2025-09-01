@@ -38,13 +38,18 @@ const RuntimeFunctions &getRuntimeFunctionTable() {
       .GetMLoad = &evmGetMLoad,
       .SetMStore = &evmSetMStore,
       .SetMStore8 = &evmSetMStore8,
+      .GetSLoad = &evmGetSLoad,
+      .SetSStore = &evmSetSStore,
+      .GetTLoad = &evmGetTLoad,
+      .SetTStore = &evmSetTStore,
       .SetMCopy = &evmSetMCopy,
       .SetCallDataCopy = &evmSetCallDataCopy,
       .SetExtCodeCopy = &evmSetExtCodeCopy,
       .SetReturnDataCopy = &evmSetReturnDataCopy,
       .GetReturnDataSize = &evmGetReturnDataSize,
       .SetReturn = &evmSetReturn,
-      .HandleInvalid = &evmhandleInvalid,
+      .HandleInvalid = &evmHandleInvalid,
+      .HandleSelfDestruct = &evmHandleSelfDestruct,
       .GetKeccak256 = &evmGetKeccak256};
   return Table;
 }
@@ -435,7 +440,7 @@ uint64_t evmGetReturnDataSize(zen::runtime::EVMInstance *Instance) {
   return ReturnData.size();
 }
 
-void evmhandleInvalid(zen::runtime::EVMInstance *Instance) {
+void evmHandleInvalid(zen::runtime::EVMInstance *Instance) {
   throw zen::common::getError(zen::common::ErrorCode::EVMInvalidInstruction);
 }
 
@@ -480,6 +485,95 @@ const uint8_t *evmGetKeccak256(zen::runtime::EVMInstance *Instance,
   Cache.Keccak256Results.push_back(HashResult);
 
   return Cache.Keccak256Results.back().bytes;
+}
+intx::uint256 evmGetSLoad(zen::runtime::EVMInstance *Instance,
+                          intx::uint256 Index) {
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module && Module->Host);
+  const evmc_message *Msg = Instance->getCurrentMessage();
+  evmc_revision Rev = Instance->getRevision();
+
+  const auto Key = intx::be::store<evmc::bytes32>(Index);
+  if (Rev >= EVMC_BERLIN &&
+      Module->Host->access_storage(Msg->recipient, Key) == EVMC_ACCESS_COLD) {
+    Instance->chargeGas(zen::evm::ADDITIONAL_COLD_ACCOUNT_ACCESS_COST);
+  }
+  const auto Value = Module->Host->get_storage(Msg->recipient, Key);
+  return intx::be::load<intx::uint256>(Value);
+}
+void evmSetSStore(zen::runtime::EVMInstance *Instance, intx::uint256 Index,
+                  intx::uint256 Value) {
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module && Module->Host);
+  ZEN_ASSERT(!Instance->isStaticMode() && "Static mode violation");
+  const evmc_message *Msg = Instance->getCurrentMessage();
+  evmc_revision Rev = Instance->getRevision();
+  const auto Key = intx::be::store<evmc::bytes32>(Index);
+  const auto Val = intx::be::store<evmc::bytes32>(Value);
+
+  const auto GasCostCold =
+      (Rev >= EVMC_BERLIN &&
+       Module->Host->access_storage(Msg->recipient, Key) == EVMC_ACCESS_COLD)
+          ? zen::evm::COLD_SLOAD_COST
+          : 0;
+  const auto Status = Module->Host->set_storage(Msg->recipient, Key, Val);
+
+  const auto [GasCostWarm, GasReFund] = zen::evm::SSTORE_COSTS[Rev][Status];
+
+  const auto GasCost = GasCostCold + GasCostWarm;
+  Instance->chargeGas(GasCost);
+  Instance->addGasRefund(GasReFund);
+}
+intx::uint256 evmGetTLoad(zen::runtime::EVMInstance *Instance,
+                          intx::uint256 Index) {
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module && Module->Host);
+  const evmc_message *Msg = Instance->getCurrentMessage();
+  const auto Key = intx::be::store<evmc::bytes32>(Index);
+  const auto Value = Module->Host->get_transient_storage(Msg->recipient, Key);
+  return intx::be::load<intx::uint256>(Value);
+}
+void evmSetTStore(zen::runtime::EVMInstance *Instance, intx::uint256 Index,
+                  intx::uint256 Value) {
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module && Module->Host);
+  ZEN_ASSERT(!Instance->isStaticMode() && "Static mode violation");
+  const evmc_message *Msg = Instance->getCurrentMessage();
+  const auto Key = intx::be::store<evmc::bytes32>(Index);
+  const auto Val = intx::be::store<evmc::bytes32>(Value);
+  Module->Host->set_transient_storage(Msg->recipient, Key, Val);
+}
+void evmHandleSelfDestruct(zen::runtime::EVMInstance *Instance,
+                           const uint8_t *Beneficiary) {
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module && Module->Host);
+  ZEN_ASSERT(!Instance->isStaticMode() && "Static mode violation");
+  const evmc_message *Msg = Instance->getCurrentMessage();
+  evmc_revision Rev = Instance->getRevision();
+
+  evmc::address BenefAddr;
+  std::memcpy(BenefAddr.bytes, Beneficiary, sizeof(BenefAddr.bytes));
+
+  // EIP-161: if target account does not exist, charge account creation cost
+  if (Rev >= EVMC_SPURIOUS_DRAGON && !Module->Host->account_exists(BenefAddr)) {
+    Instance->chargeGas(zen::evm::ACCOUNT_CREATION_COST);
+  }
+
+  // EIP-2929: Charge cold account access cost if needed
+  if (Rev >= EVMC_BERLIN &&
+      Module->Host->access_account(BenefAddr) == EVMC_ACCESS_COLD) {
+    Instance->chargeGas(zen::evm::ADDITIONAL_COLD_ACCOUNT_ACCESS_COST);
+  }
+
+  Module->Host->selfdestruct(Msg->recipient, BenefAddr);
+  uint64_t RemainingGas = Msg->gas;
+  Instance->popMessage();
+
+  if (const evmc_message *Parent = Instance->getCurrentMessage()) {
+    const_cast<evmc_message *>(Parent)->gas += RemainingGas;
+  } else {
+    Instance->exit(0);
+  }
 }
 
 } // namespace COMPILER
