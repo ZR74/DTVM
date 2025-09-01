@@ -1,6 +1,7 @@
 // Copyright (C) 2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
-
+#ifndef ZEN_EVM_EVM_H
+#define ZEN_EVM_EVM_H
 #include "evmc/evmc.hpp"
 #include "evmc/instructions.h"
 
@@ -27,3 +28,5 @@ constexpr auto MAX_SIZE_OF_INITCODE = 0xC000;
 
 } // namespace evm
 } // namespace zen
+
+#endif // ZEN_EVM_GAS_EVM_H

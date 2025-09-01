@@ -40,6 +40,12 @@ using VoidWithBytes32UInt64UInt64UInt64Fn = void (*)(
 using Bytes32WithUInt64UInt64Fn =
     const uint8_t *(*)(zen::runtime::EVMInstance *, uint64_t, uint64_t);
 using VoidFn = void (*)(zen::runtime::EVMInstance *);
+using U256WithU256Fn = intx::uint256 (*)(zen::runtime::EVMInstance *,
+                                         intx::uint256);
+using VoidWithU256U256Fn = void (*)(zen::runtime::EVMInstance *, intx::uint256,
+                                    intx::uint256);
+using VoidWithBytes32Fn = void (*)(zen::runtime::EVMInstance *,
+                                   const uint8_t *);
 
 struct RuntimeFunctions {
   Bytes32Fn GetAddress;
@@ -69,6 +75,10 @@ struct RuntimeFunctions {
   U256WithUInt64Fn GetMLoad;
   VoidWithUInt64U256Fn SetMStore;
   VoidWithUInt64U256Fn SetMStore8;
+  U256WithU256Fn GetSLoad;
+  VoidWithU256U256Fn SetSStore;
+  U256WithU256Fn GetTLoad;
+  VoidWithU256U256Fn SetTStore;
   VoidWithUInt64UInt64UInt64Fn SetMCopy;
   VoidWithUInt64UInt64UInt64Fn SetCallDataCopy;
   VoidWithBytes32UInt64UInt64UInt64Fn SetExtCodeCopy;
@@ -76,6 +86,7 @@ struct RuntimeFunctions {
   SizeFn GetReturnDataSize;
   VoidWithUInt64UInt64Fn SetReturn;
   VoidFn HandleInvalid;
+  VoidWithBytes32Fn HandleSelfDestruct;
   Bytes32WithUInt64UInt64Fn GetKeccak256;
 };
 
@@ -133,9 +144,19 @@ void evmSetReturnDataCopy(zen::runtime::EVMInstance *Instance,
 uint64_t evmGetReturnDataSize(zen::runtime::EVMInstance *Instance);
 void evmSetReturn(zen::runtime::EVMInstance *Instance, uint64_t MemOffset,
                   uint64_t Length);
-void evmhandleInvalid(zen::runtime::EVMInstance *Instance);
+void evmHandleInvalid(zen::runtime::EVMInstance *Instance);
 const uint8_t *evmGetKeccak256(zen::runtime::EVMInstance *Instance,
                                uint64_t Offset, uint64_t Length);
+intx::uint256 evmGetSLoad(zen::runtime::EVMInstance *Instance,
+                          intx::uint256 Index);
+void evmSetSStore(zen::runtime::EVMInstance *Instance, intx::uint256 Index,
+                  intx::uint256 Value);
+intx::uint256 evmGetTLoad(zen::runtime::EVMInstance *Instance,
+                          intx::uint256 Index);
+void evmSetTStore(zen::runtime::EVMInstance *Instance, intx::uint256 Index,
+                  intx::uint256 Value);
+void evmHandleSelfDestruct(zen::runtime::EVMInstance *Instance,
+                           const uint8_t *Beneficiary);
 } // namespace COMPILER
 
 #endif // EVM_FRONTEND_EVM_IMPORTED_H

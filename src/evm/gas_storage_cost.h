@@ -1,5 +1,7 @@
 // Copyright (C) 2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+#ifndef ZEN_EVM_GAS_STORAGE_COST_H
+#define ZEN_EVM_GAS_STORAGE_COST_H
 
 #include "evmc/evmc.hpp"
 
@@ -21,3 +23,5 @@ extern const std::array<
     SSTORE_COSTS;
 } // namespace evm
 } // namespace zen
+
+#endif // ZEN_EVM_GAS_STORAGE_COST_H

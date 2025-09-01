@@ -317,18 +317,19 @@ public:
   Operand handlePC();
   Operand handleGas();
   Operand handleAddress();
-  Operand handleBalance();
+  Operand handleBalance(Operand Address);
   Operand handleOrigin();
   Operand handleCaller();
   Operand handleCallValue();
-  Operand handleCallDataLoad();
+  Operand handleCallDataLoad(Operand Offset);
   Operand handleCallDataSize();
   Operand handleCodeSize();
-  void handleCodeCopy();
+  void handleCodeCopy(Operand DestOffsetComponents, Operand OffsetComponents,
+                      Operand SizeComponents);
   Operand handleGasPrice();
-  Operand handleExtCodeSize();
-  Operand handleExtCodeHash();
-  Operand handleBlockHash();
+  Operand handleExtCodeSize(Operand Address);
+  Operand handleExtCodeHash(Operand Address);
+  Operand handleBlockHash(Operand BlockNumber);
   Operand handleCoinBase();
   Operand handleTimestamp();
   Operand handleNumber();
@@ -337,20 +338,30 @@ public:
   Operand handleChainId();
   Operand handleSelfBalance();
   Operand handleBaseFee();
-  Operand handleBlobHash();
+  Operand handleBlobHash(Operand Index);
   Operand handleBlobBaseFee();
   Operand handleMSize();
-  Operand handleMLoad();
-  void handleMStore();
-  void handleMStore8();
-  void handleMCopy();
-  void handleCallDataCopy();
-  void handleExtCodeCopy();
-  void handleReturnDataCopy();
+  Operand handleMLoad(Operand AddrComponents);
+  void handleMStore(Operand AddrComponents, Operand ValueComponents);
+  void handleMStore8(Operand AddrComponents, Operand ValueComponents);
+  void handleMCopy(Operand DestAddrComponents, Operand SrcAddrComponents,
+                   Operand LengthComponents);
+  void handleCallDataCopy(Operand DestOffsetComponents,
+                          Operand OffsetComponents, Operand SizeComponents);
+  void handleExtCodeCopy(Operand AddressComponents,
+                         Operand DestOffsetComponents, Operand OffsetComponents,
+                         Operand SizeComponents);
+  void handleReturnDataCopy(Operand DestOffsetComponents,
+                            Operand OffsetComponents, Operand SizeComponents);
   Operand handleReturnDataSize();
-  void handleReturn();
+  void handleReturn(Operand MemOffsetComponents, Operand LengthComponents);
   void handleInvalid();
-  Operand handleKeccak256();
+  Operand handleKeccak256(Operand OffsetComponents, Operand LengthComponents);
+  Operand handleSLoad(Operand KeyComponents);
+  void handleSStore(Operand KeyComponents, Operand ValueComponents);
+  Operand handleTLoad(Operand Index);
+  void handleTStore(Operand Index, Operand ValueComponents);
+  void handleSelfDestruct(Operand Beneficiary);
 
   // ==================== Runtime Interface for JIT ====================
 
