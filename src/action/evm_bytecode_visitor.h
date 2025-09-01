@@ -230,7 +230,9 @@ private:
       }
 
       case OP_KECCAK256: {
-        Operand Result = Builder.handleKeccak256();
+        Operand Offset = pop();
+        Operand Length = pop();
+        Operand Result = Builder.handleKeccak256(Offset, Length);
         push(Result);
         break;
       }
@@ -242,7 +244,8 @@ private:
       }
 
       case OP_BALANCE: {
-        Operand Result = Builder.handleBalance();
+        Operand Address = pop();
+        Operand Result = Builder.handleBalance(Address);
         push(Result);
         break;
       }
@@ -266,7 +269,8 @@ private:
       }
 
       case OP_CALLDATALOAD: {
-        Operand Result = Builder.handleCallDataLoad();
+        Operand Offset = pop();
+        Operand Result = Builder.handleCallDataLoad(Offset);
         push(Result);
         break;
       }
@@ -278,7 +282,10 @@ private:
       }
 
       case OP_CALLDATACOPY: {
-        Builder.handleCallDataCopy();
+        Operand DestOffset = pop();
+        Operand Offset = pop();
+        Operand Size = pop();
+        Builder.handleCallDataCopy(DestOffset, Offset, Size);
         break;
       }
 
@@ -289,7 +296,10 @@ private:
       }
 
       case OP_CODECOPY: {
-        Builder.handleCodeCopy();
+        Operand DestOffset = pop();
+        Operand Offset = pop();
+        Operand Size = pop();
+        Builder.handleCodeCopy(DestOffset, Offset, Size);
         break;
       }
 
@@ -300,13 +310,18 @@ private:
       }
 
       case OP_EXTCODESIZE: {
-        Operand Result = Builder.handleExtCodeSize();
+        Operand Address = pop();
+        Operand Result = Builder.handleExtCodeSize(Address);
         push(Result);
         break;
       }
 
       case OP_EXTCODECOPY: {
-        Builder.handleExtCodeCopy();
+        Operand Address = pop();
+        Operand DestOffset = pop();
+        Operand Offset = pop();
+        Operand Size = pop();
+        Builder.handleExtCodeCopy(Address, DestOffset, Offset, Size);
         break;
       }
 
@@ -317,18 +332,23 @@ private:
       }
 
       case OP_RETURNDATACOPY: {
-        Builder.handleReturnDataCopy();
+        Operand DestOffset = pop();
+        Operand Offset = pop();
+        Operand Size = pop();
+        Builder.handleReturnDataCopy(DestOffset, Offset, Size);
         break;
       }
 
       case OP_EXTCODEHASH: {
-        Operand Result = Builder.handleExtCodeHash();
+        Operand Address = pop();
+        Operand Result = Builder.handleExtCodeHash(Address);
         push(Result);
         break;
       }
 
       case OP_BLOCKHASH: {
-        Operand Result = Builder.handleBlockHash();
+        Operand BlockNumber = pop();
+        Operand Result = Builder.handleBlockHash(BlockNumber);
         push(Result);
         break;
       }
@@ -382,7 +402,8 @@ private:
       }
 
       case OP_BLOBHASH: {
-        Operand Result = Builder.handleBlobHash();
+        Operand Index = pop();
+        Operand Result = Builder.handleBlobHash(Index);
         push(Result);
         break;
       }
@@ -394,29 +415,37 @@ private:
       }
 
       case OP_MLOAD: {
-        Operand Result = Builder.handleMLoad();
+        Operand Addr = pop();
+        Operand Result = Builder.handleMLoad(Addr);
         push(Result);
         break;
       }
 
       case OP_MSTORE: {
-        Builder.handleMStore();
+        Operand Addr = pop();
+        Operand Value = pop();
+        Builder.handleMStore(Addr, Value);
         break;
       }
 
       case OP_MSTORE8: {
-        Builder.handleMStore8();
+        Operand Addr = pop();
+        Operand Value = pop();
+        Builder.handleMStore8(Addr, Value);
         break;
       }
 
       case OP_SLOAD: {
-        Operand Result = Builder.handleSLoad();
+        Operand Key = pop();
+        Operand Result = Builder.handleSLoad(Key);
         push(Result);
         break;
       }
 
       case OP_SSTORE: {
-        Builder.handleSStore();
+        Operand Key = pop();
+        Operand Value = pop();
+        Builder.handleSStore(Key, Value);
         break;
       }
 
@@ -427,18 +456,24 @@ private:
       }
 
       case OP_TLOAD: {
-        Operand Result = Builder.handleTLoad();
+        Operand Index = pop();
+        Operand Result = Builder.handleTLoad(Index);
         push(Result);
         break;
       }
 
       case OP_TSTORE: {
-        Builder.handleTStore();
+        Operand Index = pop();
+        Operand Value = pop();
+        Builder.handleTStore(Index, Value);
         break;
       }
 
       case OP_MCOPY: {
-        Builder.handleMCopy();
+        Operand DestAddr = pop();
+        Operand SrcAddr = pop();
+        Operand Length = pop();
+        Builder.handleMCopy(DestAddr, SrcAddr, Length);
         break;
       }
 
@@ -475,7 +510,8 @@ private:
       }
 
       case OP_SELFDESTRUCT: {
-        Builder.handleSelfDestruct();
+        Operand Beneficiary = pop();
+        Builder.handleSelfDestruct(Beneficiary);
         break;
       }
 
@@ -513,7 +549,9 @@ private:
 
       // Halt operations
       case OP_RETURN: {
-        Builder.handleReturn();
+        Operand MemOffset = pop();
+        Operand Length = pop();
+        Builder.handleReturn(MemOffset, Length);
         return true;
       }
 
