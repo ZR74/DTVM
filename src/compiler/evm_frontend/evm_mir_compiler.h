@@ -235,11 +235,12 @@ public:
               false, LTPredicate, &Ctx.I64Type, LHS[I], RHS[I]);
           MInstruction *Borrow2 = createInstruction<CmpInstruction>(
               false, LTPredicate, &Ctx.I64Type, Diff1, Borrow);
-
+          // NOLINTBEGIN(readability-identifier-naming)
           MInstruction *Borrow1_64 = createInstruction<ConversionInstruction>(
               false, OP_uext, MirI64Type, Borrow1);
           MInstruction *Borrow2_64 = createInstruction<ConversionInstruction>(
               false, OP_uext, MirI64Type, Borrow2);
+          // NOLINTEND(readability-identifier-naming)
 
           Borrow = createInstruction<BinaryInstruction>(
               false, OP_or, MirI64Type, Borrow1_64, Borrow2_64);
@@ -442,8 +443,9 @@ private:
   U256Inst handleCompareEQ(const U256Inst &LHS, const U256Inst &RHS,
                            MType *ResultType);
 
-  U256Inst handleCompareGT_LT(const U256Inst &LHS, const U256Inst &RHS,
-                              MType *ResultType, CompareOperator Operator);
+  U256Inst handleCompareGT_LT( // NOLINT(readability-identifier-naming)
+      const U256Inst &LHS, const U256Inst &RHS, MType *ResultType,
+      CompareOperator Operator);
 
   U256Inst handleLeftShift(const U256Inst &Value, MInstruction *ShiftAmount,
                            MInstruction *IsLargeShift);
@@ -474,7 +476,7 @@ private:
   template <typename RetType, typename... ArgTypes, typename... ParamTypes>
   Operand callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *,
                                                 ArgTypes...),
-                         const ParamTypes &...params);
+                         const ParamTypes &...Params);
 
   // Helper template functions for runtime call type mapping
   template <typename RetType> static MType *getMIRReturnType();
