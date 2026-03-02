@@ -14,6 +14,7 @@
 #include <evmc/evmc.hpp>
 #include <evmc/helpers.h>
 
+#include <cstdlib>
 #include <cstring>
 
 #ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
@@ -57,6 +58,20 @@ uint32_t crc32(const uint8_t *Data, size_t Size) {
   for (size_t I = 0; I < Size; ++I)
     Crc = Table[(Crc ^ Data[I]) & 0xFFu] ^ (Crc >> 8);
   return Crc ^ 0xFFFFFFFFu;
+}
+
+bool parseBoolEnvValue(const char *Value, bool &ParsedValue) {
+  if (std::strcmp(Value, "1") == 0 || std::strcmp(Value, "true") == 0 ||
+      std::strcmp(Value, "TRUE") == 0) {
+    ParsedValue = true;
+    return true;
+  }
+  if (std::strcmp(Value, "0") == 0 || std::strcmp(Value, "false") == 0 ||
+      std::strcmp(Value, "FALSE") == 0) {
+    ParsedValue = false;
+    return true;
+  }
+  return false;
 }
 
 // VM interface for DTVM
@@ -219,7 +234,27 @@ DTVM::DTVM()
     : evmc_vm{EVMC_ABI_VERSION, "dtvm",    PROJECT_VERSION,
               ::destroy,        ::execute, ::get_capabilities,
               ::set_option},
-      ExecHost(new WrappedHost) {}
+      ExecHost(new WrappedHost) {
+  if (const char *Mode = std::getenv("DTVM_EVM_MODE"); Mode != nullptr) {
+    if (std::strcmp(Mode, "interpreter") == 0) {
+      Config.Mode = RunMode::InterpMode;
+    } else if (std::strcmp(Mode, "multipass") == 0) {
+      Config.Mode = RunMode::MultipassMode;
+    } else {
+      ZEN_LOG_WARN("ignore invalid DTVM_EVM_MODE=%s", Mode);
+    }
+  }
+
+  if (const char *EnableGas = std::getenv("DTVM_EVM_ENABLE_GAS_METERING");
+      EnableGas != nullptr) {
+    bool ParsedEnableGas = false;
+    if (parseBoolEnvValue(EnableGas, ParsedEnableGas)) {
+      Config.EnableEvmGasMetering = ParsedEnableGas;
+    } else {
+      ZEN_LOG_WARN("ignore invalid DTVM_EVM_ENABLE_GAS_METERING=%s", EnableGas);
+    }
+  }
+}
 } // namespace
 
 extern "C" evmc_vm *evmc_create_dtvmapi() { return new DTVM; }
