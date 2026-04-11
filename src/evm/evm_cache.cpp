@@ -1355,52 +1355,23 @@ static void ensureAbstractDepth(std::vector<AbstractValue> &Stack,
 }
 
 // Resolve jump targets by simulating the abstract stack per control-flow block.
-// Writes results into ResolvedTargets: JumpPC → canonical target JUMPDEST PC.
+// Writes results into ResolvedTargets: JumpPC → exact target JUMPDEST PC.
+// The stored PC is the raw PUSH value (NOT canonicalized), so SPP gas blocks
+// correctly account for intermediate JUMPDEST instructions in consecutive runs.
+// Consumers that need canonical PCs (e.g. the SSA analyzer) must canonicalize
+// the value themselves.
 static void resolveJumpTargetsByAbstractStack(
     const zen::common::Byte *Code, size_t CodeSize,
     const std::vector<uint8_t> &JumpDestMap,
+    const evmc_instruction_metrics *Metrics,
     std::unordered_map<uint32_t, uint32_t> &ResolvedTargets) {
   if (CodeSize == 0) {
     return;
   }
 
-  // Build canonical JUMPDEST mapping: consecutive JUMPDEST runs share the
-  // last PC as canonical representative (same logic as evm_analyzer.h).
-  std::unordered_map<uint32_t, uint32_t> CanonicalJumpDest;
-  {
-    size_t Pc = 0;
-    while (Pc < CodeSize) {
-      uint8_t Op = static_cast<uint8_t>(Code[Pc]);
-      if (Op == static_cast<uint8_t>(evmc_opcode::OP_JUMPDEST)) {
-        size_t RunStart = Pc;
-        size_t RunEnd = Pc;
-        while (RunEnd + 1 < CodeSize &&
-               static_cast<uint8_t>(Code[RunEnd + 1]) ==
-                   static_cast<uint8_t>(evmc_opcode::OP_JUMPDEST)) {
-          ++RunEnd;
-        }
-        for (size_t P = RunStart; P <= RunEnd; ++P) {
-          CanonicalJumpDest[static_cast<uint32_t>(P)] =
-              static_cast<uint32_t>(RunEnd);
-        }
-        Pc = RunEnd + 1;
-        continue;
-      }
-      Pc += opcodeLen(Op);
-    }
-  }
-
-  auto hasCanonicalJumpDest = [&](uint64_t Dest) -> bool {
+  auto isValidJumpDest = [&](uint64_t Dest) -> bool {
     return Dest < CodeSize && JumpDestMap[Dest] != 0;
   };
-  auto getCanonicalJumpDestPC = [&](uint64_t Dest) -> uint32_t {
-    auto It = CanonicalJumpDest.find(static_cast<uint32_t>(Dest));
-    return It != CanonicalJumpDest.end() ? It->second
-                                         : static_cast<uint32_t>(Dest);
-  };
-
-  const evmc_instruction_metrics *Metrics =
-      evmc_get_instruction_metrics_table(zen::evm::DEFAULT_REVISION);
 
   // Scan bytecode block by block.
   size_t ScanPC = 0;
@@ -1431,9 +1402,9 @@ static void resolveJumpTargetsByAbstractStack(
         ensureAbstractDepth(Stack, EntryDepth, 1);
         AbstractValue Dest = Stack.back();
         Stack.pop_back();
-        if (Dest.KnownConst && Dest.FitsU64 && hasCanonicalJumpDest(Dest.Low)) {
+        if (Dest.KnownConst && Dest.FitsU64 && isValidJumpDest(Dest.Low)) {
           uint32_t JumpPC = static_cast<uint32_t>(ScanPC - 1);
-          ResolvedTargets[JumpPC] = getCanonicalJumpDestPC(Dest.Low);
+          ResolvedTargets[JumpPC] = static_cast<uint32_t>(Dest.Low);
         }
         // Skip dead code until next JUMPDEST or end.
         while (ScanPC < CodeSize &&
@@ -1449,11 +1420,13 @@ static void resolveJumpTargetsByAbstractStack(
         AbstractValue Dest = Stack.back();
         Stack.pop_back();
         Stack.pop_back(); // condition
-        if (Dest.KnownConst && Dest.FitsU64 && hasCanonicalJumpDest(Dest.Low)) {
+        if (Dest.KnownConst && Dest.FitsU64 && isValidJumpDest(Dest.Low)) {
           uint32_t JumpPC = static_cast<uint32_t>(ScanPC - 1);
-          ResolvedTargets[JumpPC] = getCanonicalJumpDestPC(Dest.Low);
+          ResolvedTargets[JumpPC] = static_cast<uint32_t>(Dest.Low);
         }
-        // Fallthrough continues to the next instruction (new block).
+        // Known-constant but invalid targets intentionally do not produce a
+        // taken-branch successor here; the runtime traps with
+        // BAD_JUMP_DESTINATION.
         break;
       }
 
@@ -1805,15 +1778,21 @@ void buildBytecodeCache(EVMBytecodeCache &Cache, const common::Byte *Code,
   EVM_PROFILE_BEGIN(buildJumpDestMap);
   buildJumpDestMapAndPushCache(Code, CodeSize, Cache.JumpDestMap,
                                Cache.PushValueMap);
-  // Shared jump target resolution: abstract stack simulation run once,
-  // results consumed by both SPP gas optimizer and SSA liftability analyzer.
-  resolveJumpTargetsByAbstractStack(Code, CodeSize, Cache.JumpDestMap,
-                                    Cache.ResolvedJumpTargets);
-  EVM_PROFILE_END(buildJumpDestMap);
   const auto *MetricsTable = evmc_get_instruction_metrics_table(Rev);
   if (!MetricsTable) {
     MetricsTable = evmc_get_instruction_metrics_table(DEFAULT_REVISION);
   }
+  // Shared jump target resolution: abstract stack simulation run once,
+  // results consumed by both SPP gas optimizer and SSA liftability analyzer.
+  resolveJumpTargetsByAbstractStack(Code, CodeSize, Cache.JumpDestMap,
+                                    MetricsTable, Cache.ResolvedJumpTargets);
+  EVM_PROFILE_END(buildJumpDestMap);
+
+  // Shared jump target resolution: abstract stack simulation run once,
+  // results consumed by both SPP gas optimizer and SSA liftability analyzer.
+  Cache.ResolvedJumpTargets.clear();
+  resolveJumpTargetsByAbstractStack(Code, CodeSize, Cache.JumpDestMap,
+                                    MetricsTable, Cache.ResolvedJumpTargets);
 
   buildGasChunksSPP(Code, CodeSize, MetricsTable, Cache.JumpDestMap,
                     Cache.PushValueMap, Cache.ResolvedJumpTargets,

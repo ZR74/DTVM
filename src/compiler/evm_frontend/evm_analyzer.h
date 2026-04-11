@@ -440,6 +440,8 @@ public:
 private:
   // Fallback: look up pre-resolved jump target from the shared cache.
   // Used when local abstract stack analysis cannot resolve the jump.
+  // The shared map stores raw (non-canonicalized) PCs; we canonicalize here
+  // because the SSA analyzer uses canonical JUMPDEST PCs for block identity.
   // Overload for JUMP (unconditional).
   bool tryResolveFromSharedMap(size_t JumpPC, BlockInfo &Info) {
     if (!SharedResolvedJumpTargets) {
@@ -449,7 +451,8 @@ private:
     if (It == SharedResolvedJumpTargets->end()) {
       return false;
     }
-    uint64_t TargetPC = static_cast<uint64_t>(It->second);
+    uint64_t RawPC = static_cast<uint64_t>(It->second);
+    uint64_t TargetPC = getCanonicalJumpDestPC(RawPC);
     Info.HasConstantJump = true;
     Info.ConstantJumpTargetPC = TargetPC;
     Info.Successors.push_back(TargetPC);
@@ -467,7 +470,8 @@ private:
     if (It == SharedResolvedJumpTargets->end()) {
       return false;
     }
-    uint64_t TargetPC = static_cast<uint64_t>(It->second);
+    uint64_t RawPC = static_cast<uint64_t>(It->second);
+    uint64_t TargetPC = getCanonicalJumpDestPC(RawPC);
     Info.HasConstantJump = true;
     Info.ConstantJumpTargetPC = TargetPC;
     if (TargetPC != FallthroughEntryPC) {
@@ -763,6 +767,10 @@ private:
             Info.DynamicJumpTargetRegionEntryPC = FallthroughEntryPC;
           }
         }
+        // Note: the implicit else (KnownConst && FitsU64 but NOT a valid
+        // JUMPDEST) is intentionally left without a successor for the taken
+        // branch — at runtime that path traps with BAD_JUMP_DESTINATION,
+        // so it is effectively dead. Only the fallthrough is reachable.
         NextEntryPC = FallthroughEntryPC;
         NextBodyStartPC = FallthroughBodyStartPC;
         HasNextBlock = true;
