@@ -833,6 +833,13 @@ public:
   void handleUndefined();
   void handleTrap(ErrorCode ErrCode);
   Operand handleKeccak256(Operand OffsetComponents, Operand LengthComponents);
+  Operand handleKeccak256TwoWord(Operand OffsetComponents, Operand Word0,
+                                 Operand Word1);
+  Operand handleKeccak256CallDataConstSlot(Operand OffsetComponents,
+                                           Operand CallDataOffset,
+                                           Operand SlotWord);
+  Operand handleKeccak256CallerConstSlot(Operand OffsetComponents,
+                                         Operand SlotWord);
   Operand handleSLoad(Operand KeyComponents);
   void handleSStore(Operand KeyComponents, Operand ValueComponents);
   Operand handleTLoad(Operand Index);
@@ -967,6 +974,7 @@ private:
 
   U256Inst handleCompareEQZ(const U256Inst &LHS, MType *ResultType,
                             bool IsNegated = false);
+  MInstruction *createJumpCondition(const Operand &Cond);
 
   U256Inst handleCompareEQ(const U256Inst &LHS, const U256Inst &RHS,
                            MType *ResultType);
