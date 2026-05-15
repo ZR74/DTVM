@@ -28,6 +28,7 @@ using namespace zen::runtime;
 namespace {
 
 struct ParsedFixture {
+  bool IsValid = false;
   std::string CaseName;
   std::string FixturePath;
   evmc_revision Revision = EVMC_FRONTIER;
@@ -42,6 +43,7 @@ struct ParsedFixture {
   uint64_t ExpectedTxGas = 0;
   uint64_t ExpectedDTVMInterpGas = 0;
   uint64_t ExpectedDTVMMultipassGas = 0;
+  std::optional<evmc::bytes32> BlockHash;
   std::unordered_map<int64_t, evmc::bytes32> BlockHashes;
 };
 
@@ -92,16 +94,57 @@ std::filesystem::path getLegacyReproFixtureDir() {
 }
 
 ParsedFixture loadFixture(const std::filesystem::path &Path) {
+  auto failFixture = [&](const std::string &Message) {
+    ADD_FAILURE() << Message << ": " << Path.string();
+    ParsedFixture Fixture;
+    Fixture.FixturePath = Path.string();
+    return Fixture;
+  };
+  auto requireObjectMember = [&](const rapidjson::Value &Object,
+                                 const char *Name) -> bool {
+    return Object.HasMember(Name) && Object[Name].IsObject();
+  };
+  auto requireStringMember = [&](const rapidjson::Value &Object,
+                                 const char *Name) -> bool {
+    return Object.HasMember(Name) && Object[Name].IsString();
+  };
+  auto requireUint64Member = [&](const rapidjson::Value &Object,
+                                 const char *Name) -> bool {
+    return Object.HasMember(Name) && Object[Name].IsUint64();
+  };
+
   std::ifstream File(Path);
-  EXPECT_TRUE(File.is_open()) << "failed to open fixture: " << Path.string();
+  if (!File.is_open()) {
+    return failFixture("failed to open fixture");
+  }
 
   rapidjson::IStreamWrapper ISW(File);
   rapidjson::Document Doc;
   Doc.ParseStream(ISW);
-  EXPECT_FALSE(Doc.HasParseError())
-      << "parse error in fixture: " << Path.string();
-  EXPECT_TRUE(Doc.IsObject())
-      << "fixture root must be object: " << Path.string();
+  if (Doc.HasParseError()) {
+    return failFixture("parse error in fixture");
+  }
+  if (!Doc.IsObject()) {
+    return failFixture("fixture root must be object");
+  }
+  if (!requireStringMember(Doc, "case_name")) {
+    return failFixture("fixture.case_name must be a string");
+  }
+  if (!requireStringMember(Doc, "revision")) {
+    return failFixture("fixture.revision must be a string");
+  }
+  if (!requireObjectMember(Doc, "tx")) {
+    return failFixture("fixture.tx must be an object");
+  }
+  if (!requireObjectMember(Doc, "env")) {
+    return failFixture("fixture.env must be an object");
+  }
+  if (!requireObjectMember(Doc, "prestate")) {
+    return failFixture("fixture.prestate must be an object");
+  }
+  if (!requireObjectMember(Doc, "expected")) {
+    return failFixture("fixture.expected must be an object");
+  }
 
   ParsedFixture Fixture;
   Fixture.FixturePath = Path.string();
@@ -112,6 +155,61 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
   const auto &Env = Doc["env"];
   const auto &Prestate = Doc["prestate"];
   const auto &Expected = Doc["expected"];
+
+  if (!requireStringMember(Tx, "from")) {
+    return failFixture("fixture.tx.from must be a string");
+  }
+  if (!requireStringMember(Tx, "to")) {
+    return failFixture("fixture.tx.to must be a string");
+  }
+  if (!requireStringMember(Tx, "input")) {
+    return failFixture("fixture.tx.input must be a string");
+  }
+  if (!requireUint64Member(Tx, "gas_limit")) {
+    return failFixture("fixture.tx.gas_limit must be a uint64");
+  }
+  if (!requireStringMember(Tx, "gas_price")) {
+    return failFixture("fixture.tx.gas_price must be a string");
+  }
+  if (!requireStringMember(Tx, "value")) {
+    return failFixture("fixture.tx.value must be a string");
+  }
+  if (!requireUint64Member(Env, "block_number")) {
+    return failFixture("fixture.env.block_number must be a uint64");
+  }
+  if (!requireUint64Member(Env, "block_timestamp")) {
+    return failFixture("fixture.env.block_timestamp must be a uint64");
+  }
+  if (!requireStringMember(Env, "block_coinbase")) {
+    return failFixture("fixture.env.block_coinbase must be a string");
+  }
+  if (!requireStringMember(Env, "block_prev_randao")) {
+    return failFixture("fixture.env.block_prev_randao must be a string");
+  }
+  if (!requireUint64Member(Env, "block_gas_limit")) {
+    return failFixture("fixture.env.block_gas_limit must be a uint64");
+  }
+  if (!requireStringMember(Env, "block_base_fee")) {
+    return failFixture("fixture.env.block_base_fee must be a string");
+  }
+  if (!requireStringMember(Env, "tx_origin")) {
+    return failFixture("fixture.env.tx_origin must be a string");
+  }
+  if (!requireStringMember(Expected, "status")) {
+    return failFixture("fixture.expected.status must be a string");
+  }
+  if (!requireUint64Member(Expected, "tx_gas")) {
+    return failFixture("fixture.expected.tx_gas must be a uint64");
+  }
+  if (Expected.HasMember("dtvm_interpreter_gas") &&
+      !Expected["dtvm_interpreter_gas"].IsUint64()) {
+    return failFixture(
+        "fixture.expected.dtvm_interpreter_gas must be a uint64");
+  }
+  if (Expected.HasMember("dtvm_multipass_gas") &&
+      !Expected["dtvm_multipass_gas"].IsUint64()) {
+    return failFixture("fixture.expected.dtvm_multipass_gas must be a uint64");
+  }
 
   const std::string From = Tx["from"].GetString();
   const std::string To = Tx["to"].GetString();
@@ -134,12 +232,14 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
   Fixture.TxContext.tx_origin =
       zen::utils::parseAddress(Env["tx_origin"].GetString());
   if (Env.HasMember("block_hash") && Env["block_hash"].IsString()) {
-    // Parsed later into host.block_hash (MockedHost has single block_hash
-    // slot).
+    Fixture.BlockHash = zen::utils::parseBytes32(Env["block_hash"].GetString());
   }
   if (Env.HasMember("block_hashes") && Env["block_hashes"].IsObject()) {
     for (auto It = Env["block_hashes"].MemberBegin();
          It != Env["block_hashes"].MemberEnd(); ++It) {
+      if (!It->value.IsString()) {
+        return failFixture("fixture.env.block_hashes values must be strings");
+      }
       int64_t BlockNum = std::stoll(It->name.GetString());
       Fixture.BlockHashes[BlockNum] =
           zen::utils::parseBytes32(It->value.GetString());
@@ -163,6 +263,21 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
   for (auto It = Prestate.MemberBegin(); It != Prestate.MemberEnd(); ++It) {
     const std::string AddressStr = It->name.GetString();
     const auto &AccountVal = It->value;
+    if (!AccountVal.IsObject()) {
+      return failFixture("fixture.prestate entries must be objects");
+    }
+    if (!requireStringMember(AccountVal, "balance")) {
+      return failFixture("fixture.prestate[*].balance must be a string");
+    }
+    if (!requireUint64Member(AccountVal, "nonce")) {
+      return failFixture("fixture.prestate[*].nonce must be a uint64");
+    }
+    if (!requireStringMember(AccountVal, "code")) {
+      return failFixture("fixture.prestate[*].code must be a string");
+    }
+    if (!requireObjectMember(AccountVal, "storage")) {
+      return failFixture("fixture.prestate[*].storage must be an object");
+    }
 
     ZenMockedEVMHost::AccountInitEntry Entry;
     Entry.Address = zen::utils::parseAddress(AddressStr);
@@ -173,6 +288,10 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
 
     const auto &Storage = AccountVal["storage"];
     for (auto Sit = Storage.MemberBegin(); Sit != Storage.MemberEnd(); ++Sit) {
+      if (!Sit->value.IsString()) {
+        return failFixture(
+            "fixture.prestate[*].storage values must be strings");
+      }
       evmc::StorageValue SV{};
       SV.current = zen::utils::parseBytes32(Sit->value.GetString());
       Entry.Account.storage[zen::utils::parseBytes32(Sit->name.GetString())] =
@@ -199,6 +318,7 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
   Fixture.IntrinsicGas = zen::utils::computeIntrinsicGas(
       Fixture.Revision, EVMC_CALL, Fixture.Message.input_data,
       Fixture.Message.input_size);
+  Fixture.IsValid = true;
 
   return Fixture;
 }
@@ -212,17 +332,10 @@ runFixture(const ParsedFixture &Fixture, common::RunMode Mode) {
 
   auto Host = std::make_unique<FixtureHost>();
   Host->loadInitialState(Fixture.TxContext, Fixture.Accounts, true);
-  // Most legacy contracts use BLOCKHASH(block.number-1); mocked host exposes
-  // one block_hash value for all get_block_hash() queries.
-  const auto DocPath = std::filesystem::path(Fixture.FixturePath);
-  std::ifstream F(DocPath);
-  rapidjson::IStreamWrapper ISW(F);
-  rapidjson::Document D;
-  D.ParseStream(ISW);
-  if (D.IsObject() && D.HasMember("env") && D["env"].IsObject() &&
-      D["env"].HasMember("block_hash") && D["env"]["block_hash"].IsString()) {
-    Host->block_hash =
-        zen::utils::parseBytes32(D["env"]["block_hash"].GetString());
+  if (Fixture.BlockHash.has_value()) {
+    // Most legacy contracts use BLOCKHASH(block.number-1); mocked host exposes
+    // one block_hash value for all get_block_hash() queries.
+    Host->block_hash = *Fixture.BlockHash;
   }
   Host->BlockHashOverrides = Fixture.BlockHashes;
   auto RT = Runtime::newEVMRuntime(Config, Host.get());
@@ -255,14 +368,35 @@ VmExecutionResult runFixtureViaDTVMApi(const ParsedFixture &Fixture,
                                        const char *ModeValue) {
   auto Host = std::make_unique<FixtureHost>();
   Host->loadInitialState(Fixture.TxContext, Fixture.Accounts, true);
+  if (Fixture.BlockHash.has_value()) {
+    Host->block_hash = *Fixture.BlockHash;
+  }
   Host->BlockHashOverrides = Fixture.BlockHashes;
   auto Vm = evmc_create_dtvmapi();
   EXPECT_NE(Vm, nullptr);
   if (!Vm) {
     return {};
   }
-  Vm->set_option(Vm, "mode", ModeValue);
-  Vm->set_option(Vm, "enable_gas_metering", "true");
+  if (Vm->set_option == nullptr) {
+    ADD_FAILURE() << "dtvmapi VM does not provide set_option";
+    Vm->destroy(Vm);
+    return {};
+  }
+  const auto SetModeResult = Vm->set_option(Vm, "mode", ModeValue);
+  if (SetModeResult != EVMC_SET_OPTION_SUCCESS) {
+    ADD_FAILURE() << "failed to set dtvmapi mode to " << ModeValue
+                  << ", result=" << SetModeResult;
+    Vm->destroy(Vm);
+    return {};
+  }
+  const auto SetGasMeteringResult =
+      Vm->set_option(Vm, "enable_gas_metering", "true");
+  if (SetGasMeteringResult != EVMC_SET_OPTION_SUCCESS) {
+    ADD_FAILURE() << "failed to enable dtvmapi gas metering, result="
+                  << SetGasMeteringResult;
+    Vm->destroy(Vm);
+    return {};
+  }
 
   evmc_message Msg = Fixture.Message;
   Msg.gas = static_cast<int64_t>(Fixture.GasLimit);
@@ -317,7 +451,8 @@ TEST(EVMLegacyCallReproTest, ExecuteFixturesInInterpreterAndMultipass) {
 
   for (const auto &[Name, CanonicalTxGas] : FixtureFiles) {
     SCOPED_TRACE(Name);
-    const ParsedFixture Fixture = loadFixture(FixtureDir / Name);
+    ParsedFixture Fixture = loadFixture(FixtureDir / Name);
+    ASSERT_TRUE(Fixture.IsValid);
     EXPECT_EQ(Fixture.ExpectedTxGas, CanonicalTxGas);
 
     {
@@ -346,7 +481,8 @@ TEST(EVMLegacyCallReproTest, ExecuteFixturesViaDTVMApi) {
   const std::vector<std::string> FixtureFiles = {"block_254277_tx_0.json"};
   for (const auto &Name : FixtureFiles) {
     SCOPED_TRACE(Name);
-    const ParsedFixture Fixture = loadFixture(FixtureDir / Name);
+    ParsedFixture Fixture = loadFixture(FixtureDir / Name);
+    ASSERT_TRUE(Fixture.IsValid);
     auto Interp = runFixtureViaDTVMApi(Fixture, "interpreter");
     auto Multi = runFixtureViaDTVMApi(Fixture, "multipass");
     ASSERT_TRUE(Interp.Success);
