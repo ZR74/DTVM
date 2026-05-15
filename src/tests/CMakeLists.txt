@@ -149,10 +149,7 @@ if(ZEN_ENABLE_SPEC_TEST)
           PUBLIC ${GTEST_BOTH_LIBRARIES}
         )
         if(ZEN_ENABLE_LIBEVM)
-          target_link_libraries(
-            evmLegacyCallReproTests
-            PRIVATE dtvmapi
-          )
+          target_link_libraries(evmLegacyCallReproTests PRIVATE dtvmapi)
           target_link_libraries(
             evmFallbackExecutionTests
             PRIVATE dtvmapi gtest_main -fsanitize=address
@@ -222,18 +219,12 @@ if(ZEN_ENABLE_SPEC_TEST)
         )
         target_link_libraries(
           evmLegacyCallReproTests
-          PRIVATE dtvmcore
-                  rapidjson
-                  gtest_main
-                  -fsanitize=address
+          PRIVATE dtvmcore rapidjson gtest_main -fsanitize=address
                   -static-libasan
           PUBLIC ${GTEST_BOTH_LIBRARIES}
         )
         if(ZEN_ENABLE_LIBEVM)
-          target_link_libraries(
-            evmLegacyCallReproTests
-            PRIVATE dtvmapi
-          )
+          target_link_libraries(evmLegacyCallReproTests PRIVATE dtvmapi)
           target_link_libraries(
             evmFallbackExecutionTests
             PRIVATE dtvmapi gtest_main -fsanitize=address -static-libasan
@@ -292,10 +283,7 @@ if(ZEN_ENABLE_SPEC_TEST)
         PUBLIC ${GTEST_BOTH_LIBRARIES}
       )
       if(ZEN_ENABLE_LIBEVM)
-        target_link_libraries(
-          evmLegacyCallReproTests
-          PRIVATE dtvmapi
-        )
+        target_link_libraries(evmLegacyCallReproTests PRIVATE dtvmapi)
         target_link_libraries(
           evmFallbackExecutionTests
           PRIVATE dtvmapi gtest_main
