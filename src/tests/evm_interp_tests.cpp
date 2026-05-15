@@ -831,7 +831,8 @@ TEST(EVMRegressionTest,
 
   evmc::address ExpectedRecipient{};
   ExpectedRecipient.bytes[19] = 0xbb;
-  expectAddressEq(InterpExec.Calls[0].recipient, MultipassExec.Calls[0].recipient);
+  expectAddressEq(InterpExec.Calls[0].recipient,
+                  MultipassExec.Calls[0].recipient);
   expectAddressEq(InterpExec.Calls[0].recipient, ExpectedRecipient);
   expectAddressEq(MultipassExec.Calls[0].recipient, ExpectedRecipient);
 }

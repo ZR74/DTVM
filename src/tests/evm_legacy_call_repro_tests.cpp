@@ -96,8 +96,10 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
   rapidjson::IStreamWrapper ISW(File);
   rapidjson::Document Doc;
   Doc.ParseStream(ISW);
-  EXPECT_FALSE(Doc.HasParseError()) << "parse error in fixture: " << Path.string();
-  EXPECT_TRUE(Doc.IsObject()) << "fixture root must be object: " << Path.string();
+  EXPECT_FALSE(Doc.HasParseError())
+      << "parse error in fixture: " << Path.string();
+  EXPECT_TRUE(Doc.IsObject())
+      << "fixture root must be object: " << Path.string();
 
   ParsedFixture Fixture;
   Fixture.FixturePath = Path.string();
@@ -130,7 +132,8 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
   Fixture.TxContext.tx_origin =
       zen::utils::parseAddress(Env["tx_origin"].GetString());
   if (Env.HasMember("block_hash") && Env["block_hash"].IsString()) {
-    // Parsed later into host.block_hash (MockedHost has single block_hash slot).
+    // Parsed later into host.block_hash (MockedHost has single block_hash
+    // slot).
   }
   if (Env.HasMember("block_hashes") && Env["block_hashes"].IsObject()) {
     for (auto It = Env["block_hashes"].MemberBegin();
@@ -170,7 +173,8 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
     for (auto Sit = Storage.MemberBegin(); Sit != Storage.MemberEnd(); ++Sit) {
       evmc::StorageValue SV{};
       SV.current = zen::utils::parseBytes32(Sit->value.GetString());
-      Entry.Account.storage[zen::utils::parseBytes32(Sit->name.GetString())] = SV;
+      Entry.Account.storage[zen::utils::parseBytes32(Sit->name.GetString())] =
+          SV;
     }
 
     if (AddressStr == To) {
@@ -197,8 +201,8 @@ ParsedFixture loadFixture(const std::filesystem::path &Path) {
   return Fixture;
 }
 
-ZenMockedEVMHost::TransactionExecutionResult runFixture(
-    const ParsedFixture &Fixture, common::RunMode Mode) {
+ZenMockedEVMHost::TransactionExecutionResult
+runFixture(const ParsedFixture &Fixture, common::RunMode Mode) {
   RuntimeConfig Config;
   Config.Format = common::InputFormat::EVM;
   Config.Mode = Mode;
@@ -224,10 +228,11 @@ ZenMockedEVMHost::TransactionExecutionResult runFixture(
   Host->setRuntime(RT.get());
 
   ZenMockedEVMHost::TransactionExecutionConfig ExecConfig;
-  ExecConfig.ModuleName = Fixture.CaseName + "-" +
-                          (Mode == common::RunMode::InterpMode ? "interp"
-                                                                : "multipass");
-  ExecConfig.Bytecode = reinterpret_cast<const uint8_t *>(Fixture.Bytecode.data());
+  ExecConfig.ModuleName =
+      Fixture.CaseName + "-" +
+      (Mode == common::RunMode::InterpMode ? "interp" : "multipass");
+  ExecConfig.Bytecode =
+      reinterpret_cast<const uint8_t *>(Fixture.Bytecode.data());
   ExecConfig.BytecodeSize = Fixture.Bytecode.size();
   ExecConfig.Message = Fixture.Message;
   ExecConfig.GasLimit = Fixture.GasLimit;
@@ -266,10 +271,10 @@ VmExecutionResult runFixtureViaDTVMApi(const ParsedFixture &Fixture,
     return {};
   }
   const auto &Code = It->second.code;
-  evmc_result Raw = Vm->execute(
-      Vm, &evmc::MockedHost::get_interface(),
-      reinterpret_cast<evmc_host_context *>(Host.get()), Fixture.Revision, &Msg,
-      Code.data(), Code.size());
+  evmc_result Raw =
+      Vm->execute(Vm, &evmc::MockedHost::get_interface(),
+                  reinterpret_cast<evmc_host_context *>(Host.get()),
+                  Fixture.Revision, &Msg, Code.data(), Code.size());
 
   VmExecutionResult Result;
   Result.Success = true;

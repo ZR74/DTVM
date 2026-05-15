@@ -198,8 +198,9 @@ public:
     CurrentStack = RuntimeStack;
   }
 
-  void spillTrackedStackPreservingPrefix(
-      const std::vector<Operand> &TrackedStack, uint32_t PrefixDepth) {
+  void
+  spillTrackedStackPreservingPrefix(const std::vector<Operand> &TrackedStack,
+                                    uint32_t PrefixDepth) {
     if (RuntimeStack.size() < PrefixDepth) {
       RuntimeStack.resize(PrefixDepth);
     }
