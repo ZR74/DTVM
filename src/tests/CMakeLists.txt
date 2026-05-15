@@ -72,7 +72,8 @@ if(ZEN_ENABLE_SPEC_TEST)
                     evm_test_fixtures.cpp evm_test_helpers.cpp
     )
     add_executable(evmLegacyCallReproTests evm_legacy_call_repro_tests.cpp)
-    # Only build evmFallbackExecutionTests if dtvmapi library is available
+    # Only build dtvmapi-specific regression tests if the shared library is
+    # available.
     if(ZEN_ENABLE_LIBEVM)
       add_executable(evmFallbackExecutionTests evm_fallback_execution_tests.cpp)
       add_executable(evmModuleCacheTests evm_module_cache_tests.cpp)
@@ -144,10 +145,14 @@ if(ZEN_ENABLE_SPEC_TEST)
         )
         target_link_libraries(
           evmLegacyCallReproTests
-          PRIVATE dtvmcore rapidjson dtvmapi gtest_main -fsanitize=address
+          PRIVATE dtvmcore rapidjson gtest_main -fsanitize=address
           PUBLIC ${GTEST_BOTH_LIBRARIES}
         )
         if(ZEN_ENABLE_LIBEVM)
+          target_link_libraries(
+            evmLegacyCallReproTests
+            PRIVATE dtvmapi
+          )
           target_link_libraries(
             evmFallbackExecutionTests
             PRIVATE dtvmapi gtest_main -fsanitize=address
@@ -219,13 +224,16 @@ if(ZEN_ENABLE_SPEC_TEST)
           evmLegacyCallReproTests
           PRIVATE dtvmcore
                   rapidjson
-                  dtvmapi
                   gtest_main
                   -fsanitize=address
                   -static-libasan
           PUBLIC ${GTEST_BOTH_LIBRARIES}
         )
         if(ZEN_ENABLE_LIBEVM)
+          target_link_libraries(
+            evmLegacyCallReproTests
+            PRIVATE dtvmapi
+          )
           target_link_libraries(
             evmFallbackExecutionTests
             PRIVATE dtvmapi gtest_main -fsanitize=address -static-libasan
@@ -280,10 +288,14 @@ if(ZEN_ENABLE_SPEC_TEST)
       )
       target_link_libraries(
         evmLegacyCallReproTests
-        PRIVATE dtvmcore rapidjson dtvmapi gtest_main
+        PRIVATE dtvmcore rapidjson gtest_main
         PUBLIC ${GTEST_BOTH_LIBRARIES}
       )
       if(ZEN_ENABLE_LIBEVM)
+        target_link_libraries(
+          evmLegacyCallReproTests
+          PRIVATE dtvmapi
+        )
         target_link_libraries(
           evmFallbackExecutionTests
           PRIVATE dtvmapi gtest_main

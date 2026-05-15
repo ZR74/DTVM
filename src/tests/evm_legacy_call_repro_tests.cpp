@@ -16,7 +16,9 @@
 #include "evm_test_host.hpp"
 #include "runtime/runtime.h"
 #include "utils/evm.h"
+#ifdef ZEN_ENABLE_LIBEVM
 #include "vm/dt_evmc_vm.h"
+#endif
 #include <evmc/evmc.hpp>
 
 using namespace zen;
@@ -248,6 +250,7 @@ struct VmExecutionResult {
   uint64_t GasCharged = 0;
 };
 
+#ifdef ZEN_ENABLE_LIBEVM
 VmExecutionResult runFixtureViaDTVMApi(const ParsedFixture &Fixture,
                                        const char *ModeValue) {
   auto Host = std::make_unique<FixtureHost>();
@@ -288,6 +291,7 @@ VmExecutionResult runFixtureViaDTVMApi(const ParsedFixture &Fixture,
   Vm->destroy(Vm);
   return Result;
 }
+#endif
 
 void assertExpectedStatus(const std::string &ExpectedStatus,
                           const evmc_status_code ActualStatus) {
@@ -336,6 +340,7 @@ TEST(EVMLegacyCallReproTest, ExecuteFixturesInInterpreterAndMultipass) {
   }
 }
 
+#ifdef ZEN_ENABLE_LIBEVM
 TEST(EVMLegacyCallReproTest, ExecuteFixturesViaDTVMApi) {
   const auto FixtureDir = getLegacyReproFixtureDir();
   const std::vector<std::string> FixtureFiles = {"block_254277_tx_0.json"};
@@ -351,3 +356,4 @@ TEST(EVMLegacyCallReproTest, ExecuteFixturesViaDTVMApi) {
     EXPECT_EQ(Interp.GasCharged, Multi.GasCharged);
   }
 }
+#endif
