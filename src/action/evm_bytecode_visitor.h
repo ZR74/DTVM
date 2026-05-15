@@ -928,6 +928,9 @@ private:
   }
 
   void finalizeBlockExit(std::vector<Operand> Values, bool Materialize) {
+    if (!CurrentBlockNeedsFinalize) {
+      return;
+    }
     Builder.endMemoryCompileBlock();
     CurBlockLinearPrecheckPlan = BlockLinearPrecheckPlan();
     if (Materialize) {
@@ -938,11 +941,22 @@ private:
         for (const Operand &Opnd : Values) {
           Builder.stackPush(Opnd);
         }
+        Builder.syncTrackedStackMetadataToInstance();
       }
     }
     InDeadCode = true;
     CurrentBlockLifted = false;
     CurrentBlockHiddenLiveInPrefixDepth = 0;
+    CurrentBlockNeedsFinalize = false;
+  }
+
+  void abandonCurrentBlockAfterTrap() {
+    Builder.endMemoryCompileBlock();
+    CurBlockLinearPrecheckPlan = BlockLinearPrecheckPlan();
+    InDeadCode = true;
+    CurrentBlockLifted = false;
+    CurrentBlockHiddenLiveInPrefixDepth = 0;
+    CurrentBlockNeedsFinalize = false;
   }
 
   bool tryGetConstantJumpSuccessorPC(const EVMAnalyzer &Analyzer,
@@ -1062,8 +1076,7 @@ private:
         EntryDepth + static_cast<int64_t>(BlockInfo.MinStackHeight);
     if (MinDepth < 0) {
       Builder.handleTrap(common::ErrorCode::EVMStackUnderflow);
-      InDeadCode = true;
-      CurrentBlockLifted = false;
+      abandonCurrentBlockAfterTrap();
       return false;
     }
 
@@ -1071,8 +1084,7 @@ private:
         EntryDepth + static_cast<int64_t>(BlockInfo.MaxStackHeight);
     if (MaxDepth > static_cast<int64_t>(EVM_MAX_STACK_SIZE)) {
       Builder.handleTrap(common::ErrorCode::EVMStackOverflow);
-      InDeadCode = true;
-      CurrentBlockLifted = false;
+      abandonCurrentBlockAfterTrap();
       return false;
     }
 
@@ -1083,6 +1095,7 @@ private:
     const auto &BlockInfos = Analyzer.getBlockInfos();
     ZEN_ASSERT(BlockInfos.count(PC) > 0 && "Block info not found");
     Builder.beginMemoryCompileBlock(PC);
+    CurrentBlockNeedsFinalize = true;
     CurBlockLinearPrecheckPlan = BlockLinearPrecheckPlan();
     const Byte *Bytecode = Ctx->getBytecode();
     size_t BytecodeSize = Ctx->getBytecodeSize();
@@ -1112,18 +1125,17 @@ private:
 
     if (static_cast<size_t>(-BlockInfo.MinStackHeight) > EVM_MAX_STACK_SIZE) {
       Builder.handleTrap(common::ErrorCode::EVMStackUnderflow);
-      InDeadCode = true;
-      CurrentBlockLifted = false;
+      abandonCurrentBlockAfterTrap();
       return;
     }
     if (static_cast<size_t>(BlockInfo.MaxStackHeight) > EVM_MAX_STACK_SIZE) {
       Builder.handleTrap(common::ErrorCode::EVMStackOverflow);
-      InDeadCode = true;
-      CurrentBlockLifted = false;
+      abandonCurrentBlockAfterTrap();
       return;
     }
     InDeadCode = false;
     if (!LiftedBlock) {
+      Builder.reloadTrackedStackFromInstance();
       Builder.createStackCheckBlock(-BlockInfo.MinStackHeight,
                                     1024 - BlockInfo.MaxStackHeight);
     }
@@ -1174,7 +1186,12 @@ private:
     }
   }
 
-  void handleEndBlock() { finalizeBlockExit(drainLogicalStack(), true); }
+  void handleEndBlock() {
+    if (!CurrentBlockNeedsFinalize) {
+      return;
+    }
+    finalizeBlockExit(drainLogicalStack(), true);
+  }
 
   void handleStop() { Builder.handleStop(); }
 
@@ -1902,6 +1919,7 @@ private:
   uint64_t CurrentBlockEntryPC = 0;
   bool CurrentBlockLifted = false;
   uint32_t CurrentBlockHiddenLiveInPrefixDepth = 0;
+  bool CurrentBlockNeedsFinalize = false;
 };
 
 } // namespace COMPILER

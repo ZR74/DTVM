@@ -309,6 +309,8 @@ public:
 
   void stackSet(int32_t IndexFromTop, Operand SetValue);
   Operand stackGet(int32_t IndexFromTop);
+  void reloadTrackedStackFromInstance();
+  void syncTrackedStackMetadataToInstance();
   void setTrackedStackDepth(uint32_t Depth);
   Operand createStackEntryOperand();
   void assignStackEntryOperand(const Operand &Dest, const Operand &Value);

@@ -989,6 +989,30 @@ typename EVMMirBuilder::Operand EVMMirBuilder::stackGet(int32_t IndexFromTop) {
   return Operand(GetComponents, EVMType::UINT256);
 }
 
+void EVMMirBuilder::reloadTrackedStackFromInstance() {
+  const int32_t StackSizeOffset =
+      zen::runtime::EVMInstance::getEVMStackSizeOffset();
+  MInstruction *StackSize = getInstanceElement(&Ctx.I64Type, StackSizeOffset);
+  createInstruction<DassignInstruction>(true, &(Ctx.VoidType), StackSize,
+                                        StackSizeVar->getVarIdx());
+
+  MInstruction *StackPtrOffset = createIntConstInstruction(
+      &Ctx.I64Type, zen::runtime::EVMInstance::getEVMStackOffset());
+  MInstruction *StackBaseAddr = createInstruction<BinaryInstruction>(
+      false, OP_add, &Ctx.I64Type, InstanceAddr, StackPtrOffset);
+  MInstruction *StackTopAddr = createInstruction<BinaryInstruction>(
+      false, OP_add, &Ctx.I64Type, StackBaseAddr, StackSize);
+  createInstruction<DassignInstruction>(true, &(Ctx.VoidType), StackTopAddr,
+                                        StackTopVar->getVarIdx());
+}
+
+void EVMMirBuilder::syncTrackedStackMetadataToInstance() {
+  const int32_t StackSizeOffset =
+      zen::runtime::EVMInstance::getEVMStackSizeOffset();
+  MInstruction *StackSize = loadVariable(StackSizeVar);
+  setInstanceElement(&Ctx.I64Type, StackSize, StackSizeOffset);
+}
+
 void EVMMirBuilder::setTrackedStackDepth(uint32_t Depth) {
   MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
   uint64_t StackBytes = static_cast<uint64_t>(Depth) * 32ULL;

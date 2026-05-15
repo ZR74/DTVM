@@ -129,11 +129,11 @@ public:
     if (!EnableRuntimeStackChecks) {
       return;
     }
-    if (RuntimeStack.size() < static_cast<size_t>(std::max(MinSize, 0))) {
+    if (CurrentStack.size() < static_cast<size_t>(std::max(MinSize, 0))) {
       Trapped = true;
       return;
     }
-    if (RuntimeStack.size() > static_cast<size_t>(std::max(MaxSize, 0))) {
+    if (CurrentStack.size() > static_cast<size_t>(std::max(MaxSize, 0))) {
       Trapped = true;
     }
   }
@@ -150,34 +150,38 @@ public:
 
   void stackPush(Operand PushValue) {
     Stats[CurrentOpcode].StackPushCount++;
-    RuntimeStack.push_back(PushValue);
+    CurrentStack.push_back(PushValue);
   }
 
   Operand stackPop() {
     Stats[CurrentOpcode].StackPopCount++;
-    ZEN_ASSERT(!RuntimeStack.empty() && "mock runtime stack underflow");
-    Operand Top = RuntimeStack.back();
-    RuntimeStack.pop_back();
+    ZEN_ASSERT(!CurrentStack.empty() && "mock tracked stack underflow");
+    Operand Top = CurrentStack.back();
+    CurrentStack.pop_back();
     return Top;
   }
 
   void stackSet(int32_t IndexFromTop, Operand SetValue) {
     Stats[CurrentOpcode].StackSetCount++;
-    size_t Index = RuntimeStack.size() - static_cast<size_t>(IndexFromTop) - 1;
-    RuntimeStack[Index] = SetValue;
+    size_t Index = CurrentStack.size() - static_cast<size_t>(IndexFromTop) - 1;
+    CurrentStack[Index] = SetValue;
   }
 
   Operand stackGet(int32_t IndexFromTop) {
     Stats[CurrentOpcode].StackGetCount++;
-    size_t Index = RuntimeStack.size() - static_cast<size_t>(IndexFromTop) - 1;
-    return RuntimeStack[Index];
+    size_t Index = CurrentStack.size() - static_cast<size_t>(IndexFromTop) - 1;
+    return CurrentStack[Index];
   }
 
   void setTrackedStackDepth(uint32_t Depth) {
-    if (RuntimeStack.size() > Depth) {
-      RuntimeStack.resize(Depth);
+    if (CurrentStack.size() > Depth) {
+      CurrentStack.resize(Depth);
     }
   }
+
+  void reloadTrackedStackFromInstance() { CurrentStack = RuntimeStack; }
+
+  void syncTrackedStackMetadataToInstance() { RuntimeStack = CurrentStack; }
 
   Operand createStackEntryOperand() {
     return Operand(std::make_shared<MockOperand::U256Value>(
@@ -191,6 +195,18 @@ public:
 
   void spillTrackedStack(const std::vector<Operand> &TrackedStack) {
     RuntimeStack = TrackedStack;
+    CurrentStack = RuntimeStack;
+  }
+
+  void spillTrackedStackPreservingPrefix(
+      const std::vector<Operand> &TrackedStack, uint32_t PrefixDepth) {
+    if (RuntimeStack.size() < PrefixDepth) {
+      RuntimeStack.resize(PrefixDepth);
+    }
+    RuntimeStack.resize(PrefixDepth);
+    RuntimeStack.insert(RuntimeStack.end(), TrackedStack.begin(),
+                        TrackedStack.end());
+    CurrentStack = RuntimeStack;
   }
 
   void setCurrentDebugBlockPC(uint64_t) {}
@@ -218,8 +234,11 @@ public:
   template <size_t NumTopics, typename... Args>
   void handleLogWithTopics(Args...) {}
 
-  Operand handleCall(Operand, Operand, Operand, Operand, Operand, Operand,
-                     Operand) {
+  Operand handleCall(Operand, Operand ToAddr, Operand, Operand, Operand,
+                     Operand, Operand) {
+    LastCallRecipient = ToAddr.resolvedValue();
+    HasLastCallRecipient = true;
+    ++CallCount;
     return Operand(0);
   }
 
@@ -332,6 +351,15 @@ public:
     return RuntimeStack.back().resolvedValue();
   }
 
+  bool hasLastCallRecipient() const { return HasLastCallRecipient; }
+
+  MockOperand::U256Value lastCallRecipient() const {
+    ZEN_ASSERT(HasLastCallRecipient && "mock call recipient is missing");
+    return LastCallRecipient;
+  }
+
+  uint32_t callCount() const { return CallCount; }
+
   bool Trapped = false;
   bool Undefined = false;
 
@@ -340,8 +368,12 @@ private:
   uint8_t CurrentOpcode = 0xff;
   std::array<MockStackAccessStats, 256> Stats = {};
   std::vector<Operand> RuntimeStack;
+  std::vector<Operand> CurrentStack;
   MockOperand::U256Value LastPushValue = {0, 0, 0, 0};
   bool HasLastPushValue = false;
+  MockOperand::U256Value LastCallRecipient = {0, 0, 0, 0};
+  bool HasLastCallRecipient = false;
+  uint32_t CallCount = 0;
 
 #undef MOCK_OPERAND_STUB
 #undef MOCK_VOID_STUB
@@ -688,6 +720,133 @@ TEST(EVMJITFrontendVisitorTest,
   EXPECT_FALSE(Builder.Undefined);
   EXPECT_EQ(Builder.runtimeStackDepth(), 1U);
   EXPECT_EQ(Builder.topStackValue()[0], 0xaaU);
+}
+
+TEST(EVMJITFrontendVisitorTest,
+     LiftedBlockWithHiddenPrefixDoesNotDuplicatePrefixOnMaterialize) {
+  const std::vector<uint8_t> Bytecode = {
+      0x60, 0xaa, // PUSH1 0xaa
+      0x60, 0xbb, // PUSH1 0xbb
+      0x5b,       // JUMPDEST
+      0x50,       // POP
+      0x00        // STOP
+  };
+
+  const EVMAnalyzer Analyzer = analyzeBytecode(Bytecode);
+  const auto *EntryBlock = findBlock(Analyzer, 0);
+  const auto *JumpDestBlock = findBlock(Analyzer, 4);
+  ASSERT_NE(EntryBlock, nullptr);
+  ASSERT_NE(JumpDestBlock, nullptr);
+  EXPECT_TRUE(EntryBlock->CanLiftStack);
+  EXPECT_TRUE(JumpDestBlock->CanLiftStack);
+  EXPECT_EQ(JumpDestBlock->ResolvedEntryStackDepth, 2);
+  EXPECT_EQ(JumpDestBlock->FullEntryStateDepth, 2);
+  EXPECT_EQ(JumpDestBlock->EntryStackDepth, 1);
+  EXPECT_EQ(JumpDestBlock->HiddenLiveInPrefixDepth, 1);
+
+  COMPILER::EVMFrontendContext Ctx;
+  Ctx.setRevision(EVMC_CANCUN);
+  Ctx.setBytecode(reinterpret_cast<const zen::common::Byte *>(Bytecode.data()),
+                  Bytecode.size());
+
+  MockEVMBuilder Builder;
+  COMPILER::EVMByteCodeVisitor<MockEVMBuilder> Visitor(Builder, &Ctx);
+  EXPECT_TRUE(Visitor.compile());
+  EXPECT_FALSE(Builder.Trapped);
+  EXPECT_FALSE(Builder.Undefined);
+  EXPECT_EQ(Builder.runtimeStackDepth(), 1U);
+  EXPECT_EQ(Builder.topStackValue()[0], 0xaaU);
+}
+
+TEST(EVMJITFrontendVisitorTest,
+     HiddenPrefixMustSurviveLiftedToLiftedFallthroughTransfer) {
+  const std::vector<uint8_t> Bytecode = {
+      0x60, 0xaa, // PUSH1 0xaa
+      0x60, 0xbb, // PUSH1 0xbb
+      0x5b,       // JUMPDEST
+      0x5f,       // PUSH0
+      0x50,       // POP
+      0x5b,       // JUMPDEST
+      0x50,       // POP
+      0x00        // STOP
+  };
+
+  const EVMAnalyzer Analyzer = analyzeBytecode(Bytecode);
+  const auto *MiddleBlock = findBlock(Analyzer, 4);
+  const auto *ExitBlock = findBlock(Analyzer, 7);
+  ASSERT_NE(MiddleBlock, nullptr);
+  ASSERT_NE(ExitBlock, nullptr);
+  EXPECT_TRUE(MiddleBlock->CanLiftStack);
+  EXPECT_TRUE(ExitBlock->CanLiftStack);
+  EXPECT_EQ(MiddleBlock->ResolvedEntryStackDepth, 2);
+  EXPECT_EQ(MiddleBlock->EntryStackDepth, 0);
+  EXPECT_EQ(MiddleBlock->HiddenLiveInPrefixDepth, 2);
+  EXPECT_EQ(ExitBlock->ResolvedEntryStackDepth, 2);
+  EXPECT_EQ(ExitBlock->EntryStackDepth, 1);
+  EXPECT_EQ(ExitBlock->HiddenLiveInPrefixDepth, 1);
+
+  COMPILER::EVMFrontendContext Ctx;
+  Ctx.setRevision(EVMC_CANCUN);
+  Ctx.setBytecode(reinterpret_cast<const zen::common::Byte *>(Bytecode.data()),
+                  Bytecode.size());
+
+  MockEVMBuilder Builder;
+  COMPILER::EVMByteCodeVisitor<MockEVMBuilder> Visitor(Builder, &Ctx);
+  EXPECT_TRUE(Visitor.compile());
+  EXPECT_FALSE(Builder.Trapped);
+  EXPECT_FALSE(Builder.Undefined);
+  EXPECT_EQ(Builder.runtimeStackDepth(), 1U);
+  EXPECT_EQ(Builder.topStackValue()[0], 0xaaU);
+}
+
+TEST(EVMJITFrontendVisitorTest,
+     NonLiftedJumpTargetKeepsCallRecipientFromCommittedEntryStack) {
+  const std::vector<uint8_t> Bytecode = {
+      0x60, 0xaa, // PUSH1 0xaa
+      0x60, 0xbb, // PUSH1 0xbb
+      0x60, 0x00, // PUSH1 0x00
+      0x35,       // CALLDATALOAD
+      0x60, 0x0f, // PUSH1 target
+      0x57,       // JUMPI
+      0x60, 0xcc, // PUSH1 0xcc
+      0x60, 0x0f, // PUSH1 target
+      0x56,       // JUMP
+      0x5b,       // JUMPDEST
+      0x60, 0x00, // PUSH1 retSize
+      0x60, 0x00, // PUSH1 retOffset
+      0x60, 0x00, // PUSH1 argsSize
+      0x60, 0x00, // PUSH1 argsOffset
+      0x60, 0x00, // PUSH1 value
+      0x86,       // DUP7
+      0x90,       // SWAP1
+      0x90,       // SWAP1
+      0x60, 0x20, // PUSH1 gas
+      0xf1,       // CALL
+      0x00        // STOP
+  };
+
+  const EVMAnalyzer Analyzer = analyzeBytecode(Bytecode);
+  const auto *TargetBlock = findBlock(Analyzer, 0x0f);
+  ASSERT_NE(TargetBlock, nullptr);
+  EXPECT_FALSE(TargetBlock->CanLiftStack);
+  EXPECT_EQ(TargetBlock->ResolvedEntryStackDepth, -1);
+
+  COMPILER::EVMFrontendContext Ctx;
+  Ctx.setRevision(EVMC_FRONTIER);
+  Ctx.setBytecode(reinterpret_cast<const zen::common::Byte *>(Bytecode.data()),
+                  Bytecode.size());
+
+  MockEVMBuilder Builder;
+  COMPILER::EVMByteCodeVisitor<MockEVMBuilder> Visitor(Builder, &Ctx);
+  EXPECT_TRUE(Visitor.compile());
+  EXPECT_FALSE(Builder.Trapped);
+  EXPECT_FALSE(Builder.Undefined);
+  ASSERT_EQ(Builder.callCount(), 1U);
+  ASSERT_TRUE(Builder.hasLastCallRecipient());
+  EXPECT_EQ(Builder.lastCallRecipient()[0], 0xbbU);
+  EXPECT_EQ(Builder.lastCallRecipient()[1], 0U);
+  EXPECT_EQ(Builder.lastCallRecipient()[2], 0U);
+  EXPECT_EQ(Builder.lastCallRecipient()[3], 0U);
 }
 
 TEST(EVMJITFrontendVisitorTest,

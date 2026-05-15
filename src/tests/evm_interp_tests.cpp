@@ -146,6 +146,23 @@ struct EVMExecutionResult {
   bool JITCompiled = false;
 };
 
+struct RecordingZenMockedEVMHost : public zen::evm::ZenMockedEVMHost {
+  std::vector<evmc_message> RecordedCalls;
+
+  evmc::Result call(const evmc_message &Msg) noexcept override {
+    if (Msg.depth > 0) {
+      RecordedCalls.push_back(Msg);
+    }
+    return zen::evm::ZenMockedEVMHost::call(Msg);
+  }
+};
+
+struct EVMCallCaptureResult {
+  evmc_status_code Status = EVMC_INTERNAL_ERROR;
+  bool JITCompiled = false;
+  std::vector<evmc_message> Calls;
+};
+
 EVMExecutionResult executeEvmBytecode(const std::string &ModuleName,
                                       const std::vector<uint8_t> &Bytecode,
                                       common::RunMode Mode,
@@ -218,6 +235,77 @@ EVMExecutionResult executeEvmBytecode(const std::string &ModuleName,
   Exec.Status = RawResult.status_code;
   Exec.OutputHex =
       zen::utils::toHex(RawResult.output_data, RawResult.output_size);
+  return Exec;
+}
+
+EVMCallCaptureResult
+executeEvmBytecodeCapturingCalls(const std::string &ModuleName,
+                                 const std::vector<uint8_t> &Bytecode,
+                                 common::RunMode Mode, evmc_revision Revision,
+                                 std::vector<uint8_t> CallData = {}) {
+  EVMCallCaptureResult Empty;
+
+  RuntimeConfig Config;
+  Config.Mode = Mode;
+
+  auto MockedHost = std::make_unique<RecordingZenMockedEVMHost>();
+  MockedHost->tx_context.tx_origin = zen::evm::DEFAULT_DEPLOYER_ADDRESS;
+  auto RT = Runtime::newEVMRuntime(Config, MockedHost.get());
+  EXPECT_TRUE(RT != nullptr) << "Failed to create runtime";
+  if (!RT) {
+    return Empty;
+  }
+  MockedHost->setRuntime(RT.get());
+
+  auto ModRet = RT->loadEVMModule(ModuleName, Bytecode.data(), Bytecode.size());
+  EXPECT_TRUE(ModRet) << "Failed to load module: " << ModuleName;
+  if (!ModRet) {
+    return Empty;
+  }
+  EVMModule *Mod = *ModRet;
+
+  Isolation *Iso = RT->createManagedIsolation();
+  EXPECT_TRUE(Iso != nullptr) << "Failed to create isolation: " << ModuleName;
+  if (!Iso) {
+    return Empty;
+  }
+
+  constexpr uint64_t GasLimit = 1'000'000;
+  const uint64_t IntrinsicGas = zen::evm::BASIC_EXECUTION_COST;
+  const uint64_t ExecutionGasLimit = GasLimit - IntrinsicGas;
+
+  auto InstRet = Iso->createEVMInstance(*Mod, ExecutionGasLimit);
+  EXPECT_TRUE(InstRet) << "Failed to create instance: " << ModuleName;
+  if (!InstRet) {
+    return Empty;
+  }
+  EVMInstance *Inst = *InstRet;
+  Inst->setRevision(Revision);
+
+  evmc_message Msg = {
+      .kind = EVMC_CALL,
+      .flags = 0u,
+      .depth = 0,
+      .gas = static_cast<int64_t>(ExecutionGasLimit),
+      .recipient = {},
+      .sender = zen::evm::DEFAULT_DEPLOYER_ADDRESS,
+      .input_data = CallData.empty() ? nullptr : CallData.data(),
+      .input_size = CallData.size(),
+      .value = {},
+      .create2_salt = {},
+      .code_address = {},
+      .code = reinterpret_cast<const uint8_t *>(Mod->Code),
+      .code_size = Mod->CodeSize,
+  };
+
+  evmc::Result RawResult;
+  EVMCallCaptureResult Exec;
+#ifdef ZEN_ENABLE_JIT
+  Exec.JITCompiled = Mod->getJITCode() != nullptr && Mod->getJITCodeSize() > 0;
+#endif
+  EXPECT_NO_THROW({ RT->callEVMMain(*Inst, Msg, RawResult); });
+  Exec.Status = RawResult.status_code;
+  Exec.Calls = MockedHost->RecordedCalls;
   return Exec;
 }
 
@@ -687,5 +775,64 @@ TEST(EVMRegressionTest, Issue488_PCAsAddmodAugend_InterpMatchesMultipass) {
   // (PC=4) + 0x10 = 20, 20 % 7 = 6, returned as a 32-byte big-endian word.
   EXPECT_EQ(InterpExec.OutputHex,
             "0000000000000000000000000000000000000000000000000000000000000006");
+}
+
+TEST(EVMRegressionTest,
+     FrontierCallRecipientAfterMaterializedMergeMatchesInterpreter) {
+  const std::vector<uint8_t> Bytecode = {
+      0x60, 0xaa, // PUSH1 0xaa
+      0x60, 0xbb, // PUSH1 0xbb
+      0x60, 0x00, // PUSH1 0x00
+      0x35,       // CALLDATALOAD
+      0x60, 0x0f, // PUSH1 target
+      0x57,       // JUMPI
+      0x60, 0xcc, // PUSH1 0xcc
+      0x60, 0x0f, // PUSH1 target
+      0x56,       // JUMP
+      0x5b,       // JUMPDEST
+      0x60, 0x00, // PUSH1 retSize
+      0x60, 0x00, // PUSH1 retOffset
+      0x60, 0x00, // PUSH1 argsSize
+      0x60, 0x00, // PUSH1 argsOffset
+      0x60, 0x00, // PUSH1 value
+      0x86,       // DUP7
+      0x90,       // SWAP1
+      0x90,       // SWAP1
+      0x60, 0x20, // PUSH1 gas
+      0xf1,       // CALL
+      0x00        // STOP
+  };
+
+  const std::vector<uint8_t> ZeroCalldata(32, 0x00);
+  auto InterpExec = executeEvmBytecodeCapturingCalls(
+      "frontier_call_merge_interp", Bytecode, common::RunMode::InterpMode,
+      EVMC_FRONTIER, ZeroCalldata);
+  auto MultipassExec = executeEvmBytecodeCapturingCalls(
+      "frontier_call_merge_multipass", Bytecode, common::RunMode::MultipassMode,
+      EVMC_FRONTIER, ZeroCalldata);
+
+#ifdef ZEN_ENABLE_JIT
+  EXPECT_TRUE(MultipassExec.JITCompiled);
+#endif
+
+  ASSERT_EQ(InterpExec.Status, EVMC_SUCCESS);
+  ASSERT_EQ(MultipassExec.Status, EVMC_SUCCESS);
+  ASSERT_EQ(InterpExec.Calls.size(), 1U);
+  ASSERT_EQ(MultipassExec.Calls.size(), 1U);
+
+  auto expectAddressEq = [](const evmc::address &Actual,
+                            const evmc::address &Expected) {
+    EXPECT_EQ(std::memcmp(Actual.bytes, Expected.bytes, sizeof(Actual.bytes)),
+              0);
+  };
+
+  EXPECT_EQ(InterpExec.Calls[0].kind, EVMC_CALL);
+  EXPECT_EQ(MultipassExec.Calls[0].kind, EVMC_CALL);
+
+  evmc::address ExpectedRecipient{};
+  ExpectedRecipient.bytes[19] = 0xbb;
+  expectAddressEq(InterpExec.Calls[0].recipient, MultipassExec.Calls[0].recipient);
+  expectAddressEq(InterpExec.Calls[0].recipient, ExpectedRecipient);
+  expectAddressEq(MultipassExec.Calls[0].recipient, ExpectedRecipient);
 }
 #endif
