@@ -3,8 +3,10 @@
 
 #include "solidity_test_helpers.h"
 #include <CLI/CLI.hpp>
+#include <chrono>
 #include <filesystem>
 #include <gtest/gtest.h>
+#include <iostream>
 
 using namespace zen::utils;
 using namespace zen::evm_test_utils;
@@ -20,6 +22,7 @@ class SolidityContractTest : public testing::TestWithParam<SolidityTestPair> {
 protected:
   static RuntimeConfig GlobalConfig;
   static uint64_t GlobalGasLimit;
+  static bool GlobalPrintTiming;
 
 public:
   static void SetGlobalConfig(const RuntimeConfig &Config) {
@@ -28,12 +31,17 @@ public:
   static void SetGlobalGasLimit(uint64_t GasLimit) {
     GlobalGasLimit = GasLimit;
   }
+  static void SetGlobalPrintTiming(bool PrintTiming) {
+    GlobalPrintTiming = PrintTiming;
+  }
   static const RuntimeConfig &GetGlobalConfig() { return GlobalConfig; }
   static uint64_t GetGlobalGasLimit() { return GlobalGasLimit; }
+  static bool GetGlobalPrintTiming() { return GlobalPrintTiming; }
 };
 
 RuntimeConfig SolidityContractTest::GlobalConfig;
 uint64_t SolidityContractTest::GlobalGasLimit = 0xFFFF'FFFF'FFFF;
+bool SolidityContractTest::GlobalPrintTiming = false;
 
 std::vector<SolidityTestPair>
 EnumerateSolidityTests(const std::string &TestCategory) {
@@ -76,8 +84,16 @@ EnumerateSolidityTests(const std::string &TestCategory) {
 
 TEST_P(SolidityContractTest, TestContract) {
   const auto &[Category, ContractName] = GetParam();
+  SolidityContractTiming Timing;
   evmc_status_code Result = executeSingleContractTest(
-      GetGlobalConfig(), GetGlobalGasLimit(), Category, ContractName);
+      GetGlobalConfig(), GetGlobalGasLimit(), Category, ContractName,
+      GetGlobalPrintTiming() ? &Timing : nullptr);
+  if (GetGlobalPrintTiming()) {
+    std::cout << "[timing] contract=" << ContractName
+              << " testcase_count=" << Timing.TestCaseCount
+              << " deploy_ms=" << Timing.DeployMs
+              << " execution_ms=" << Timing.ExecutionMs << std::endl;
+  }
   EXPECT_EQ(Result, EVMC_SUCCESS) << "Contract Test Failed: " << ContractName;
 }
 
@@ -97,7 +113,8 @@ namespace zen::evm_test_utils {
 evmc_status_code executeSingleContractTest(const RuntimeConfig &Config,
                                            uint64_t GasLimit,
                                            const std::string &TestCategory,
-                                           const std::string &TestContract) {
+                                           const std::string &TestContract,
+                                           SolidityContractTiming *Timing) {
   std::filesystem::path TestDir =
       std::filesystem::path(__FILE__).parent_path() /
       std::filesystem::path("../../tests") / TestCategory;
@@ -127,6 +144,7 @@ evmc_status_code executeSingleContractTest(const RuntimeConfig &Config,
   EVMTestEnvironment TestEnv(Config);
   std::map<std::string, DeployedContract> DeployedContracts;
   std::map<std::string, evmc::address> DeployedAddresses;
+  const auto DeployStart = std::chrono::steady_clock::now();
 
   // Step 1: Deploy all specified contracts
   for (const std::string &NowContractName : ContractTest.DeployContracts) {
@@ -153,9 +171,11 @@ evmc_status_code executeSingleContractTest(const RuntimeConfig &Config,
       return EVMC_FAILURE;
     }
   }
+  const auto DeployEnd = std::chrono::steady_clock::now();
 
   // Step 2: Execute all test cases
   bool AllCasePassed = true;
+  const auto ExecuteStart = std::chrono::steady_clock::now();
   for (size_t I = 0; I < ContractTest.TestCases.size(); ++I) {
     const auto &TestCase = ContractTest.TestCases[I];
     auto InstanceIt = DeployedContracts.find(TestCase.Contract);
@@ -174,6 +194,17 @@ evmc_status_code executeSingleContractTest(const RuntimeConfig &Config,
     if (checkResult(TestCase, CallResult) != EVMC_SUCCESS) {
       AllCasePassed = false;
     }
+  }
+  const auto ExecuteEnd = std::chrono::steady_clock::now();
+
+  if (Timing) {
+    Timing->DeployMs =
+        std::chrono::duration<double, std::milli>(DeployEnd - DeployStart)
+            .count();
+    Timing->ExecutionMs =
+        std::chrono::duration<double, std::milli>(ExecuteEnd - ExecuteStart)
+            .count();
+    Timing->TestCaseCount = static_cast<uint32_t>(ContractTest.TestCases.size());
   }
 
 #ifndef NDEBUG
@@ -198,6 +229,7 @@ GTEST_API_ int main(int argc, char **argv) {
 
   std::string TestContract;
   std::string TestCategory;
+  bool PrintTiming = false;
 
   // same as evm.codes: 0xFFFF'FFFF'FFFF (281,474,976,710,655)
   uint64_t GasLimit = 0xFFFF'FFFF'FFFF;
@@ -224,6 +256,8 @@ GTEST_API_ int main(int argc, char **argv) {
   CLIParser.add_option("-t, --test", TestContract,
                        "Specific test contract name");
   CLIParser.add_option("-c, --category", TestCategory, "Test Category");
+  CLIParser.add_flag("--print-timing", PrintTiming,
+                     "Print deploy/call timing split for each contract");
   CLIParser.add_option("--format", Config.Format, "Input format")
       ->transform(CLI::CheckedTransformer(FormatMap, CLI::ignore_case));
   CLIParser.add_option("-m, --mode", Config.Mode, "Running mode")
@@ -258,12 +292,21 @@ GTEST_API_ int main(int argc, char **argv) {
   // Set global config for parameterized tests
   SolidityContractTest::SetGlobalConfig(Config);
   SolidityContractTest::SetGlobalGasLimit(GasLimit);
+  SolidityContractTest::SetGlobalPrintTiming(PrintTiming);
 
   if (!TestContract.empty()) {
     TestCategory = TestCategory.empty() ? "evm_solidity" : TestCategory;
-
-    return executeSingleContractTest(Config, GasLimit, TestCategory,
-                                     TestContract);
+    SolidityContractTiming Timing;
+    const evmc_status_code Result =
+        executeSingleContractTest(Config, GasLimit, TestCategory, TestContract,
+                                  PrintTiming ? &Timing : nullptr);
+    if (PrintTiming) {
+      std::cout << "[timing] contract=" << TestContract
+                << " testcase_count=" << Timing.TestCaseCount
+                << " deploy_ms=" << Timing.DeployMs
+                << " execution_ms=" << Timing.ExecutionMs << std::endl;
+    }
+    return Result;
   }
 
   std::vector<SolidityTestPair> TestPairs;
