@@ -6,6 +6,7 @@
 
 #include "action/vm_eval_stack.h"
 #include "compiler/context.h"
+#include "compiler/evm_frontend/evm_value_range.h"
 #include "compiler/mir/function.h"
 #include "compiler/mir/instructions.h"
 #include "compiler/mir/pointer.h"
@@ -66,13 +67,15 @@ public:
   bool isGasMeteringEnabled() const { return GasMeteringEnabled; }
 
   void setGasChunkInfo(const uint32_t *ChunkEnd, const uint64_t *ChunkCost,
-                       size_t Size) {
+                       const uint64_t *ChunkCostSPP, size_t Size) {
     GasChunkEnd = ChunkEnd;
     GasChunkCost = ChunkCost;
+    GasChunkCostSPP = ChunkCostSPP;
     GasChunkSize = Size;
   }
   const uint32_t *getGasChunkEnd() const { return GasChunkEnd; }
   const uint64_t *getGasChunkCost() const { return GasChunkCost; }
+  const uint64_t *getGasChunkCostSPP() const { return GasChunkCostSPP; }
   size_t getGasChunkSize() const { return GasChunkSize; }
   bool hasGasChunks() const {
     return GasChunkEnd && GasChunkCost && GasChunkSize > 0;
@@ -98,6 +101,7 @@ private:
   bool GasMeteringEnabled = false;
   const uint32_t *GasChunkEnd = nullptr;
   const uint64_t *GasChunkCost = nullptr;
+  const uint64_t *GasChunkCostSPP = nullptr;
   size_t GasChunkSize = 0;
   evmc_revision Revision = zen::evm::DEFAULT_REVISION;
   uint8_t MemoryLinearStrideSkipLeadingZeroLimbStores = 0;
@@ -124,11 +128,7 @@ public:
 
   // Range classification for u256 operands.  Narrower ranges enable
   // single-instruction fast paths instead of expensive multi-limb arithmetic.
-  enum class ValueRange : uint8_t {
-    U64,  // Fits in 64 bits  (limbs [1..3] == 0)
-    U128, // Fits in 128 bits (limbs [2..3] == 0)
-    U256, // Full 256 bits — conservative default
-  };
+  using ValueRange = EVMValueRange;
 
   EVMMirBuilder(CompilerContext &Context, MFunction &MFunc);
 
@@ -257,6 +257,7 @@ public:
 
     // Provable value range — narrower ranges enable fast arithmetic paths
     ValueRange getRange() const { return Range; }
+    void setRange(ValueRange NewRange) { Range = NewRange; }
 
     // Check whether both operands provably fit in u64
     static bool bothFitU64(const Operand &A, const Operand &B) {
@@ -312,7 +313,7 @@ public:
   void reloadTrackedStackFromInstance();
   void syncTrackedStackMetadataToInstance();
   void setTrackedStackDepth(uint32_t Depth);
-  Operand createStackEntryOperand();
+  Operand createStackEntryOperand(ValueRange Range = ValueRange::U256);
   void assignStackEntryOperand(const Operand &Dest, const Operand &Value);
   Operand prepareStackPhiIncoming(const Operand &Value);
   void registerCurrentBlockPC(uint64_t BlockPC);
@@ -1036,6 +1037,10 @@ private:
   // Template versions of runtime calls
   template <typename RetType>
   Operand callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *));
+  // Emits host soft-error checks in check mode after runtime call.
+  template <typename RetType>
+  Operand callRuntimeForWithErrorCheck(
+      RetType (*RuntimeFunc)(runtime::EVMInstance *));
 
   template <typename ArgType>
   U256Inst convertOperandToInstruction(const Operand &Param);
@@ -1050,6 +1055,12 @@ private:
   Operand callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *,
                                                 ArgTypes...),
                          const ParamTypes &...Params);
+  // Emits host soft-error checks in check mode after runtime call.
+  template <typename RetType, typename... ArgTypes, typename... ParamTypes>
+  Operand callRuntimeForWithErrorCheck(
+      RetType (*RuntimeFunc)(runtime::EVMInstance *, ArgTypes...),
+      const ParamTypes &...Params);
+  void emitRuntimeSoftErrorCheck(MInstruction *InstancePtr);
 
   // Helper template functions for runtime call type mapping
   template <typename RetType> MType *getMIRReturnType();
@@ -1277,6 +1288,7 @@ private:
   // Chunk gas metering
   const uint32_t *GasChunkEnd = nullptr;
   const uint64_t *GasChunkCost = nullptr;
+  const uint64_t *GasChunkCostSPP = nullptr;
   size_t GasChunkSize = 0;
 
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER

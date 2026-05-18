@@ -32,7 +32,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -71,7 +71,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -107,7 +107,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -154,7 +154,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -190,7 +190,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -227,7 +227,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -264,7 +264,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -299,7 +299,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -345,7 +345,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
       - name: Cache FetchContent deps
@@ -390,7 +390,7 @@ jobs:
       image: dtvmdev1/dtvm-dev-x64:main
     steps:
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "true"
           fetch-depth: 0
