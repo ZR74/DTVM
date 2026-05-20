@@ -117,6 +117,10 @@ bool hasUndefinedInstructionRisk(const COMPILER::EVMAnalyzer &Analyzer) {
 bool isGasSensitiveLoopOpcode(evmc_opcode Opcode) {
   switch (Opcode) {
   case OP_GAS:
+  case OP_MLOAD:
+  case OP_MSTORE:
+  case OP_MSTORE8:
+  case OP_MCOPY:
   case OP_SSTORE:
   case OP_TSTORE:
   case OP_CALL:
@@ -160,6 +164,76 @@ bool hasGasSensitiveLoopRisk(const COMPILER::EVMAnalyzer &Analyzer,
       }
     }
   }
+  return false;
+}
+
+bool hasMemoryCarriedControlRisk(const uint8_t *Bytecode, size_t BytecodeSize) {
+  bool HasMload = false;
+  bool HasMstore = false;
+  bool HasJumpi = false;
+
+  for (size_t PC = 0; PC < BytecodeSize; ++PC) {
+    evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
+    if (Opcode == OP_MLOAD) {
+      HasMload = true;
+    } else if (Opcode == OP_MSTORE || Opcode == OP_MSTORE8) {
+      HasMstore = true;
+    } else if (Opcode == OP_JUMPI) {
+      HasJumpi = true;
+    }
+
+    if (HasMload && HasMstore && HasJumpi) {
+      return true;
+    }
+
+    if (Opcode >= OP_PUSH1 && Opcode <= OP_PUSH32) {
+      PC += static_cast<size_t>(Opcode) - static_cast<size_t>(OP_PUSH1) + 1;
+    }
+  }
+
+  return false;
+}
+
+bool hasCallFamilyRisk(const uint8_t *Bytecode, size_t BytecodeSize) {
+  for (size_t PC = 0; PC < BytecodeSize; ++PC) {
+    evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
+    if (Opcode == OP_CALL || Opcode == OP_CALLCODE ||
+        Opcode == OP_DELEGATECALL || Opcode == OP_STATICCALL ||
+        Opcode == OP_CREATE || Opcode == OP_CREATE2) {
+      return true;
+    }
+
+    if (Opcode >= OP_PUSH1 && Opcode <= OP_PUSH32) {
+      PC += static_cast<size_t>(Opcode) - static_cast<size_t>(OP_PUSH1) + 1;
+    }
+  }
+
+  return false;
+}
+
+bool hasConsecutiveJumpdestControlRisk(const uint8_t *Bytecode,
+                                       size_t BytecodeSize) {
+  bool HasJumpControl = false;
+  bool HasConsecutiveJumpdest = false;
+
+  for (size_t PC = 0; PC < BytecodeSize; ++PC) {
+    evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
+    if (Opcode == OP_JUMP || Opcode == OP_JUMPI) {
+      HasJumpControl = true;
+    } else if (Opcode == OP_JUMPDEST && PC + 1 < BytecodeSize &&
+               Bytecode[PC + 1] == OP_JUMPDEST) {
+      HasConsecutiveJumpdest = true;
+    }
+
+    if (HasJumpControl && HasConsecutiveJumpdest) {
+      return true;
+    }
+
+    if (Opcode >= OP_PUSH1 && Opcode <= OP_PUSH32) {
+      PC += static_cast<size_t>(Opcode) - static_cast<size_t>(OP_PUSH1) + 1;
+    }
+  }
+
   return false;
 }
 
@@ -229,10 +303,19 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
     const bool FallbackUndefinedInstr = hasUndefinedInstructionRisk(Analyzer);
     const bool FallbackGasSensitiveLoop = hasGasSensitiveLoopRisk(
         Analyzer, reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
+    const bool FallbackMemoryCarriedControl = hasMemoryCarriedControlRisk(
+        reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
+    const bool FallbackCallFamily = hasCallFamilyRisk(
+        reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
+    const bool FallbackConsecutiveJumpdestControl =
+        hasConsecutiveJumpdestControlRisk(
+            reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
     Mod->ShouldFallbackToInterp =
         FallbackJITSuitability || FallbackDynamicReturn ||
         FallbackDeepEntryMutation || FallbackHiddenPrefixLoopMerge ||
-        FallbackUndefinedInstr || FallbackGasSensitiveLoop;
+        FallbackUndefinedInstr || FallbackGasSensitiveLoop ||
+        FallbackMemoryCarriedControl || FallbackCallFamily ||
+        FallbackConsecutiveJumpdestControl;
     if (!Mod->ShouldFallbackToInterp) {
       // JIT is about to compile this module — mark the bytecode cache so the
       // SPP metering pipeline runs on first access.
