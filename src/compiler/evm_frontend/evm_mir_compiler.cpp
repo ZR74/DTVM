@@ -99,6 +99,17 @@ bool EVMMirBuilder::compile(CompilerContext *Context) {
   return Visitor.compile();
 }
 
+void EVMMirBuilder::setCompatibleDynamicJumpTargets(
+    uint64_t SourceBlockPC, const std::vector<uint64_t> &TargetBlockPCs) {
+  CompatibleDynamicJumpTargetsBySource[SourceBlockPC] = TargetBlockPCs;
+}
+
+void EVMMirBuilder::registerDirectLiftedPhiIncoming(uint64_t TargetBlockPC,
+                                                    uint64_t PredBlockPC) {
+  const uint64_t CanonicalTargetPC = getCanonicalJumpDestPC(TargetBlockPC);
+  DynamicPhiIncomingBlockTable[CanonicalTargetPC][PredBlockPC] = CurBB;
+}
+
 void EVMMirBuilder::registerDynamicJumpPhiIncomingBlock(uint64_t TargetBlockPC,
                                                         uint64_t PredBlockPC,
                                                         MBasicBlock *PredBB) {
@@ -109,19 +120,21 @@ void EVMMirBuilder::registerPhiIncomingBlock(uint64_t TargetBlockPC,
                                              uint64_t PredBlockPC,
                                              MBasicBlock *PredBB) {
   const uint64_t CanonicalTargetPC = getCanonicalJumpDestPC(TargetBlockPC);
-  DynamicPhiIncomingBlockTable[CanonicalTargetPC][PredBlockPC] =
+  MBasicBlock *ResolvedBB =
       resolvePhiIncomingPredecessorBB(TargetBlockPC, PredBB);
+  DynamicPhiIncomingBlockTable[CanonicalTargetPC][PredBlockPC] = ResolvedBB;
 }
 
 MBasicBlock *EVMMirBuilder::getPhiIncomingBlock(uint64_t TargetBlockPC,
                                                 uint64_t PredBlockPC) const {
-  auto DynamicTargetIt =
-      DynamicPhiIncomingBlockTable.find(getCanonicalJumpDestPC(TargetBlockPC));
+  const uint64_t CanonicalTargetPC = getCanonicalJumpDestPC(TargetBlockPC);
+  auto DynamicTargetIt = DynamicPhiIncomingBlockTable.find(CanonicalTargetPC);
   if (DynamicTargetIt != DynamicPhiIncomingBlockTable.end()) {
     auto DynamicPredIt = DynamicTargetIt->second.find(PredBlockPC);
     if (DynamicPredIt != DynamicTargetIt->second.end()) {
-      return resolveReachablePhiIncomingPredecessorBB(TargetBlockPC,
-                                                      DynamicPredIt->second);
+      MBasicBlock *Resolved = resolveReachablePhiIncomingPredecessorBB(
+          TargetBlockPC, DynamicPredIt->second);
+      return Resolved;
     }
   }
 
@@ -129,8 +142,9 @@ MBasicBlock *EVMMirBuilder::getPhiIncomingBlock(uint64_t TargetBlockPC,
   if (BlockIt == BlockEntryTable.end()) {
     return nullptr;
   }
-  return resolveReachablePhiIncomingPredecessorBB(TargetBlockPC,
-                                                  BlockIt->second);
+  MBasicBlock *Resolved =
+      resolveReachablePhiIncomingPredecessorBB(TargetBlockPC, BlockIt->second);
+  return Resolved;
 }
 
 uint64_t EVMMirBuilder::getCanonicalJumpDestPC(uint64_t TargetBlockPC) const {
@@ -260,13 +274,69 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
 
   MBasicBlock *FailureBB =
       getOrCreateExceptionSetBB(ErrorCode::EVMBadJumpDestination);
+  MBasicBlock *DebugFailureBB = CurFunc->createBasicBlock();
   MInstruction *JumpTarget = loadVariable(JumpTargetVar);
   MType *UInt64Type =
       EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  auto AllowedTargetsIt =
+      CompatibleDynamicJumpTargetsBySource.find(SourceBlockPC);
+  const bool HasTargetFilter = false;
+  if (SourceBlockPC == 2356) {
+    fprintf(stderr,
+            "[jump-lowering-debug] source=%lu jumpdests=%zu has1145=%d "
+            "allowed_targets=",
+            (unsigned long)SourceBlockPC, JumpDestTable.size(),
+            JumpDestTable.count(1145) != 0);
+    if (AllowedTargetsIt != CompatibleDynamicJumpTargetsBySource.end()) {
+      for (uint64_t TargetPC : AllowedTargetsIt->second) {
+        fprintf(stderr, "%lu,", (unsigned long)TargetPC);
+      }
+    }
+    fprintf(stderr, "\n");
+  }
+
+  if (HasTargetFilter) {
+    const std::vector<uint64_t> &AllowedTargets = AllowedTargetsIt->second;
+    CompileVector<std::pair<ConstantInstruction *, MBasicBlock *>> Cases(
+        AllowedTargets.size(), Ctx.MemPool);
+    for (size_t Index = 0; Index < AllowedTargets.size(); ++Index) {
+      const uint64_t DestPC = AllowedTargets[Index];
+      auto DestIt = JumpDestTable.find(DestPC);
+      if (DestIt == JumpDestTable.end()) {
+        continue;
+      }
+      Cases[Index].first = createIntConstInstruction(UInt64Type, DestPC);
+      Cases[Index].second = DestIt->second;
+      registerDynamicJumpPhiIncomingBlock(DestPC, SourceBlockPC,
+                                          IndirectJumpBB);
+      addSuccessor(DestIt->second);
+    }
+
+    createInstruction<SwitchInstruction>(true, Ctx, JumpTarget, DebugFailureBB,
+                                         Cases);
+    addSuccessor(DebugFailureBB);
+    setInsertBlock(FromBB);
+    return IndirectJumpBB;
+  }
 
   // If hash table is used, create mir to calculate hash index of JumpTarget
   // PC and create switch instruction with hash index
   if (!JumpHashTable.empty()) {
+    if (SourceBlockPC == 2356) {
+      const uint64_t TargetHash = (1145 * HashMultiplier) & HashMask;
+      fprintf(stderr,
+              "[jump-lowering-debug] source=%lu hashmask=%lu "
+              "target1145hash=%lu bucket=",
+              (unsigned long)SourceBlockPC, (unsigned long)HashMask,
+              (unsigned long)TargetHash);
+      auto BucketIt = JumpHashReverse.find(TargetHash);
+      if (BucketIt != JumpHashReverse.end()) {
+        for (uint64_t PC : BucketIt->second) {
+          fprintf(stderr, "%lu,", (unsigned long)PC);
+        }
+      }
+      fprintf(stderr, "\n");
+    }
     // Initialize hash cases
     uint64_t MinHash = JumpHashTable.begin()->first;
     uint64_t MaxHash = JumpHashTable.rbegin()->first;
@@ -290,8 +360,8 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
           createIntConstInstruction(UInt64Type, HashEntry);
       if (JumpHashTable.count(HashEntry) == 0) {
         // FailureBB for empty hash index
-        HashCases[HIndex].second = FailureBB;
-        addUniqueSuccessor(FailureBB);
+        HashCases[HIndex].second = DebugFailureBB;
+        addSuccessor(DebugFailureBB);
         continue;
       }
       if (JumpHashTable[HashEntry].size() == 1) {
@@ -312,9 +382,9 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
         registerDynamicJumpPhiIncomingBlock(JumpHashReverse[HashEntry][0],
                                             SourceBlockPC, CheckBB);
         createInstruction<BrIfInstruction>(true, Ctx, IsMatch, DestBB,
-                                           FailureBB);
+                                           DebugFailureBB);
         addSuccessor(DestBB);
-        addUniqueSuccessor(FailureBB);
+        addSuccessor(DebugFailureBB);
         setInsertBlock(OutsideBB);
         HashCases[HIndex].second = CheckBB;
         addSuccessor(CheckBB);
@@ -337,17 +407,33 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
                                               SubCaseBB);
           addSuccessor(SubDestBBVec[I]);
         }
-        createInstruction<SwitchInstruction>(true, Ctx, JumpTarget, FailureBB,
-                                             SubCases);
-        addUniqueSuccessor(FailureBB);
+        createInstruction<SwitchInstruction>(true, Ctx, JumpTarget,
+                                             DebugFailureBB, SubCases);
+        addSuccessor(DebugFailureBB);
         // Back to outside BB
         setInsertBlock(OutsideBB);
         HashCases[HIndex].second = SubCaseBB;
         addSuccessor(SubCaseBB);
       }
     }
-    createInstruction<SwitchInstruction>(true, Ctx, HashDest, FailureBB,
+    createInstruction<SwitchInstruction>(true, Ctx, HashDest, DebugFailureBB,
                                          HashCases);
+    addSuccessor(DebugFailureBB);
+    setInsertBlock(FromBB);
+    setInsertBlock(DebugFailureBB);
+    MInstruction *DebugHandlerAddr = createIntConstInstruction(
+        &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBadJumpOnJIT));
+    CompileVector<MInstruction *> DebugArgs{
+        {
+            InstanceAddr,
+            createIntConstInstruction(UInt64Type, SourceBlockPC),
+            loadVariable(JumpTargetVar),
+        },
+        Ctx.MemPool,
+    };
+    createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                        DebugArgs);
+    createInstruction<BrInstruction>(true, Ctx, FailureBB);
     addUniqueSuccessor(FailureBB);
     setInsertBlock(FromBB);
     return IndirectJumpBB;
@@ -365,7 +451,23 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
     Index++;
   }
 
-  createInstruction<SwitchInstruction>(true, Ctx, JumpTarget, FailureBB, Cases);
+  createInstruction<SwitchInstruction>(true, Ctx, JumpTarget, DebugFailureBB,
+                                       Cases);
+  addSuccessor(DebugFailureBB);
+  setInsertBlock(DebugFailureBB);
+  MInstruction *DebugHandlerAddr = createIntConstInstruction(
+      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBadJumpOnJIT));
+  CompileVector<MInstruction *> DebugArgs{
+      {
+          InstanceAddr,
+          createIntConstInstruction(UInt64Type, SourceBlockPC),
+          loadVariable(JumpTargetVar),
+      },
+      Ctx.MemPool,
+  };
+  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                      DebugArgs);
+  createInstruction<BrInstruction>(true, Ctx, FailureBB);
   addUniqueSuccessor(FailureBB);
   setInsertBlock(FromBB);
   return IndirectJumpBB;
@@ -532,8 +634,7 @@ void EVMMirBuilder::meterOpcode(evmc_opcode Opcode, uint64_t PC) {
       // Prefer SPP-shifted cost when available — it preserves per-path totals
       // while reducing the number of non-zero entries the JIT must emit a
       // gas check for.
-      const uint64_t Cost =
-          GasChunkCostSPP ? GasChunkCostSPP[PC] : GasChunkCost[PC];
+      const uint64_t Cost = GasChunkCost[PC];
       meterGas(Cost);
     }
     return;
@@ -577,7 +678,7 @@ void EVMMirBuilder::meterOpcodeRange(uint64_t StartPC,
     uint64_t Cost = 0;
     if (GasChunkEnd && GasChunkCost && PC < GasChunkSize &&
         GasChunkEnd[PC] > PC) {
-      Cost = GasChunkCostSPP ? GasChunkCostSPP[PC] : GasChunkCost[PC];
+      Cost = GasChunkCost[PC];
     } else {
       const uint8_t Opcode = static_cast<uint8_t>(Bytecode[PC]);
       Cost = static_cast<uint64_t>(InstructionMetrics[Opcode].gas_cost);
@@ -941,6 +1042,25 @@ typename EVMMirBuilder::Operand EVMMirBuilder::stackPop() {
     Variable *ValVar = storeInstructionInTemp(LoadInstr, I64Type);
     PopComponents[I] = loadVariable(ValVar);
   }
+  if (CurrentBlockPC == 262) {
+    MInstruction *DebugHandlerAddr = createIntConstInstruction(
+        &Ctx.I64Type,
+        uintptr_t(zen::runtime::EVMInstance::debugJumpOperandOnJIT));
+    CompileVector<MInstruction *> DebugArgs{
+        {
+            InstanceAddr,
+            createIntConstInstruction(I64Type, 262000 + DebugStackPopSeq),
+            PopComponents[0],
+            PopComponents[1],
+            PopComponents[2],
+            PopComponents[3],
+        },
+        Ctx.MemPool,
+    };
+    createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                        DebugArgs);
+    ++DebugStackPopSeq;
+  }
   // Update stack top
   MInstruction *NewTop = createInstruction<BinaryInstruction>(
       false, OP_sub, I64Type, StackTopInt, Const32);
@@ -1072,6 +1192,7 @@ EVMMirBuilder::prepareStackPhiIncoming(const Operand &Value) {
 
 void EVMMirBuilder::registerCurrentBlockPC(uint64_t BlockPC) {
   CurrentBlockPC = BlockPC;
+  DebugStackPopSeq = 0;
   BlockEntryTable[BlockPC] = CurBB;
 }
 
@@ -1085,17 +1206,16 @@ typename EVMMirBuilder::Operand EVMMirBuilder::materializeStackMergeOperand(
 
   U256Inst PhiComponents = {};
   U256Var PhiVars = {};
-  auto PredRange = CurBB->predecessors();
-  const size_t ActualPredCount =
-      static_cast<size_t>(std::distance(PredRange.begin(), PredRange.end()));
+  const size_t PhiIncomingCount = PredBlockPCs.size();
   for (size_t ComponentIndex = 0; ComponentIndex < EVM_ELEMENTS_COUNT;
        ++ComponentIndex) {
-    PhiInstruction *Phi = createPendingPhi(&Ctx.I64Type, PredBlockPCs.size());
+    PhiInstruction *Phi = createPendingPhi(&Ctx.I64Type, PhiIncomingCount);
     auto &SlotMap = PhiIncomingSlotMap[Phi];
     for (size_t IncomingIndex = 0; IncomingIndex < PredBlockPCs.size();
          ++IncomingIndex) {
       uint64_t PredBlockPC = PredBlockPCs[IncomingIndex];
-      SlotMap[PredBlockPC] = IncomingIndex;
+      size_t IncomingSlot = IncomingIndex;
+      SlotMap[PredBlockPC] = IncomingSlot;
 
       auto IncomingIt = IncomingValueMap.find(PredBlockPC);
       if (IncomingIt == IncomingValueMap.end()) {
@@ -1104,17 +1224,11 @@ typename EVMMirBuilder::Operand EVMMirBuilder::materializeStackMergeOperand(
 
       MBasicBlock *IncomingBB =
           getPhiIncomingBlock(CurrentBlockPC, PredBlockPC);
-      if ((IncomingBB == nullptr ||
-           std::find(PredRange.begin(), PredRange.end(), IncomingBB) ==
-               PredRange.end()) &&
-          IncomingIndex < ActualPredCount) {
-        IncomingBB = *(PredRange.begin() + IncomingIndex);
-      }
       ZEN_ASSERT(
           IncomingBB != nullptr &&
           "phi incoming block must be registered before materialization");
       U256Inst IncomingComponents = extractU256Operand(IncomingIt->second);
-      Phi->setIncoming(IncomingIndex, IncomingBB,
+      Phi->setIncoming(IncomingSlot, IncomingBB,
                        IncomingComponents[ComponentIndex]);
     }
     PhiComponents[ComponentIndex] = Phi;
@@ -1127,6 +1241,7 @@ typename EVMMirBuilder::Operand EVMMirBuilder::materializeStackMergeOperand(
     PhiVars[ComponentIndex] = PhiVar;
     StackMergePhiVarMap[PhiVar->getVarIdx()] =
         llvm::cast<PhiInstruction>(PhiComponents[ComponentIndex]);
+    StackMergePhiTargetBlockPCMap[PhiVar->getVarIdx()] = CurrentBlockPC;
   }
 
   return Operand(PhiVars, EVMType::UINT256);
@@ -1135,25 +1250,41 @@ typename EVMMirBuilder::Operand EVMMirBuilder::materializeStackMergeOperand(
 void EVMMirBuilder::assignStackMergeOperand(const Operand &Dest,
                                             uint64_t PredBlockPC,
                                             const Operand &Value) {
+  if (!Dest.isU256MultiComponent()) {
+    assignStackEntryOperand(Dest, Value);
+    return;
+  }
   U256Var DestVars = Dest.getU256VarComponents();
-  U256Inst IncomingComponents = extractU256Operand(Value);
-  MBasicBlock *IncomingBB = getPhiIncomingBlock(CurrentBlockPC, PredBlockPC);
-  auto PredRange = CurBB->predecessors();
-  const size_t ActualPredCount =
-      static_cast<size_t>(std::distance(PredRange.begin(), PredRange.end()));
+  bool IsPendingPhiDest = true;
   for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
-    ZEN_ASSERT(DestVars[I] != nullptr &&
-               "stack merge operand must be anchored in temp vars");
+    if (DestVars[I] == nullptr) {
+      IsPendingPhiDest = false;
+      break;
+    }
+    if (StackMergePhiVarMap.find(DestVars[I]->getVarIdx()) ==
+        StackMergePhiVarMap.end()) {
+      IsPendingPhiDest = false;
+      break;
+    }
+  }
+  if (!IsPendingPhiDest) {
+    assignStackEntryOperand(Dest, Value);
+    return;
+  }
+  U256Inst IncomingComponents = extractU256Operand(Value);
+  for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
     auto PhiIt = StackMergePhiVarMap.find(DestVars[I]->getVarIdx());
     ZEN_ASSERT(PhiIt != StackMergePhiVarMap.end() &&
                "phi temp var must resolve to pending phi");
     PhiInstruction *Phi = PhiIt->second;
+    MBasicBlock *PhiBB = Phi->getBasicBlock();
+    auto TargetBlockIt =
+        StackMergePhiTargetBlockPCMap.find(DestVars[I]->getVarIdx());
+    ZEN_ASSERT(TargetBlockIt != StackMergePhiTargetBlockPCMap.end() &&
+               "phi temp var must retain its target block pc");
+    const uint64_t TargetBlockPC = TargetBlockIt->second;
+    MBasicBlock *IncomingBB = getPhiIncomingBlock(TargetBlockPC, PredBlockPC);
     size_t IncomingSlot = getPhiIncomingSlot(Phi, PredBlockPC);
-    if ((IncomingBB == nullptr || std::find(PredRange.begin(), PredRange.end(),
-                                            IncomingBB) == PredRange.end()) &&
-        IncomingSlot < ActualPredCount) {
-      IncomingBB = *(PredRange.begin() + IncomingSlot);
-    }
     ZEN_ASSERT(IncomingBB != nullptr &&
                "phi incoming block must be registered before patching");
     Phi->setIncoming(IncomingSlot, IncomingBB, IncomingComponents[I]);
@@ -1199,6 +1330,35 @@ void EVMMirBuilder::spillTrackedStackPreservingPrefix(
   MInstruction *StackSize = createIntConstInstruction(
       I64Type, static_cast<uint64_t>(FinalDepth) * 32ULL);
   setInstanceElement(&Ctx.I64Type, StackSize, StackSizeOffset);
+}
+
+void EVMMirBuilder::debugDumpRuntimeStack(uint64_t BlockPC, uint64_t PhaseTag) {
+  MInstruction *DebugHandlerAddr = createIntConstInstruction(
+      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugDumpStackOnJIT));
+  CompileVector<MInstruction *> DebugArgs{
+      {
+          InstanceAddr,
+          createIntConstInstruction(&Ctx.I64Type, BlockPC),
+          createIntConstInstruction(&Ctx.I64Type, PhaseTag),
+      },
+      Ctx.MemPool,
+  };
+  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                      DebugArgs);
+}
+
+void EVMMirBuilder::debugTraceBlockPC(uint64_t BlockPC) {
+  MInstruction *DebugHandlerAddr = createIntConstInstruction(
+      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBlockPCOnJIT));
+  CompileVector<MInstruction *> DebugArgs{
+      {
+          InstanceAddr,
+          createIntConstInstruction(&Ctx.I64Type, BlockPC),
+      },
+      Ctx.MemPool,
+  };
+  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                      DebugArgs);
 }
 
 void EVMMirBuilder::handleStop() {
@@ -1318,7 +1478,18 @@ void EVMMirBuilder::createJumpTable() {
         JumpDestBodyTable[DestPC] = BodyBB;
       }
 
-      if (!Ctx.isGasMeteringEnabled() || RangeStart == RangeEnd) {
+      const uint64_t JumpDestBaseCost = static_cast<uint64_t>(
+          InstructionMetrics[static_cast<uint8_t>(evmc_opcode::OP_JUMPDEST)]
+              .gas_cost);
+      auto getJumpDestMeteringCost = [&](size_t DestPC) -> uint64_t {
+        if (GasChunkEnd && GasChunkCost && DestPC < GasChunkSize &&
+            GasChunkEnd[DestPC] > DestPC) {
+          return GasChunkCost[DestPC];
+        }
+        return JumpDestBaseCost;
+      };
+
+      if (!Ctx.isGasMeteringEnabled()) {
         for (size_t DestPC = RangeStart; DestPC <= RangeEnd; ++DestPC) {
           JumpDestTable[DestPC] = BodyBB;
         }
@@ -1330,23 +1501,15 @@ void EVMMirBuilder::createJumpTable() {
         // O(n^2) compile-time cost by precomputing the suffix sums of skipped
         // metering once for the run.
         const size_t SkipCount = RangeEnd - RangeStart; // exclude RangeEnd
-        const uint64_t JumpDestBaseCost = static_cast<uint64_t>(
-            InstructionMetrics[static_cast<uint8_t>(evmc_opcode::OP_JUMPDEST)]
-                .gas_cost);
         std::vector<uint64_t> SkipCostByOffset(SkipCount, 0);
         if (SkipCount > 0) {
           uint64_t Running = 0;
           for (size_t Offset = SkipCount; Offset > 0; --Offset) {
             const size_t Pc = RangeStart + (Offset - 1);
-            uint64_t Cost = 0;
-            if (GasChunkEnd && GasChunkCost && Pc < GasChunkSize &&
-                GasChunkEnd[Pc] > Pc) {
-              Cost = GasChunkCostSPP ? GasChunkCostSPP[Pc] : GasChunkCost[Pc];
-            } else {
-              // All bytes in the run are JUMPDEST opcode bytes (PUSH payload is
-              // skipped in the scan above), so the fallback is a constant.
-              Cost = JumpDestBaseCost;
-            }
+            // Consecutive JUMPDEST bytes each begin a distinct gas chunk, so
+            // the per-PC chunk metadata exactly matches the cost the normal
+            // linear metering path would have charged at this bytecode offset.
+            uint64_t Cost = getJumpDestMeteringCost(Pc);
 
             if (UINT64_MAX - Running < Cost) {
               Running = UINT64_MAX;
@@ -1359,22 +1522,30 @@ void EVMMirBuilder::createJumpTable() {
 
         // Cache the total skipped cost at run start so the linear decode path
         // can reuse it without re-scanning the same consecutive JUMPDEST range.
-        if (RangeStart < JumpDestRunLastPC.size()) {
+        if (SkipCount > 0 && RangeStart < JumpDestRunLastPC.size()) {
           JumpDestRunLastPC[RangeStart] = static_cast<uint32_t>(RangeEnd);
           JumpDestRunSkipCost[RangeStart] = SkipCostByOffset[0];
         }
 
-        for (size_t DestPC = RangeStart; DestPC < RangeEnd; ++DestPC) {
+        for (size_t DestPC = RangeStart; DestPC <= RangeEnd; ++DestPC) {
           MBasicBlock *EntryBB = createBasicBlock();
           EntryBB->setJumpDestBB(true);
           JumpDestTable[DestPC] = EntryBB;
 
           setInsertBlock(EntryBB);
-          meterGas(SkipCostByOffset[DestPC - RangeStart]);
+          uint64_t EntryCost = getJumpDestMeteringCost(RangeEnd);
+          if (DestPC < RangeEnd) {
+            const uint64_t SkipCost = SkipCostByOffset[DestPC - RangeStart];
+            if (UINT64_MAX - EntryCost < SkipCost) {
+              EntryCost = UINT64_MAX;
+            } else {
+              EntryCost += SkipCost;
+            }
+          }
+          meterGas(EntryCost);
           createInstruction<BrInstruction>(true, Ctx, BodyBB);
           addSuccessor(BodyBB);
         }
-        JumpDestTable[RangeEnd] = BodyBB;
       }
     } else {
       if (static_cast<Byte>(evmc_opcode::OP_PUSH0) <= Bytecode[PC] &&
@@ -1494,6 +1665,24 @@ void EVMMirBuilder::handleJump(Operand Dest) {
   MInstruction *JumpTarget = DestComponents[0];
   MType *MirI64Type =
       EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  if (CurrentBlockPC == 262) {
+    MInstruction *DebugHandlerAddr = createIntConstInstruction(
+        &Ctx.I64Type,
+        uintptr_t(zen::runtime::EVMInstance::debugJumpOperandOnJIT));
+    CompileVector<MInstruction *> DebugArgs{
+        {
+            InstanceAddr,
+            createIntConstInstruction(MirI64Type, CurrentBlockPC),
+            DestComponents[0],
+            DestComponents[1],
+            DestComponents[2],
+            DestComponents[3],
+        },
+        Ctx.MemPool,
+    };
+    createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                        DebugArgs);
+  }
   MInstruction *Zero = createIntConstInstruction(MirI64Type, 0);
   MInstruction *HighOr = createInstruction<BinaryInstruction>(
       false, OP_or, MirI64Type, DestComponents[1], DestComponents[2]);
@@ -1502,10 +1691,26 @@ void EVMMirBuilder::handleJump(Operand Dest) {
   MInstruction *HighNonZero = createInstruction<CmpInstruction>(
       false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, HighOr, Zero);
   MBasicBlock *ValidJumpBB = createBasicBlock();
-  createInstruction<BrIfInstruction>(true, Ctx, HighNonZero, InvalidJumpBB,
+  MBasicBlock *DebugInvalidJumpBB = createBasicBlock();
+  createInstruction<BrIfInstruction>(true, Ctx, HighNonZero, DebugInvalidJumpBB,
                                      ValidJumpBB);
-  addSuccessor(InvalidJumpBB);
+  addSuccessor(DebugInvalidJumpBB);
   addSuccessor(ValidJumpBB);
+  setInsertBlock(DebugInvalidJumpBB);
+  MInstruction *DebugHandlerAddr = createIntConstInstruction(
+      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBadJumpOnJIT));
+  CompileVector<MInstruction *> DebugArgs{
+      {
+          InstanceAddr,
+          createIntConstInstruction(MirI64Type, CurrentBlockPC),
+          JumpTarget,
+      },
+      Ctx.MemPool,
+  };
+  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                      DebugArgs);
+  createInstruction<BrInstruction>(true, Ctx, InvalidJumpBB);
+  addUniqueSuccessor(InvalidJumpBB);
   setInsertBlock(ValidJumpBB);
   implementIndirectJump(JumpTarget, InvalidJumpBB);
 }
@@ -1592,8 +1797,11 @@ void EVMMirBuilder::handleJumpI(Operand Dest, Operand Cond) {
 }
 
 void EVMMirBuilder::handleJumpDest(const uint64_t &PC) {
+  auto EntryIt = JumpDestTable.find(PC);
+  ZEN_ASSERT(EntryIt != JumpDestTable.end() && "JUMPDEST entry not found");
   auto BodyIt = JumpDestBodyTable.find(PC);
   ZEN_ASSERT(BodyIt != JumpDestBodyTable.end() && "JUMPDEST body not found");
+  MBasicBlock *EntryBB = EntryIt->second;
   MBasicBlock *DestBB = BodyIt->second;
   // Only add successor if the current BB is not ExceptionSetBB,
   bool IsExceptionSetBB = false;
@@ -1606,14 +1814,14 @@ void EVMMirBuilder::handleJumpDest(const uint64_t &PC) {
   if (CurBB != DestBB && !IsExceptionSetBB) {
     if (CurBB->empty()) {
       registerPhiIncomingBlock(PC, CurrentBlockPC, CurBB);
-      CurBB->addSuccessor(DestBB);
-      createInstruction<BrInstruction>(true, Ctx, DestBB);
+      CurBB->addSuccessor(EntryBB);
+      createInstruction<BrInstruction>(true, Ctx, EntryBB);
     } else {
       MInstruction *LastInst = *std::prev(CurBB->end());
       if (!LastInst->isTerminator()) {
         registerPhiIncomingBlock(PC, CurrentBlockPC, CurBB);
-        CurBB->addSuccessor(DestBB);
-        createInstruction<BrInstruction>(true, Ctx, DestBB);
+        CurBB->addSuccessor(EntryBB);
+        createInstruction<BrInstruction>(true, Ctx, EntryBB);
       }
     }
   }
@@ -2593,6 +2801,18 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleExp(Operand BaseOp,
       createIntConstInstruction(I64Type, GasPerByte);
   MInstruction *ExpGas = createInstruction<BinaryInstruction>(
       false, OP_mul, I64Type, ExpByteSize, GasPerByteConst);
+  MInstruction *DebugHandlerAddr = createIntConstInstruction(
+      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugExpGasOnJIT));
+  CompileVector<MInstruction *> DebugArgs{
+      {
+          InstanceAddr,
+          ExpByteSize,
+          ExpGas,
+      },
+      Ctx.MemPool,
+  };
+  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
+                                      DebugArgs);
   chargeDynamicGasIR(ExpGas);
 
   // Initialize loop variables
@@ -3979,8 +4199,9 @@ EVMMirBuilder::handleCallDataLoad(Operand Offset) {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
   uint64_t Non64Value = std::numeric_limits<uint64_t>::max();
   normalizeOperandU64(Offset, &Non64Value);
-  return callRuntimeFor<const uint8_t *, uint64_t>(
+  Operand Raw = callRuntimeFor<const uint8_t *, uint64_t>(
       RuntimeFunctions.GetCallDataLoad, Offset);
+  return convertBytes32ToU256Operand(Raw);
 }
 
 typename EVMMirBuilder::Operand EVMMirBuilder::handleGasPrice() {
@@ -4987,10 +5208,13 @@ EVMMirBuilder::U256Inst EVMMirBuilder::extractU256Operand(const Operand &Opnd) {
 
     U256Var Vars = Opnd.getU256VarComponents();
     if (Vars[0] != nullptr) {
+      MType *MirI64Type =
+          EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
       for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
         ZEN_ASSERT(Vars[I] != nullptr);
-        Result[I] = createInstruction<DreadInstruction>(
+        MInstruction *Value = createInstruction<DreadInstruction>(
             false, Vars[I]->getType(), Vars[I]->getVarIdx());
+        Result[I] = protectUnsafeValue(Value, MirI64Type);
       }
     }
   }

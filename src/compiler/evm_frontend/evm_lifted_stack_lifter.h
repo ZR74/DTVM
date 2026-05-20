@@ -295,6 +295,13 @@ public:
       }
       if (Index < EntryState.MergeOperands.size()) {
         if (!EntryState.MergeOperands[Index].isEmpty()) {
+          const bool HasExpectedPred =
+              std::find(EntryState.PredecessorOrder.begin(),
+                        EntryState.PredecessorOrder.end(),
+                        PredBlockPC) != EntryState.PredecessorOrder.end();
+          if (!HasExpectedPred) {
+            continue;
+          }
           assignStackMergeOperandCompat(
               EntryState.MergeOperands[Index], PredBlockPC,
               EntryState.PendingPhis[Index].IncomingPhiValues[PredBlockPC]);

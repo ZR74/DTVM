@@ -241,6 +241,28 @@ public:
       ZEN_ASSERT(IsU256MultiComponent && "Not a multi-component U256");
       return U256Components;
     }
+    bool hasU256VarStorage() const {
+      if (!IsU256MultiComponent) {
+        return false;
+      }
+      for (Variable *Component : U256VarComponents) {
+        if (Component != nullptr) {
+          return true;
+        }
+      }
+      return false;
+    }
+    bool hasU256InstructionStorage() const {
+      if (!IsU256MultiComponent) {
+        return false;
+      }
+      for (MInstruction *Component : U256Components) {
+        if (Component != nullptr) {
+          return true;
+        }
+      }
+      return false;
+    }
     const U256Var &getU256VarComponents() const {
       ZEN_ASSERT(IsU256MultiComponent && "Not a multi-component U256");
       return U256VarComponents;
@@ -284,6 +306,11 @@ public:
   };
 
   bool compile(CompilerContext *Context);
+  void
+  setCompatibleDynamicJumpTargets(uint64_t SourceBlockPC,
+                                  const std::vector<uint64_t> &TargetBlockPCs);
+  void registerDirectLiftedPhiIncoming(uint64_t TargetBlockPC,
+                                       uint64_t PredBlockPC);
   void loadEVMInstanceAttr();
   void initEVM(CompilerContext *Context);
   void finalizeEVMBase();
@@ -326,6 +353,8 @@ public:
   void
   spillTrackedStackPreservingPrefix(const std::vector<Operand> &TrackedStack,
                                     uint32_t PrefixDepth);
+  void debugDumpRuntimeStack(uint64_t BlockPC, uint64_t PhaseTag);
+  void debugTraceBlockPC(uint64_t BlockPC);
 
   // PUSH0: place value 0 on stack
   // PUSH1-PUSH32: Push N bytes onto stack
@@ -1148,7 +1177,10 @@ private:
   std::map<uint64_t, std::vector<uint64_t>> JumpHashReverse;
   uint64_t HashMask = 0;
   Variable *JumpTargetVar = nullptr;
+  uint32_t DebugStackPopSeq = 0;
   std::map<uint64_t, MBasicBlock *> IndirectJumpBBs;
+  std::map<uint64_t, std::vector<uint64_t>>
+      CompatibleDynamicJumpTargetsBySource;
 
   // Stack check block for stack overflow/underflow checking
   MBasicBlock *StackCheckBB = nullptr;
@@ -1162,6 +1194,7 @@ private:
       DynamicPhiIncomingBlockTable;
   std::map<PhiInstruction *, std::map<uint64_t, size_t>> PhiIncomingSlotMap;
   std::map<VariableIdx, PhiInstruction *> StackMergePhiVarMap;
+  std::map<VariableIdx, uint64_t> StackMergePhiTargetBlockPCMap;
 
   struct MemoryCompileStats {
     uint64_t MLoadExpandCount = 0;

@@ -320,6 +320,44 @@ public:
   }
 
   std::vector<uint64_t>
+  getPotentialDynamicJumpTargetBlocksForSourceBlock(uint64_t BlockPC) const {
+    auto It = BlockInfos.find(BlockPC);
+    if (It == BlockInfos.end()) {
+      return {};
+    }
+    if (!It->second.HasDynamicJump) {
+      return {};
+    }
+    if (It->second.DynamicJumpTargetRegionEntryPC != 0) {
+      std::vector<uint64_t> TargetBlockPCs;
+      for (const auto &[EntryPC, Info] : BlockInfos) {
+        if (hasDynamicJumpRegion(Info,
+                                 It->second.DynamicJumpTargetRegionEntryPC)) {
+          appendUniqueBlockPC(TargetBlockPCs, EntryPC);
+        }
+      }
+      if (!TargetBlockPCs.empty()) {
+        return TargetBlockPCs;
+      }
+    }
+    std::vector<uint64_t> CompatibleTargetBlockPCs =
+        getCompatibleDynamicJumpTargetBlocksForSourceBlock(BlockPC);
+    if (!CompatibleTargetBlockPCs.empty()) {
+      return CompatibleTargetBlockPCs;
+    }
+    if (HasUnknownDynamicJump) {
+      std::vector<uint64_t> TargetBlockPCs;
+      for (const auto &[EntryPC, Info] : BlockInfos) {
+        if (Info.IsDynamicJumpTargetCandidate) {
+          appendUniqueBlockPC(TargetBlockPCs, EntryPC);
+        }
+      }
+      return TargetBlockPCs;
+    }
+    return {};
+  }
+
+  std::vector<uint64_t>
   getPotentialEntryPredecessorsForBlock(uint64_t BlockPC) const {
     auto It = BlockInfos.find(BlockPC);
     if (It == BlockInfos.end()) {
@@ -328,9 +366,41 @@ public:
 
     std::vector<uint64_t> PredBlockPCs(It->second.Predecessors.begin(),
                                        It->second.Predecessors.end());
-    for (uint64_t PredBlockPC :
-         collectDynamicJumpSourceBlocksForInfo(It->second)) {
-      appendUniqueBlockPC(PredBlockPCs, PredBlockPC);
+    if (std::find(It->second.Successors.begin(), It->second.Successors.end(),
+                  BlockPC) != It->second.Successors.end()) {
+      appendUniqueBlockPC(PredBlockPCs, BlockPC);
+    }
+    for (const auto &[PredBlockPC, PredInfo] : BlockInfos) {
+      if (!PredInfo.HasDynamicJump || PredInfo.ResolvedEntryStackDepth < 0) {
+        continue;
+      }
+      bool CanReachBlock = false;
+      if (It->second.CanLiftStack && It->second.FullEntryStateDepth >= 0 &&
+          PredInfo.ResolvedExitStackDepth >= 0 &&
+          PredInfo.ResolvedExitStackDepth == It->second.FullEntryStateDepth) {
+        CanReachBlock = true;
+      }
+      const std::vector<uint64_t> PotentialTargetBlockPCs =
+          getPotentialDynamicJumpTargetBlocksForSourceBlock(PredBlockPC);
+      if (std::find(PotentialTargetBlockPCs.begin(),
+                    PotentialTargetBlockPCs.end(),
+                    BlockPC) != PotentialTargetBlockPCs.end()) {
+        CanReachBlock = true;
+      } else if (PredInfo.DynamicJumpTargetRegionEntryPC != 0) {
+        const auto *RegionInfo =
+            getDynamicJumpRegionInfo(PredInfo.DynamicJumpTargetRegionEntryPC);
+        if (RegionInfo && std::find(RegionInfo->TargetBlocks.begin(),
+                                    RegionInfo->TargetBlocks.end(), BlockPC) !=
+                              RegionInfo->TargetBlocks.end()) {
+          CanReachBlock = true;
+        }
+      } else if (HasUnknownDynamicJump &&
+                 It->second.IsDynamicJumpTargetCandidate) {
+        CanReachBlock = true;
+      }
+      if (CanReachBlock) {
+        appendUniqueBlockPC(PredBlockPCs, PredBlockPC);
+      }
     }
     return PredBlockPCs;
   }
@@ -1217,6 +1287,27 @@ private:
     return false;
   }
 
+  bool hasUnresolvedDynamicJumpSource(uint64_t TargetBlockPC) const {
+    auto It = BlockInfos.find(TargetBlockPC);
+    if (It == BlockInfos.end() || !It->second.IsDynamicJumpTargetCandidate) {
+      return false;
+    }
+
+    for (const auto &[EntryPC, Info] : BlockInfos) {
+      if (!Info.HasDynamicJump || (Info.ResolvedEntryStackDepth >= 0 &&
+                                   Info.ResolvedExitStackDepth >= 0)) {
+        continue;
+      }
+      const std::vector<uint64_t> PotentialTargets =
+          getPotentialDynamicJumpTargetBlocksForSourceBlock(EntryPC);
+      if (std::find(PotentialTargets.begin(), PotentialTargets.end(),
+                    TargetBlockPC) != PotentialTargets.end()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   void finalizeLiftability() {
     for (auto &[EntryPC, Info] : BlockInfos) {
       (void)EntryPC;
@@ -1224,9 +1315,13 @@ private:
       bool DynamicJumpDestConflict = HasUnknownDynamicJump &&
                                      Info.IsDynamicJumpTargetCandidate &&
                                      !Info.HasCompatibleDynamicJumpTargetShape;
+      bool UnresolvedDynamicJumpSourceConflict =
+          HasUnknownDynamicJump && Info.IsDynamicJumpTargetCandidate &&
+          hasUnresolvedDynamicJumpSource(EntryPC);
       Info.CanLiftStack = EntryKnown && !Info.HasUndefinedInstr &&
                           !Info.HasInconsistentEntryDepth &&
-                          !DynamicJumpDestConflict;
+                          !DynamicJumpDestConflict &&
+                          !UnresolvedDynamicJumpSourceConflict;
       if (Info.CanLiftStack && Info.IsDynamicJumpTargetCandidate &&
           Info.HasDeferredEntryMerge && Info.HiddenLiveInPrefixDepth > 0 &&
           getDynamicJumpSourceBlocksForBlock(EntryPC).empty()) {

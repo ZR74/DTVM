@@ -213,6 +213,8 @@ public:
     CurrentStack = RuntimeStack;
   }
 
+  void debugDumpRuntimeStack(uint64_t, uint64_t) {}
+
   void setCurrentDebugBlockPC(uint64_t) {}
 
   template <zen::common::BinaryOperator Opr>

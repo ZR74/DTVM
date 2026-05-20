@@ -100,6 +100,8 @@ void EVMInstance::resetForNewCall(evmc_revision NewRev) {
 
   // Reset JIT stack
   EVMStackSize = 0;
+  std::memset(EVMStack, 0, sizeof(EVMStack));
+  HostArgScratch.fill(0);
 }
 
 void EVMInstance::resetForNewCall(evmc_revision NewRev, const EVMModule &M) {
@@ -203,6 +205,47 @@ void EVMInstance::triggerInstanceExceptionOnJIT(EVMInstance *Inst,
                           common::evm_traphandler::EVMTrapState{});
 
   throwInstanceExceptionOnJIT(Inst);
+}
+
+void EVMInstance::debugBadJumpOnJIT(EVMInstance *Inst, uint64_t SourceBlockPC,
+                                    uint64_t JumpTargetPC) {
+  (void)Inst;
+  (void)SourceBlockPC;
+  (void)JumpTargetPC;
+}
+
+void EVMInstance::debugDumpStackOnJIT(EVMInstance *Inst, uint64_t BlockPC,
+                                      uint64_t PhaseTag) {
+  (void)Inst;
+  (void)BlockPC;
+  (void)PhaseTag;
+}
+
+void EVMInstance::debugJumpOperandOnJIT(EVMInstance *Inst,
+                                        uint64_t SourceBlockPC, uint64_t Limb0,
+                                        uint64_t Limb1, uint64_t Limb2,
+                                        uint64_t Limb3) {
+  (void)Inst;
+  (void)SourceBlockPC;
+  (void)Limb0;
+  (void)Limb1;
+  (void)Limb2;
+  (void)Limb3;
+}
+
+void EVMInstance::debugExpGasOnJIT(EVMInstance *Inst, uint64_t ByteSize,
+                                   uint64_t Charge) {
+  (void)Inst;
+  (void)ByteSize;
+  (void)Charge;
+}
+
+void EVMInstance::debugBlockPCOnJIT(EVMInstance *Inst, uint64_t BlockPC) {
+  (void)Inst;
+  if (std::getenv("DTVM_BLOCK_TRACE") == nullptr) {
+    return;
+  }
+  fprintf(stderr, "[block-trace-jit] pc=%lu\n", (unsigned long)BlockPC);
 }
 #endif // ZEN_ENABLE_JIT
 
