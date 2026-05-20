@@ -51,6 +51,16 @@ bool hasUnresolvedNonLiftedDeepEntryMutationRisk(
     if (Info.CanLiftStack || Info.ResolvedEntryStackDepth >= 0) {
       continue;
     }
+    bool HasBackedgePred = false;
+    for (uint64_t PredPC : Info.Predecessors) {
+      if (PredPC >= EntryPC) {
+        HasBackedgePred = true;
+        break;
+      }
+    }
+    if (!HasBackedgePred) {
+      continue;
+    }
     const int32_t PreloadedSuffixDepth = -Info.MinPopHeight;
     const int32_t MaxTouchedEntryDepth =
         Info.EntryStackDepth + Info.MaxStackHeight;
