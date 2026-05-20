@@ -168,15 +168,24 @@ if(ZEN_ENABLE_SPEC_TEST)
         )
         if(ZEN_ENABLE_LIBEVM)
           target_link_libraries(evmLegacyCallReproTests PRIVATE dtvmapi)
+          target_compile_definitions(
+            evmLegacyCallReproTests PRIVATE ZEN_ENABLE_LIBEVM
+          )
           target_link_libraries(
             evmFallbackExecutionTests
             PRIVATE dtvmapi gtest_main -fsanitize=address
             PUBLIC ${GTEST_BOTH_LIBRARIES}
           )
+          target_compile_definitions(
+            evmFallbackExecutionTests PRIVATE ZEN_ENABLE_LIBEVM
+          )
           target_link_libraries(
             evmModuleCacheTests
             PRIVATE dtvmapi gtest_main -fsanitize=address
             PUBLIC ${GTEST_BOTH_LIBRARIES}
+          )
+          target_compile_definitions(
+            evmModuleCacheTests PRIVATE ZEN_ENABLE_LIBEVM
           )
         endif()
         target_link_libraries(
@@ -254,15 +263,24 @@ if(ZEN_ENABLE_SPEC_TEST)
         )
         if(ZEN_ENABLE_LIBEVM)
           target_link_libraries(evmLegacyCallReproTests PRIVATE dtvmapi)
+          target_compile_definitions(
+            evmLegacyCallReproTests PRIVATE ZEN_ENABLE_LIBEVM
+          )
           target_link_libraries(
             evmFallbackExecutionTests
             PRIVATE dtvmapi gtest_main -fsanitize=address -static-libasan
             PUBLIC ${GTEST_BOTH_LIBRARIES}
           )
+          target_compile_definitions(
+            evmFallbackExecutionTests PRIVATE ZEN_ENABLE_LIBEVM
+          )
           target_link_libraries(
             evmModuleCacheTests
             PRIVATE dtvmapi gtest_main -fsanitize=address -static-libasan
             PUBLIC ${GTEST_BOTH_LIBRARIES}
+          )
+          target_compile_definitions(
+            evmModuleCacheTests PRIVATE ZEN_ENABLE_LIBEVM
           )
         endif()
         target_link_libraries(
@@ -323,15 +341,24 @@ if(ZEN_ENABLE_SPEC_TEST)
       )
       if(ZEN_ENABLE_LIBEVM)
         target_link_libraries(evmLegacyCallReproTests PRIVATE dtvmapi)
+        target_compile_definitions(
+          evmLegacyCallReproTests PRIVATE ZEN_ENABLE_LIBEVM
+        )
         target_link_libraries(
           evmFallbackExecutionTests
           PRIVATE dtvmapi gtest_main
           PUBLIC ${GTEST_BOTH_LIBRARIES}
         )
+        target_compile_definitions(
+          evmFallbackExecutionTests PRIVATE ZEN_ENABLE_LIBEVM
+        )
         target_link_libraries(
           evmModuleCacheTests
           PRIVATE dtvmapi gtest_main
           PUBLIC ${GTEST_BOTH_LIBRARIES}
+        )
+        target_compile_definitions(
+          evmModuleCacheTests PRIVATE ZEN_ENABLE_LIBEVM
         )
       endif()
       target_link_libraries(mptCompareCpp PRIVATE dtvmcore rapidjson mpt)

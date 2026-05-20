@@ -14,6 +14,7 @@
 
 #include <unordered_set>
 #include <utility>
+#include <cstdlib>
 
 using namespace zen;
 using namespace zen::runtime;
@@ -47,6 +48,26 @@ private:
   std::unordered_set<evmc::address> PendingSelfdestructs;
   uint64_t CallStipendRefund = 0; // track CALL stipend refunds for prepaid fees
   bool FeesPrepaidInTx = false;
+
+  zen::common::MayBe<EVMModule *>
+  loadEVMModuleWithCompileFallback(const std::string &ModName,
+                                   const void *Code, size_t CodeSize,
+                                   evmc_revision Rev) {
+    auto ModRet = RT->loadEVMModule(ModName, Code, CodeSize, Rev);
+    if (ModRet || RT == nullptr ||
+        RT->getConfig().Mode != common::RunMode::MultipassMode ||
+        ModRet.getError().getPhase() != common::ErrorPhase::Compilation) {
+      return ModRet;
+    }
+
+    const RuntimeConfig SavedConfig = RT->getConfig();
+    RuntimeConfig FallbackConfig = SavedConfig;
+    FallbackConfig.Mode = common::RunMode::InterpMode;
+    RT->setConfig(FallbackConfig);
+    auto FallbackRet = RT->loadEVMModule(ModName, Code, CodeSize, Rev);
+    RT->setConfig(SavedConfig);
+    return FallbackRet;
+  }
 
 public:
   struct AccountInitEntry {
@@ -308,7 +329,9 @@ public:
             ? ("tx_exec_mod_" + std::to_string(Counter))
             : (Config.ModuleName + "_" + std::to_string(Counter));
 
-    auto ModRet = RT->loadEVMModule(ModuleName, BytecodePtr, BytecodeSize);
+    auto ModRet = loadEVMModuleWithCompileFallback(ModuleName, BytecodePtr,
+                                                   BytecodeSize,
+                                                   ActiveRevision);
     if (!ModRet) {
       Result.ErrorMessage = "Failed to load EVM module: " + ModuleName;
       return Result;
@@ -521,8 +544,8 @@ public:
           "_" + std::to_string(Counter);
       ;
 
-      auto ModRet =
-          RT->loadEVMModule(ModName, ContractCode.data(), ContractCode.size());
+      auto ModRet = loadEVMModuleWithCompileFallback(
+          ModName, ContractCode.data(), ContractCode.size(), Revision);
       if (!ModRet) {
         ZEN_LOG_ERROR("Failed to load EVM module: %s", ModName.c_str());
         return ParentResult;
@@ -703,7 +726,8 @@ public:
         InitcodePtr = &STOP_BYTE;
         InitcodeSize = 1;
       }
-      auto ModRet = RT->loadEVMModule(ModName, InitcodePtr, InitcodeSize);
+      auto ModRet = loadEVMModuleWithCompileFallback(ModName, InitcodePtr,
+                                                     InitcodeSize, Revision);
       if (!ModRet) {
         restoreHostState(StateSnapshot);
         ZEN_LOG_ERROR("Failed to load EVM module: %s", ModName.c_str());

@@ -346,14 +346,27 @@ zen::common::MayBe<EVMModule *> loadEVMModuleWithRegAllocRetry(
     evmc_revision Rev, EVMMemorySpecializationProfile MemoryProfile = {}) {
   auto ModRet =
       VM->RT->loadEVMModule(ModName, Code, CodeSize, Rev, MemoryProfile);
-  if (ModRet || !shouldRetryModuleLoadWithFastRA(VM, ModRet.getError())) {
+  if (ModRet) {
     return ModRet;
   }
 
-  RuntimeConfig RetryConfig = VM->Config;
-  RetryConfig.DisableMultipassGreedyRA = true;
-  ScopedConfig Retry(VM->RT.get(), RetryConfig);
-  return VM->RT->loadEVMModule(ModName, Code, CodeSize, Rev, MemoryProfile);
+  const Error &Err = ModRet.getError();
+  if (shouldRetryModuleLoadWithFastRA(VM, Err)) {
+    RuntimeConfig RetryConfig = VM->Config;
+    RetryConfig.DisableMultipassGreedyRA = true;
+    ScopedConfig Retry(VM->RT.get(), RetryConfig);
+    return VM->RT->loadEVMModule(ModName, Code, CodeSize, Rev, MemoryProfile);
+  }
+
+  if (VM->Config.Mode == RunMode::MultipassMode &&
+      Err.getPhase() == ErrorPhase::Compilation) {
+    RuntimeConfig FallbackConfig = VM->Config;
+    FallbackConfig.Mode = RunMode::InterpMode;
+    ScopedConfig Fallback(VM->RT.get(), FallbackConfig);
+    return VM->RT->loadEVMModule(ModName, Code, CodeSize, Rev, MemoryProfile);
+  }
+
+  return ModRet;
 }
 
 EVMModule *loadTransientModule(DTVM *VM, const uint8_t *Code, size_t CodeSize,
@@ -379,8 +392,7 @@ EVMModule *findModuleCached(DTVM *VM, const uint8_t *Code, size_t CodeSize,
   }
 
   IsTransient = false;
-  const EVMMemorySpecializationProfile Profile =
-      deriveMemorySpecializationProfile(Msg);
+  const EVMMemorySpecializationProfile Profile = {};
 
   // L0 disabled: pointer comparison is unsafe when callers reuse addresses
   // for different bytecode (e.g. test frameworks, repeated allocations).
@@ -540,6 +552,7 @@ evmc_result executeInterpreterFastPath(DTVM *VM,
   evmc_message MsgWithCode = *Msg;
   MsgWithCode.code = reinterpret_cast<uint8_t *>(Mod->Code);
   MsgWithCode.code_size = Mod->CodeSize;
+  TheInst->clearMessageCache();
   TheInst->setExeResult(evmc::Result{EVMC_SUCCESS, 0, 0});
   TheInst->pushMessage(&MsgWithCode);
 
@@ -631,14 +644,12 @@ evmc_result executeMultipassFastPath(DTVM *VM, const evmc_host_interface *Host,
   }
   ModuleGuard ModGuard(VM, Mod, IsTransientMod);
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
   // O(1) flag check replaces per-call O(n) EVMAnalyzer scan.
   // The flag was set once at module creation in EVMModule::newEVMModule().
-  if (Mod->ShouldFallbackToInterp) {
+  if (Mod->ShouldFallbackToInterp || Mod->getJITCode() == nullptr) {
     return executeInterpreterFastPath(VM, Host, Context, Rev, Msg, Code,
                                       CodeSize);
   }
-#endif // ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
 
   // Instance reuse (shared only for cacheable top-level calls)
   EVMInstance *TheInst = getOrCreateInstance(VM, Mod, Rev, Msg->depth);
@@ -650,6 +661,7 @@ evmc_result executeMultipassFastPath(DTVM *VM, const evmc_host_interface *Host,
   evmc_message MsgWithCode = *Msg;
   MsgWithCode.code = reinterpret_cast<uint8_t *>(Mod->Code);
   MsgWithCode.code_size = Mod->CodeSize;
+  TheInst->clearMessageCache();
   TheInst->setExeResult(evmc::Result{EVMC_SUCCESS, 0, 0});
   TheInst->pushMessage(&MsgWithCode);
 

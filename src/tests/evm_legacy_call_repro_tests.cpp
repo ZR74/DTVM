@@ -372,6 +372,15 @@ VmExecutionResult runFixtureViaDTVMApi(const ParsedFixture &Fixture,
     Host->block_hash = *Fixture.BlockHash;
   }
   Host->BlockHashOverrides = Fixture.BlockHashes;
+  RuntimeConfig HostConfig;
+  HostConfig.Format = common::InputFormat::EVM;
+  HostConfig.Mode = std::strcmp(ModeValue, "interpreter") == 0
+                        ? common::RunMode::InterpMode
+                        : common::RunMode::MultipassMode;
+  HostConfig.EnableEvmGasMetering = true;
+  auto HostRuntime = Runtime::newEVMRuntime(HostConfig, Host.get());
+  EXPECT_TRUE(HostRuntime != nullptr);
+  Host->setRuntime(HostRuntime.get());
   auto Vm = evmc_create_dtvmapi();
   EXPECT_NE(Vm, nullptr);
   if (!Vm) {
@@ -483,6 +492,8 @@ TEST(EVMLegacyCallReproTest, ExecuteFixturesViaDTVMApi) {
     SCOPED_TRACE(Name);
     ParsedFixture Fixture = loadFixture(FixtureDir / Name);
     ASSERT_TRUE(Fixture.IsValid);
+    auto RTInterp = runFixture(Fixture, common::RunMode::InterpMode);
+    auto RTMulti = runFixture(Fixture, common::RunMode::MultipassMode);
     auto Interp = runFixtureViaDTVMApi(Fixture, "interpreter");
     auto Multi = runFixtureViaDTVMApi(Fixture, "multipass");
     ASSERT_TRUE(Interp.Success);

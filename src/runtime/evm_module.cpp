@@ -15,21 +15,14 @@
 #include <memory>
 #include <string>
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
 #include "compiler/evm_frontend/evm_analyzer.h"
-#endif
 
 #ifdef ZEN_ENABLE_MULTIPASS_JIT
 #include "compiler/evm_compiler.h"
 #endif
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
-#include "compiler/evm_frontend/evm_analyzer.h"
-#endif
-
 namespace zen::runtime {
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
 namespace {
 
 bool hasUnresolvedCompatibleDynamicReturnTrampoline(
@@ -51,8 +44,57 @@ bool hasUnresolvedCompatibleDynamicReturnTrampoline(
   return false;
 }
 
+bool hasUnresolvedNonLiftedDeepEntryMutationRisk(
+    const COMPILER::EVMAnalyzer &Analyzer) {
+  for (const auto &[EntryPC, Info] : Analyzer.getBlockInfos()) {
+    (void)EntryPC;
+    if (Info.CanLiftStack || Info.ResolvedEntryStackDepth >= 0) {
+      continue;
+    }
+    const int32_t PreloadedSuffixDepth = -Info.MinPopHeight;
+    const int32_t MaxTouchedEntryDepth =
+        Info.EntryStackDepth + Info.MaxStackHeight;
+    if (MaxTouchedEntryDepth > PreloadedSuffixDepth) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool hasNonLiftedHiddenPrefixLoopMergeRisk(
+    const COMPILER::EVMAnalyzer &Analyzer) {
+  for (const auto &[EntryPC, Info] : Analyzer.getBlockInfos()) {
+    if (Info.CanLiftStack || Info.HiddenLiveInPrefixDepth <= 0 ||
+        Info.Predecessors.size() < 2) {
+      continue;
+    }
+    for (uint64_t PredPC : Info.Predecessors) {
+      if (PredPC >= EntryPC) {
+        return true;
+      }
+    }
+  }
+
+  for (const auto &[EntryPC, Info] : Analyzer.getBlockInfos()) {
+    for (uint64_t SuccPC : Info.Successors) {
+      if (SuccPC > EntryPC) {
+        continue;
+      }
+      auto TargetIt = Analyzer.getBlockInfos().find(SuccPC);
+      if (TargetIt == Analyzer.getBlockInfos().end()) {
+        continue;
+      }
+      const auto &TargetInfo = TargetIt->second;
+      if (!TargetInfo.CanLiftStack && TargetInfo.HiddenLiveInPrefixDepth > 0) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
 } // namespace
-#endif
 
 EVMModule::EVMModule(Runtime *RT)
     : BaseModule(RT, ModuleType::EVM), Code(nullptr), CodeSize(0) {
@@ -101,19 +143,24 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
   Mod->Host = RT.getEVMHost();
 
   if (RT.getConfig().Mode != common::RunMode::InterpMode) {
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
     // Run the EVMAnalyzer once at module creation to determine if this
     // contract should fall back to interpreter. This avoids per-call O(n)
     // bytecode scans in the execute() hot path.
     COMPILER::EVMAnalyzer Analyzer(Rev);
     Analyzer.analyze(reinterpret_cast<const uint8_t *>(Mod->Code),
                      Mod->CodeSize);
-    Mod->ShouldFallbackToInterp =
-        Analyzer.getJITSuitability().ShouldFallback ||
+    const bool FallbackJITSuitability =
+        Analyzer.getJITSuitability().ShouldFallback;
+    const bool FallbackDynamicReturn =
         hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer);
-    if (!Mod->ShouldFallbackToInterp)
-#endif // ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
-    {
+    const bool FallbackDeepEntryMutation =
+        hasUnresolvedNonLiftedDeepEntryMutationRisk(Analyzer);
+    const bool FallbackHiddenPrefixLoopMerge =
+        hasNonLiftedHiddenPrefixLoopMergeRisk(Analyzer);
+    Mod->ShouldFallbackToInterp =
+        FallbackJITSuitability || FallbackDynamicReturn ||
+        FallbackDeepEntryMutation || FallbackHiddenPrefixLoopMerge;
+    if (!Mod->ShouldFallbackToInterp) {
       // JIT is about to compile this module — mark the bytecode cache so the
       // SPP metering pipeline runs on first access.
       Mod->CacheNeedsSPP = true;
