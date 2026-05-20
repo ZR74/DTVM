@@ -353,8 +353,6 @@ public:
   void
   spillTrackedStackPreservingPrefix(const std::vector<Operand> &TrackedStack,
                                     uint32_t PrefixDepth);
-  void debugDumpRuntimeStack(uint64_t BlockPC, uint64_t PhaseTag);
-  void debugTraceBlockPC(uint64_t BlockPC);
 
   // PUSH0: place value 0 on stack
   // PUSH1-PUSH32: Push N bytes onto stack
@@ -1177,7 +1175,6 @@ private:
   std::map<uint64_t, std::vector<uint64_t>> JumpHashReverse;
   uint64_t HashMask = 0;
   Variable *JumpTargetVar = nullptr;
-  uint32_t DebugStackPopSeq = 0;
   std::map<uint64_t, MBasicBlock *> IndirectJumpBBs;
   std::map<uint64_t, std::vector<uint64_t>>
       CompatibleDynamicJumpTargetsBySource;

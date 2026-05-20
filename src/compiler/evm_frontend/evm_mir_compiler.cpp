@@ -421,18 +421,6 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
     addSuccessor(DebugFailureBB);
     setInsertBlock(FromBB);
     setInsertBlock(DebugFailureBB);
-    MInstruction *DebugHandlerAddr = createIntConstInstruction(
-        &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBadJumpOnJIT));
-    CompileVector<MInstruction *> DebugArgs{
-        {
-            InstanceAddr,
-            createIntConstInstruction(UInt64Type, SourceBlockPC),
-            loadVariable(JumpTargetVar),
-        },
-        Ctx.MemPool,
-    };
-    createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                        DebugArgs);
     createInstruction<BrInstruction>(true, Ctx, FailureBB);
     addUniqueSuccessor(FailureBB);
     setInsertBlock(FromBB);
@@ -455,18 +443,6 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
                                        Cases);
   addSuccessor(DebugFailureBB);
   setInsertBlock(DebugFailureBB);
-  MInstruction *DebugHandlerAddr = createIntConstInstruction(
-      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBadJumpOnJIT));
-  CompileVector<MInstruction *> DebugArgs{
-      {
-          InstanceAddr,
-          createIntConstInstruction(UInt64Type, SourceBlockPC),
-          loadVariable(JumpTargetVar),
-      },
-      Ctx.MemPool,
-  };
-  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                      DebugArgs);
   createInstruction<BrInstruction>(true, Ctx, FailureBB);
   addUniqueSuccessor(FailureBB);
   setInsertBlock(FromBB);
@@ -1042,25 +1018,6 @@ typename EVMMirBuilder::Operand EVMMirBuilder::stackPop() {
     Variable *ValVar = storeInstructionInTemp(LoadInstr, I64Type);
     PopComponents[I] = loadVariable(ValVar);
   }
-  if (CurrentBlockPC == 262) {
-    MInstruction *DebugHandlerAddr = createIntConstInstruction(
-        &Ctx.I64Type,
-        uintptr_t(zen::runtime::EVMInstance::debugJumpOperandOnJIT));
-    CompileVector<MInstruction *> DebugArgs{
-        {
-            InstanceAddr,
-            createIntConstInstruction(I64Type, 262000 + DebugStackPopSeq),
-            PopComponents[0],
-            PopComponents[1],
-            PopComponents[2],
-            PopComponents[3],
-        },
-        Ctx.MemPool,
-    };
-    createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                        DebugArgs);
-    ++DebugStackPopSeq;
-  }
   // Update stack top
   MInstruction *NewTop = createInstruction<BinaryInstruction>(
       false, OP_sub, I64Type, StackTopInt, Const32);
@@ -1192,7 +1149,6 @@ EVMMirBuilder::prepareStackPhiIncoming(const Operand &Value) {
 
 void EVMMirBuilder::registerCurrentBlockPC(uint64_t BlockPC) {
   CurrentBlockPC = BlockPC;
-  DebugStackPopSeq = 0;
   BlockEntryTable[BlockPC] = CurBB;
 }
 
@@ -1330,35 +1286,6 @@ void EVMMirBuilder::spillTrackedStackPreservingPrefix(
   MInstruction *StackSize = createIntConstInstruction(
       I64Type, static_cast<uint64_t>(FinalDepth) * 32ULL);
   setInstanceElement(&Ctx.I64Type, StackSize, StackSizeOffset);
-}
-
-void EVMMirBuilder::debugDumpRuntimeStack(uint64_t BlockPC, uint64_t PhaseTag) {
-  MInstruction *DebugHandlerAddr = createIntConstInstruction(
-      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugDumpStackOnJIT));
-  CompileVector<MInstruction *> DebugArgs{
-      {
-          InstanceAddr,
-          createIntConstInstruction(&Ctx.I64Type, BlockPC),
-          createIntConstInstruction(&Ctx.I64Type, PhaseTag),
-      },
-      Ctx.MemPool,
-  };
-  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                      DebugArgs);
-}
-
-void EVMMirBuilder::debugTraceBlockPC(uint64_t BlockPC) {
-  MInstruction *DebugHandlerAddr = createIntConstInstruction(
-      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBlockPCOnJIT));
-  CompileVector<MInstruction *> DebugArgs{
-      {
-          InstanceAddr,
-          createIntConstInstruction(&Ctx.I64Type, BlockPC),
-      },
-      Ctx.MemPool,
-  };
-  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                      DebugArgs);
 }
 
 void EVMMirBuilder::handleStop() {
@@ -1665,24 +1592,6 @@ void EVMMirBuilder::handleJump(Operand Dest) {
   MInstruction *JumpTarget = DestComponents[0];
   MType *MirI64Type =
       EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
-  if (CurrentBlockPC == 262) {
-    MInstruction *DebugHandlerAddr = createIntConstInstruction(
-        &Ctx.I64Type,
-        uintptr_t(zen::runtime::EVMInstance::debugJumpOperandOnJIT));
-    CompileVector<MInstruction *> DebugArgs{
-        {
-            InstanceAddr,
-            createIntConstInstruction(MirI64Type, CurrentBlockPC),
-            DestComponents[0],
-            DestComponents[1],
-            DestComponents[2],
-            DestComponents[3],
-        },
-        Ctx.MemPool,
-    };
-    createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                        DebugArgs);
-  }
   MInstruction *Zero = createIntConstInstruction(MirI64Type, 0);
   MInstruction *HighOr = createInstruction<BinaryInstruction>(
       false, OP_or, MirI64Type, DestComponents[1], DestComponents[2]);
@@ -1697,18 +1606,6 @@ void EVMMirBuilder::handleJump(Operand Dest) {
   addSuccessor(DebugInvalidJumpBB);
   addSuccessor(ValidJumpBB);
   setInsertBlock(DebugInvalidJumpBB);
-  MInstruction *DebugHandlerAddr = createIntConstInstruction(
-      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugBadJumpOnJIT));
-  CompileVector<MInstruction *> DebugArgs{
-      {
-          InstanceAddr,
-          createIntConstInstruction(MirI64Type, CurrentBlockPC),
-          JumpTarget,
-      },
-      Ctx.MemPool,
-  };
-  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                      DebugArgs);
   createInstruction<BrInstruction>(true, Ctx, InvalidJumpBB);
   addUniqueSuccessor(InvalidJumpBB);
   setInsertBlock(ValidJumpBB);
@@ -2801,18 +2698,6 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleExp(Operand BaseOp,
       createIntConstInstruction(I64Type, GasPerByte);
   MInstruction *ExpGas = createInstruction<BinaryInstruction>(
       false, OP_mul, I64Type, ExpByteSize, GasPerByteConst);
-  MInstruction *DebugHandlerAddr = createIntConstInstruction(
-      &Ctx.I64Type, uintptr_t(zen::runtime::EVMInstance::debugExpGasOnJIT));
-  CompileVector<MInstruction *> DebugArgs{
-      {
-          InstanceAddr,
-          ExpByteSize,
-          ExpGas,
-      },
-      Ctx.MemPool,
-  };
-  createInstruction<ICallInstruction>(true, &Ctx.VoidType, DebugHandlerAddr,
-                                      DebugArgs);
   chargeDynamicGasIR(ExpGas);
 
   // Initialize loop variables

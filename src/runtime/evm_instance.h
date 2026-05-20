@@ -142,19 +142,6 @@ public:
   // trigger = set + throw
   __attribute__((noinline)) static void
   triggerInstanceExceptionOnJIT(EVMInstance *Inst, ErrorCode ErrCode);
-  __attribute__((noinline)) static void
-  debugBadJumpOnJIT(EVMInstance *Inst, uint64_t SourceBlockPC,
-                    uint64_t JumpTargetPC);
-  __attribute__((noinline)) static void
-  debugDumpStackOnJIT(EVMInstance *Inst, uint64_t BlockPC, uint64_t PhaseTag);
-  __attribute__((noinline)) static void
-  debugJumpOperandOnJIT(EVMInstance *Inst, uint64_t SourceBlockPC,
-                        uint64_t Limb0, uint64_t Limb1, uint64_t Limb2,
-                        uint64_t Limb3);
-  __attribute__((noinline)) static void
-  debugExpGasOnJIT(EVMInstance *Inst, uint64_t ByteSize, uint64_t Charge);
-  __attribute__((noinline)) static void debugBlockPCOnJIT(EVMInstance *Inst,
-                                                          uint64_t BlockPC);
 #endif // ZEN_ENABLE_JIT
 
   struct PairHash {

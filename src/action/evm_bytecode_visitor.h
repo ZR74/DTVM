@@ -99,38 +99,6 @@ private:
     }
   }
 
-  template <typename T, typename = void>
-  struct HasDebugDumpRuntimeStack : std::false_type {};
-  template <typename T>
-  struct HasDebugDumpRuntimeStack<
-      T, std::void_t<decltype(std::declval<T &>().debugDumpRuntimeStack(
-             uint64_t{}, uint64_t{}))>> : std::true_type {};
-
-  void debugDumpRuntimeStack(uint64_t BlockPC, uint64_t PhaseTag) {
-    if constexpr (HasDebugDumpRuntimeStack<IRBuilder>::value) {
-      Builder.debugDumpRuntimeStack(BlockPC, PhaseTag);
-    } else {
-      (void)BlockPC;
-      (void)PhaseTag;
-    }
-  }
-
-  template <typename T, typename = void>
-  struct HasDebugTraceBlockPC : std::false_type {};
-  template <typename T>
-  struct HasDebugTraceBlockPC<
-      T,
-      std::void_t<decltype(std::declval<T &>().debugTraceBlockPC(uint64_t{}))>>
-      : std::true_type {};
-
-  void debugTraceBlockPC(uint64_t BlockPC) {
-    if constexpr (HasDebugTraceBlockPC<IRBuilder>::value) {
-      Builder.debugTraceBlockPC(BlockPC);
-    } else {
-      (void)BlockPC;
-    }
-  }
-
   void spillTrackedStackPreservingPrefix(const std::vector<Operand> &Values,
                                          uint32_t PrefixDepth) {
     if constexpr (HasSpillTrackedStackPreservingPrefix<IRBuilder>::value) {
@@ -1045,10 +1013,6 @@ private:
         }
         Builder.syncTrackedStackMetadataToInstance();
       }
-      if (CurrentBlockEntryPC == 2293 || CurrentBlockEntryPC == 2319 ||
-          CurrentBlockEntryPC == 2356) {
-        debugDumpRuntimeStack(CurrentBlockEntryPC, 2);
-      }
     }
     InDeadCode = true;
     CurrentBlockLifted = false;
@@ -1235,7 +1199,6 @@ private:
     CurrentBlockEntryPC = PC;
     CurrentBlockHiddenLiveInPrefixDepth = 0;
     registerCurrentBlockPC(PC);
-    debugTraceBlockPC(PC);
     bool LiftedBlock = isLiftedBlock(PC);
     if (LiftedBlock && !validateLiftedBlockStackBounds(BlockInfo)) {
       return;
