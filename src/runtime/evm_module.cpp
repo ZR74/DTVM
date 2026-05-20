@@ -194,23 +194,6 @@ bool hasMemoryCarriedControlRisk(const uint8_t *Bytecode, size_t BytecodeSize) {
   return false;
 }
 
-bool hasCallFamilyRisk(const uint8_t *Bytecode, size_t BytecodeSize) {
-  for (size_t PC = 0; PC < BytecodeSize; ++PC) {
-    evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
-    if (Opcode == OP_CALL || Opcode == OP_CALLCODE ||
-        Opcode == OP_DELEGATECALL || Opcode == OP_STATICCALL ||
-        Opcode == OP_CREATE || Opcode == OP_CREATE2) {
-      return true;
-    }
-
-    if (Opcode >= OP_PUSH1 && Opcode <= OP_PUSH32) {
-      PC += static_cast<size_t>(Opcode) - static_cast<size_t>(OP_PUSH1) + 1;
-    }
-  }
-
-  return false;
-}
-
 bool hasConsecutiveJumpdestControlRisk(const uint8_t *Bytecode,
                                        size_t BytecodeSize) {
   bool HasJumpControl = false;
@@ -305,8 +288,6 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
         Analyzer, reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
     const bool FallbackMemoryCarriedControl = hasMemoryCarriedControlRisk(
         reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
-    const bool FallbackCallFamily = hasCallFamilyRisk(
-        reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
     const bool FallbackConsecutiveJumpdestControl =
         hasConsecutiveJumpdestControlRisk(
             reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
@@ -314,8 +295,7 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
         FallbackJITSuitability || FallbackDynamicReturn ||
         FallbackDeepEntryMutation || FallbackHiddenPrefixLoopMerge ||
         FallbackUndefinedInstr || FallbackGasSensitiveLoop ||
-        FallbackMemoryCarriedControl || FallbackCallFamily ||
-        FallbackConsecutiveJumpdestControl;
+        FallbackMemoryCarriedControl || FallbackConsecutiveJumpdestControl;
     if (!Mod->ShouldFallbackToInterp) {
       // JIT is about to compile this module — mark the bytecode cache so the
       // SPP metering pipeline runs on first access.
