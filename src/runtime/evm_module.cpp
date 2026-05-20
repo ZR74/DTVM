@@ -94,6 +94,16 @@ bool hasNonLiftedHiddenPrefixLoopMergeRisk(
   return false;
 }
 
+bool hasUndefinedInstructionRisk(const COMPILER::EVMAnalyzer &Analyzer) {
+  for (const auto &[EntryPC, Info] : Analyzer.getBlockInfos()) {
+    (void)EntryPC;
+    if (Info.HasUndefinedInstr) {
+      return true;
+    }
+  }
+  return false;
+}
+
 } // namespace
 
 EVMModule::EVMModule(Runtime *RT)
@@ -157,9 +167,11 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
         hasUnresolvedNonLiftedDeepEntryMutationRisk(Analyzer);
     const bool FallbackHiddenPrefixLoopMerge =
         hasNonLiftedHiddenPrefixLoopMergeRisk(Analyzer);
+    const bool FallbackUndefinedInstr = hasUndefinedInstructionRisk(Analyzer);
     Mod->ShouldFallbackToInterp =
         FallbackJITSuitability || FallbackDynamicReturn ||
-        FallbackDeepEntryMutation || FallbackHiddenPrefixLoopMerge;
+        FallbackDeepEntryMutation || FallbackHiddenPrefixLoopMerge ||
+        FallbackUndefinedInstr;
     if (!Mod->ShouldFallbackToInterp) {
       // JIT is about to compile this module — mark the bytecode cache so the
       // SPP metering pipeline runs on first access.

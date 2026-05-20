@@ -712,7 +712,8 @@ private:
         break;
       }
 
-      bool IsUndefined = (InstructionNames[Opcode] == nullptr);
+      bool IsUndefined = (InstructionNames[Opcode] == nullptr) ||
+                         (InstructionMetrics[Opcode].gas_cost < 0);
       if (IsUndefined) {
         Info.HasUndefinedInstr = true;
 #ifdef ZEN_ENABLE_JIT_FALLBACK_TEST
@@ -1540,7 +1541,8 @@ private:
 
       // Undefined opcodes terminate range analysis for this block; the
       // analyzer already marked HasUndefinedInstr and stopped scanning here.
-      if (InstructionNames[Opcode] == nullptr) {
+      if (InstructionNames[Opcode] == nullptr ||
+          InstructionMetrics[Opcode].gas_cost < 0) {
         return;
       }
 

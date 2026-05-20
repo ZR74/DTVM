@@ -1248,13 +1248,15 @@ private:
     while (TotalPopSize > 0) {
       Operand Opnd = Builder.stackPop();
       const int32_t SlotIdx = EntryTopIdx - PopIter;
+      EVMValueRange SlotRange = EVMValueRange::U256;
       if (SlotIdx >= 0 && SlotIdx < static_cast<int32_t>(EntryRanges.size())) {
-        Opnd.setRange(EntryRanges[SlotIdx]);
+        SlotRange = EntryRanges[SlotIdx];
+        Opnd.setRange(SlotRange);
       }
       // Anchor runtime-preloaded entry values in dedicated vars so later deep
       // stack uses do not depend on reusing raw load trees across
       // pops/branches.
-      Operand AnchoredOpnd = Builder.createStackEntryOperand(Opnd.getRange());
+      Operand AnchoredOpnd = Builder.createStackEntryOperand(SlotRange);
       Builder.assignStackEntryOperand(AnchoredOpnd, Opnd);
       Opnd = AnchoredOpnd;
       ReverseStack.push(Opnd);

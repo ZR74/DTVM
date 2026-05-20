@@ -617,7 +617,9 @@ void EVMMirBuilder::meterOpcode(evmc_opcode Opcode, uint64_t PC) {
   }
   const uint8_t Index = static_cast<uint8_t>(Opcode);
   const auto &Metrics = InstructionMetrics[Index];
-  meterGas(static_cast<uint64_t>(Metrics.gas_cost));
+  if (Metrics.gas_cost > 0) {
+    meterGas(static_cast<uint64_t>(Metrics.gas_cost));
+  }
 }
 
 void EVMMirBuilder::meterOpcodeRange(uint64_t StartPC,
@@ -657,7 +659,8 @@ void EVMMirBuilder::meterOpcodeRange(uint64_t StartPC,
       Cost = GasChunkCost[PC];
     } else {
       const uint8_t Opcode = static_cast<uint8_t>(Bytecode[PC]);
-      Cost = static_cast<uint64_t>(InstructionMetrics[Opcode].gas_cost);
+      const int16_t OpcodeCost = InstructionMetrics[Opcode].gas_cost;
+      Cost = OpcodeCost > 0 ? static_cast<uint64_t>(OpcodeCost) : 0;
     }
 
     if (UINT64_MAX - TotalCost < Cost) {
@@ -672,6 +675,9 @@ void EVMMirBuilder::meterOpcodeRange(uint64_t StartPC,
 
 bool EVMMirBuilder::isOpcodeDefined(evmc_opcode Opcode) const {
   const uint8_t Index = static_cast<uint8_t>(Opcode);
+  if (InstructionMetrics && InstructionMetrics[Index].gas_cost < 0) {
+    return false;
+  }
   if (InstructionNames && InstructionNames[Index] != nullptr) {
     return true;
   }
@@ -2347,7 +2353,10 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleMod(Operand DividendOp,
     return handleModU64Dividend(A, DivisorOp);
   }
 
-  return handleDivModGeneral(DividendOp, DivisorOp, /*WantQuotient=*/false);
+  const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  return callRuntimeFor<const intx::uint256 *, const intx::uint256 &,
+                        const intx::uint256 &>(RuntimeFunctions.GetMod,
+                                               DividendOp, DivisorOp);
 }
 
 typename EVMMirBuilder::Operand EVMMirBuilder::handleSMod(Operand DividendOp,
@@ -4449,6 +4458,9 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
   if (!HasValueParts) {
     ValueParts = extractU256Operand(ValueComponents);
   }
+  for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
+    ValueParts[I] = protectUnsafeValue(ValueParts[I], I64Type);
+  }
   const bool IsFirstLinearStore =
       UsedLinearPrecheck &&
       CurBlockLinearPrecheckPlan.CoveredDirectOpsTotal != 0 &&
@@ -4524,6 +4536,9 @@ void EVMMirBuilder::handleMStore8(Operand AddrComponents,
   U256Inst AddrParts = extractU256Operand(AddrComponents);
   MInstruction *Offset = AddrParts[0];
   U256Inst ValueParts = extractU256Operand(ValueComponents);
+  for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
+    ValueParts[I] = protectUnsafeValue(ValueParts[I], I64Type);
+  }
 
   MInstruction *SizeConst = createIntConstInstruction(I64Type, 1);
   MInstruction *RequiredSize = createInstruction<BinaryInstruction>(
@@ -5363,7 +5378,7 @@ EVMMirBuilder::convertBytes32ToU256Operand(const Operand &Bytes32Op) {
         false, OP_inttoptr, U64PtrType, Addr);
     MInstruction *RawValue =
         createInstruction<LoadInstruction>(false, I64Type, ComponentPtr);
-    Result[Component] = ByteSwap64(RawValue);
+    Result[Component] = protectUnsafeValue(ByteSwap64(RawValue), I64Type);
   }
 
   return Operand(Result, EVMType::UINT256);
@@ -5381,8 +5396,7 @@ EVMMirBuilder::loadU256FromBytes32PointerDisplaced(MInstruction *Bytes32Ptr) {
   for (int Component = 0; Component < 4; ++Component) {
     MInstruction *RawValue = createInstruction<LoadInstruction>(
         false, I64Type, Bytes32Ptr, 1, nullptr, (3 - Component) * 8);
-
-    Result[Component] = ByteSwap64(RawValue);
+    Result[Component] = protectUnsafeValue(ByteSwap64(RawValue), I64Type);
   }
 
   return Operand(Result, EVMType::UINT256);
@@ -5406,7 +5420,7 @@ EVMMirBuilder::loadU256FromBytes32BaseDisplaced(MInstruction *BytesBasePtr,
                            static_cast<int32_t>((3 - Component) * 8);
     MInstruction *RawValue = createInstruction<LoadInstruction>(
         false, I64Type, BytesBasePtr, 1, nullptr, Offset);
-    Result[Component] = ByteSwap64(RawValue);
+    Result[Component] = protectUnsafeValue(ByteSwap64(RawValue), I64Type);
   }
 
   return Operand(Result, EVMType::UINT256);
