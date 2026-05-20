@@ -114,6 +114,55 @@ bool hasUndefinedInstructionRisk(const COMPILER::EVMAnalyzer &Analyzer) {
   return false;
 }
 
+bool isGasSensitiveLoopOpcode(evmc_opcode Opcode) {
+  switch (Opcode) {
+  case OP_GAS:
+  case OP_SSTORE:
+  case OP_TSTORE:
+  case OP_CALL:
+  case OP_CALLCODE:
+  case OP_DELEGATECALL:
+  case OP_STATICCALL:
+  case OP_CREATE:
+  case OP_CREATE2:
+  case OP_SELFDESTRUCT:
+  case OP_REVERT:
+    return true;
+  default:
+    return false;
+  }
+}
+
+bool hasGasSensitiveLoopRisk(const COMPILER::EVMAnalyzer &Analyzer,
+                             const uint8_t *Bytecode, size_t BytecodeSize) {
+  for (const auto &[EntryPC, Info] : Analyzer.getBlockInfos()) {
+    bool HasBackedgePred = false;
+    for (uint64_t PredPC : Info.Predecessors) {
+      if (PredPC >= EntryPC) {
+        HasBackedgePred = true;
+        break;
+      }
+    }
+    if (!HasBackedgePred) {
+      continue;
+    }
+
+    const uint64_t BodyStart = Info.BodyStartPC;
+    const uint64_t BodyEnd = std::min<uint64_t>(Info.BodyEndPC, BytecodeSize);
+    for (uint64_t PC = BodyStart; PC < BodyEnd; ++PC) {
+      evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
+      if (isGasSensitiveLoopOpcode(Opcode)) {
+        return true;
+      }
+      if (Opcode >= OP_PUSH1 && Opcode <= OP_PUSH32) {
+        PC +=
+            static_cast<uint64_t>(Opcode) - static_cast<uint64_t>(OP_PUSH1) + 1;
+      }
+    }
+  }
+  return false;
+}
+
 } // namespace
 
 EVMModule::EVMModule(Runtime *RT)
@@ -178,10 +227,12 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
     const bool FallbackHiddenPrefixLoopMerge =
         hasNonLiftedHiddenPrefixLoopMergeRisk(Analyzer);
     const bool FallbackUndefinedInstr = hasUndefinedInstructionRisk(Analyzer);
+    const bool FallbackGasSensitiveLoop = hasGasSensitiveLoopRisk(
+        Analyzer, reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
     Mod->ShouldFallbackToInterp =
         FallbackJITSuitability || FallbackDynamicReturn ||
         FallbackDeepEntryMutation || FallbackHiddenPrefixLoopMerge ||
-        FallbackUndefinedInstr;
+        FallbackUndefinedInstr || FallbackGasSensitiveLoop;
     if (!Mod->ShouldFallbackToInterp) {
       // JIT is about to compile this module — mark the bytecode cache so the
       // SPP metering pipeline runs on first access.

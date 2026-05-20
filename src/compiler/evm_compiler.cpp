@@ -99,7 +99,6 @@ void EagerEVMJITCompiler::compile() {
   ZEN_ASSERT(Ctx.ExternRelocs.empty());
 
   uint8_t *JITFuncPtr = Ctx.CodePtr + Ctx.FuncOffsetMap[0];
-  EVMMod->setJITCodeAndSize(JITFuncPtr, Ctx.CodeSize);
 #ifdef ZEN_ENABLE_LINUX_PERF
   // Write block symbols instead of EVM_Main
   // JIT_DUMP_WRITE_FUNC("EVM_Main", JITFuncPtr, Ctx.FuncSizeMap[0]);
@@ -114,7 +113,11 @@ void EagerEVMJITCompiler::compile() {
   size_t CodeSize = CodeMPool.getMemEnd() - JITCode;
   platform::mprotect(JITCode, TO_MPROTECT_CODE_SIZE(CodeSize),
                      PROT_READ | PROT_EXEC);
-  EVMMod->setJITCodeAndSize(JITCode, CodeSize);
+  // Runtime must enter at the compiled EVM main function, not at the start of
+  // the backing code buffer. In release builds the first function may have a
+  // non-zero offset due to emitted helper blocks, and using the raw buffer
+  // base as the entrypoint jumps into unrelated code.
+  EVMMod->setJITCodeAndSize(JITFuncPtr, CodeSize - Ctx.FuncOffsetMap[0]);
 
   Stats.stopRecord(Timer);
 }

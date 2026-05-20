@@ -135,13 +135,19 @@ public:
   // ==================== JIT Methods ====================
 
 #ifdef ZEN_ENABLE_JIT
-  __attribute__((noinline)) static void
+#if defined(__x86_64__) || defined(__i386__)
+#define ZEN_JIT_HELPER_STACK_ALIGN __attribute__((force_align_arg_pointer))
+#else
+#define ZEN_JIT_HELPER_STACK_ALIGN
+#endif
+  __attribute__((noinline)) ZEN_JIT_HELPER_STACK_ALIGN static void
   setInstanceExceptionOnJIT(EVMInstance *Inst, ErrorCode ErrCode);
-  __attribute__((noinline)) static void
+  __attribute__((noinline)) ZEN_JIT_HELPER_STACK_ALIGN static void
   throwInstanceExceptionOnJIT(EVMInstance *Inst);
   // trigger = set + throw
-  __attribute__((noinline)) static void
+  __attribute__((noinline)) ZEN_JIT_HELPER_STACK_ALIGN static void
   triggerInstanceExceptionOnJIT(EVMInstance *Inst, ErrorCode ErrCode);
+#undef ZEN_JIT_HELPER_STACK_ALIGN
 #endif // ZEN_ENABLE_JIT
 
   struct PairHash {

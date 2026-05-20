@@ -1317,16 +1317,27 @@ void EVMMirBuilder::drainGas() {
       VoidPtrType, zen::runtime::EVMInstance::getCurrentMessagePointerOffset());
   MInstruction *MsgPtrInt = createInstruction<ConversionInstruction>(
       false, OP_ptrtoint, I64Type, MsgPtr);
+  MInstruction *Zero = createIntConstInstruction(I64Type, 0);
+  MInstruction *HasMsg = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, MsgPtrInt, Zero);
+  MBasicBlock *MsgStoreBB = createBasicBlock();
+  MBasicBlock *MsgSkipBB = createBasicBlock();
+  createInstruction<BrIfInstruction>(true, Ctx, HasMsg, MsgStoreBB, MsgSkipBB);
+  addSuccessor(MsgStoreBB);
+  addSuccessor(MsgSkipBB);
 
+  setInsertBlock(MsgStoreBB);
   MInstruction *MsgGasOffsetValue = createIntConstInstruction(
       I64Type, zen::runtime::EVMInstance::getMessageGasOffset());
   MInstruction *MsgGasAddrInt = createInstruction<BinaryInstruction>(
       false, OP_add, I64Type, MsgPtrInt, MsgGasOffsetValue);
   MInstruction *MsgGasPtr = createInstruction<ConversionInstruction>(
       false, OP_inttoptr, I64PtrType, MsgGasAddrInt);
-
-  MInstruction *Zero = createIntConstInstruction(I64Type, 0);
   createInstruction<StoreInstruction>(true, &Ctx.VoidType, Zero, MsgGasPtr);
+  createInstruction<BrInstruction>(true, Ctx, MsgSkipBB);
+  addSuccessor(MsgSkipBB);
+
+  setInsertBlock(MsgSkipBB);
 
   MInstruction *GasOffsetValue = createIntConstInstruction(
       I64Type, zen::runtime::EVMInstance::getGasFieldOffset());
