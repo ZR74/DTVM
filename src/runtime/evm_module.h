@@ -78,15 +78,27 @@ public:
     return *JITCodeMemPool;
   }
 
-  void *getJITCode() const { return JITCode; }
-
-  size_t getJITCodeSize() const { return JITCodeSize; }
-
   void setJITCodeAndSize(void *Code, size_t Size) {
     JITCode = Code;
     JITCodeSize = Size;
   }
 #endif // ZEN_ENABLE_JIT
+
+  void *getJITCode() const {
+#ifdef ZEN_ENABLE_JIT
+    return JITCode;
+#else
+    return nullptr;
+#endif
+  }
+
+  size_t getJITCodeSize() const {
+#ifdef ZEN_ENABLE_JIT
+    return JITCodeSize;
+#else
+    return 0;
+#endif
+  }
 
 private:
   EVMModule(Runtime *RT);
