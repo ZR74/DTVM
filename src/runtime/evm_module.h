@@ -65,12 +65,10 @@ public:
     return static_cast<int32_t>(offsetof(EVMModule, CodeSize));
   }
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
   /// Cached result from EVMAnalyzer: true if the contract should fall back
   /// to interpreter mode instead of JIT. Set once at module creation to
   /// avoid per-call O(n) bytecode scans.
   bool ShouldFallbackToInterp = false;
-#endif // ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
 
 #ifdef ZEN_ENABLE_JIT
   common::CodeMemPool &getJITCodeMemPool() {
@@ -113,9 +111,6 @@ private:
   bool CacheNeedsSPP = false;
   evmc_revision Revision = zen::evm::DEFAULT_REVISION;
   EVMMemorySpecializationProfile MemoryProfile = {};
-
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
-#endif
 
 #ifdef ZEN_ENABLE_JIT
   std::unique_ptr<common::CodeMemPool> JITCodeMemPool;

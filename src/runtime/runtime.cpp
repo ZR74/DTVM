@@ -44,6 +44,30 @@ namespace zen::runtime {
 using namespace common;
 using namespace utils;
 
+namespace {
+
+class ScopedRuntimeConfig {
+public:
+  ScopedRuntimeConfig(Runtime *RT, const RuntimeConfig &NewConfig)
+      : RT(RT), PreviousConfig(RT->getConfig()) {
+    RT->setConfig(NewConfig);
+  }
+
+  ~ScopedRuntimeConfig() { RT->setConfig(PreviousConfig); }
+
+private:
+  Runtime *RT;
+  RuntimeConfig PreviousConfig;
+};
+
+bool shouldFallbackEVMCompilationToInterpreter(const Runtime &RT,
+                                               const Error &Err) {
+  return RT.getConfig().Mode != RunMode::InterpMode &&
+         Err.getPhase() == ErrorPhase::Compilation;
+}
+
+} // namespace
+
 void Runtime::cleanRuntime() {
 
   Isolations.clear();
@@ -308,8 +332,23 @@ Runtime::loadEVMModule(EVMSymbol Name, CodeHolderUniquePtr CodeHolder,
   ZEN_ASSERT(Name);
   ZEN_ASSERT(CodeHolder);
 
-  EVMModuleUniquePtr Mod =
-      EVMModule::newEVMModule(*this, std::move(CodeHolder), Rev, MemoryProfile);
+  const void *RawData = CodeHolder->getData();
+  const size_t RawSize = CodeHolder->getSize();
+  EVMModuleUniquePtr Mod;
+  try {
+    Mod = EVMModule::newEVMModule(*this, std::move(CodeHolder), Rev,
+                                  MemoryProfile);
+  } catch (const Error &Err) {
+    if (!shouldFallbackEVMCompilationToInterpreter(*this, Err)) {
+      throw;
+    }
+    RuntimeConfig RetryConfig = getConfig();
+    RetryConfig.Mode = RunMode::InterpMode;
+    ScopedRuntimeConfig Retry(this, RetryConfig);
+    auto RetryCode = CodeHolder::newRawDataCodeHolder(*this, RawData, RawSize);
+    Mod = EVMModule::newEVMModule(*this, std::move(RetryCode), Rev,
+                                  MemoryProfile);
+  }
   // All errors in Module::newModule are thrown as exceptions, so the return
   // value must be valid when the following line is executed
   ZEN_ASSERT(Mod);
@@ -724,7 +763,10 @@ void Runtime::callEVMMainOnPhysStack(EVMInstance &Inst, evmc_message &Msg,
   MsgWithCode.code_size = Inst.getModule()->CodeSize;
   Inst.setExeResult(evmc::Result{EVMC_SUCCESS, 0, 0});
   Inst.pushMessage(&MsgWithCode);
-  if (getConfig().Mode == RunMode::InterpMode) {
+  const auto *Module = Inst.getModule();
+  bool ShouldFallbackToInterp = Module->ShouldFallbackToInterp;
+  if (getConfig().Mode == RunMode::InterpMode || ShouldFallbackToInterp ||
+      Module->getJITCode() == nullptr) {
     callEVMInInterpMode(Inst, MsgWithCode, Result);
   } else {
 #ifdef ZEN_ENABLE_JIT
