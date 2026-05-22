@@ -55,6 +55,11 @@ public:
 
   ~ScopedRuntimeConfig() { RT->setConfig(PreviousConfig); }
 
+  ScopedRuntimeConfig(const ScopedRuntimeConfig &) = delete;
+  ScopedRuntimeConfig &operator=(const ScopedRuntimeConfig &) = delete;
+  ScopedRuntimeConfig(ScopedRuntimeConfig &&) = delete;
+  ScopedRuntimeConfig &operator=(ScopedRuntimeConfig &&) = delete;
+
 private:
   Runtime *RT;
   RuntimeConfig PreviousConfig;
@@ -332,8 +337,11 @@ Runtime::loadEVMModule(EVMSymbol Name, CodeHolderUniquePtr CodeHolder,
   ZEN_ASSERT(Name);
   ZEN_ASSERT(CodeHolder);
 
-  const void *RawData = CodeHolder->getData();
-  const size_t RawSize = CodeHolder->getSize();
+  CodeHolderUniquePtr RetryCode;
+  if (getConfig().Mode != RunMode::InterpMode) {
+    RetryCode = CodeHolder::newRawDataCodeHolder(*this, CodeHolder->getData(),
+                                                 CodeHolder->getSize());
+  }
   EVMModuleUniquePtr Mod;
   try {
     Mod = EVMModule::newEVMModule(*this, std::move(CodeHolder), Rev,
@@ -345,7 +353,6 @@ Runtime::loadEVMModule(EVMSymbol Name, CodeHolderUniquePtr CodeHolder,
     RuntimeConfig RetryConfig = getConfig();
     RetryConfig.Mode = RunMode::InterpMode;
     ScopedRuntimeConfig Retry(this, RetryConfig);
-    auto RetryCode = CodeHolder::newRawDataCodeHolder(*this, RawData, RawSize);
     Mod = EVMModule::newEVMModule(*this, std::move(RetryCode), Rev,
                                   MemoryProfile);
   }
