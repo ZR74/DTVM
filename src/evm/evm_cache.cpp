@@ -508,14 +508,13 @@ static bool resolveConstantJumpTarget(const std::vector<uint8_t> &JumpDestMap,
 // that is a potential dynamic-jump target sees `effectivePredCount > 1` and
 // `lemma614Update` refuses to shift gas across that edge, exactly as it
 // would have done against an explicit over-approximated `Preds` set.
-static void buildCFGEdges(std::vector<GasBlock> &Blocks, EdgeTables &Edges,
-                          const std::vector<uint32_t> &BlockAtPc,
-                          const std::vector<uint8_t> &JumpDestMap,
-                          const std::vector<intx::uint256> &PushValueMap,
-                          const std::unordered_map<uint32_t, uint32_t>
-                              &ResolvedJumpTargets,
-                          const std::vector<uint32_t> &JumpDestBlocks,
-                          size_t CodeSize) {
+static void
+buildCFGEdges(std::vector<GasBlock> &Blocks, EdgeTables &Edges,
+              const std::vector<uint32_t> &BlockAtPc,
+              const std::vector<uint8_t> &JumpDestMap,
+              const std::vector<intx::uint256> &PushValueMap,
+              const std::unordered_map<uint32_t, uint32_t> &ResolvedJumpTargets,
+              const std::vector<uint32_t> &JumpDestBlocks, size_t CodeSize) {
   // Single pass: add fallthrough + static-jump edges, count unresolved
   // dynamic jumps inline so we can stamp every JUMPDEST with the right
   // implicit-predecessor count once at the end (in O(N) instead of O(D*J)).

@@ -77,9 +77,6 @@ void EagerEVMJITCompiler::compile() {
   Ctx.setGasChunkInfo(Cache.GasChunkEnd.data(), Cache.GasChunkCost.data(),
                       CostSPPPtr, EVMMod->CodeSize);
   Ctx.setResolvedJumpTargets(&Cache.ResolvedJumpTargets);
-                      CostSPPPtr, EVMMod->CodeSize);
-  Ctx.setResolvedJumpTargets(&Cache.ResolvedJumpTargets);
-
   MModule Mod(Ctx);
   buildEVMFunction(Ctx, Mod, *EVMMod);
   Ctx.CodeMPool = &EVMMod->getJITCodeMemPool();
