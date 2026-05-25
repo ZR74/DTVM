@@ -124,9 +124,6 @@ private:
   evmc_revision Revision = zen::evm::DEFAULT_REVISION;
   EVMMemorySpecializationProfile MemoryProfile = {};
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
-#endif
-
 #ifdef ZEN_ENABLE_JIT
   std::unique_ptr<common::CodeMemPool> JITCodeMemPool;
   void *JITCode = nullptr;

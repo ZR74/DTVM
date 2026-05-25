@@ -28,6 +28,11 @@ constexpr evmc::address DEFAULT_DEPLOYER_ADDRESS =
 /// interpreters
 class ZenMockedEVMHost : public evmc::MockedHost {
 private:
+  static evmc::Result
+  makeInternalExecutionFailure(const evmc_message &Msg) noexcept {
+    return evmc::Result(EVMC_INTERNAL_ERROR, Msg.gas, 0, nullptr, 0);
+  }
+
   struct IsolationDeleter {
     Runtime *RT = nullptr;
     void operator()(Isolation *Iso) const {
@@ -548,7 +553,8 @@ public:
           ModName, ContractCode.data(), ContractCode.size(), Revision);
       if (!ModRet) {
         ZEN_LOG_ERROR("Failed to load EVM module: %s", ModName.c_str());
-        return ParentResult;
+        restoreHostState(StateSnapshot);
+        return makeInternalExecutionFailure(Msg);
       }
 
       EVMModule *Mod = *ModRet;
@@ -558,7 +564,8 @@ public:
       if (!Iso) {
         ZEN_LOG_ERROR("Failed to create isolation for module: %s",
                       ModName.c_str());
-        return ParentResult;
+        restoreHostState(StateSnapshot);
+        return makeInternalExecutionFailure(Msg);
       }
 
       // Create EVM instance
@@ -566,7 +573,8 @@ public:
       if (!InstRet) {
         ZEN_LOG_ERROR("Failed to create EVM instance for module: %s",
                       ModName.c_str());
-        return ParentResult;
+        restoreHostState(StateSnapshot);
+        return makeInternalExecutionFailure(Msg);
       }
 
       EVMInstance *Inst = *InstRet;
@@ -578,13 +586,13 @@ public:
       try {
         if (!applyCallValueTransfer(CallMsg)) {
           restoreHostState(StateSnapshot);
-          return ParentResult;
+          return makeInternalExecutionFailure(Msg);
         }
         RT->callEVMMain(*Inst, CallMsg, ExecResult);
       } catch (const std::exception &E) {
         ZEN_LOG_ERROR("Error in recursive call: %s", E.what());
         restoreHostState(StateSnapshot);
-        return ParentResult;
+        return makeInternalExecutionFailure(Msg);
       }
 
       if (ExecResult.output_data && ExecResult.output_size > 0) {
@@ -609,7 +617,7 @@ public:
       // On error, return parent result
       ZEN_LOG_ERROR("Error in recursive call: %s", E.what());
       restoreHostState(StateSnapshot);
-      return ParentResult;
+      return makeInternalExecutionFailure(Msg);
     }
   }
   using hash256 = evmc::bytes32;

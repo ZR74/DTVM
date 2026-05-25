@@ -21,6 +21,19 @@
 
 set -e
 
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+print_sccache_stats() {
+    if [ "${DTVM_CI_USE_SCCACHE:-0}" = "1" ] && command -v sccache >/dev/null 2>&1; then
+        if [ -n "${1:-}" ]; then
+            echo "sccache stats checkpoint: $1"
+        fi
+        python3 "$SCRIPT_DIR/print_sccache_stats.py" || true
+    fi
+}
+
+trap print_sccache_stats EXIT
+
 # Convert INPUT_FORMAT to lowercase for case-insensitive comparison
 INPUT_FORMAT=${INPUT_FORMAT,,}
 
@@ -114,14 +127,28 @@ export PATH=$PATH:$PWD/build
 CMAKE_OPTIONS_ORIGIN="$CMAKE_OPTIONS"
 
 if [[ ${INPUT_FORMAT} == "evm" ]]; then
-    ./tools/easm2bytecode.sh ./tests/evm_asm ./tests/evm_asm
-    ./tools/solc_batch_compile.sh
+    if [ "${DTVM_CI_DRY_RUN:-0}" = "1" ]; then
+        echo "+ ./tools/easm2bytecode.sh ./tests/evm_asm ./tests/evm_asm"
+        echo "+ ./tools/solc_batch_compile.sh"
+    else
+        ./tools/easm2bytecode.sh ./tests/evm_asm ./tests/evm_asm
+        ./tools/solc_batch_compile.sh
+    fi
 fi
 
 for STACK_TYPE in ${STACK_TYPES[@]}; do
-    rm -rf build
-    cmake -S . -B build $CMAKE_OPTIONS_ORIGIN $STACK_TYPE
-    cmake --build build -j 16
+    if [ "${DTVM_CI_DRY_RUN:-0}" = "1" ]; then
+        echo "+ rm -rf build"
+    else
+        rm -rf build
+    fi
+    "$SCRIPT_DIR/cmake_ci_build.sh" build -- $CMAKE_OPTIONS_ORIGIN $STACK_TYPE
+    if [[ $TestSuite == "benchmarksuite" ]]; then
+        print_sccache_stats "after DTVM build"
+    fi
+    if [ "${DTVM_CI_DRY_RUN:-0}" = "1" ]; then
+        continue
+    fi
 
     case $TestSuite in
         "microsuite")
@@ -203,8 +230,7 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
                 fi
             fi
             cd "$EVMONE_DIR"
-            cmake -S . -B build -DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TARGET"
-            cmake --build build --parallel 16
+            "$SCRIPT_DIR/cmake_ci_build.sh" build -- -DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TARGET"
             EVMONE_STATETEST_BIN="$PWD/build/bin/evmone-statetest"
             cd "$WORKSPACE_ROOT"
 
@@ -279,9 +305,37 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             ;;
         "benchmarksuite")
             # Clone evmone and run performance regression check
-            EVMONE_DIR="evmone"
-            if [ ! -d "$EVMONE_DIR" ]; then
-                git clone --depth 1 --recurse-submodules -b for_test https://github.com/DTVMStack/evmone.git $EVMONE_DIR
+            EVMONE_DIR=${EVMONE_DIR:-evmone}
+            EVMONE_REPO=${EVMONE_REPO:-https://github.com/DTVMStack/evmone.git}
+            EVMONE_REF=${EVMONE_REF:-for_test}
+            EVMONE_COMMIT=${EVMONE_COMMIT:-}
+
+            if [ -z "$EVMONE_COMMIT" ]; then
+                EVMONE_COMMIT=$(git ls-remote "$EVMONE_REPO" "refs/heads/$EVMONE_REF" | awk '{print $1}')
+            fi
+            if [ -z "$EVMONE_COMMIT" ]; then
+                echo "Unable to resolve $EVMONE_REPO refs/heads/$EVMONE_REF"
+                exit 1
+            fi
+
+            if [ ! -d "$EVMONE_DIR/.git" ]; then
+                rm -rf "$EVMONE_DIR"
+                git clone --depth 1 --recurse-submodules -b "$EVMONE_REF" "$EVMONE_REPO" "$EVMONE_DIR"
+            fi
+
+            EVMONE_HEAD=$(git -C "$EVMONE_DIR" rev-parse HEAD 2>/dev/null || true)
+            EVMONE_SUBMODULES_READY=1
+            if git -C "$EVMONE_DIR" submodule status --recursive | grep -q '^-'; then
+                EVMONE_SUBMODULES_READY=0
+            fi
+
+            if [ "$EVMONE_HEAD" = "$EVMONE_COMMIT" ] && [ "$EVMONE_SUBMODULES_READY" = 1 ]; then
+                echo "Using cached evmone at $EVMONE_COMMIT"
+            else
+                git -C "$EVMONE_DIR" remote set-url origin "$EVMONE_REPO"
+                git -C "$EVMONE_DIR" fetch --depth 1 origin "$EVMONE_REF"
+                git -C "$EVMONE_DIR" checkout --detach "$EVMONE_COMMIT"
+                git -C "$EVMONE_DIR" submodule update --init --recursive
             fi
 
             BENCHMARK_THRESHOLD=${BENCHMARK_THRESHOLD:-0.15}
@@ -289,6 +343,7 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             BENCHMARK_SUMMARY_FILE=${BENCHMARK_SUMMARY_FILE:-/tmp/perf_summary.md}
             BENCHMARK_REPETITIONS=${BENCHMARK_REPETITIONS:-3}
             BENCHMARK_MIN_TIME=${BENCHMARK_MIN_TIME:-""}
+            BENCHMARK_JOBS=${BENCHMARK_JOBS:-1}
 
             PERF_ARGS=""
             if [ -n "$BENCHMARK_REPETITIONS" ]; then
@@ -296,6 +351,9 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             fi
             if [ -n "$BENCHMARK_MIN_TIME" ]; then
                 PERF_ARGS="$PERF_ARGS --benchmark-min-time $BENCHMARK_MIN_TIME"
+            fi
+            if [ -n "$BENCHMARK_JOBS" ]; then
+                PERF_ARGS="$PERF_ARGS --benchmark-jobs $BENCHMARK_JOBS"
             fi
 
             cp build/lib/* $EVMONE_DIR/
@@ -305,9 +363,20 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             cp ../tools/check_performance_regression.py ./
 
             if [ ! -f "build/bin/evmone-bench" ]; then
-                cmake -S . -B build -DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE=Release
-                cmake --build build --parallel -j 16
+                EVMONE_CMAKE_ARGS=(-DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE=Release)
+                if [ "${DTVM_CI_USE_NINJA:-0}" = "1" ]; then
+                    EVMONE_CMAKE_ARGS=(-G Ninja "${EVMONE_CMAKE_ARGS[@]}")
+                fi
+                if [ "${DTVM_CI_USE_SCCACHE:-0}" = "1" ]; then
+                    EVMONE_CMAKE_ARGS+=(
+                        -DCMAKE_C_COMPILER_LAUNCHER=sccache
+                        -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+                    )
+                fi
+                cmake -S . -B build "${EVMONE_CMAKE_ARGS[@]}"
+                cmake --build build --target evmone-bench --parallel "${DTVM_CI_BUILD_JOBS:-16}"
             fi
+            print_sccache_stats "before benchmarks"
 
             BASELINE_CACHE=${BENCHMARK_BASELINE_CACHE:-}
 

@@ -470,6 +470,35 @@ public:
 
   const JITSuitabilityResult &getJITSuitability() const { return JITResult; }
 
+  bool hasUnresolvedNonLiftedDeepEntryRisk() const {
+    for (const auto &[BlockPC, Info] : BlockInfos) {
+      if (Info.CanLiftStack || Info.ResolvedEntryStackDepth >= 0) {
+        continue;
+      }
+
+      const int32_t RequiredEntryDepth = -Info.MinStackHeight;
+      if (RequiredEntryDepth <= 1) {
+        continue;
+      }
+
+      for (uint64_t PredBlockPC : Info.Predecessors) {
+        auto PredIt = BlockInfos.find(PredBlockPC);
+        if (PredIt == BlockInfos.end()) {
+          continue;
+        }
+
+        const BlockInfo &PredInfo = PredIt->second;
+        if (PredInfo.CanLiftStack || PredInfo.ResolvedEntryStackDepth >= 0) {
+          continue;
+        }
+
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   bool hasCanonicalJumpDest(uint64_t PC) const {
     return JumpDestCanonicalPCs.count(PC) != 0;
   }
@@ -477,6 +506,11 @@ public:
   uint64_t getCanonicalJumpDestPC(uint64_t PC) const {
     auto It = JumpDestCanonicalPCs.find(PC);
     return It == JumpDestCanonicalPCs.end() ? PC : It->second;
+  }
+
+  void setResolvedJumpTargets(
+      const std::unordered_map<uint32_t, uint32_t> *Targets) {
+    SharedResolvedJumpTargets = Targets;
   }
 
   bool hasUnknownDynamicJumpTargets() const { return HasUnknownDynamicJump; }
@@ -503,6 +537,48 @@ public:
   }
 
 private:
+  // Fallback: look up pre-resolved jump target from the shared cache.
+  // Used when local abstract stack analysis cannot resolve the jump.
+  // The shared map stores raw (non-canonicalized) PCs; we canonicalize here
+  // because the SSA analyzer uses canonical JUMPDEST PCs for block identity.
+  // Overload for JUMP (unconditional).
+  bool tryResolveFromSharedMap(size_t JumpPC, BlockInfo &Info) {
+    if (!SharedResolvedJumpTargets) {
+      return false;
+    }
+    auto It = SharedResolvedJumpTargets->find(static_cast<uint32_t>(JumpPC));
+    if (It == SharedResolvedJumpTargets->end()) {
+      return false;
+    }
+    uint64_t RawPC = static_cast<uint64_t>(It->second);
+    uint64_t TargetPC = getCanonicalJumpDestPC(RawPC);
+    Info.HasConstantJump = true;
+    Info.ConstantJumpTargetPC = TargetPC;
+    Info.Successors.push_back(TargetPC);
+    return true;
+  }
+
+  // Overload for JUMPI (conditional): also receives FallthroughEntryPC to
+  // avoid adding a duplicate successor edge.
+  bool tryResolveFromSharedMap(size_t JumpPC, BlockInfo &Info,
+                               uint64_t FallthroughEntryPC) {
+    if (!SharedResolvedJumpTargets) {
+      return false;
+    }
+    auto It = SharedResolvedJumpTargets->find(static_cast<uint32_t>(JumpPC));
+    if (It == SharedResolvedJumpTargets->end()) {
+      return false;
+    }
+    uint64_t RawPC = static_cast<uint64_t>(It->second);
+    uint64_t TargetPC = getCanonicalJumpDestPC(RawPC);
+    Info.HasConstantJump = true;
+    Info.ConstantJumpTargetPC = TargetPC;
+    if (TargetPC != FallthroughEntryPC) {
+      Info.Successors.push_back(TargetPC);
+    }
+    return true;
+  }
+
   void resetAnalysisState() {
     BlockInfos.clear();
     DynamicJumpRegions.clear();
@@ -744,6 +820,8 @@ private:
           Info.HasConstantJump = true;
           Info.ConstantJumpTargetPC = getCanonicalJumpDestPC(Dest.Low);
           Info.Successors.push_back(Info.ConstantJumpTargetPC);
+        } else if (tryResolveFromSharedMap(ScanPC - 1, Info)) {
+          // Resolved via shared cache (covers patterns like SWAPn→JUMP).
         } else {
           Info.HasDynamicJump = true;
           HasUnknownDynamicJump = true;
@@ -781,10 +859,18 @@ private:
             Info.Successors.push_back(Info.ConstantJumpTargetPC);
           }
         } else if (!Dest.KnownConst || !Dest.FitsU64) {
-          Info.HasDynamicJump = true;
-          HasUnknownDynamicJump = true;
-          Info.DynamicJumpTargetRegionEntryPC = FallthroughEntryPC;
+          if (tryResolveFromSharedMap(ScanPC - 1, Info, FallthroughEntryPC)) {
+            // Resolved via shared cache.
+          } else {
+            Info.HasDynamicJump = true;
+            HasUnknownDynamicJump = true;
+            Info.DynamicJumpTargetRegionEntryPC = FallthroughEntryPC;
+          }
         }
+        // Note: the implicit else (KnownConst && FitsU64 but NOT a valid
+        // JUMPDEST) is intentionally left without a successor for the taken
+        // branch — at runtime that path traps with BAD_JUMP_DESTINATION,
+        // so it is effectively dead. Only the fallthrough is reachable.
         NextEntryPC = FallthroughEntryPC;
         NextBodyStartPC = FallthroughBodyStartPC;
         HasNextBlock = true;
@@ -1288,10 +1374,24 @@ private:
     return false;
   }
 
-  bool hasUnresolvedDynamicJumpSource(uint64_t TargetBlockPC) const {
+  bool hasNonLiftableDynamicJumpSource(uint64_t TargetBlockPC) const {
     auto It = BlockInfos.find(TargetBlockPC);
     if (It == BlockInfos.end() || !It->second.IsDynamicJumpTargetCandidate) {
       return false;
+    }
+
+    for (uint64_t SourceBlockPC :
+         getDynamicJumpSourceBlocksForBlock(TargetBlockPC)) {
+      auto SourceIt = BlockInfos.find(SourceBlockPC);
+      if (SourceIt == BlockInfos.end()) {
+        return true;
+      }
+      const auto &SourceInfo = SourceIt->second;
+      const bool SourceEntryKnown = SourceInfo.IsEntryStateCompatible &&
+                                    !SourceInfo.HasInconsistentEntryDepth;
+      if (!SourceEntryKnown || SourceInfo.HasUndefinedInstr) {
+        return true;
+      }
     }
 
     for (const auto &[EntryPC, Info] : BlockInfos) {
@@ -1316,16 +1416,21 @@ private:
       bool DynamicJumpDestConflict = HasUnknownDynamicJump &&
                                      Info.IsDynamicJumpTargetCandidate &&
                                      !Info.HasCompatibleDynamicJumpTargetShape;
-      bool UnresolvedDynamicJumpSourceConflict =
-          HasUnknownDynamicJump && Info.IsDynamicJumpTargetCandidate &&
-          hasUnresolvedDynamicJumpSource(EntryPC);
+      bool NonLiftableDynamicSource = HasUnknownDynamicJump &&
+                                      Info.IsDynamicJumpTargetCandidate &&
+                                      hasNonLiftableDynamicJumpSource(EntryPC);
       Info.CanLiftStack = EntryKnown && !Info.HasUndefinedInstr &&
                           !Info.HasInconsistentEntryDepth &&
-                          !DynamicJumpDestConflict &&
-                          !UnresolvedDynamicJumpSourceConflict;
+                          !DynamicJumpDestConflict && !NonLiftableDynamicSource;
       if (Info.CanLiftStack && Info.IsDynamicJumpTargetCandidate &&
           Info.HasDeferredEntryMerge && Info.HiddenLiveInPrefixDepth > 0 &&
           getDynamicJumpSourceBlocksForBlock(EntryPC).empty()) {
+        Info.CanLiftStack = false;
+      }
+      if (Info.CanLiftStack && Info.IsDynamicJumpTargetCandidate &&
+          Info.HasDeferredEntryMerge &&
+          getDynamicJumpSourceBlocksForBlock(EntryPC).size() > 1 &&
+          getPotentialEntryPredecessorsForBlock(EntryPC).size() > 4) {
         Info.CanLiftStack = false;
       }
     }
@@ -1951,6 +2056,8 @@ private:
   const evmc_instruction_metrics *InstructionMetrics = nullptr;
   const char *const *InstructionNames = nullptr;
   JITSuitabilityResult JITResult;
+  const std::unordered_map<uint32_t, uint32_t> *SharedResolvedJumpTargets =
+      nullptr;
 };
 
 } // namespace COMPILER

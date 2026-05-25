@@ -15,11 +15,10 @@
 #include <memory>
 #include <string>
 
-#include "compiler/evm_frontend/evm_analyzer.h"
-
 #ifdef ZEN_ENABLE_MULTIPASS_JIT
 #include "compiler/evm_compiler.h"
 #endif
+#include "compiler/evm_frontend/evm_analyzer.h"
 
 namespace zen::runtime {
 
@@ -279,6 +278,8 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
         Analyzer.getJITSuitability().ShouldFallback;
     const bool FallbackDynamicReturn =
         hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer);
+    const bool FallbackNonLiftedDeepEntry =
+        Analyzer.hasUnresolvedNonLiftedDeepEntryRisk();
     const bool FallbackDeepEntryMutation =
         hasUnresolvedNonLiftedDeepEntryMutationRisk(Analyzer);
     const bool FallbackHiddenPrefixLoopMerge =
@@ -293,11 +294,12 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
             reinterpret_cast<const uint8_t *>(Mod->Code), Mod->CodeSize);
     Mod->ShouldFallbackToInterp =
         FallbackJITSuitability || FallbackDynamicReturn ||
-        FallbackDeepEntryMutation || FallbackHiddenPrefixLoopMerge ||
-        FallbackUndefinedInstr || FallbackGasSensitiveLoop ||
-        FallbackMemoryCarriedControl || FallbackConsecutiveJumpdestControl;
+        FallbackNonLiftedDeepEntry || FallbackDeepEntryMutation ||
+        FallbackHiddenPrefixLoopMerge || FallbackUndefinedInstr ||
+        FallbackGasSensitiveLoop || FallbackMemoryCarriedControl ||
+        FallbackConsecutiveJumpdestControl;
     if (!Mod->ShouldFallbackToInterp) {
-      // JIT is about to compile this module — mark the bytecode cache so the
+      // JIT is about to compile this module -- mark the bytecode cache so the
       // SPP metering pipeline runs on first access.
       Mod->CacheNeedsSPP = true;
       action::performEVMJITCompile(*Mod);
