@@ -579,8 +579,10 @@ void EVMMirBuilder::meterOpcodeRange(uint64_t StartPC,
     uint64_t NextPC = PC + 1;
     uint64_t Cost = 0;
     if (GasChunkEnd && GasChunkCost && PC < GasChunkSize &&
-        GasChunkEnd[PC] > PC) {
-      Cost = GasChunkCostSPP ? GasChunkCostSPP[PC] : GasChunkCost[PC];
+        GasChunkEnd[PC] > PC && GasChunkEnd[PC] <= EndPCExclusive) {
+      // Macro-op ranges need the unshifted opcode sum for exactly this byte
+      // range; SPP-shifted costs may include or exclude neighboring opcodes.
+      Cost = GasChunkCost[PC];
       NextPC = GasChunkEnd[PC];
     } else {
       const uint8_t Opcode = static_cast<uint8_t>(Bytecode[PC]);
