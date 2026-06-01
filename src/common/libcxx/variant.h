@@ -28,9 +28,7 @@ template <size_t I, typename T> struct variant_alternative;
 template <size_t I, typename T>
 using variant_alternative_t = typename variant_alternative<I, T>::type;
 
-template <typename T> struct add_const {
-  typedef const T type;
-};
+template <typename T> struct add_const { typedef const T type; };
 
 template <size_t I, typename T>
 struct variant_alternative<I, const T>
@@ -214,8 +212,8 @@ public:
                                  Index != find_detail::ambiguous,
                              int> = 0>
   variant &
-  operator=(T &&arg) noexcept(std::is_nothrow_assignable<T, T>::value &&
-                              std::is_nothrow_constructible<T>::value) {
+  operator=(T &&arg) noexcept(std::is_nothrow_assignable<T, T>::value
+                                  &&std::is_nothrow_constructible<T>::value) {
     if (idx != variant_npos) {
       helper_destroy(idx);
     }

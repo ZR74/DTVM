@@ -39,4 +39,6 @@ static struct WNINativeInterface_ wni_NativeInterface = {
     getUserDefinedCtx, throwException, allocMem,           freeMem,
     newSymbol,         freeSymbol};
 
-struct WNINativeInterface_ *wni_functions() { return &wni_NativeInterface; }
+struct WNINativeInterface_ *wni_functions() {
+  return &wni_NativeInterface;
+}

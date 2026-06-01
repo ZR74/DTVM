@@ -26,4 +26,6 @@ void freeSymbol(VNMIEnv *env, VMSymbol sym) {
 static struct VNMInterface_ vnmi_interface = {allocMem, freeMem, newSymbol,
                                               freeSymbol};
 
-struct VNMInterface_ *vnmi_functions() { return &vnmi_interface; }
+struct VNMInterface_ *vnmi_functions() {
+  return &vnmi_interface;
+}
