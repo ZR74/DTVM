@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DTVM SSA On/Off Real Transaction Status - 2026-05-19</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --paper: #fffdf8;
+        --ink: #1f1d1a;
+        --muted: #6a635a;
+        --line: #ddd2c4;
+        --off: #2f6f5e;
+        --on: #c95a3d;
+        --warn: #a67c00;
+        --bad: #b42318;
+        --ok: #18794e;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background:
+          radial-gradient(circle at top left, #efe3d2 0, transparent 24rem),
+          linear-gradient(180deg, #f5f0e8, #efe7dc 55%, #ebe1d5 100%);
+        color: var(--ink);
+        font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+      }
+      .page {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 32px 20px 72px;
+      }
+      .hero {
+        display: grid;
+        gap: 18px;
+        grid-template-columns: 2fr 1fr;
+        margin-bottom: 22px;
+      }
+      .panel {
+        background: rgba(255, 253, 248, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px 22px;
+        box-shadow: 0 10px 30px rgba(49, 37, 22, 0.06);
+      }
+      h1, h2, h3 { margin: 0 0 12px; font-weight: 700; }
+      h1 { font-size: 42px; line-height: 1.05; }
+      h2 { font-size: 22px; }
+      h3 { font-size: 18px; }
+      p { margin: 0 0 12px; line-height: 1.55; }
+      ul { margin: 0; padding-left: 20px; line-height: 1.55; }
+      li + li { margin-top: 6px; }
+      .lede {
+        font-size: 18px;
+        color: var(--muted);
+        max-width: 54rem;
+      }
+      .callout {
+        background: #fff3f0;
+        border-left: 6px solid var(--bad);
+        padding: 14px 16px;
+        border-radius: 12px;
+      }
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 18px 0 26px;
+      }
+      .metric {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 16px 18px;
+      }
+      .metric .k {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .metric .v {
+        margin-top: 8px;
+        font-size: 34px;
+        line-height: 1;
+      }
+      .metric .s {
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .grid1 {
+        display: grid;
+        gap: 18px;
+        margin-bottom: 18px;
+      }
+      .small {
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .mono {
+        font-family: "SFMono-Regular", ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th, td {
+        text-align: left;
+        padding: 10px 8px;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .status {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .status.ok { background: #e8f7ef; color: var(--ok); }
+      .status.warn { background: #fff5d6; color: var(--warn); }
+      .status.bad { background: #fde7e3; color: var(--bad); }
+      .bar-row + .bar-row { margin-top: 14px; }
+      .bar-label { font-size: 14px; margin-bottom: 6px; }
+      .bar-pair {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+        gap: 8px;
+        align-items: center;
+      }
+      .bar-track {
+        height: 12px;
+        background: #efe7dc;
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .bar {
+        height: 100%;
+        border-radius: 999px;
+      }
+      .bar.off { background: var(--off); }
+      .bar.on { background: var(--on); }
+      .bar-val { font-size: 13px; color: var(--muted); white-space: nowrap; }
+      .foot {
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      code {
+        font-family: "SFMono-Regular", ui-monospace, "Cascadia Code", "Liberation Mono", monospace;
+        background: #f2ece4;
+        padding: 2px 4px;
+        border-radius: 6px;
+      }
+      @media (max-width: 920px) {
+        .hero, .grid2, .metrics {
+          grid-template-columns: 1fr;
+        }
+        h1 { font-size: 32px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <section class="hero">
+        <div class="panel">
+          <h1>SSA On vs Off</h1>
+          <p class="lede">基于以太坊主网 40 条 prepared replay 的当前状态检查，截止 <strong>2026 年 5 月 19 日</strong>，<code>ZEN_ENABLE_EVM_STACK_SSA_LIFT=ON</code> 仍然会改变真实交易行为结果，因此这轮实验不能被解释为“纯性能开关”对比。</p>
+          <div class="callout">
+            <p><strong>结论先行：</strong>SSA=ON 当前更像 correctness blocker，而不是性能优化项。返回码分叉、verifier error、以及 perf build 不稳定，已经先于任何 wall time / hotspot 结论。</p>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>证据边界</h2>
+          <ul>
+            <li>SSA=OFF 全量基线使用 2026-05-19 的 40 条历史 benchmark 工件。</li>
+            <li>SSA=OFF 当前代码 spot-check 了 6 条高风险交易，<strong>6/6</strong> 与历史 off 返回码一致。</li>
+            <li>SSA=ON 使用 2026-05-19 当前 <code>build_ssa</code> 的 40 条全量 benchmark。</li>
+            <li>SSA=ON perf build 没有得到可用的 steady-state profiling 数据，只能报告失败形态。</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="metrics">
+        <div class="metric">
+          <div class="k">Returncode Mismatches</div>
+          <div class="v">24 / 40</div>
+          <div class="s">历史 off 40 条 vs 当前 on 40 条</div>
+        </div>
+        <div class="metric">
+          <div class="k">Verifier Error Rows</div>
+          <div class="v">16 / 40</div>
+          <div class="s">SSA=ON 当前 benchmark 命中 verifier error</div>
+        </div>
+        <div class="metric">
+          <div class="k">Spot-check Mismatches</div>
+          <div class="v">5 / 6</div>
+          <div class="s">当前 off spot-check vs 当前 on 对照</div>
+        </div>
+        <div class="metric">
+          <div class="k">Stable SSA=ON Perf Samples</div>
+          <div class="v">0 / 2</div>
+          <div class="s">旧 perf 目录与 fresh perf 目录都不可用</div>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="panel">
+          <h2>Raw Cold-Start Numbers</h2>
+          <p>下面两组 wall/JIT 数字只保留为“原始观测”，不能解释成速度提升，因为行为结果已经分叉。</p>
+          <table>
+            <thead>
+              <tr><th>Metric</th><th>SSA=OFF</th><th>SSA=ON</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Mean wall time</td><td>13068.43 ms</td><td>9455.50 ms</td></tr>
+              <tr><td>Mean JIT compilation</td><td>13004.86 ms</td><td>10742.77 ms</td></tr>
+              <tr><td>Exit codes</td><td class="mono">{&quot;0&quot;: 11, &quot;1&quot;: 2, &quot;2&quot;: 20, &quot;3&quot;: 3, &quot;5&quot;: 4}</td><td class="mono">{&quot;0&quot;: 6, &quot;1&quot;: 7, &quot;2&quot;: 10, &quot;3&quot;: 2, &quot;5&quot;: 4, &quot;7&quot;: 3, &quot;8&quot;: 8}</td></tr>
+            </tbody>
+          </table>
+          <p class="foot">SSA=ON 的 raw 平均 wall 看起来更低，但这主要是因为它提前以 <code>1/2/7/8</code> 等非 off 基线返回码结束；不能视为真实加速。</p>
+        </div>
+
+        <div class="panel">
+          <h2>Mismatch By Dataset</h2>
+          <div class='bar-row'><div class='bar-label'>cow_settlement</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:75.000%'></div></div><div class='bar-val'>off mismatches 6 tx</div><div class='bar-track'><div class='bar on' style='width:75.000%'></div></div><div class='bar-val'>on mismatches 6 tx</div></div></div><div class='bar-row'><div class='bar-label'>erc20_transfer</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:62.500%'></div></div><div class='bar-val'>off mismatches 5 tx</div><div class='bar-track'><div class='bar on' style='width:62.500%'></div></div><div class='bar-val'>on mismatches 5 tx</div></div></div><div class='bar-row'><div class='bar-label'>erc4337_bundle</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:100.000%'></div></div><div class='bar-val'>off mismatches 8 tx</div><div class='bar-track'><div class='bar on' style='width:100.000%'></div></div><div class='bar-val'>on mismatches 8 tx</div></div></div><div class='bar-row'><div class='bar-label'>uniswap_v3_swap</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:62.500%'></div></div><div class='bar-val'>off mismatches 5 tx</div><div class='bar-track'><div class='bar on' style='width:62.500%'></div></div><div class='bar-val'>on mismatches 5 tx</div></div></div>
+          <p class="foot">这里左右条形都画成同一个 mismatch 数，只是为了让分布更直观看出来。ERC-4337 bundle 的 8/10 全量分叉最明显，Uniswap V3 与 CoW 也不是局部问题。</p>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="panel">
+          <h2>Mean Wall By Dataset</h2>
+          <div class='bar-row'><div class='bar-label'>cow_settlement</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:16.013%'></div></div><div class='bar-val'>off 4265.19 ms</div><div class='bar-track'><div class='bar on' style='width:1.248%'></div></div><div class='bar-val'>on 332.43 ms</div></div></div><div class='bar-row'><div class='bar-label'>erc20_transfer</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:62.133%'></div></div><div class='bar-val'>off 16549.39 ms</div><div class='bar-track'><div class='bar on' style='width:22.292%'></div></div><div class='bar-val'>on 5937.52 ms</div></div></div><div class='bar-row'><div class='bar-label'>erc4337_bundle</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:18.309%'></div></div><div class='bar-val'>off 4876.60 ms</div><div class='bar-track'><div class='bar on' style='width:18.458%'></div></div><div class='bar-val'>on 4916.45 ms</div></div></div><div class='bar-row'><div class='bar-label'>uniswap_v3_swap</div><div class='bar-pair'><div class='bar-track'><div class='bar off' style='width:99.801%'></div></div><div class='bar-val'>off 26582.52 ms</div><div class='bar-track'><div class='bar on' style='width:100.000%'></div></div><div class='bar-val'>on 26635.61 ms</div></div></div>
+          <p class="foot">左边是历史 off 40 条，全量右边是当前 on 40 条。只作为现象记录，不作为有效性能增益。</p>
+        </div>
+
+        <div class="panel">
+          <h2>Verifier Error Coverage</h2>
+          <table>
+            <thead>
+              <tr><th>Dataset</th><th>Verifier Rows</th><th>Coverage</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>cow_settlement</td><td>4</td><td>40.0%</td></tr><tr><td>erc20_transfer</td><td>6</td><td>60.0%</td></tr><tr><td>uniswap_v3_swap</td><td>6</td><td>60.0%</td></tr>
+            </tbody>
+          </table>
+          <p class="foot">最坏点不只是在 non-zero 返回码上。这里还有 16 条 verifier error，其中一部分最终仍返回 <code>0</code>，说明 “执行成功” 和 “IR 合法” 已经脱钩。</p>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="panel">
+          <h2>Representative Mismatches</h2>
+          <table>
+            <thead>
+              <tr><th>Dataset</th><th>Tx</th><th>OFF</th><th>ON</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>cow_settlement</td><td class='mono'>0x35afc16ea463ea0d...</td><td>0</td><td>7</td></tr><tr><td>cow_settlement</td><td class='mono'>0x478b92c274aa6b06...</td><td>2</td><td>0</td></tr><tr><td>cow_settlement</td><td class='mono'>0x52e4c5e5c3937842...</td><td>2</td><td>0</td></tr><tr><td>cow_settlement</td><td class='mono'>0xb7e4be10e0b47bce...</td><td>2</td><td>7</td></tr><tr><td>cow_settlement</td><td class='mono'>0xe1a74c8c4da4dc46...</td><td>3</td><td>1</td></tr><tr><td>cow_settlement</td><td class='mono'>0xe371e7ff2845d7b3...</td><td>2</td><td>0</td></tr><tr><td>erc20_transfer</td><td class='mono'>0x223cd73f88066751...</td><td>2</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0x254e78ebed832672...</td><td>0</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0x5aae36b8308c346c...</td><td>2</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0xbf988f1e7d4d7271...</td><td>0</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0xffca4cf617890a29...</td><td>0</td><td>2</td></tr><tr><td>erc4337_bundle</td><td class='mono'>0x27ca7a3d57b7e9fa...</td><td>2</td><td>8</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h2>Representative Verifier Rows</h2>
+          <table>
+            <thead>
+              <tr><th>Dataset</th><th>Tx</th><th>Return</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>cow_settlement</td><td class='mono'>0x478b92c274aa6b06...</td><td>0</td></tr><tr><td>cow_settlement</td><td class='mono'>0x52e4c5e5c3937842...</td><td>0</td></tr><tr><td>cow_settlement</td><td class='mono'>0xe1a74c8c4da4dc46...</td><td>1</td></tr><tr><td>cow_settlement</td><td class='mono'>0xe371e7ff2845d7b3...</td><td>0</td></tr><tr><td>erc20_transfer</td><td class='mono'>0x07fd0d07168fb05a...</td><td>2</td></tr><tr><td>erc20_transfer</td><td class='mono'>0x223cd73f88066751...</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0x254e78ebed832672...</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0x5aae36b8308c346c...</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0xbf988f1e7d4d7271...</td><td>1</td></tr><tr><td>erc20_transfer</td><td class='mono'>0xffca4cf617890a29...</td><td>2</td></tr><tr><td>uniswap_v3_swap</td><td class='mono'>0x0dd1095728006af0...</td><td>2</td></tr><tr><td>uniswap_v3_swap</td><td class='mono'>0x499bdb3e7ba40698...</td><td>2</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grid1">
+        <div class="panel">
+          <h2>Perf Build Health</h2>
+          <table>
+            <thead>
+              <tr><th>Build</th><th>Status</th><th>RC</th><th>Wall</th><th>Artifact</th><th>Note</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>SSA=OFF perf build sample</td><td><span class='status ok'>ok</span></td><td>0</td><td>38330.70 ms</td><td class='mono'>data/tx_replay_benchmarks/_tmp_build_perf_off_single_20260519</td><td>sample command executed</td></tr><tr><td>SSA=ON perf build sample (stale dir)</td><td><span class='status bad'>bad</span></td><td>-6</td><td>9307.67 ms</td><td class='mono'>data/tx_replay_benchmarks/_tmp_build_perf_on_single_20260519</td><td>process aborted during execution</td></tr><tr><td>SSA=ON perf build sample (fresh dir)</td><td><span class='status bad'>bad</span></td><td>109</td><td>9.92 ms</td><td class='mono'>data/tx_replay_benchmarks/_tmp_build_perf_on_fresh_single_20260519</td><td>CLI parse failed before execution</td></tr>
+            </tbody>
+          </table>
+          <p class="foot">含义很直接：当前没有一条可拿来做 SSA on steady-state hotspot profiling 的稳定 perf 路径。</p>
+        </div>
+      </section>
+
+      <section class="grid2">
+        <div class="panel">
+          <h2>Perf Failure Notes</h2>
+          <ul>
+            <li>旧的 <code>build_perf_ssa</code> 样本在同一条 <code>uniswap_v3_swap</code> 上直接返回 <code>-6</code>，未留下有用 stderr。</li>
+            <li>全新 clean 的 <code>build_perf_ssa_fresh</code> 样本返回 <code>109</code>，在开始执行前就触发 CLI parse error。</li>
+            <li>相同 prepared command 在 <code>build_perf</code>（SSA=OFF）上能正常执行并返回 <code>0</code>。</li>
+          </ul>
+          <p class="small mono">The following arguments were not expected: cancun --evm-revision 3593564c000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000069e8786800000000000000000000000000000000000000000000000000000000000000030b000400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000c000000000000000000000000000000000000000000000000000000000000001e00000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000006e9405c8a2500000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000006e9405c8a250000000000000000000000000000000000000000000000000000037430ebb0c4545c00000000000000000000000000000000000000000000000000000000000000a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002bc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2002710805bf72a671911cf1f843a4984ba3c351834147200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a74fa823bc8617fa320a966b3d11b0f722ef09ee00000000000000000000000000000000000000000000000000071afd498d00007061647265 --calldata | Run with --help for more information.</p>
+        </div>
+
+        <div class="panel">
+          <h2>Interpretation</h2>
+          <ul>
+            <li>SSA=ON 当前首先是 correctness regression：40 条里有 24 条返回码与 off 基线不同，且 16 条出现 verifier error。</li>
+            <li>性能数字不能脱离行为结果阅读。哪怕 raw wall/JIT 看起来下降，也更可能只是更早失败、不同 fallback 路径、或 compile-time fault symptom。</li>
+            <li>perf-enabled SSA 路径连最小单样本都不稳定，说明“execution hotspot profiling”这一步必须等 correctness gate 过了再继续。</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="grid1">
+        <div class="panel">
+          <h2>Recommended Next Steps</h2>
+          <ul>
+            <li>先把 SSA 当前真实交易上的 verifier 问题清零，尤其是 phi placement / incoming count 相关错误；目标是 40 条 prepared replay 与 off 基线返回码完全一致。</li>
+            <li>单独修 perf-enabled SSA build 的执行路径，至少让 <code>build_perf_ssa</code> 与 <code>build_perf_ssa_fresh</code> 都能稳定跑通同一条 prepared replay，再谈 x500 / x5000 profiling。</li>
+            <li>只有在 “零返回码分叉 + 零 verifier error + perf build 可执行” 三个条件都满足之后，才重新生成 SSA on/off 的性能对比 HTML。</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="grid1">
+        <div class="panel">
+          <h2>Artifact Paths</h2>
+          <ul class="mono">
+            <li>data/tx_replay_benchmarks/hotset_multipass_cold_after_internal_call_journal_20260519</li>
+            <li>data/tx_replay_benchmarks/hotset_ssa_on_current_buildssa_20260519_v3</li>
+            <li>data/tx_replay_benchmarks/_tmp_ssa_off_sample_20260519</li>
+            <li>data/tx_replay_benchmarks/_tmp_build_perf_off_single_20260519</li>
+            <li>data/tx_replay_benchmarks/_tmp_build_perf_on_single_20260519</li>
+            <li>data/tx_replay_benchmarks/_tmp_build_perf_on_fresh_single_20260519</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

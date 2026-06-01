@@ -1,0 +1,560 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 259  of event 'cycles:P'
+# Event count (approx.): 25846540
+#
+# Overhead  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              IPC   [IPC Coverage]
+# ........  ..................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................  ....................
+#
+    20.15%  [.] keccakf1600_bmi                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |          
+             --0.58%--0
+
+     8.97%  [.] zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---0x717b5ce6bd90
+
+     8.37%  [.] 0x00000000001af18c                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     7.09%  [.] evmc::MockedHost::access_account(evmc::address const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+             --1.70%--0x645483af3bd0
+                       zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()
+                       0x495441019a4cfb05
+
+     2.39%  [.] malloc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |          
+            |--2.02%--malloc
+            |          
+             --0.37%--operator new(unsigned long)
+                       0
+
+     2.28%  [.] std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const  -      -            
+            |
+            ---0
+
+     2.10%  [.] std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)                                 -      -            
+            |          
+            |--1.73%--std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)
+            |          |          
+            |          |--0.80%--0
+            |          |          
+            |          |--0.52%--0x645483b06ed0
+            |          |          0x717b5d05cd20
+            |          |          0x645483ae0cc0
+            |          |          0x41
+            |          |          
+            |           --0.41%--0x7ffe548e4020
+            |          
+             --0.37%--std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const
+                       0
+
+     2.02%  [.] COMPILER::evmGetCallDataLoad(zen::runtime::EVMInstance*, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |          
+            |--1.65%--COMPILER::evmGetCallDataLoad(zen::runtime::EVMInstance*, unsigned long)
+            |          0
+            |          
+             --0.37%--std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const
+                       0
+
+     1.98%  [.] 0x00000000000a4790                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     1.57%  [.] evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |          
+            |--1.05%--operator new(unsigned long)@plt
+            |          |          
+            |          |--0.52%--0xc5b6760ba6d8d4dd
+            |          |          0xe41e4128d2846aa5
+            |          |          0
+            |          |          
+            |           --0.52%--0x3dceb9ab351264d
+            |          
+             --0.52%--evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)
+                       0x1111a1b4011f96ee
+                       0x3dceb9ab351264d
+
+     1.26%  [.] operator delete(void*, unsigned long)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |          
+            |--0.52%--0xb20
+            |          
+            |--0.37%--0xe6ce2b1a20e47b8d
+            |          
+             --0.37%--0x6454889c9300
+
+     1.14%  [.] zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |          
+            |--0.62%--0x1
+            |          
+             --0.52%--0
+
+     0.98%  [.] 0x0000717adcc8d225                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.92%  [.] main                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+            |          
+            |--0.66%--main
+            |          0x717b5ce6bd90
+            |          
+             --0.26%--void zen::runtime::RuntimeObjectDestroyer::operator()<zen::runtime::Isolation>(zen::runtime::Isolation*)
+                       0x717b5ce6bd90
+
+     0.74%  [.] ethash_keccak256                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |          
+            |--0.37%--0xc71e833d
+            |          
+             --0.37%--0x5981bf6d9255d93f
+
+     0.74%  [.] 0x00000000000a1817                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.72%  [.] evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x7ffe548e40e0
+
+     0.66%  [.] COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |          
+            |--0.37%--0x645483b0ca90
+            |          zen::runtime::EVMInstance::~EVMInstance()
+            |          0x834855544101971f
+            |          
+             --0.29%--call_function
+                       zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.63%  [.] 0x00000000000a26cc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.58%  [.] std::__detail::_Prime_rehash_policy::_M_next_bkt(unsigned long) const                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |          
+            |--0.29%--0x7ffe548e4020
+            |          
+             --0.29%--0x645488abbe20
+
+     0.52%  [.] 0x00000000000a4598                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x83d71
+
+     0.52%  [.] pthread_once@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0
+
+     0.52%  [.] 0x00000000000a174f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.52%  [.] COMPILER::evmGetKeccak256(zen::runtime::EVMInstance*, unsigned long, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.52%  [.] 0x00000000000a41fc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0xa4a1
+
+     0.52%  [.] 0x0000717adcc7d4d7                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.52%  [.] 0x0000717adcc9cd94                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.52%  [.] 0x00000000001af014                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.52%  [.] COMPILER::evmSetRevert(zen::runtime::EVMInstance*, unsigned long, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.52%  [.] operator delete(void*)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---0x64548ea7dfb8
+               0
+               0
+
+     0.52%  [.] zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+     0.52%  [.] 0x0000717adcc7b030                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.52%  [.] 0x0000717adcc9d64b                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.52%  [.] COMPILER::evmSetReturnDataCopy(zen::runtime::EVMInstance*, unsigned long, unsigned long, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.52%  [.] 0x00000000001aee44                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0
+
+     0.52%  [.] 0x00000000000a17f8                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.52%  [.] 0x0000717adcc81c34                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.52%  [.] 0x00000000001afa57                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.52%  [.] zen::runtime::Runtime::endCPUTracing()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+     0.52%  [.] 0x00000000001af02c                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.51%  [k] native_read_msr                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---scheduler_tick
+               update_process_times
+               tick_sched_handle
+               tick_nohz_highres_handler
+               __hrtimer_run_queues
+               hrtimer_interrupt
+               __sysvec_apic_timer_interrupt
+               sysvec_apic_timer_interrupt
+               asm_sysvec_apic_timer_interrupt
+               zen::common::getError(zen::common::ErrorCode)
+               COMPILER::evmHandleUndefined(zen::runtime::EVMInstance*)
+               0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.51%  [.] 0x0000717adcc8cd38                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.50%  [.] evmc::MockedHost::get_storage(evmc::address const&, evmc::bytes32 const&) const                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.49%  [.] 0x0000717adcc4fd26                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.44%  [.] 0x0000717adcc7a116                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.43%  [.] 0x0000717adcc78dcc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x0000717adcc9d0db                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] operator new(unsigned long)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.37%  [.] 0x0000717adcc93ef2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] cfree                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+     0.37%  [.] std::__detail::_Prime_rehash_policy::_M_need_rehash(unsigned long, unsigned long, unsigned long) const                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |
+            ---0x7ffe548e4020
+
+     0.37%  [.] zen::runtime::EVMInstance::pushMessage(evmc_message*)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.37%  [.] COMPILER::evmGetSLoad(zen::runtime::EVMInstance*, intx::uint<256u> const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.37%  [.] COMPILER::evmSetSStore(zen::runtime::EVMInstance*, intx::uint<256u> const&, intx::uint<256u> const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.37%  [.] 0x00000000000a479e                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.37%  [.] zen::runtime::EVMInstance::expandMemoryNoGas(unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.37%  [.] 0x0000717adcc8f6a3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x00000000000a478c                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.37%  [.] 0x0000717adcc8d2fa                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x00000000000a1803                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.37%  [.] 0x0000717adcc9edbf                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x0000717adcc6e70b                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x00000000000a273f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x21
+
+     0.37%  [.] 0x00000000001aee47                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.37%  [.] 0x00000000000a39bf                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.37%  [.] zen::runtime::Runtime::findEVMModule(unsigned int) const                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |
+            ---0x974287287a9c2573
+
+     0.37%  [.] zen::utils::parseAddress(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x14
+               0x80ad49c3e6ce2b1a
+
+     0.37%  [.] 0x0000717adcc9f005                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x0000717adcc95d80                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x00000000000a46c2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.37%  [.] zen::evm::ZenMockedEVMHost::access_storage(evmc::address const&, evmc::bytes32 const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |
+            ---0xc6da0eaf8b9d5e2e
+
+     0.37%  [.] 0x0000717adcc8cf4a                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x0000717adcc9cc9a                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] operator delete(void*)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          -      -            
+            |
+            ---0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+
+     0.37%  [.] 0x00000000000a18aa                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.37%  [.] 0x0000717adcc1c495                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.37%  [.] 0x00000000001aee73                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0
+
+     0.37%  [k] clear_bhb_loop                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---entry_SYSCALL_64_after_hwframe
+               pthread_sigmask
+               zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0x1
+
+     0.37%  [.] 0x0000717adcc9eb68                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.36%  [.] zen::runtime::Runtime::createManagedIsolation()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---0x10004ada7
+
+     0.36%  [.] 0x00000000001af041                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x6c4
+               0x717b5d05d180
+               0x645483be5bd0
+               0x681
+               0x7ffe548e1f20
+
+     0.35%  [.] 0x00000000000a3e85                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.33%  [.] 0x00000000000a3fcb                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0xa4a1
+
+     0.30%  [.] 0x0000717adcc7990f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] 0x0000717adcc5f6b9                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] 0x00000000000a42a8                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x717b5d05cce0
+               0x64548b46ee70
+               0xb0c81
+
+     0.29%  [.] 0x00000000000a26a6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.29%  [.] 0x00000000000a45d7                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x83d71
+
+     0.29%  [.] evmc::operator<(evmc::address const&, evmc::address const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+     0.29%  [.] validateSenderIsEOA(zen::evm::ZenMockedEVMHost const&, evmc_revision, evmc_message const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---0x717b5ce6bd90
+
+     0.29%  [.] 0x0000717adcc81c06                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] 0x0000717adcc6e50a                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] 0x00000000000a4088                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+     0.29%  [.] 0x0000717adcc8173f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] 0x00000000001aee4d                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.29%  [.] __tls_init                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] 0x0000717adcc8d266                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]                                                                                                                                                 -      -            
+     0.29%  [.] zen::evm::ZenMockedEVMHost::InternalCallJournalFrame::~InternalCallJournalFrame()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0x10
+
+     0.29%  [.] 0x0000717adcc8f726                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.29%  [.] std::hash<evmc::address>::operator()(evmc::address const&) const [clone .constprop.0]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+     0.29%  [.] void std::vector<zen::runtime::EVMInstance::MemoryFrame, std::allocator<zen::runtime::EVMInstance::MemoryFrame> >::_M_realloc_insert<zen::runtime::EVMInstance::MemoryFrame>(__gnu_cxx::__normal_iterator<zen::runtime::EVMInstance::MemoryFrame*, std::vector<zen::runtime::EVMInstance::MemoryFrame, std::allocator<zen::runtime::EVMInstance::MemoryFrame> > >, zen::runtime::EVMInstance::MemoryFrame&&)                                                                                                                                                                                                                                                    -      -            
+     0.28%  [.] zen::runtime::EVMInstance::popMessage()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.28%  [k] hrtimer_forward                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---tick_nohz_highres_handler
+               __hrtimer_run_queues
+               hrtimer_interrupt
+               __sysvec_apic_timer_interrupt
+               sysvec_apic_timer_interrupt
+               asm_sysvec_apic_timer_interrupt
+               0x717b5cff118c
+
+     0.27%  [.] zen::evm::ZenMockedEVMHost::call(evmc_message const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)
+               0x645483b0ca90
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     0.26%  [.] 0x00000000000a3f16                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x645483b0be10
+               0xd1
+
+     0.25%  [.] 0x0000717adcc9f5ca                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.25%  [.] 0x0000717adcc9fc15                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     0.24%  [.] free@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |
+            ---0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+               0x7ffe548e4020
+
+     0.23%  [.] 0x00000000000a2857                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x1000011
+
+     0.19%  [.] 0x00000000000a276f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x61
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

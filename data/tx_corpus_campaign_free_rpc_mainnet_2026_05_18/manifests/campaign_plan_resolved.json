@@ -1,0 +1,89 @@
+{
+  "campaign_plan_path": "tools/tx_corpus_campaign.free-rpc.mainnet-2026-05-18.json",
+  "config_path": null,
+  "effective_cache_dir": "/root/DTVM_zr/DTVM/.cache/tx_corpus",
+  "effective_output_root": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18",
+  "effective_trace_output_dir": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/traces",
+  "plan": {
+    "cache_dir": "../.cache/tx_corpus",
+    "collect": {
+      "allow_missing_api_key": false,
+      "chunk_size": 5000,
+      "max_etherscan_calls": 40,
+      "page_size": 1000,
+      "sleep_seconds": 0.2,
+      "timeout_seconds": 30.0,
+      "txlist_sort": "desc"
+    },
+    "datasets": {
+      "cow_settlement": {
+        "collect_max_transactions": 0,
+        "enabled": true,
+        "enrich_enabled": true,
+        "input_path": "../tests/fulltrace_transactions/cow_settlement_transactions.jsonl",
+        "pre_enrich_sample_count": 40,
+        "sample_target_count": 25
+      },
+      "erc20_transfer": {
+        "collect_max_transactions": 0,
+        "enabled": true,
+        "enrich_enabled": false,
+        "input_path": "../tests/fulltrace_transactions/erc20_transfer_transactions.jsonl",
+        "pre_enrich_sample_count": null,
+        "sample_target_count": 50
+      },
+      "erc4337_bundle": {
+        "collect_max_transactions": 0,
+        "enabled": true,
+        "enrich_enabled": true,
+        "input_path": "../tests/fulltrace_transactions/erc4337_bundle_transactions.jsonl",
+        "pre_enrich_sample_count": 80,
+        "sample_target_count": 50
+      },
+      "uniswap_v3_swap": {
+        "collect_max_transactions": 0,
+        "enabled": true,
+        "enrich_enabled": false,
+        "input_path": "../tests/fulltrace_transactions/uniswap_v3_swap_transactions.jsonl",
+        "pre_enrich_sample_count": null,
+        "sample_target_count": 50
+      },
+      "uniswapx_reactor": {
+        "collect_max_transactions": 80,
+        "enabled": true,
+        "enrich_enabled": true,
+        "from_block": 24950000,
+        "input_path": null,
+        "notes": "Recent mainnet window ending at Ethereum block 25,119,252 observed on 2026-05-18.",
+        "pre_enrich_sample_count": null,
+        "sample_target_count": 25,
+        "to_block": 25119252
+      }
+    },
+    "enrich": {
+      "code_block_tag": "latest",
+      "continue_on_error": true,
+      "max_rpc_calls": 400,
+      "max_trace_calls": 0,
+      "skip_done": true,
+      "sleep_seconds": 0.0,
+      "timeout_seconds": 30.0,
+      "trace_method": "none"
+    },
+    "metadata": {
+      "network": "Ethereum Mainnet",
+      "prepared_on": "2026-05-18",
+      "uniswapx_sources": [
+        "https://github.com/Uniswap/UniswapX",
+        "https://etherscan.io/block/25119252"
+      ]
+    },
+    "output_root": "../data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18",
+    "sample": {
+      "exclude_trace_failed": true,
+      "require_done": true,
+      "seed": 0
+    },
+    "trace_output_dir": "../data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/traces"
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "dtvm_path": "./build_ssa/dtvm",
+  "filters": {
+    "datasets": [],
+    "limit": null,
+    "tx_hashes": [
+      "0x0dd1095728006af0fa2be94a45b3b5183dc5bec5edee8c79c1982aa5504ca798"
+    ]
+  },
+  "mode_override": "multipass",
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_benchmarks/_tmp_build_ssa_single_20260519",
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa",
+  "repetitions": 1,
+  "summary": {
+    "datasets": {
+      "uniswap_v3_swap": {
+        "exit_codes": {
+          "2": 1
+        },
+        "instantiation_ms": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "median": null,
+          "min": null,
+          "p95": null,
+          "sum": null
+        },
+        "jit_compilation_ms": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "median": null,
+          "min": null,
+          "p95": null,
+          "sum": null
+        },
+        "runs": 1,
+        "statistics_total_ms": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "median": null,
+          "min": null,
+          "p95": null,
+          "sum": null
+        },
+        "wall_time_ms": {
+          "count": 1,
+          "max": 8954.942570067942,
+          "mean": 8954.942570067942,
+          "median": 8954.942570067942,
+          "min": 8954.942570067942,
+          "p95": 8954.942570067942,
+          "sum": 8954.942570067942
+        }
+      }
+    },
+    "exit_codes": {
+      "2": 1
+    },
+    "runs": 1,
+    "slowest_runs": [
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/uniswap_v3_swap/0x0dd1095728006af0fa2be94a45b3b5183dc5bec5edee8c79c1982aa5504ca798/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x0dd1095728006af0fa2be94a45b3b5183dc5bec5edee8c79c1982aa5504ca798",
+        "wall_time_ms": 8954.942570067942
+      }
+    ],
+    "system_cpu_ms": {
+      "count": 1,
+      "max": 221.00699999999998,
+      "mean": 221.00699999999998,
+      "median": 221.00699999999998,
+      "min": 221.00699999999998,
+      "p95": 221.00699999999998,
+      "sum": 221.00699999999998
+    },
+    "user_cpu_ms": {
+      "count": 1,
+      "max": 8729.283000000001,
+      "mean": 8729.283000000001,
+      "median": 8729.283000000001,
+      "min": 8729.283000000001,
+      "p95": 8729.283000000001,
+      "sum": 8729.283000000001
+    },
+    "wall_time_ms": {
+      "count": 1,
+      "max": 8954.942570067942,
+      "mean": 8954.942570067942,
+      "median": 8954.942570067942,
+      "min": 8954.942570067942,
+      "p95": 8954.942570067942,
+      "sum": 8954.942570067942
+    }
+  }
+}

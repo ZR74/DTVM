@@ -11,6 +11,7 @@
 #include "runtime/evm_module.h"
 #include "runtime/instance.h"
 #include <array>
+#include <cstring>
 #include <deque>
 #include <limits>
 #include <memory>
@@ -151,6 +152,26 @@ public:
     }
   };
 
+  struct MessageStorageKey {
+    const evmc_message *Msg = nullptr;
+    evmc::bytes32 Key{};
+
+    bool operator==(const MessageStorageKey &Other) const {
+      return Msg == Other.Msg &&
+             std::memcmp(Key.bytes, Other.Key.bytes, sizeof(Key.bytes)) == 0;
+    }
+  };
+
+  struct MessageStorageKeyHash {
+    std::size_t operator()(const MessageStorageKey &Entry) const {
+      std::size_t Hash = std::hash<const evmc_message *>{}(Entry.Msg);
+      for (uint8_t Byte : Entry.Key.bytes) {
+        Hash = (Hash * 131) ^ static_cast<std::size_t>(Byte);
+      }
+      return Hash;
+    }
+  };
+
   struct ExecutionCache {
     evmc_tx_context TxContext;
     std::unordered_map<int64_t, evmc::bytes32> BlockHashes;
@@ -158,6 +179,8 @@ public:
     std::unordered_map<std::pair<const evmc_message *, uint64_t>, evmc::bytes32,
                        PairHash>
         CalldataLoads;
+    std::unordered_map<MessageStorageKey, evmc::bytes32, MessageStorageKeyHash>
+        StorageLoads;
     std::deque<evmc::bytes32> ExtcodeHashes;
     std::deque<evmc::bytes32> Keccak256Results;
     bool TxContextCached = false;
@@ -168,6 +191,7 @@ public:
       BlockHashes.clear();
       BlobHashes.clear();
       CalldataLoads.clear();
+      StorageLoads.clear();
       ExtcodeHashes.clear();
       Keccak256Results.clear();
     }
@@ -185,6 +209,15 @@ public:
   void clearReturnData() {
     clearReturnDataBuffer(ReturnData);
     ReturnDataSize = 0;
+  }
+  void setReturnData(const uint8_t *Data, size_t Size) {
+    if (Data == nullptr || Size == 0) {
+      clearReturnData();
+      return;
+    }
+    ReturnData.resize(Size);
+    std::memcpy(ReturnData.data(), Data, Size);
+    ReturnDataSize = Size;
   }
   const std::vector<uint8_t> &getReturnData() const { return ReturnData; }
   uint64_t getReturnDataSize() const { return ReturnDataSize; }

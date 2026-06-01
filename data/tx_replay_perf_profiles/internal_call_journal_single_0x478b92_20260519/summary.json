@@ -1,0 +1,134 @@
+{
+  "dtvm_path": "./build/dtvm",
+  "extra_executions": 5000,
+  "filters": {
+    "datasets": [],
+    "limit": null,
+    "tx_hashes": [
+      "0x478b92c274aa6b0657d0d4d918a792a85ea8310867f76653608bc9321ea22deb"
+    ]
+  },
+  "mode_override": "multipass",
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_perf_profiles/internal_call_journal_single_0x478b92_20260519",
+  "perf_frequency": 9999,
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial",
+  "summary": {
+    "category_counts": {
+      "evm_host": 720,
+      "keccak": 1259,
+      "kernel": 311,
+      "memory": 913,
+      "other": 4788,
+      "unknown": 12479
+    },
+    "category_pct": {
+      "evm_host": 3.5173,
+      "keccak": 6.1505,
+      "kernel": 1.5193,
+      "memory": 4.4602,
+      "other": 23.3903,
+      "unknown": 60.9624
+    },
+    "datasets": {
+      "cow_settlement": {
+        "category_counts": {
+          "evm_host": 720,
+          "keccak": 1259,
+          "kernel": 311,
+          "memory": 913,
+          "other": 4788,
+          "unknown": 12479
+        },
+        "category_pct": {
+          "evm_host": 3.5173,
+          "keccak": 6.1505,
+          "kernel": 1.5193,
+          "memory": 4.4602,
+          "other": 23.3903,
+          "unknown": 60.9624
+        },
+        "runs": 1,
+        "top_evm_bbs": {},
+        "top_frame_samples": 20470,
+        "top_host_symbols": {
+          "evmEmitLog2": 14,
+          "evmEmitLog3": 35,
+          "evmGetCallDataLoad": 329,
+          "evmGetSLoad": 54,
+          "evmHandleCallInternal": 117,
+          "evmHandleStaticCall": 14,
+          "evmSetCallDataCopy": 21,
+          "evmSetReturn": 29,
+          "evmSetReturnDataCopy": 11,
+          "evmSetRevert": 13
+        }
+      }
+    },
+    "runs": 1,
+    "top_dsos": {
+      "/root/DTVM_zr/DTVM/build/dtvm": 6221,
+      "/tmp/perf-290635.map": 4829,
+      "/usr/lib/x86_64-linux-gnu/libc.so.6": 8597,
+      "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30": 512,
+      "[kernel.kallsyms]": 311
+    },
+    "top_evm_bbs": {},
+    "top_frame_samples": 20470,
+    "top_host_symbols": {
+      "evmEmitLog2": 14,
+      "evmEmitLog3": 35,
+      "evmExpandMemoryNoGas": 11,
+      "evmGetCallDataLoad": 329,
+      "evmGetChainId": 5,
+      "evmGetDiv": 6,
+      "evmGetExtCodeSize": 10,
+      "evmGetSLoad": 54,
+      "evmGetSelfBalance": 5,
+      "evmGetTimestamp": 8,
+      "evmHandleCall": 9,
+      "evmHandleCallInternal": 117,
+      "evmHandleDelegateCall": 6,
+      "evmHandleStaticCall": 14,
+      "evmSetCallDataCopy": 21,
+      "evmSetCodeCopy": 10,
+      "evmSetReturn": 29,
+      "evmSetReturnDataCopy": 11,
+      "evmSetRevert": 13,
+      "evmSetSStore": 10
+    },
+    "top_keccak_symbols": {
+      "ethash_keccak256": 54,
+      "evmGetKeccak256": 139,
+      "keccakf1600_bmi": 1031,
+      "zen::host::evm::crypto::keccak256": 35
+    },
+    "top_symbols": {
+      "COMPILER::evmGetCallDataLoad(zen::runtime::EVMInstance*, unsigned long)": 329,
+      "COMPILER::evmGetKeccak256(zen::runtime::EVMInstance*, unsigned long, unsigned long)": 139,
+      "COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)": 117,
+      "[unknown]": 12479,
+      "cfree": 290,
+      "evmc::MockedHost::access_account(evmc::address const&)": 403,
+      "keccakf1600_bmi": 1031,
+      "malloc": 565,
+      "malloc@plt": 58,
+      "operator new(unsigned long)": 91,
+      "std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::find(evmc::address const&)": 70,
+      "std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)": 355,
+      "std::__detail::_Prime_rehash_policy::_M_need_rehash(unsigned long, unsigned long, unsigned long) const": 95,
+      "std::__detail::_Prime_rehash_policy::_M_next_bkt(unsigned long) const": 103,
+      "std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .constprop.0]": 62,
+      "void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)": 70,
+      "void std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > >(std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > const&)": 296,
+      "zen::common::getError(zen::common::ErrorCode)": 92,
+      "zen::evm::ZenMockedEVMHost::call(evmc_message const&)": 86,
+      "zen::evm::ZenMockedEVMHost::journalAccountState(evmc::address const&)": 314,
+      "zen::runtime::EVMInstance::expandMemoryNoGas(unsigned long)": 106,
+      "zen::runtime::EVMInstance::~EVMInstance()": 71,
+      "zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)": 91,
+      "zen::runtime::Runtime::deleteManagedIsolation(zen::runtime::Isolation*)": 66,
+      "zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)": 306
+    },
+    "zero_execution_runs": []
+  }
+}

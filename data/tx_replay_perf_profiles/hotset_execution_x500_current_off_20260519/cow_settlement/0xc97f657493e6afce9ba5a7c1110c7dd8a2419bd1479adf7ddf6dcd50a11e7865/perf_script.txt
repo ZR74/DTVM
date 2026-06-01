@@ -1,0 +1,797 @@
+dtvm  305643 1043355.069158:      50005 cycles:P: 
+	    57202b68652d evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x1ed (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	e087cc2b8e352d0a [unknown] ([unknown])
+	3fa49812033f2a2a [unknown] ([unknown])
+	c15b43081708dd32 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	707b8ab4c5f932d0 [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	bb9047b96e8368e0 [unknown] ([unknown])
+	4448057461ce244a [unknown] ([unknown])
+	7d2f23232b6c691d [unknown] ([unknown])
+	8b8dff36229fa91b [unknown] ([unknown])
+	77a3477761d03349 [unknown] ([unknown])
+	8b8dff36229fa91b [unknown] ([unknown])
+	be508f38c79766f4 [unknown] ([unknown])
+	4eb1bed08a74304e [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	876ce2ab4e141feb [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	5e9db921f3cdf3c1 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	b7fbd7d7975a78ce [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	30e2c4c9d4e12eae [unknown] ([unknown])
+	9aae6ba86f901e94 [unknown] ([unknown])
+	47acfe04917c2ebd [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	5680bfc596844a64 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	876ce2ab4e141feb [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	7d2f23232b6c691d [unknown] ([unknown])
+	e087cc2b8e352d0a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	3fa49812033f2a2a [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	4bbc74dd364d8fc5 [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	c15b43081708dd32 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	4448057461ce244a [unknown] ([unknown])
+	a6ea3f1008371d37 [unknown] ([unknown])
+	4eb1bed08a74304e [unknown] ([unknown])
+	b6369b180b2976a2 [unknown] ([unknown])
+	bb62f4d63074a559 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	7afc263b72979355 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	b51b7d6d52598061 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	a4334dde19b76f4f [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+	136a8945a384f1a2 [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+
+dtvm  305643 1043355.069228:      50005 cycles:P: 
+	    70b64f3ff840 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.069312:      52627 cycles:P: 
+	    57202b68651d evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x1dd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	4bbc74dd364d8fc5 [unknown] ([unknown])
+	c0432b0e9620a9c2 [unknown] ([unknown])
+	5e9db921f3cdf3c1 [unknown] ([unknown])
+	598e108d9b6c6ec0 [unknown] ([unknown])
+	1af90a069cf70dec [unknown] ([unknown])
+	fba52b0f06595fbe [unknown] ([unknown])
+	b9a70b3c4ec89cbd [unknown] ([unknown])
+	b9a70b3c4ec89cbd [unknown] ([unknown])
+	47acfe04917c2ebd [unknown] ([unknown])
+	700aeb152b5257b9 [unknown] ([unknown])
+	7cd1f7db545fe0af [unknown] ([unknown])
+	7f447340f83327f4 [unknown] ([unknown])
+	7cd1f7db545fe0af [unknown] ([unknown])
+	be508f38c79766f4 [unknown] ([unknown])
+	30e2c4c9d4e12eae [unknown] ([unknown])
+	63aaacc3253dc5a9 [unknown] ([unknown])
+	63aaacc3253dc5a9 [unknown] ([unknown])
+	c0432b0e9620a9c2 [unknown] ([unknown])
+	b6369b180b2976a2 [unknown] ([unknown])
+	1fc8b4de8eed9944 [unknown] ([unknown])
+	a6ea3f1008371d37 [unknown] ([unknown])
+	e087cc2b8e352d0a [unknown] ([unknown])
+	3fa49812033f2a2a [unknown] ([unknown])
+	c15b43081708dd32 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	707b8ab4c5f932d0 [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	bb9047b96e8368e0 [unknown] ([unknown])
+	4448057461ce244a [unknown] ([unknown])
+	7d2f23232b6c691d [unknown] ([unknown])
+	8b8dff36229fa91b [unknown] ([unknown])
+	77a3477761d03349 [unknown] ([unknown])
+	8b8dff36229fa91b [unknown] ([unknown])
+	be508f38c79766f4 [unknown] ([unknown])
+	4eb1bed08a74304e [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	876ce2ab4e141feb [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	5e9db921f3cdf3c1 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	b7fbd7d7975a78ce [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	30e2c4c9d4e12eae [unknown] ([unknown])
+	9aae6ba86f901e94 [unknown] ([unknown])
+	47acfe04917c2ebd [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	5680bfc596844a64 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	876ce2ab4e141feb [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	7d2f23232b6c691d [unknown] ([unknown])
+	e087cc2b8e352d0a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	3fa49812033f2a2a [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	4bbc74dd364d8fc5 [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	c15b43081708dd32 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	4448057461ce244a [unknown] ([unknown])
+	a6ea3f1008371d37 [unknown] ([unknown])
+	4eb1bed08a74304e [unknown] ([unknown])
+	b6369b180b2976a2 [unknown] ([unknown])
+	bb62f4d63074a559 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	7afc263b72979355 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	b51b7d6d52598061 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	a4334dde19b76f4f [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+	136a8945a384f1a2 [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+
+dtvm  305643 1043355.069389:      53891 cycles:P: 
+	    70b64f72d0d0 malloc@plt+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	bb62f4d63074a559 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	7afc263b72979355 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	b51b7d6d52598061 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	a4334dde19b76f4f [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+	136a8945a384f1a2 [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+
+dtvm  305643 1043355.069463:      55901 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.069538:      58394 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.069617:      60725 cycles:P: 
+	    70b64f4030c9 malloc+0x29 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.069698:      62799 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.069783:      64581 cycles:P: 
+	    57202b6ce032 evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0x72 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7fff0289a4f0 [unknown] (/tmp/perf-305643.map)
+
+dtvm  305643 1043355.069869:      66091 cycles:P: 
+	    70b64f4033fe cfree+0x1e (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	6358dd0216becfc0 [unknown] ([unknown])
+
+dtvm  305643 1043355.069957:      67396 cycles:P: 
+	    57202b66e54a evmc::MockedHost::access_account(evmc::address const&)+0x32a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.070051:      68300 cycles:P: 
+	    70b64f4006c3 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.070142:      68886 cycles:P: 
+	    57202b68636f evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x2f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.070233:      69733 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.070326:      70520 cycles:P: 
+	    70b64f403250 malloc+0x1b0 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.070420:      71218 cycles:P: 
+	    70b64f4006a0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.070516:      71822 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.070612:      72134 cycles:P: 
+	    57202b66e560 evmc::MockedHost::access_account(evmc::address const&)+0x340 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.070708:      72583 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.070813:      72981 cycles:P: 
+	    57202b6864cc evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x18c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	5e9db921f3cdf3c1 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	b7fbd7d7975a78ce [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	30e2c4c9d4e12eae [unknown] ([unknown])
+	9aae6ba86f901e94 [unknown] ([unknown])
+	47acfe04917c2ebd [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	5680bfc596844a64 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	876ce2ab4e141feb [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	7d2f23232b6c691d [unknown] ([unknown])
+	e087cc2b8e352d0a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	3fa49812033f2a2a [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	4bbc74dd364d8fc5 [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	c15b43081708dd32 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	4448057461ce244a [unknown] ([unknown])
+	a6ea3f1008371d37 [unknown] ([unknown])
+	4eb1bed08a74304e [unknown] ([unknown])
+	b6369b180b2976a2 [unknown] ([unknown])
+	bb62f4d63074a559 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	7afc263b72979355 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	b51b7d6d52598061 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	a4334dde19b76f4f [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+	136a8945a384f1a2 [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+
+dtvm  305643 1043355.070910:      72507 cycles:P: 
+	    70b64f3ff89e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071008:      72801 cycles:P: 
+	ffffffff8c200f30 asm_sysvec_apic_timer_interrupt+0x0 ([kernel.kallsyms])
+	    70b64f3f9c1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    57202b694f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	      7800000120 [unknown] ([unknown])
+
+dtvm  305643 1043355.071107:      73180 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071205:      73272 cycles:P: 
+	    57202b692f52 zen::common::getError(zen::common::ErrorCode)+0x42 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	    57202b6653e0 zen::common::Error::~Error()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	48fd894855019af9 [unknown] ([unknown])
+
+dtvm  305643 1043355.071302:      73426 cycles:P: 
+	    70b64f402082 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071400:      73705 cycles:P: 
+	    70b64f3ff858 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071498:      73961 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071597:      74076 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071696:      74174 cycles:P: 
+	    57202b66e3d4 evmc::MockedHost::access_account(evmc::address const&)+0x1b4 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.071794:      74356 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071892:      74517 cycles:P: 
+	    70b64f402688 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.071991:      74653 cycles:P: 
+	    70b64f401ef4 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.072093:      74697 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.072192:      74491 cycles:P: 
+	    70b64f403245 malloc+0x1a5 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305643 1043355.072290:      74580 cycles:P: 
+	    57202b66e285 evmc::MockedHost::access_account(evmc::address const&)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    572062f15920 [unknown] ([unknown])
+	    57202b6703d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305643 1043355.072389:      74797 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.072488:      74898 cycles:P: 
+	    57202b6c7f01 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x41 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.072587:      74978 cycles:P: 
+	    70b64f401e64 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.072687:      75065 cycles:P: 
+	    70b64f4019d4 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.072788:      75143 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.072887:      75046 cycles:P: 
+	    57202b6241c0 operator delete(void*, unsigned long)@plt+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	6358dd0216becfc0 [unknown] ([unknown])
+
+dtvm  305643 1043355.072987:      75092 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.073088:      75148 cycles:P: 
+	    57202b66e385 evmc::MockedHost::access_account(evmc::address const&)+0x165 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.073188:      75003 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.073287:      75038 cycles:P: 
+	    57202b663162 std::vector<evmc::MockedHost::log_record, std::allocator<evmc::MockedHost::log_record> >::operator=(std::vector<evmc::MockedHost::log_record, std::allocator<evmc::MockedHost::log_record> > const&) [clone .isra.0]+0x42 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.073386:      75112 cycles:P: 
+	    70b64f401f12 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.073502:      75181 cycles:P: 
+	    57202b662223 std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .isra.0]+0x33 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	ae1fa72c7c5fc2cc [unknown] ([unknown])
+	ae1fa72c7c5fc2cc [unknown] ([unknown])
+	44c9b21fcdab98cb [unknown] ([unknown])
+	44c9b21fcdab98cb [unknown] ([unknown])
+	e65ef0a54527baca [unknown] ([unknown])
+	e65ef0a54527baca [unknown] ([unknown])
+	4bbc74dd364d8fc5 [unknown] ([unknown])
+	c0432b0e9620a9c2 [unknown] ([unknown])
+	5e9db921f3cdf3c1 [unknown] ([unknown])
+	598e108d9b6c6ec0 [unknown] ([unknown])
+	1af90a069cf70dec [unknown] ([unknown])
+	fba52b0f06595fbe [unknown] ([unknown])
+	b9a70b3c4ec89cbd [unknown] ([unknown])
+	b9a70b3c4ec89cbd [unknown] ([unknown])
+	47acfe04917c2ebd [unknown] ([unknown])
+	700aeb152b5257b9 [unknown] ([unknown])
+	7cd1f7db545fe0af [unknown] ([unknown])
+	7f447340f83327f4 [unknown] ([unknown])
+	7cd1f7db545fe0af [unknown] ([unknown])
+	be508f38c79766f4 [unknown] ([unknown])
+	30e2c4c9d4e12eae [unknown] ([unknown])
+	63aaacc3253dc5a9 [unknown] ([unknown])
+	63aaacc3253dc5a9 [unknown] ([unknown])
+	c0432b0e9620a9c2 [unknown] ([unknown])
+	b6369b180b2976a2 [unknown] ([unknown])
+	1fc8b4de8eed9944 [unknown] ([unknown])
+	a6ea3f1008371d37 [unknown] ([unknown])
+	e087cc2b8e352d0a [unknown] ([unknown])
+	3fa49812033f2a2a [unknown] ([unknown])
+	c15b43081708dd32 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	707b8ab4c5f932d0 [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	bb9047b96e8368e0 [unknown] ([unknown])
+	4448057461ce244a [unknown] ([unknown])
+	7d2f23232b6c691d [unknown] ([unknown])
+	8b8dff36229fa91b [unknown] ([unknown])
+	77a3477761d03349 [unknown] ([unknown])
+	8b8dff36229fa91b [unknown] ([unknown])
+	be508f38c79766f4 [unknown] ([unknown])
+	4eb1bed08a74304e [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	876ce2ab4e141feb [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	5e9db921f3cdf3c1 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	b7fbd7d7975a78ce [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	fc19b23514580500 [unknown] ([unknown])
+	30e2c4c9d4e12eae [unknown] ([unknown])
+	9aae6ba86f901e94 [unknown] ([unknown])
+	47acfe04917c2ebd [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	5680bfc596844a64 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	876ce2ab4e141feb [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	1a120667068ca62c [unknown] ([unknown])
+	7d2f23232b6c691d [unknown] ([unknown])
+	e087cc2b8e352d0a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	3fa49812033f2a2a [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	4bbc74dd364d8fc5 [unknown] ([unknown])
+	6730fdb6b2f27f44 [unknown] ([unknown])
+	c15b43081708dd32 [unknown] ([unknown])
+	f696b3573e78097f [unknown] ([unknown])
+	b7c8f0fc2a8b4b17 [unknown] ([unknown])
+	4448057461ce244a [unknown] ([unknown])
+	a6ea3f1008371d37 [unknown] ([unknown])
+	4eb1bed08a74304e [unknown] ([unknown])
+	b6369b180b2976a2 [unknown] ([unknown])
+	bb62f4d63074a559 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	80896e91ae82ef13 [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	 b720cd4bf16e85d [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	7afc263b72979355 [unknown] ([unknown])
+	b6773f144a61e76b [unknown] ([unknown])
+	c32de12bc325ec89 [unknown] ([unknown])
+	b51b7d6d52598061 [unknown] ([unknown])
+	ac3baef24eb5ceed [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	a4334dde19b76f4f [unknown] ([unknown])
+	7a51384c84ec5867 [unknown] ([unknown])
+	18fac9f0f884ca7a [unknown] ([unknown])
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+	136a8945a384f1a2 [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+
+dtvm  305643 1043355.073601:      73946 cycles:P: 
+	    70b64f72d2e0 operator delete(void*)@plt+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	6358dd0216becfc0 [unknown] ([unknown])
+
+dtvm  305643 1043355.073700:      73973 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.073799:      74081 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.073897:      74168 cycles:P: 
+	    57202b66663e evmc::operator==(evmc::address const&, evmc::address const&)+0xe (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.073996:      74356 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074097:      74452 cycles:P: 
+	    70b64f3ff81b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074169:      74368 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074234:      77927 cycles:P: 
+	    70b64f50da80 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	 ce710af3e02d46d [unknown] ([unknown])
+
+dtvm  305643 1043355.074304:      83015 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074377:      87644 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074459:      91569 cycles:P: 
+	    70b64f401f8e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    70b64f579040 [unknown] ([unknown])
+	    70b64f579030 [unknown] ([unknown])
+	    70b64f579020 [unknown] ([unknown])
+	    70b64f579010 [unknown] ([unknown])
+	    70b64f579000 [unknown] ([unknown])
+	    70b64f578ff0 [unknown] ([unknown])
+	    70b64f578fe0 [unknown] ([unknown])
+	    70b64f578fd0 [unknown] ([unknown])
+	    70b64f578fc0 [unknown] ([unknown])
+	    70b64f578fb0 [unknown] ([unknown])
+	    70b64f578fa0 [unknown] ([unknown])
+	    70b64f578f90 [unknown] ([unknown])
+	    70b64f578f80 [unknown] ([unknown])
+	    70b64f578f70 [unknown] ([unknown])
+	    70b64f578f60 [unknown] ([unknown])
+	    70b64f578f50 [unknown] ([unknown])
+	    70b64f578f40 [unknown] ([unknown])
+	    70b64f578f30 [unknown] ([unknown])
+	    70b64f578f20 [unknown] ([unknown])
+	    70b64f578f10 [unknown] ([unknown])
+	    70b64f578f00 [unknown] ([unknown])
+	    70b64f578ef0 [unknown] ([unknown])
+	    70b64f578ee0 [unknown] ([unknown])
+	    70b64f578ed0 [unknown] ([unknown])
+	    70b64f578ec0 [unknown] ([unknown])
+	    70b64f578eb0 [unknown] ([unknown])
+	    70b64f578ea0 [unknown] ([unknown])
+	    70b64f578e90 [unknown] ([unknown])
+	    70b64f578e80 [unknown] ([unknown])
+	    70b64f578e70 [unknown] ([unknown])
+	    70b64f578e60 [unknown] ([unknown])
+	    70b64f578e50 [unknown] ([unknown])
+	    70b64f578e40 [unknown] ([unknown])
+	    70b64f578e30 [unknown] ([unknown])
+	    70b64f578e20 [unknown] ([unknown])
+	    70b64f578e10 [unknown] ([unknown])
+	    70b64f578e00 [unknown] ([unknown])
+	    70b64f578df0 [unknown] ([unknown])
+	    70b64f578de0 [unknown] ([unknown])
+	    70b64f578dd0 [unknown] ([unknown])
+	    70b64f578dc0 [unknown] ([unknown])
+	    70b64f578db0 [unknown] ([unknown])
+	    70b64f578da0 [unknown] ([unknown])
+	    70b64f578d90 [unknown] ([unknown])
+	    70b64f578d80 [unknown] ([unknown])
+	    70b64f578d70 [unknown] ([unknown])
+	    70b64f578d60 [unknown] ([unknown])
+	    70b64f578d50 [unknown] ([unknown])
+	    572062f75570 [unknown] ([unknown])
+	              71 [unknown] ([unknown])
+
+dtvm  305643 1043355.074539:      94143 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074622:      97060 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074707:      99552 cycles:P: 
+	    57202b6c89b0 zen::utils::parseAddress(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	              2a [unknown] ([unknown])
+	3235383237383166 [unknown] ([unknown])
+
+dtvm  305643 1043355.074793:     101823 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074882:     103754 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.074972:     105395 cycles:P: 
+	    70b64f4030f1 malloc+0x51 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075066:     107072 cycles:P: 
+	    70b64f400808 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075159:     108074 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075252:     109072 cycles:P: 
+	    70b64f401d60 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075348:     109980 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075444:     110584 cycles:P: 
+	    70b64f400801 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              81 [unknown] ([unknown])
+
+dtvm  305643 1043355.075540:     111246 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075635:     111789 cycles:P: 
+	    57202b66e56a evmc::MockedHost::access_account(evmc::address const&)+0x34a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.075732:     112476 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075830:     112908 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.075928:     113239 cycles:P: 
+	    57202b6ce06a evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0xaa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7fff0289a5a0 [unknown] (/tmp/perf-305643.map)
+
+dtvm  305643 1043355.076028:     113759 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076127:     113727 cycles:P: 
+	    70b64f3ff8cf [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076225:     113932 cycles:P: 
+	    70b64f40072d [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              81 [unknown] ([unknown])
+
+dtvm  305643 1043355.076324:     114126 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076424:     114297 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076523:     114377 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076622:     114494 cycles:P: 
+	    70b64f4006b1 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076721:     114638 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076822:     114710 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.076923:     114645 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.077022:     114580 cycles:P: 
+	    57202b66e650 evmc::MockedHost::access_account(evmc::address const&)+0x430 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305643 1043355.077122:     114621 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.077221:     114699 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.077320:     114797 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.077420:     114886 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.077520:     114962 cycles:P: 
+	    57202b6c7ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.077619:     115027 cycles:P: 
+	    57202b6c7efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    70b64f387d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.077719:     115083 cycles:P: 
+	    70b64f76846b std::__detail::_Prime_rehash_policy::_M_next_bkt(unsigned long) const+0x1fb (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	    572062f3bee0 [unknown] ([unknown])
+
+dtvm  305643 1043355.077819:     115132 cycles:P: 
+	    57202b692f46 zen::common::getError(zen::common::ErrorCode)+0x36 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	    57202b6653e0 zen::common::Error::~Error()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	48fd894855019af9 [unknown] ([unknown])
+
+dtvm  305643 1043355.077919:     115167 cycles:P: 
+	    57202b68651d evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x1dd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	b4ea2a352c0084a8 [unknown] ([unknown])
+	ee4682cee8845b85 [unknown] ([unknown])
+	237fd7cf072451f7 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	9961e406abc7fac5 [unknown] ([unknown])
+	84a3347dfbeab297 [unknown] ([unknown])
+	a9174363d8d9e59a [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+	136a8945a384f1a2 [unknown] ([unknown])
+	38d068d6e3291c9d [unknown] ([unknown])
+
+dtvm  305643 1043355.078022:     115093 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.078121:     114787 cycles:P: 
+	    70b64f3ff73f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.078221:     114833 cycles:P: 
+	    70b64f401bd6 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.078320:     114924 cycles:P: 
+	    70b64f4007aa [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              81 [unknown] ([unknown])
+
+dtvm  305643 1043355.078420:     114997 cycles:P: 
+	    70b64f4033fe cfree+0x1e (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	6358dd0216becfc0 [unknown] ([unknown])
+
+dtvm  305643 1043355.078519:     115058 cycles:P: 
+	    57202b6241c0 operator delete(void*, unsigned long)@plt+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	6358dd0216becfc0 [unknown] ([unknown])
+
+dtvm  305643 1043355.078619:     115110 cycles:P: 
+	    70b64f40322c malloc+0x18c (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.078719:     115168 cycles:P: 
+	    57202b687c22 void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x272 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	8dfe23b239aa2ac0 [unknown] ([unknown])
+
+dtvm  305643 1043355.078818:     115204 cycles:P: 
+	    70b64f50d18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305643 1043355.078919:     115238 cycles:P: 
+	    57202b68654a evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x20a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  305643 1043355.079019:     115184 cycles:P: 
+	    57202b66e373 evmc::MockedHost::access_account(evmc::address const&)+0x153 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+

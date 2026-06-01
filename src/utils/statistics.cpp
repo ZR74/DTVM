@@ -104,6 +104,14 @@ void Statistics::report() const {
 
   static constexpr const char *StatLogPrefixs[] = {
       "Load:\t\t\t",
+      "Runtime Setup:\t\t",
+      "State File Read:\t",
+      "State JSON Parse:\t",
+      "State Materialization:\t",
+      "State Access Warmup:\t",
+      "Input Decode:\t\t",
+      "Message Setup:\t\t",
+      "Pre Execution Checks:\t",
       "JIT Compilation:\t\t",
       "JIT Lazy Precompilation:\t",
       "JIT Lazy Compilation(Fg):\t",
@@ -112,6 +120,7 @@ void Statistics::report() const {
       "Memory Bucket Map:\t",
       "Instantiation:\t\t",
       "Execution:\t\t",
+      "Post Execution Cleanup:\t",
   };
 
   for (uint32_t I = 0; I < NumStatPhases; ++I) {

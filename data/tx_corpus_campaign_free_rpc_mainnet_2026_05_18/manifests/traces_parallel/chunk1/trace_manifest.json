@@ -1,0 +1,863 @@
+{
+  "generated_at": "2026-04-23T14:39:41.338381+00:00",
+  "manifest": [
+    {
+      "tx_hash": "0xaace8d250f40868259fdfe86603b6ca5072ab4cdcdb2c63e6d51b9d4ce565e37",
+      "replay_tx_hash": "0xca4d128e5cbd900c2a67060f8c1413414387992a646ea99b2939bd795ca5b8a9",
+      "dataset": "erc20_transfer",
+      "block_number": 24932589,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xaace8d250f40868259fdfe86603b6ca5072ab4cdcdb2c63e6d51b9d4ce565e37.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3f9cfb2200fc59f669d8486dd26ad806b869b8ff47e974c6a400ff97061be507",
+      "replay_tx_hash": "0x6c3ddc42b4df8b74bef117e44cebc856ea4f302aee708eebe309216b25cb1f84",
+      "dataset": "erc20_transfer",
+      "block_number": 24932641,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x3f9cfb2200fc59f669d8486dd26ad806b869b8ff47e974c6a400ff97061be507.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe8a6d4ca6f0af40522e2ae5714889772fe8af518dde68d7baf0d358df806751f",
+      "replay_tx_hash": "0xebbdb46e9d73a9458187db1ca22a8def8df398b60d458fe08c609474812f1241",
+      "dataset": "erc20_transfer",
+      "block_number": 24932673,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xe8a6d4ca6f0af40522e2ae5714889772fe8af518dde68d7baf0d358df806751f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x39052008c3fb86d5124a67533ebdaf71cd60099eb8dbb06a8790d66ed9d8e97b",
+      "replay_tx_hash": "0xfa3107cf729d917d69475c1e42ea4516f4e0e290c29465d75c0e05e5ea056847",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932752,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x39052008c3fb86d5124a67533ebdaf71cd60099eb8dbb06a8790d66ed9d8e97b.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x93494b679a0327deeb7a8a87202c1f1667ae43afff0c85666cfe72a559033421",
+      "replay_tx_hash": "0xa72cb54ac6c5ef70121bf8bc574c94e3bf1537ef462b5f5295a31dcc648d26d6",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932867,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x93494b679a0327deeb7a8a87202c1f1667ae43afff0c85666cfe72a559033421.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa20f43eed1ca0178003a99e8fbc0b15c45430eb9cf1f9647c739ab7b38401425",
+      "replay_tx_hash": "0x1fe3bb090125ddb1daece8bf7a34966be2cff038794844adf7c6c03bf11e608b",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932908,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xa20f43eed1ca0178003a99e8fbc0b15c45430eb9cf1f9647c739ab7b38401425.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x488e4f2fa607e13ce8a01ca02d7d0c6715d02c587e5036ea54689a9a9ace0310",
+      "replay_tx_hash": "0xdd61da238dad85de426d2abd0a880c2c470c655810647fee837909892500cd9d",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932940,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x488e4f2fa607e13ce8a01ca02d7d0c6715d02c587e5036ea54689a9a9ace0310.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x6a2bbda1dc9af944380e50b62f004d1c9edf016d194d6000945c74a67614c441",
+      "replay_tx_hash": "0xd204c732ba0291ef531a76546840b63fd7af2e9b154181a71cf5c778a3c37ba0",
+      "dataset": "erc20_transfer",
+      "block_number": 24933082,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x6a2bbda1dc9af944380e50b62f004d1c9edf016d194d6000945c74a67614c441.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x81e0ae8a6e8a9fb05b198f5fcc03c8b8956db67f40da58df57c6c60f156ef750",
+      "replay_tx_hash": "0xc91aea322899fa81d7b746af5a78f2a661f103662a80d15d2375b5501a04537a",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24933136,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x81e0ae8a6e8a9fb05b198f5fcc03c8b8956db67f40da58df57c6c60f156ef750.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3bb867fbf93b3587748afbf8d1c6286df3b6bdea13cfbe8118637138683faa2f",
+      "replay_tx_hash": "0x820cb93b9dceac378812386175574b46a4635d64128431c630a35e055e0cf481",
+      "dataset": "erc20_transfer",
+      "block_number": 24933255,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x3bb867fbf93b3587748afbf8d1c6286df3b6bdea13cfbe8118637138683faa2f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf4db33d947b389ec6f524f5bc6a118cfac9437b50d7cc2764ebd47fd9b7fd6cd",
+      "replay_tx_hash": "0xd615ddff6d614e40e215b3bed11426b76681a36d93a0a1488f8a78511d813c56",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24933317,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xf4db33d947b389ec6f524f5bc6a118cfac9437b50d7cc2764ebd47fd9b7fd6cd.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb66a03faf6aee0ab3700c073dcbd99cb413d501e59906c8d97b2533ee938d2ec",
+      "replay_tx_hash": "0x9e219e06410b4e3a2a1b7ba00bb4454da4c3e52d232902f72f534ab04b7ed948",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24933332,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xb66a03faf6aee0ab3700c073dcbd99cb413d501e59906c8d97b2533ee938d2ec.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x484ced5a2b8d2370a3848873650bb8b5da78a2c2d79976168fbaff90474b664b",
+      "replay_tx_hash": "0x5cb86d8128c00c47f96754291c5514c90526697d649ebb171d314fbf1ce7c0ec",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24933398,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x484ced5a2b8d2370a3848873650bb8b5da78a2c2d79976168fbaff90474b664b.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc69abeef6a8de457301ecb369ab6aff6ba14b08bcbfe67edbbe44f470c6686de",
+      "replay_tx_hash": "0xd1a680c7d257436c9218105a8c0714ae88c46d0b077e1d34b68cab736d72040f",
+      "dataset": "erc20_transfer",
+      "block_number": 24933452,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xc69abeef6a8de457301ecb369ab6aff6ba14b08bcbfe67edbbe44f470c6686de.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x639e0e351ab6609b3394f8c742ed2491c76c348d923ee55a29eda16289a0b6d7",
+      "replay_tx_hash": "0xa3f239822df83fe4b610b33b051e6ca588841fd20318cbd50f4df084fbb61949",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24933510,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x639e0e351ab6609b3394f8c742ed2491c76c348d923ee55a29eda16289a0b6d7.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf50d6819b823e3cbba01abea32734d47e2640b9260bdde77db1b23022fda9a33",
+      "replay_tx_hash": "0xb35fa3e6aef8debd20613e1d465fc5841451deb93cd56a29cf5b1fe716892501",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24933665,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xf50d6819b823e3cbba01abea32734d47e2640b9260bdde77db1b23022fda9a33.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0d3655047a093c615ce1153af1e82f2415a987b835129a087551a5de810687ff",
+      "replay_tx_hash": "0x908c70abd1eebe232f5055bb8241fa4d3b616a1d0ffcd79e3377ed1a9634ce0d",
+      "dataset": "erc20_transfer",
+      "block_number": 24933684,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x0d3655047a093c615ce1153af1e82f2415a987b835129a087551a5de810687ff.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd1774d1482589412c5dff718d083ee29868d7a7bf8da622bffb474d3e2e2690f",
+      "replay_tx_hash": "0xc80fb87cb92f6a391789efc744c1f3ae853fed12b50f59565823e57b07f2836f",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24933705,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xd1774d1482589412c5dff718d083ee29868d7a7bf8da622bffb474d3e2e2690f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x262b3836c9c5e5480bbfa1021cb61537be6753deaa8fa1e37857126074ac0ef6",
+      "replay_tx_hash": "0x1457f2e9892546299c9b4b3a0e6c1992769eeea223ff6d22a57464d4845c2760",
+      "dataset": "erc20_transfer",
+      "block_number": 24933733,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x262b3836c9c5e5480bbfa1021cb61537be6753deaa8fa1e37857126074ac0ef6.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd50534da73633dc831312ccec472528e311f67edff7371ba81a4969348bde2cf",
+      "replay_tx_hash": "0x1591471eec6baf6e77f303cab0bfc8840c5cd8bc2b1455a8ef7c275ab5fb46da",
+      "dataset": "erc20_transfer",
+      "block_number": 24933824,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xd50534da73633dc831312ccec472528e311f67edff7371ba81a4969348bde2cf.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x54f75f23d8706e01c24477bd641d1792bcc2aa14d7fa602cb55cc80256c27540",
+      "replay_tx_hash": "0xe0e8ca3c8e29a679ef5e02147ff80579a1ae6f2a048a05baedd0acff4bb64e29",
+      "dataset": "erc20_transfer",
+      "block_number": 24933969,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x54f75f23d8706e01c24477bd641d1792bcc2aa14d7fa602cb55cc80256c27540.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3e1be9eb94061f937ca6d5b9c17eea27ebdb5e06ee966daf1a92384224457310",
+      "replay_tx_hash": "0x6d48983e0db9fd4b7bfe8dceea4389cdd1ce982eb88739d8a4306b18399a4426",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24934110,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x3e1be9eb94061f937ca6d5b9c17eea27ebdb5e06ee966daf1a92384224457310.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe959fdcca61c9498da1744d0b9d0d79e5d5eeca943fe40ccc471d675449d5fa6",
+      "replay_tx_hash": "0xa1f76a2032699fcf5727ef912d8e4e37fc80f232fec63184d95cb6cd4a371af8",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24934225,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xe959fdcca61c9498da1744d0b9d0d79e5d5eeca943fe40ccc471d675449d5fa6.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x25e9fdf9356b724033c03681df05d5502f7320419b31a3a0c428b712fdec5371",
+      "replay_tx_hash": "0x867919145e881fae36abf02f436878e78826627a41c9cb7d5572149d225407db",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24934322,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x25e9fdf9356b724033c03681df05d5502f7320419b31a3a0c428b712fdec5371.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x08230e014063a2bd32ebd42d7c9ebebb1c6eb61a2f3938794514a27121739c0f",
+      "replay_tx_hash": "0x87889c56157329209e9193d4fa5f97ca302b0db015be173864060d45b1d5d010",
+      "dataset": "erc20_transfer",
+      "block_number": 24934401,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x08230e014063a2bd32ebd42d7c9ebebb1c6eb61a2f3938794514a27121739c0f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x49395b705474315454a8c7549419e42f164b692f353dad6f774a877ecfc8335f",
+      "replay_tx_hash": "0x3115c0d090a25c55b4a4c64175249e8f5ce872537958fd27b0f8418ef744511d",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24934456,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x49395b705474315454a8c7549419e42f164b692f353dad6f774a877ecfc8335f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf5544b170e0aaf8c0765e2cf3dd76f24f0a4d1e3f8189f592e605470cba2af83",
+      "replay_tx_hash": "0x4919734b373bccce7f18043dbf1ea1198f3fec1a2ed8179b94ca0bdd4c909312",
+      "dataset": "erc20_transfer",
+      "block_number": 24934643,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xf5544b170e0aaf8c0765e2cf3dd76f24f0a4d1e3f8189f592e605470cba2af83.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xebd1b908a30fb4c3ef6ab62bc7a877881af19c232b31e4e65078c031fdddd516",
+      "replay_tx_hash": "0x00260bdd5623c9611e64601b8c735d21ace951d94e95a47857a083f078ed84bd",
+      "dataset": "erc20_transfer",
+      "block_number": 24934756,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xebd1b908a30fb4c3ef6ab62bc7a877881af19c232b31e4e65078c031fdddd516.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x914b5628c674a0d5df5a56570fe4c8fea06db2a7998267e46548a0e212f6bbfd",
+      "replay_tx_hash": "0xbe9388397e39b2bb900630c229a83fd1ba7388c39dfad9e1486b25c4420842dd",
+      "dataset": "erc20_transfer",
+      "block_number": 24934890,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x914b5628c674a0d5df5a56570fe4c8fea06db2a7998267e46548a0e212f6bbfd.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc5c768616cd77b000ba373d1e1e554eded25ff7b27c125c15f030e2b44ca5ca0",
+      "replay_tx_hash": "0xde7f2583b6b48dbddd2e72b1938b92301163db873d742f5b27dfd0a38e499850",
+      "dataset": "erc20_transfer",
+      "block_number": 24935337,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xc5c768616cd77b000ba373d1e1e554eded25ff7b27c125c15f030e2b44ca5ca0.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7af3edb307c358832a1cde9efff5ec85a2db291da82999f4d47699aeece73c2c",
+      "replay_tx_hash": "0xc092f4fcf1b57cda9a29a59d8983433672ee9bc736a1ccc076283b06477f908f",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24935481,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x7af3edb307c358832a1cde9efff5ec85a2db291da82999f4d47699aeece73c2c.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x293e1471e33b1590feb1a4d97626e13d26ef92076c90f04052dd34fbe1ce6427",
+      "replay_tx_hash": "0xfb1f9a94a78bddee4e53ec9565463c03c1f53ee5c3d354118604943ad4e8e2ba",
+      "dataset": "erc20_transfer",
+      "block_number": 24935630,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x293e1471e33b1590feb1a4d97626e13d26ef92076c90f04052dd34fbe1ce6427.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa0bcd1d1c0254cd0aae0df66c1b136e25624b351fd18d2519bf779dbcfb8ffe5",
+      "replay_tx_hash": "0x1643459c329997556941c790476323cb379a3c77c0d5a3249c71d9be216eb197",
+      "dataset": "erc20_transfer",
+      "block_number": 24935683,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xa0bcd1d1c0254cd0aae0df66c1b136e25624b351fd18d2519bf779dbcfb8ffe5.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x52a529438f6f91bc895d35b13cdcf2b74a6f6df801e1c85ff06fe884f713e7eb",
+      "replay_tx_hash": "0x32cf08f4789d920f4cbcb5dc9011c45ffee07dc901b4af6bb75b6adb262fe9ac",
+      "dataset": "erc20_transfer",
+      "block_number": 24935749,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x52a529438f6f91bc895d35b13cdcf2b74a6f6df801e1c85ff06fe884f713e7eb.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x4624a5ee153a0a0009a47258167bde16a90ee007cb8c3dd89c9c16df696ac59b",
+      "replay_tx_hash": "0x0851fa8a5d9f7007e5bfc8c182393d24c6dcaaa061cc1c755419da16c3736bcf",
+      "dataset": "erc20_transfer",
+      "block_number": 24935765,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x4624a5ee153a0a0009a47258167bde16a90ee007cb8c3dd89c9c16df696ac59b.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x5b6f473b5ac1ba99fedb641d98c5a08c915abb93fe16304728324db68d929fd3",
+      "replay_tx_hash": "0xdc94ad9dc4603bf474d4984d94e80589b439d5c248948447002aa270fb8801db",
+      "dataset": "erc20_transfer",
+      "block_number": 24935819,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x5b6f473b5ac1ba99fedb641d98c5a08c915abb93fe16304728324db68d929fd3.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc131604f0a3accc0b5d38d86f3086ee8dcc4baa03e14c29ca0a17f21a937ea47",
+      "replay_tx_hash": "0xa48529b477d9e3739301c26e6182fd4d712dd06c78fde0d9d43c3e26c18c7fe2",
+      "dataset": "erc20_transfer",
+      "block_number": 24935992,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xc131604f0a3accc0b5d38d86f3086ee8dcc4baa03e14c29ca0a17f21a937ea47.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x240185020628596e1948d2d2a5ec4df6e8e393a26e9dc9e1de801fed35e2c701",
+      "replay_tx_hash": "0x98e167ebe53487651b0a02fd8a6d78fb54180090e3774f834ff0d8c5f4943b71",
+      "dataset": "erc20_transfer",
+      "block_number": 24936015,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x240185020628596e1948d2d2a5ec4df6e8e393a26e9dc9e1de801fed35e2c701.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7e5a89f28aec0d5e0779e3cbb37d54994bdf15981475d4c4ee39d4e1409abc6d",
+      "replay_tx_hash": "0xdfcedf3d74c11b2d795efc9db67140db2ac4f6b7c189ce7ef2593a29762f094b",
+      "dataset": "erc20_transfer",
+      "block_number": 24936272,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x7e5a89f28aec0d5e0779e3cbb37d54994bdf15981475d4c4ee39d4e1409abc6d.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x26c4bb1e7255ab8fd46af934bca5f620be96ca5ff2d441000005485c399435fd",
+      "replay_tx_hash": "0xea642b8ca69f69e9ae7490b27253edf8a0fb3176a6a68ac3256e00bae637ac81",
+      "dataset": "erc20_transfer",
+      "block_number": 24936308,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x26c4bb1e7255ab8fd46af934bca5f620be96ca5ff2d441000005485c399435fd.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xda2c4d6d75881b02db7dfa4d44657e01c10f16bff8a5bfb650d1b122c4ca0ec5",
+      "replay_tx_hash": "0x35e4a7a1c0f89a3df61cfda71bcbb7d928bd2a28b17d2080d934d4e0ea5256a7",
+      "dataset": "erc20_transfer",
+      "block_number": 24936349,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xda2c4d6d75881b02db7dfa4d44657e01c10f16bff8a5bfb650d1b122c4ca0ec5.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x056430fa21522fdba2dc0a981e5182d1b81f01e7dadae79c3bbfdc88a90aab0f",
+      "replay_tx_hash": "0x9d89ba10c046b1d982eb8eeaf950502fc0d1579bd83e6c1efe79133156cb0c27",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24936426,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x056430fa21522fdba2dc0a981e5182d1b81f01e7dadae79c3bbfdc88a90aab0f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x5516d69307fad0dd11c65772182d949589200fb9a8c486b968180780793e485d",
+      "replay_tx_hash": "0x168487fc5a0cf2bb45b7b9c2e93a5a5125cd726369ff41da278dfa0cbac5eec6",
+      "dataset": "erc20_transfer",
+      "block_number": 24936464,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x5516d69307fad0dd11c65772182d949589200fb9a8c486b968180780793e485d.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x6191b49f70ce2de96cb8a78fab22da8992d2d0a4e0ef9c82656230a9c0654b85",
+      "replay_tx_hash": "0xaf4d1f6ee432338d6f64e2494b398ede233ac39d895bb1e50d804c4131a99160",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24936492,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x6191b49f70ce2de96cb8a78fab22da8992d2d0a4e0ef9c82656230a9c0654b85.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9ecdfb22033c6fc5a903667731e4a61a8af2817e2b8b84c2c691c0fbf8a917d6",
+      "replay_tx_hash": "0x7dcbb56ced449c0b4fa4b795ea69efb0c08f3653709f581b5fc9eb1e531ec2aa",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24936625,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x9ecdfb22033c6fc5a903667731e4a61a8af2817e2b8b84c2c691c0fbf8a917d6.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x27db65882f786eaa420a4cb194e18a5905b68c9de9712cd133c816bdd2c45c8d",
+      "replay_tx_hash": "0x33aa05f954ae81ba2af1a505473456cd116cbf1cd303ea42d2626223d759ed1e",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24936657,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x27db65882f786eaa420a4cb194e18a5905b68c9de9712cd133c816bdd2c45c8d.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x800eb5ead777123d8bca5545dafc2daebcf494f27673adcd416f4f3fcfcb4f45",
+      "replay_tx_hash": "0xe8f029723885d6201505606db00b29393d16f3cf25bdb30b8aba434793a91418",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24936700,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x800eb5ead777123d8bca5545dafc2daebcf494f27673adcd416f4f3fcfcb4f45.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x75bbb4fd0dc82e1fce73cedbbe801f2f3d76a0918b29f1ed01653dd3fa6c16bf",
+      "replay_tx_hash": "0xeda2d9fe5d53d4189117652864c558857465904aa1880e7fcb6310738a020d9a",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24936900,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x75bbb4fd0dc82e1fce73cedbbe801f2f3d76a0918b29f1ed01653dd3fa6c16bf.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x210e46f45fa4b2aa3452abf5906a87c0abfb34050bc70973f6cfc366744beb2f",
+      "replay_tx_hash": "0x5709f1e824745edb3ed30a177d7046988b5eb33dc9f3a1fd8cee018afdb593b2",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24937025,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x210e46f45fa4b2aa3452abf5906a87c0abfb34050bc70973f6cfc366744beb2f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x38f496a9c9a614dff778410dded84400a6a9178f7e0ce83d0355bc93490b59c1",
+      "replay_tx_hash": "0x39ff8b9500cdb10703a6a2f538198e8e838a52839d0328995b40bab1206cdf28",
+      "dataset": "erc20_transfer",
+      "block_number": 24937173,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x38f496a9c9a614dff778410dded84400a6a9178f7e0ce83d0355bc93490b59c1.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9f10a48675f770c9df49a059712a96e18fdb5b02f7a0849e6159fb6ebf9dfbc7",
+      "replay_tx_hash": "0x12bffbf39b10c66d94660e3c2aca73442fa81ce580b6569f42378ef4e75295c7",
+      "dataset": "erc20_transfer",
+      "block_number": 24937485,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x9f10a48675f770c9df49a059712a96e18fdb5b02f7a0849e6159fb6ebf9dfbc7.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x518600074fd10a9b9be8d9725b8d905de8486043933954f3086c12138856c2c9",
+      "replay_tx_hash": "0x53c965f1acff12c1c717a6c3763b1f2d30e3e1ce9b5d0908e28b7f4240bffc93",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24937595,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x518600074fd10a9b9be8d9725b8d905de8486043933954f3086c12138856c2c9.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0b434b939e060821ccf3faa2c7a5a3ef2502b4652e71e37a1b9e922595e8e879",
+      "replay_tx_hash": "0xa2b913f74c23e212d04d343f1559d8305b0743e254d514760123cb342e4057cb",
+      "dataset": "erc20_transfer",
+      "block_number": 24937673,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x0b434b939e060821ccf3faa2c7a5a3ef2502b4652e71e37a1b9e922595e8e879.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x4c0288e98aeb341cb024e61617c6cd3ec7cd94a0c207ae6cdb35cb925813b492",
+      "replay_tx_hash": "0x17deb2709bf7d4bcfb6f4573ecceed03e43b657b7b3960b131b782234ae4e108",
+      "dataset": "erc20_transfer",
+      "block_number": 24937734,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x4c0288e98aeb341cb024e61617c6cd3ec7cd94a0c207ae6cdb35cb925813b492.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x02079504c683af6f9c45789ce6fa5ff500b1d48bb64c86d66391b60892249d46",
+      "replay_tx_hash": "0x9beaeaf834c59c2ca3e8d78d56ff0e5da440de0cb77f7021df4ca31626bda3ca",
+      "dataset": "erc20_transfer",
+      "block_number": 24937840,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x02079504c683af6f9c45789ce6fa5ff500b1d48bb64c86d66391b60892249d46.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd8d67ccd6fa9866bf2cbb8f5596364e6cd627a53a34d7288d522b036067baa03",
+      "replay_tx_hash": "0x73b8dda80f81a202f0b9a95885ddd34e15f47a9bca66468b70445de63539c909",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24937957,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xd8d67ccd6fa9866bf2cbb8f5596364e6cd627a53a34d7288d522b036067baa03.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf4ddc335ba4bdad54da53d62ce72032b63b525ee4ebb65337beb0a0115eb33c3",
+      "replay_tx_hash": "0x8c47c085271fbccdd34bbbcabd0acef1ac3515e074e36592ededd6155d5a1eda",
+      "dataset": "erc20_transfer",
+      "block_number": 24938087,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xf4ddc335ba4bdad54da53d62ce72032b63b525ee4ebb65337beb0a0115eb33c3.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd8b501a3c1f89b6722f63b0b11e1bd986178889f6c92d74705e2109c6d2fb243",
+      "replay_tx_hash": "0x36476e47bff8b4c96aed9b13fa2335576b7c848417089497dd02f6ca70488feb",
+      "dataset": "erc20_transfer",
+      "block_number": 24938112,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xd8b501a3c1f89b6722f63b0b11e1bd986178889f6c92d74705e2109c6d2fb243.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa8a9d5aa0481cf4ae29270a568609ec00b62b6237860799f2748274324d22f69",
+      "replay_tx_hash": "0xaa20930db245c67c2d0fa3eb3c27c370d0e2695492b5be8f5ae055abe0a2e7ef",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24938126,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xa8a9d5aa0481cf4ae29270a568609ec00b62b6237860799f2748274324d22f69.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xbd9bea67d1af37428e9c5e49accc65f1c046316462e667ab4437251a14b095ce",
+      "replay_tx_hash": "0xb6955186ae4d3fd0f7127307a363cfda4c8f7ce840002a8263fd6c1715151d0c",
+      "dataset": "erc20_transfer",
+      "block_number": 24938394,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xbd9bea67d1af37428e9c5e49accc65f1c046316462e667ab4437251a14b095ce.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7bf64cc665a7ebc4b7985256105a087a630e77e37906bc77c878c7230b12d088",
+      "replay_tx_hash": "0xb001fc6b9ab1ebe4989d331414c6b86cfb7c591d6caa921518ae1981527ffffe",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24938623,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x7bf64cc665a7ebc4b7985256105a087a630e77e37906bc77c878c7230b12d088.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc774edf34dd6544b2af2b00ff6bb7d39c6ba0a5761024019c6b5af3c3cef986e",
+      "replay_tx_hash": "0x49f23ef24c5d102c452517e291ccfe518dd2a9d37515fe7e487894ad39fa2906",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24938665,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xc774edf34dd6544b2af2b00ff6bb7d39c6ba0a5761024019c6b5af3c3cef986e.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x1dc665b66e37d23473debfd1ef51a3a05b831c4b32af342d4febef5aff93f025",
+      "replay_tx_hash": "0x2fb38773ce8aa9706d53812841f9353208b99b1f5dc24910982a63c9b0440896",
+      "dataset": "erc20_transfer",
+      "block_number": 24938849,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x1dc665b66e37d23473debfd1ef51a3a05b831c4b32af342d4febef5aff93f025.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9e867c18bef8706abe37aefbfcf4006c1bc01e2a5b5345f7daa479405ce21450",
+      "replay_tx_hash": "0xb09d986409d0114508c52b15eeda1890f653c93ed6fb52702ce95854b5786d26",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24938873,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x9e867c18bef8706abe37aefbfcf4006c1bc01e2a5b5345f7daa479405ce21450.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x50a6ec421f83f2b9389ebbd6a0b6f1872f5f314a84823dd6160b1e674a8e38b9",
+      "replay_tx_hash": "0xd04deef794fcde9f141da59ce52d7b269548ce3e6df5d3f412d8c5e92067534a",
+      "dataset": "erc20_transfer",
+      "block_number": 24938911,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x50a6ec421f83f2b9389ebbd6a0b6f1872f5f314a84823dd6160b1e674a8e38b9.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xfb8b8789b95bf8a9cc8def221e8a13269d037067847839fcbe0e5f578d8ec593",
+      "replay_tx_hash": "0x582091f04c2c08cf021847e437b384e444623c46d5cb5436c2eccc18193ac09f",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24939017,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xfb8b8789b95bf8a9cc8def221e8a13269d037067847839fcbe0e5f578d8ec593.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0748981b1ec6f78068f4f9f31223374425c67918dd9852d00eefd892a81b2685",
+      "replay_tx_hash": "0x92f17569eb9ef679773d857bc30cffc8e733ef4ca73957a58e2cfc1a6515123c",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24939285,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x0748981b1ec6f78068f4f9f31223374425c67918dd9852d00eefd892a81b2685.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x610b8fff36cec640b5a7dd19e6e36c8d34fb5761a389884567674a220735816e",
+      "replay_tx_hash": "0xd21785218604bc341103bcc24863ffecef17ee9b0b9cb95dbcdaf05914420cdf",
+      "dataset": "erc20_transfer",
+      "block_number": 24939497,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x610b8fff36cec640b5a7dd19e6e36c8d34fb5761a389884567674a220735816e.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x07721a9387e43749bd3352dd33ee0e4a3caff6d141bcd6494832661a0829a6f7",
+      "replay_tx_hash": "0x106066606f96a1841f4888e214f2757b8b324c2deb0fdef983a438720875e4df",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24939611,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x07721a9387e43749bd3352dd33ee0e4a3caff6d141bcd6494832661a0829a6f7.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x8e882708993cf61a6433592dd8de056a6dff1b4eff6645264e793d32721d5fbf",
+      "replay_tx_hash": "0xe54b6670ca7f595e25c36a510ca84f24354f957ce978af652f43e5722aab90b5",
+      "dataset": "erc20_transfer",
+      "block_number": 24939625,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x8e882708993cf61a6433592dd8de056a6dff1b4eff6645264e793d32721d5fbf.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa547861fae59c794662830c2e7450a880a9da1df5e3c340a02341630b80e3f55",
+      "replay_tx_hash": "0xd7f1b8f28d5663310e71d475f24322381a04d2d8acc02c20b8e650036107d984",
+      "dataset": "erc20_transfer",
+      "block_number": 24939677,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xa547861fae59c794662830c2e7450a880a9da1df5e3c340a02341630b80e3f55.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x859eef4ca6d0211f8d465ee4cada34ea8663aff24500880e3709b6aaeca47028",
+      "replay_tx_hash": "0x3ed33aa78acb9e2a8ac510fd16bc57553ba18964b31c9e6f4c260243486fc9a7",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24939797,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x859eef4ca6d0211f8d465ee4cada34ea8663aff24500880e3709b6aaeca47028.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc79e9d62dff1a7dc97c40bbb68cede5a269b48989f9dda020ba8c60d4f29c48f",
+      "replay_tx_hash": "0xce40ecb5046150e3a1db4529895bdc5e13755aff1d09c60b7726b0dcf4a389b1",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24939894,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xc79e9d62dff1a7dc97c40bbb68cede5a269b48989f9dda020ba8c60d4f29c48f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x20361d4beaf16ab1a5ff57152480c7a53f01cceb6ea49ce32d9fb9e081d46ab0",
+      "replay_tx_hash": "0x2796008a34bb596bbd261004a8eb2d50a7578f0201a247bdf26fa8a0a94b8465",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24939951,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x20361d4beaf16ab1a5ff57152480c7a53f01cceb6ea49ce32d9fb9e081d46ab0.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x36ba313706513787a8d352868fb446cfd65f18aebbeab63904418584928b9a70",
+      "replay_tx_hash": "0x2ba03f77ae5696f1a3d4fd2c25861be38b5e09c15531906fd4e070240230c573",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24940164,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x36ba313706513787a8d352868fb446cfd65f18aebbeab63904418584928b9a70.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x36ae228da103b910617fb48647d0a89db777ad299037b3163c168b70f6c16f1f",
+      "replay_tx_hash": "0xc32253020b534aa5777fb0ae6807557150fe1fbfeb7893fa79fd5cc53f3c9ac3",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24940495,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x36ae228da103b910617fb48647d0a89db777ad299037b3163c168b70f6c16f1f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd07b72a4bd2703583aa838fa1c414e8e81da38c21b061cacfa46770274fc3d16",
+      "replay_tx_hash": "0x6ea7fa14877edb46263d9cc32a07595664d33fbe29a959b0f16e326e3c317667",
+      "dataset": "erc20_transfer",
+      "block_number": 24940554,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xd07b72a4bd2703583aa838fa1c414e8e81da38c21b061cacfa46770274fc3d16.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc8565d70dedd4fc96e52e17cbb28087b7009e6a4ffe7417fce21771f01388532",
+      "replay_tx_hash": "0xd503179bfb5a96b8bec8d56e49251763de9e9e3c497ca85db99f062a258ab420",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24940867,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xc8565d70dedd4fc96e52e17cbb28087b7009e6a4ffe7417fce21771f01388532.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb4d8ce1eb068906b7bb34823dfb1c857c9f5d0447824bd649ad81cbb6f791a00",
+      "replay_tx_hash": "0xe66aa8ac08737212685e2f08a21c5813f4bb69357cd6ce9e3939c82f706a1385",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24940969,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xb4d8ce1eb068906b7bb34823dfb1c857c9f5d0447824bd649ad81cbb6f791a00.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc3817768832b05375228ca49fa37fc4e3ece764b0098fe439f581528a816c2f3",
+      "replay_tx_hash": "0xd25240074558e5be659cb00ec0f51211a620d95cd4a270f5e9f5a7c6890bb0f4",
+      "dataset": "erc20_transfer",
+      "block_number": 24941132,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0xc3817768832b05375228ca49fa37fc4e3ece764b0098fe439f581528a816c2f3.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7e8ece8a3eb8fada874c06e1a666952545b584205bad37f1aecf8b242f3e662f",
+      "replay_tx_hash": "0x30d9ab14565240a40d8e10b4260179c36b4cb649aa0759c3c16c9228d2ba033f",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24941229,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x7e8ece8a3eb8fada874c06e1a666952545b584205bad37f1aecf8b242f3e662f.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x879a6788ec0b77f0cb8500d863cc96dda9fc52ee593e16be6c25d5dbfc77e994",
+      "replay_tx_hash": "0xcb9da97c103aaaaecf2cc7b9e75919f1e9ab715e2268c82bb8535c8ce9f2bfaa",
+      "dataset": "erc20_transfer",
+      "block_number": 24941279,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x879a6788ec0b77f0cb8500d863cc96dda9fc52ee593e16be6c25d5dbfc77e994.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x42f19f81da4efd61521b4e83b9485cc66c838fff7178875e00ea0595d00af36b",
+      "replay_tx_hash": "0x1d334354db6f9374323e6ab0c2275958897b4d4a6c4e263de254f8424642a31e",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24941298,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x42f19f81da4efd61521b4e83b9485cc66c838fff7178875e00ea0595d00af36b.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9c17419c7f2f468e3238e70a71ec979055d85b369c6f8f0a1c408f37c21881d9",
+      "replay_tx_hash": "0x94072aaf44c4e2d24d3699a7d0915b3ced1d156c53e96260d87f2c2f2a0389fa",
+      "dataset": "erc20_transfer",
+      "block_number": 24941471,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x9c17419c7f2f468e3238e70a71ec979055d85b369c6f8f0a1c408f37c21881d9.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9d632669142186626301b4dd840d303e61824ecd26f4ead6d793a2c15e5cb600",
+      "replay_tx_hash": "0x8ab0cf648c7fb864b407f50ba55c5e576f154692723f7814bbd466129c44d317",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24941615,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x9d632669142186626301b4dd840d303e61824ecd26f4ead6d793a2c15e5cb600.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x33bfbdf50a1a8d74f611381ea6b6102d421239dea1892636f2625bf4fccdc910",
+      "replay_tx_hash": "0x0e6cbb921e7c50a02fbd3c5904cdf678f2e422a646887a3e0adad63c61a5f8b1",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24941672,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0x33bfbdf50a1a8d74f611381ea6b6102d421239dea1892636f2625bf4fccdc910.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x355aacdbfec2b892278cc5ecf9a15a9cdd0a1d903bd0edc76630234394185b3d",
+      "replay_tx_hash": "0xe31e6daf9aa0c0a4bc199ce780242e8c042ab2ad768e4215c007a20316b42519",
+      "dataset": "erc20_transfer",
+      "block_number": 24941808,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x355aacdbfec2b892278cc5ecf9a15a9cdd0a1d903bd0edc76630234394185b3d.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9c2001eb1a4508e74f0353b8c7485d9df150664c9763691d6a88608dd43fe72c",
+      "replay_tx_hash": "0xe36b3c2359246e4c4763fe5c7653ab94a56b814d8d786f939c20205f2e19b733",
+      "dataset": "erc20_transfer",
+      "block_number": 24941999,
+      "path": "data/traces_parallel/chunk1/erc20_transfer/0x9c2001eb1a4508e74f0353b8c7485d9df150664c9763691d6a88608dd43fe72c.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc5476baaa57a9035c53587fa483fe61dd5e87459da3f50a2dea0af01552e3cf3",
+      "replay_tx_hash": "0xd45ee43c0982d1bd7baf45e7d635b294783d807cf1a128e05c43ad93aa39aee0",
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24942063,
+      "path": "data/traces_parallel/chunk1/uniswap_v3_swap/0xc5476baaa57a9035c53587fa483fe61dd5e87459da3f50a2dea0af01552e3cf3.json.gz",
+      "source": "anvil-replay",
+      "trace_source": "debug_traceCall"
+    }
+  ],
+  "errors": [
+    {
+      "tx_hash": "0xc4c113a17a42bc631c1980879759f54498d995b6326b54ceb9f79bd52a999aa5",
+      "block_number": 24932411,
+      "error": "timed out"
+    },
+    {
+      "tx_hash": "0xcc99b0a24893530647bbb96faf2d60c60251fad6d788ed198fa41c58641db91c",
+      "block_number": 24932911,
+      "error": "IncompleteRead(462008 bytes read)"
+    },
+    {
+      "tx_hash": "0xfee2faa232c1c4b7e7686aea2f0ccc6d29e1334a26879c7eff5ab3cc762fe67f",
+      "block_number": 24934569,
+      "error": "anvil_reset: {'code': -32603, 'message': 'failed to get account for 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266: error sending request for url (https://eth-mainnet.g.alchemy.com/v2/lfWVIcNujOj9CLwPPuXaW); client error (SendRequest); connection error; peer closed connection without sending TLS close_notify: https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof'}"
+    },
+    {
+      "tx_hash": "0x88683fb77acfe9269a51a346732ad3477771e99ba6dd4c7734f1b8472306ff22",
+      "block_number": 24935511,
+      "error": "IncompleteRead(257368 bytes read)"
+    },
+    {
+      "tx_hash": "0x35cbe779dfb157118428d4dff42d66bc90ff44d99bda220967b37e6f088bb526",
+      "block_number": 24935534,
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+    },
+    {
+      "tx_hash": "0xa1b42f7c8201ddcc0acdd35838bc35f5ebdcbdb58ca2bca8d427da7644e8ab71",
+      "block_number": 24935618,
+      "error": "anvil_reset: {'code': -32603, 'message': 'failed to get fork block; error sending request for url (https://eth-mainnet.g.alchemy.com/v2/lfWVIcNujOj9CLwPPuXaW); client error (Connect); tls handshake eof'}"
+    },
+    {
+      "tx_hash": "0x1eb2c56e85b25ef569b99bd07675265d4b28a22a925bac453d7e06b0d6fc522a",
+      "block_number": 24936089,
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+    },
+    {
+      "tx_hash": "0xdcd301c74ec16c2eb5b105c02e3ec5bf109c68e0ef1f9b0df32936d1fe395712",
+      "block_number": 24937368,
+      "error": "IncompleteRead(397355 bytes read)"
+    },
+    {
+      "tx_hash": "0x31a6014dd02341d91c23b57c20d0ddcea64be4c7a4b932c810dd52a8d2b78ed0",
+      "block_number": 24940192,
+      "error": "anvil_reset: {'code': -32603, 'message': 'Fork Error: Transport(Custom(reqwest::Error { kind: Decode, source: reqwest::Error { kind: Body, source: hyper::Error(Body, Error { kind: Io(Custom { kind: UnexpectedEof, error: \"peer closed connection without sending TLS close_notify: https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof\" }) }) } }))'}"
+    },
+    {
+      "tx_hash": "0x0aca7b5704272d1b4f7bb4798711bdeea78550c97b8e099afa8b692cf2f083ea",
+      "block_number": 24940730,
+      "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1081)>"
+    },
+    {
+      "tx_hash": "0xcad49c486f89cd619d3a0e5250b2959534cb2b2a5f0f1e178ee84b343ee38296",
+      "block_number": 24941545,
+      "error": "anvil_reset: {'code': -32603, 'message': 'Fork Error: Transport(Custom(reqwest::Error { kind: Request, url: \"https://eth-mainnet.g.alchemy.com/v2/lfWVIcNujOj9CLwPPuXaW\", source: hyper_util::client::legacy::Error(Connect, Custom { kind: UnexpectedEof, error: \"tls handshake eof\" }) }))'}"
+    }
+  ]
+}

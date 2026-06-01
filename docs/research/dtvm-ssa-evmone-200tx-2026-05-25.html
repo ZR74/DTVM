@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>DTVM SSA vs Interpreter vs EVMone on 200 Transactions</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, sans-serif; margin: 32px auto; max-width: 1440px; line-height: 1.5; color: #1f2937; }
+    h1, h2, h3 { color: #111827; }
+    code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; margin: 18px 0 28px; font-size: 14px; }
+    th, td { border: 1px solid #d1d5db; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; margin: 18px 0 26px; }
+    .card { border: 1px solid #d1d5db; border-radius: 10px; padding: 16px; background: #fff; }
+    .small { color: #4b5563; font-size: 13px; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    ul { margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>DTVM SSA On/Off vs Interpreter vs EVMone on 200 Prepared Transactions</h1>
+  <p class="small">This report compares DTVM <code>SSA off</code>, DTVM <code>SSA on</code>, DTVM <code>interpreter</code>, and an <code>evmone-t8n</code> cold-run baseline over the same 200 prepared transaction bundles.</p>
+
+  <h2>Inputs</h2>
+  <ul>
+    <li><code>data/tx_replay_benchmarks/ssa200_off_fixed_20260525</code></li>
+    <li><code>data/tx_replay_benchmarks/ssa200_on_fixed_20260525</code></li>
+    <li><code>data/tx_replay_benchmarks/ssa200_interpreter_20260525</code></li>
+    <li><code>data/tx_replay_benchmarks/ssa200_evmone_praguefix_20260525</code></li>
+  </ul>
+
+  <h2>Headline</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Corpus</h3>
+      <p><strong>200</strong> common transactions</p>
+      <p class="small mono">{&quot;cow_settlement&quot;: 25, &quot;erc20_transfer&quot;: 50, &quot;erc4337_bundle&quot;: 50, &quot;uniswap_v3_swap&quot;: 50, &quot;uniswapx_reactor&quot;: 25}</p>
+    </div>
+    <div class="card">
+      <h3>SSA On vs Off</h3>
+      <p>Wall mean: <strong>+5.18%</strong></p>
+      <p>JIT mean: <strong>-29.53%</strong></p>
+    </div>
+    <div class="card">
+      <h3>Interpreter</h3>
+      <p><code>off</code> vs interp: <strong>+155.97%</strong></p>
+      <p><code>on</code> vs interp: <strong>+169.23%</strong></p>
+    </div>
+    <div class="card">
+      <h3>Against EVMone</h3>
+      <p><code>off</code> wall vs evmone: <strong>+261.11%</strong></p>
+      <p><code>on</code> wall vs evmone: <strong>+279.80%</strong></p>
+      <p><code>interp</code> wall vs evmone: <strong>+41.07%</strong></p>
+    </div>
+  </div>
+
+  <h2>Overall Means</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th>SSA Off</th>
+        <th>SSA On</th>
+        <th>Interpreter</th>
+        <th>EVMone</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Cold wall mean</td><td>58.51 ms</td><td>61.53 ms</td><td>22.86 ms</td><td>16.20 ms</td></tr>
+      <tr><td>JIT mean</td><td>5.22 ms</td><td>3.68 ms</td><td>n/a</td><td>n/a</td></tr>
+      <tr><td>EVMone gasUsed mean</td><td>n/a</td><td>n/a</td><td>n/a</td><td>210516</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Per Dataset</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Dataset</th>
+        <th>Count</th>
+        <th>Off Wall</th>
+        <th>On Wall</th>
+        <th>Interp Wall</th>
+        <th>EVMone Wall</th>
+        <th>On vs Off</th>
+        <th>Off vs Interp</th>
+        <th>On vs Interp</th>
+        <th>Off vs EVMone</th>
+        <th>On vs EVMone</th>
+        <th>Interp vs EVMone</th>
+        <th>Off JIT</th>
+        <th>On JIT</th>
+        <th>On vs Off JIT</th>
+        <th>EVMone GasUsed</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+            <tr>
+              <td><code>cow_settlement</code></td>
+              <td>25</td>
+              <td>37.58 ms</td>
+              <td>36.25 ms</td>
+              <td>24.17 ms</td>
+              <td>20.80 ms</td>
+              <td>-3.54%</td>
+              <td>+55.46%</td>
+              <td>+49.97%</td>
+              <td>+80.72%</td>
+              <td>+74.32%</td>
+              <td>+16.24%</td>
+              <td>4.93 ms</td>
+              <td>4.36 ms</td>
+              <td>-11.50%</td>
+              <td>279461</td>
+            </tr>
+            
+            <tr>
+              <td><code>erc20_transfer</code></td>
+              <td>50</td>
+              <td>81.80 ms</td>
+              <td>98.91 ms</td>
+              <td>22.74 ms</td>
+              <td>14.45 ms</td>
+              <td>+20.92%</td>
+              <td>+259.68%</td>
+              <td>+334.93%</td>
+              <td>+465.95%</td>
+              <td>+584.36%</td>
+              <td>+57.35%</td>
+              <td>14.41 ms</td>
+              <td>8.15 ms</td>
+              <td>-43.44%</td>
+              <td>226518</td>
+            </tr>
+            
+            <tr>
+              <td><code>erc4337_bundle</code></td>
+              <td>50</td>
+              <td>30.88 ms</td>
+              <td>30.19 ms</td>
+              <td>20.00 ms</td>
+              <td>15.04 ms</td>
+              <td>-2.23%</td>
+              <td>+54.40%</td>
+              <td>+50.95%</td>
+              <td>+105.31%</td>
+              <td>+100.72%</td>
+              <td>+32.97%</td>
+              <td>1.72 ms</td>
+              <td>1.63 ms</td>
+              <td>-5.58%</td>
+              <td>118827</td>
+            </tr>
+            
+            <tr>
+              <td><code>uniswap_v3_swap</code></td>
+              <td>50</td>
+              <td>90.35 ms</td>
+              <td>88.69 ms</td>
+              <td>28.61 ms</td>
+              <td>18.45 ms</td>
+              <td>-1.84%</td>
+              <td>+215.80%</td>
+              <td>+209.99%</td>
+              <td>+389.82%</td>
+              <td>+380.80%</td>
+              <td>+55.10%</td>
+              <td>4.66 ms</td>
+              <td>4.15 ms</td>
+              <td>-10.86%</td>
+              <td>296327</td>
+            </tr>
+            
+            <tr>
+              <td><code>uniswapx_reactor</code></td>
+              <td>25</td>
+              <td>24.41 ms</td>
+              <td>20.45 ms</td>
+              <td>15.98 ms</td>
+              <td>12.94 ms</td>
+              <td>-16.22%</td>
+              <td>+52.81%</td>
+              <td>+28.02%</td>
+              <td>+88.65%</td>
+              <td>+58.05%</td>
+              <td>+23.46%</td>
+              <td>n/a</td>
+              <td>n/a</td>
+              <td>n/a</td>
+              <td>121326</td>
+            </tr>
+            
+    </tbody>
+  </table>
+
+  <h2>EVMone Outcome Coverage</h2>
+  <ul>
+    <li>Exit codes: <code>{&quot;0&quot;: 200}</code></li>
+    <li>Receipt status: <code>{&quot;0x1&quot;: 200}</code></li>
+    <li>Effective forks: <code>{&quot;Cancun&quot;: 124, &quot;Prague&quot;: 76}</code></li>
+    <li>For 76 transactions whose prestate already contained <code>0xEF...</code> accounts, the harness upgraded <code>evmone-t8n</code> from <code>Cancun</code> to <code>Prague</code> because the current evmone state loader rejects those accounts under pre-Prague rules.</li>
+    <li>Note: this report uses <code>evmone-t8n</code> as a cold-run state-transition baseline. It does not provide a same-process steady-state harness equivalent to DTVM's internal benchmark mode, so the evmone comparison is intentionally limited to cold wall time and transaction-level gasUsed. DTVM correctness parity was established separately on the same 200-transaction corpus for <code>SSA off</code> vs <code>SSA on</code>.</li>
+  </ul>
+
+  <h2>Optimization Readout</h2>
+  <ul>
+    <li><code>SSA on</code> still needs a stricter profitability gate on datasets where <code>on</code> wall stays above both <code>off</code> and <code>evmone</code>, especially if the JIT mean already improved but end-to-end wall did not.</li>
+    <li>The DTVM <code>interpreter</code> baseline is materially faster than both DTVM multipass paths on cold start, so startup, module loading, and runtime setup overhead remain first-order costs. This gap should be optimized independently of SSA codegen.</li>
+    <li>If <code>cow_settlement</code>, <code>erc4337_bundle</code>, and <code>uniswap_v3_swap</code> improve under <code>SSA on</code> but still trail the interpreter and evmone, the next gains are more likely in runtime helpers, host calls, and startup overhead than in the SSA stack/value model itself.</li>
+    <li><code>erc20_transfer</code> remains the clearest negative-profitability zone: <code>SSA on</code> reduces JIT time but substantially worsens wall time. Keep it as the first target for gate tightening and compile-path trimming.</li>
+    <li>The gap to evmone on cold wall should be treated as a full-stack DTVM overhead gap, not an SSA-only gap. Use it to prioritize startup/load/instantiation trimming separately from SSA codegen tuning.</li>
+  </ul>
+
+  <h2>Slowest Samples</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>SSA Off</h3>
+      <table><thead><tr><th>Dataset</th><th>Tx</th><th>Wall</th></tr></thead><tbody><tr><td><code>uniswap_v3_swap</code></td><td><code>0x9cdeddad0f8196ce...</code></td><td>560.65 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x7ed5f9624750fdb3...</code></td><td>475.16 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x5393cae40fec4672...</code></td><td>462.44 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x039898d498c7f8ed...</code></td><td>364.99 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x9c132f5a1480482f...</code></td><td>343.51 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x6260aabe44d9b2ea...</code></td><td>311.38 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x0c8c773ee1e09bd4...</code></td><td>299.90 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x4203ce0f5e05cc66...</code></td><td>281.15 ms</td></tr></tbody></table>
+    </div>
+    <div class="card">
+      <h3>SSA On</h3>
+      <table><thead><tr><th>Dataset</th><th>Tx</th><th>Wall</th></tr></thead><tbody><tr><td><code>erc20_transfer</code></td><td><code>0x039898d498c7f8ed...</code></td><td>1198.25 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x9cdeddad0f8196ce...</code></td><td>581.65 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x5393cae40fec4672...</code></td><td>495.51 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x7ed5f9624750fdb3...</code></td><td>473.55 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x9c132f5a1480482f...</code></td><td>327.99 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x6260aabe44d9b2ea...</code></td><td>309.59 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x4203ce0f5e05cc66...</code></td><td>283.68 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x0c8c773ee1e09bd4...</code></td><td>248.52 ms</td></tr></tbody></table>
+    </div>
+    <div class="card">
+      <h3>Interpreter</h3>
+      <table><thead><tr><th>Dataset</th><th>Tx</th><th>Wall</th></tr></thead><tbody><tr><td><code>erc20_transfer</code></td><td><code>0x7ed5f9624750fdb3...</code></td><td>79.09 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x455dcc8982196692...</code></td><td>67.98 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x9cdeddad0f8196ce...</code></td><td>65.85 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x499bdb3e7ba40698...</code></td><td>60.59 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x9c132f5a1480482f...</code></td><td>57.33 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x6260aabe44d9b2ea...</code></td><td>54.45 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x4203ce0f5e05cc66...</code></td><td>53.38 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x039898d498c7f8ed...</code></td><td>53.08 ms</td></tr></tbody></table>
+    </div>
+    <div class="card">
+      <h3>EVMone</h3>
+      <table><thead><tr><th>Dataset</th><th>Tx</th><th>Wall</th></tr></thead><tbody><tr><td><code>erc20_transfer</code></td><td><code>0xda4fca93a41016c9...</code></td><td>55.35 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0xabdaa4bfe66372b8...</code></td><td>48.14 ms</td></tr><tr><td><code>cow_settlement</code></td><td><code>0xe1a74c8c4da4dc46...</code></td><td>45.92 ms</td></tr><tr><td><code>erc20_transfer</code></td><td><code>0x7ed5f9624750fdb3...</code></td><td>44.73 ms</td></tr><tr><td><code>cow_settlement</code></td><td><code>0x778f736ad2f4bb12...</code></td><td>39.90 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x4203ce0f5e05cc66...</code></td><td>39.02 ms</td></tr><tr><td><code>uniswap_v3_swap</code></td><td><code>0x485faef6eedffb96...</code></td><td>38.32 ms</td></tr><tr><td><code>cow_settlement</code></td><td><code>0x478b92c274aa6b06...</code></td><td>37.53 ms</td></tr></tbody></table>
+    </div>
+  </div>
+</body>
+</html>

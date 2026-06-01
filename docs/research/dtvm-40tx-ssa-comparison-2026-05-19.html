@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DTVM SSA On/Off Real Transaction Comparison</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: rgba(255, 255, 255, 0.88);
+        --panel-strong: #fffdf9;
+        --ink: #1f2937;
+        --muted: #5f6b7d;
+        --line: rgba(31, 41, 55, 0.12);
+        --teal: #0f766e;
+        --cyan: #0891b2;
+        --orange: #d97706;
+        --red: #c2410c;
+        --olive: #5b6b2d;
+        --gold: #b7791f;
+        --sky: #2563eb;
+        --slate: #475569;
+        --shadow: 0 20px 44px rgba(29, 41, 55, 0.08);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Source Sans 3", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(14, 116, 144, 0.10), transparent 28%),
+          radial-gradient(circle at top right, rgba(217, 119, 6, 0.11), transparent 25%),
+          linear-gradient(180deg, #fbf7ef 0%, #f3ede3 55%, #ede5d8 100%);
+      }
+      .page {
+        width: min(1240px, calc(100vw - 36px));
+        margin: 0 auto;
+        padding: 34px 0 64px;
+      }
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: 34px 36px 32px;
+        color: #fff;
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.96), rgba(30, 41, 59, 0.96)),
+          linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        right: -70px;
+        top: -88px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,255,255,0.20), transparent 70%);
+      }
+      .eyebrow {
+        letter-spacing: 0.16em;
+        font-size: 12px;
+        text-transform: uppercase;
+        opacity: 0.82;
+      }
+      h1 {
+        margin: 10px 0 10px;
+        font-family: "Space Grotesk", "Avenir Next", "IBM Plex Sans", sans-serif;
+        font-size: clamp(34px, 4vw, 54px);
+        line-height: 0.98;
+      }
+      .hero p {
+        margin: 0;
+        max-width: 900px;
+        line-height: 1.68;
+        color: rgba(255,255,255,0.86);
+      }
+      .tag-row, .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .pill-row {
+        margin-top: 18px;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        color: #fff;
+        background: rgba(255,255,255,0.11);
+        border: 1px solid rgba(255,255,255,0.14);
+      }
+      .metrics {
+        display: grid;
+        gap: 14px;
+        margin-top: 20px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .metric-card {
+        border-radius: 18px;
+        padding: 16px 16px 15px;
+        background: rgba(255,255,255,0.11);
+        border: 1px solid rgba(255,255,255,0.15);
+      }
+      .metric-label {
+        font-size: 13px;
+        color: rgba(255,255,255,0.76);
+      }
+      .metric-value {
+        margin-top: 8px;
+        font-size: 31px;
+        font-weight: 700;
+      }
+      .metric-sub {
+        margin-top: 6px;
+        font-size: 13px;
+        color: rgba(255,255,255,0.75);
+        line-height: 1.5;
+      }
+      .good .metric-value { color: #c7f9d4; }
+      .bad .metric-value { color: #ffd0c2; }
+      .flat .metric-value { color: #fff7d6; }
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 18px;
+        align-items: flex-end;
+        margin-top: 34px;
+      }
+      .section-head h2 {
+        margin: 0;
+        font-family: "Space Grotesk", "Avenir Next", "IBM Plex Sans", sans-serif;
+        font-size: 26px;
+      }
+      .section-head p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(31,41,55,0.08);
+        background: #f5ead8;
+        color: var(--ink);
+        font-size: 12px;
+      }
+      .grid-2, .grid-3, .grid-4 {
+        display: grid;
+        gap: 16px;
+        margin-top: 16px;
+      }
+      .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .panel {
+        background: var(--panel);
+        border: 1px solid rgba(255,255,255,0.68);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 22px;
+        margin-top: 16px;
+      }
+      .panel h3 {
+        margin: 0 0 12px;
+        font-size: 18px;
+      }
+      .small {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+      .list {
+        margin: 0;
+        padding-left: 18px;
+        line-height: 1.7;
+      }
+      .list li + li {
+        margin-top: 6px;
+      }
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid rgba(31,41,55,0.08);
+      }
+      .chip.good { background: rgba(16, 185, 129, 0.12); color: #0f766e; }
+      .chip.bad { background: rgba(239, 68, 68, 0.10); color: #b91c1c; }
+      .chip.flat { background: rgba(148, 163, 184, 0.13); color: #475569; }
+      .paths code {
+        display: block;
+        padding: 9px 10px;
+        border-radius: 12px;
+        background: #f7f3ec;
+        border: 1px solid rgba(31,41,55,0.06);
+        margin-top: 8px;
+        word-break: break-all;
+      }
+      .bars {
+        display: grid;
+        gap: 14px;
+      }
+      .bar-row {
+        display: grid;
+        grid-template-columns: 170px 1fr 1fr 110px;
+        gap: 12px;
+        align-items: center;
+      }
+      .bar-label {
+        font-weight: 600;
+      }
+      .dual-bar {
+        position: relative;
+        height: 14px;
+        border-radius: 999px;
+        background: rgba(148, 163, 184, 0.14);
+        overflow: hidden;
+      }
+      .dual-bar .off {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, rgba(37, 99, 235, 0.88), rgba(56, 189, 248, 0.90));
+      }
+      .dual-bar .on {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, rgba(217, 119, 6, 0.86), rgba(245, 158, 11, 0.94));
+        opacity: 0.92;
+      }
+      .bar-stat {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .stack {
+        display: flex;
+        overflow: hidden;
+        min-height: 18px;
+        border-radius: 999px;
+        background: rgba(148,163,184,0.12);
+        border: 1px solid rgba(31,41,55,0.06);
+      }
+      .stack-seg {
+        position: relative;
+        min-width: 0;
+      }
+      .stack-seg span {
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        color: rgba(255,255,255,0.92);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: calc(100% - 12px);
+      }
+      .seg-evm { background: #2563eb; }
+      .seg-host { background: #0f766e; }
+      .seg-keccak { background: #b7791f; }
+      .seg-memory { background: #9333ea; }
+      .seg-kernel { background: #475569; }
+      .seg-unknown { background: #64748b; }
+      .seg-other { background: #d97706; }
+      .seg-compiler { background: #dc2626; }
+      .seg-prof { background: #0891b2; }
+      .dataset-card {
+        padding: 18px;
+        border-radius: 20px;
+        background: var(--panel-strong);
+        border: 1px solid rgba(31,41,55,0.08);
+      }
+      .dataset-card h4 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+      .dataset-card .numbers {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 10px 0 12px;
+      }
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .data-table th {
+        text-align: left;
+        color: var(--muted);
+        font-weight: 600;
+        padding: 10px 10px;
+        border-bottom: 1px solid var(--line);
+      }
+      .data-table td {
+        padding: 10px 10px;
+        border-bottom: 1px solid rgba(31,41,55,0.08);
+        vertical-align: top;
+      }
+      .footnote {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      @media (max-width: 1000px) {
+        .metrics, .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .grid-3 { grid-template-columns: 1fr; }
+        .grid-2 { grid-template-columns: 1fr; }
+        .bar-row {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 720px) {
+        .page { width: min(100vw - 18px, 1240px); padding-top: 18px; }
+        .hero { padding: 24px 20px 22px; border-radius: 22px; }
+        .metrics { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="eyebrow">DTVM / EVM Multipass / Real Transaction Replay</div>
+        <h1>SSA On vs Off</h1>
+        <p>
+          基于当前分支的 40 条 Ethereum Mainnet prepared replay，对比
+          <code>ZEN_ENABLE_EVM_STACK_SSA_LIFT=OFF</code> 与
+          <code>ON</code> 的真实交易执行行为。报告将冷启动路径和
+          execution-only 路径分开看，避免把 JIT 编译成本与 steady-state
+          执行热点混在一起。
+        </p>
+        <div class="pill-row">
+          <span class="pill">40 prepared replays</span>
+          <span class="pill">4 datasets</span>
+          <span class="pill">execution warmup + perf attach</span>
+          <span class="pill">same code, single flag delta</span>
+        </div>
+        <div class="metrics">
+          <div class="metric-card bad"><div class="metric-label">Cold Mean Wall</div><div class="metric-value">NOT COMPARABLE</div><div class="metric-sub">raw OFF 13068.43 ms / raw ON 5935.45 ms; mismatches 24</div></div>
+          <div class="metric-card bad"><div class="metric-label">Cold JIT Mean</div><div class="metric-value">NOT COMPARABLE</div><div class="metric-sub">raw OFF 13004.86 ms / raw ON 4800.47 ms; verifier 7</div></div>
+          <div class="metric-card bad"><div class="metric-label">Execution us / Iter</div><div class="metric-value">NOT COMPARABLE</div><div class="metric-sub">raw OFF 1189.11 us / raw ON 14531.54 us; mismatches 24</div></div>
+          <div class="metric-card bad"><div class="metric-label">Behavior Match</div><div class="metric-value">DIFF</div><div class="metric-sub">benchmark mismatches: 24, perf mismatches: 24</div></div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Scope</h2>
+          <p>本次对比仅覆盖当前 40 条热集 prepared replay；当前数据集中不包含 UniswapX Reactor。</p>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="tag-row"><span class="tag">cow_settlement x 10</span><span class="tag">erc20_transfer x 10</span><span class="tag">erc4337_bundle x 10</span><span class="tag">uniswap_v3_swap x 10</span></div>
+        <div class="grid-2">
+          <div>
+            <h3>Experiment Setup</h3>
+            <ul class="list">
+              <li>冷启动基线: fresh process + <code>--enable-statistics</code>，观测 wall time / JIT compilation / statistics total。</li>
+              <li>execution-only 基线: 先 warmup，再附加 <code>perf</code>，每笔 replay 额外执行 500 次，观测 <code>profile_window_ms</code> 与热点分布。</li>
+              <li>比较对象只改动一个开关: <code>ZEN_ENABLE_EVM_STACK_SSA_LIFT</code>。</li>
+              <li>当前代码上下文已经包含此前的 internal-call journal 相关优化；本报告不再与更早版本混比。</li>
+            </ul>
+          </div>
+          <div class="paths">
+            <h3>Artifacts</h3>
+            <code>data/tx_replay_benchmarks/hotset_multipass_cold_after_internal_call_journal_20260519</code>
+            <code>data/tx_replay_benchmarks/hotset_multipass_cold_ssa_on_20260519</code>
+            <code>data/tx_replay_perf_profiles/hotset_execution_x500_current_off_20260519</code>
+            <code>data/tx_replay_perf_profiles/hotset_execution_x500_current_on_20260519</code>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Correctness</h2>
+          <p>先确认 SSA 开关没有改变这 40 条真实交易的行为结果，再讨论性能。</p>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="grid-2">
+          <div>
+            <h3>Benchmark Return Codes</h3>
+            <p class="small">SSA=OFF {&#x27;0&#x27;: 11, &#x27;1&#x27;: 2, &#x27;2&#x27;: 20, &#x27;3&#x27;: 3, &#x27;5&#x27;: 4}<br/>SSA=ON {&#x27;-6&#x27;: 9, &#x27;0&#x27;: 4, &#x27;1&#x27;: 5, &#x27;2&#x27;: 5, &#x27;3&#x27;: 2, &#x27;5&#x27;: 4, &#x27;7&#x27;: 3, &#x27;8&#x27;: 8}</p>
+          </div>
+          <div>
+            <h3>Perf Return Codes</h3>
+            <p class="small">SSA=OFF {&#x27;0&#x27;: 11, &#x27;2&#x27;: 20, &#x27;3&#x27;: 3, &#x27;5&#x27;: 4, &#x27;None&#x27;: 2}<br/>SSA=ON {&#x27;0&#x27;: 4, &#x27;2&#x27;: 5, &#x27;3&#x27;: 2, &#x27;5&#x27;: 4, &#x27;7&#x27;: 3, &#x27;8&#x27;: 8, &#x27;None&#x27;: 14}</p>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <h3>Verifier Errors</h3>
+            <p class="small">
+              benchmark: OFF 0 / ON 7<br/>
+              perf: OFF 0 / ON 7
+            </p>
+          </div>
+          <div>
+            <h3>Interpretation</h3>
+            <p class="small">
+              verifier error 不只是日志噪音。它意味着 SSA 路径生成了无效 IR，性能回退和 wall time 膨胀需要优先按正确性问题看待。
+            </p>
+          </div>
+        </div>
+        <h3>Mismatched Transactions</h3><table class="data-table"><thead><tr><th>Kind</th><th>Dataset</th><th>Tx</th><th>OFF</th><th>ON</th></tr></thead><tbody><tr><td>benchmark</td><td>cow_settlement</td><td><code>0x35afc16ea463...</code></td><td>0</td><td>7</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0x478b92c274aa...</code></td><td>2</td><td>0</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0x52e4c5e5c393...</code></td><td>2</td><td>-6</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0xb7e4be10e0b4...</code></td><td>2</td><td>7</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0xe1a74c8c4da4...</code></td><td>3</td><td>1</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0xe371e7ff2845...</code></td><td>2</td><td>-6</td></tr><tr><td>benchmark</td><td>erc20_transfer</td><td><code>0x223cd73f8806...</code></td><td>2</td><td>1</td></tr><tr><td>benchmark</td><td>erc20_transfer</td><td><code>0x254e78ebed83...</code></td><td>0</td><td>-6</td></tr><tr><td>benchmark</td><td>erc20_transfer</td><td><code>0x5aae36b8308c...</code></td><td>2</td><td>1</td></tr><tr><td>benchmark</td><td>erc20_transfer</td><td><code>0xbf988f1e7d4d...</code></td><td>0</td><td>-6</td></tr><tr><td>benchmark</td><td>erc20_transfer</td><td><code>0xffca4cf61789...</code></td><td>0</td><td>-6</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x27ca7a3d57b7...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x344db94a9b30...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x69f2256cee87...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x91500fc8a2aa...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x9cc0cb7886f8...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0xbd15c6341aa7...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0xc0d9367dc851...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0xd6b10244e702...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>uniswap_v3_swap</td><td><code>0x0dd109572800...</code></td><td>0</td><td>-6</td></tr><tr><td>benchmark</td><td>uniswap_v3_swap</td><td><code>0x19aec1e19d52...</code></td><td>2</td><td>7</td></tr><tr><td>benchmark</td><td>uniswap_v3_swap</td><td><code>0x5393cae40fec...</code></td><td>0</td><td>-6</td></tr><tr><td>benchmark</td><td>uniswap_v3_swap</td><td><code>0xada08ea85235...</code></td><td>0</td><td>-6</td></tr><tr><td>benchmark</td><td>uniswap_v3_swap</td><td><code>0xe90e22c4edb1...</code></td><td>0</td><td>-6</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0x35afc16ea463...</code></td><td>0</td><td>7</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0x478b92c274aa...</code></td><td>2</td><td>0</td></tr><tr><td>perf</td><td>cow_settlement</td><td><code>0x52e4c5e5c393...</code></td><td>2</td><td>None</td></tr><tr><td>benchmark</td><td>cow_settlement</td><td><code>0xb7e4be10e0b4...</code></td><td>2</td><td>7</td></tr><tr><td>perf</td><td>cow_settlement</td><td><code>0xe1a74c8c4da4...</code></td><td>3</td><td>None</td></tr><tr><td>perf</td><td>cow_settlement</td><td><code>0xe371e7ff2845...</code></td><td>2</td><td>None</td></tr><tr><td>perf</td><td>erc20_transfer</td><td><code>0x223cd73f8806...</code></td><td>2</td><td>None</td></tr><tr><td>perf</td><td>erc20_transfer</td><td><code>0x254e78ebed83...</code></td><td>0</td><td>None</td></tr><tr><td>perf</td><td>erc20_transfer</td><td><code>0x5aae36b8308c...</code></td><td>2</td><td>None</td></tr><tr><td>perf</td><td>erc20_transfer</td><td><code>0xbf988f1e7d4d...</code></td><td>0</td><td>None</td></tr><tr><td>perf</td><td>erc20_transfer</td><td><code>0xffca4cf61789...</code></td><td>0</td><td>None</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x27ca7a3d57b7...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x344db94a9b30...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x69f2256cee87...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x91500fc8a2aa...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0x9cc0cb7886f8...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0xbd15c6341aa7...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0xc0d9367dc851...</code></td><td>2</td><td>8</td></tr><tr><td>benchmark</td><td>erc4337_bundle</td><td><code>0xd6b10244e702...</code></td><td>2</td><td>8</td></tr><tr><td>perf</td><td>uniswap_v3_swap</td><td><code>0x0dd109572800...</code></td><td>0</td><td>None</td></tr><tr><td>benchmark</td><td>uniswap_v3_swap</td><td><code>0x19aec1e19d52...</code></td><td>2</td><td>7</td></tr><tr><td>perf</td><td>uniswap_v3_swap</td><td><code>0x5393cae40fec...</code></td><td>0</td><td>None</td></tr><tr><td>perf</td><td>uniswap_v3_swap</td><td><code>0xada08ea85235...</code></td><td>0</td><td>None</td></tr><tr><td>perf</td><td>uniswap_v3_swap</td><td><code>0xe90e22c4edb1...</code></td><td>0</td><td>None</td></tr></tbody></table>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Cold Path</h2>
+          <p>这一部分反映 fresh process 下的冷启动成本，核心看 SSA 是否改变 JIT 编译成本与整笔 replay wall time。</p>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="grid-4">
+          <div class="metric-card bad"><div class="metric-label">Mean Wall</div><div class="metric-value">5935.45 ms</div><div class="metric-sub">OFF 13068.43 ms / delta +54.58%</div></div>
+          <div class="metric-card bad"><div class="metric-label">P95 Wall</div><div class="metric-value">24440.08 ms</div><div class="metric-sub">OFF 44180.58 ms</div></div>
+          <div class="metric-card bad"><div class="metric-label">Mean JIT</div><div class="metric-value">4800.47 ms</div><div class="metric-sub">OFF 13004.86 ms / delta +63.09%</div></div>
+          <div class="metric-card bad"><div class="metric-label">Mean Stats Total</div><div class="metric-value">4181.08 ms</div><div class="metric-sub">OFF 13004.98 ms</div></div>
+        </div>
+        <h3>Per-dataset Mean Wall Time</h3>
+        <div class="bars">
+          <div class="bar-row">
+                <div class="bar-label">cow_settlement</div>
+                <div class="dual-bar"><div class="off" style="width:16.05%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:1.16%"></div></div>
+                <div class="bar-stat">+92.76%</div>
+              </div><div class="bar-row">
+                <div class="bar-label">erc20_transfer</div>
+                <div class="dual-bar"><div class="off" style="width:62.26%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:16.78%"></div></div>
+                <div class="bar-stat">+73.05%</div>
+              </div><div class="bar-row">
+                <div class="bar-label">erc4337_bundle</div>
+                <div class="dual-bar"><div class="off" style="width:18.35%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:17.86%"></div></div>
+                <div class="bar-stat">+2.64%</div>
+              </div><div class="bar-row">
+                <div class="bar-label">uniswap_v3_swap</div>
+                <div class="dual-bar"><div class="off" style="width:100.00%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:53.51%"></div></div>
+                <div class="bar-stat">+46.49%</div>
+              </div>
+        </div>
+        <p class="footnote">左列为 SSA=OFF，右列为 SSA=ON。右侧 delta 以 wall time 下降为正收益。</p>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Execution Path</h2>
+          <p>execution-only 路径看 steady-state，优先观察每次额外执行的平均耗时，以及热点从 EVM BB / host / keccak / memory 等类别如何迁移。</p>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="grid-4">
+          <div class="metric-card bad"><div class="metric-label">Mean us / Exec</div><div class="metric-value">14531.54 us</div><div class="metric-sub">OFF 1189.11 us / delta -1122.05%</div></div>
+          <div class="metric-card bad"><div class="metric-label">Mean Profile Window</div><div class="metric-value">7265.77 ms</div><div class="metric-sub">OFF 594.56 ms</div></div>
+          <div class="metric-card bad"><div class="metric-label">Execution Sample Share</div><div class="metric-value">2847.51%</div><div class="metric-sub">OFF 1526.09%</div></div>
+          <div class="metric-card flat"><div class="metric-label">Dominant Category</div><div class="metric-value">evm_host</div><div class="metric-sub">OFF unknown 46.79% / ON evm_host 86.38%</div></div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <h3>SSA=OFF Category Split</h3>
+            <div class="stack"><div class="stack-seg seg-evm" style="width:1.4540%"><span>evm_bb 1.45%</span></div><div class="stack-seg seg-host" style="width:2.9594%"><span>evm_host 2.96%</span></div><div class="stack-seg seg-keccak" style="width:7.9117%"><span>keccak 7.91%</span></div><div class="stack-seg seg-memory" style="width:4.9095%"><span>memory 4.91%</span></div><div class="stack-seg seg-kernel" style="width:6.0642%"><span>kernel 6.06%</span></div><div class="stack-seg seg-unknown" style="width:46.7947%"><span>unknown 46.79%</span></div><div class="stack-seg seg-other" style="width:29.9063%"><span>other 29.91%</span></div></div>
+          </div>
+          <div>
+            <h3>SSA=ON Category Split</h3>
+            <div class="stack"><div class="stack-seg seg-evm" style="width:0.0080%"><span>evm_bb 0.01%</span></div><div class="stack-seg seg-host" style="width:86.3794%"><span>evm_host 86.38%</span></div><div class="stack-seg seg-keccak" style="width:0.0410%"><span>keccak 0.04%</span></div><div class="stack-seg seg-memory" style="width:0.3445%"><span>memory 0.34%</span></div><div class="stack-seg seg-kernel" style="width:1.6582%"><span>kernel 1.66%</span></div><div class="stack-seg seg-unknown" style="width:1.2677%"><span>unknown 1.27%</span></div><div class="stack-seg seg-other" style="width:2.1045%"><span>other 2.10%</span></div><div class="stack-seg seg-compiler" style="width:8.1962%"><span>compiler 8.20%</span></div><div class="stack-seg seg-prof" style="width:0.0005%"><span>profiling_overhead 0.00%</span></div></div>
+          </div>
+        </div>
+        <h3>Per-dataset Execution Cost</h3>
+        <div class="bars">
+          <div class="bar-row">
+                <div class="bar-label">cow_settlement</div>
+                <div class="dual-bar"><div class="off" style="width:2.96%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:100.00%"></div></div>
+                <div class="bar-stat">-3282.52%</div>
+              </div><div class="bar-row">
+                <div class="bar-label">erc20_transfer</div>
+                <div class="dual-bar"><div class="off" style="width:2.99%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:23.49%"></div></div>
+                <div class="bar-stat">-684.61%</div>
+              </div><div class="bar-row">
+                <div class="bar-label">erc4337_bundle</div>
+                <div class="dual-bar"><div class="off" style="width:2.82%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:2.81%"></div></div>
+                <div class="bar-stat">+0.43%</div>
+              </div><div class="bar-row">
+                <div class="bar-label">uniswap_v3_swap</div>
+                <div class="dual-bar"><div class="off" style="width:2.56%"></div></div>
+                <div class="dual-bar"><div class="on" style="width:12.26%"></div></div>
+                <div class="bar-stat">-378.07%</div>
+              </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Dataset Breakdown</h2>
+          <p>按交易类型拆开后，更容易看出 SSA 更偏向帮助哪类路径。</p>
+        </div>
+      </div>
+      <section class="grid-2">
+        <article class="dataset-card">
+              <h4>cow_settlement</h4>
+              <div class="numbers">
+                <span class="chip good">cold +92.76%</span>
+                <span class="chip bad">exec -3282.52%</span>
+                <span class="chip flat">evm_bb -1.06 pp</span>
+                <span class="chip flat">keccak -6.77 pp</span>
+              </div>
+              <p class="small">
+                cold wall: OFF 4265.19 ms / ON 308.89 ms<br/>
+                exec us/iter: OFF 1240.14 us / ON 41947.95 us<br/>
+                top category: OFF unknown 49.84% / ON evm_host 90.14%
+              </p>
+            </article><article class="dataset-card">
+              <h4>erc20_transfer</h4>
+              <div class="numbers">
+                <span class="chip good">cold +73.05%</span>
+                <span class="chip bad">exec -684.61%</span>
+                <span class="chip flat">evm_bb -2.00 pp</span>
+                <span class="chip flat">keccak -4.13 pp</span>
+              </div>
+              <p class="small">
+                cold wall: OFF 16549.39 ms / ON 4459.87 ms<br/>
+                exec us/iter: OFF 1256.10 us / ON 9855.50 us<br/>
+                top category: OFF unknown 46.46% / ON evm_host 75.75%
+              </p>
+            </article><article class="dataset-card">
+              <h4>erc4337_bundle</h4>
+              <div class="numbers">
+                <span class="chip good">cold +2.64%</span>
+                <span class="chip flat">exec +0.43%</span>
+                <span class="chip flat">evm_bb +3.65 pp</span>
+                <span class="chip flat">keccak +4.84 pp</span>
+              </div>
+              <p class="small">
+                cold wall: OFF 4876.60 ms / ON 4747.68 ms<br/>
+                exec us/iter: OFF 1184.31 us / ON 1179.22 us<br/>
+                top category: OFF keccak 29.33% / ON keccak 34.17%
+              </p>
+            </article><article class="dataset-card">
+              <h4>uniswap_v3_swap</h4>
+              <div class="numbers">
+                <span class="chip good">cold +46.49%</span>
+                <span class="chip bad">exec -378.07%</span>
+                <span class="chip flat">evm_bb -1.13 pp</span>
+                <span class="chip flat">keccak -3.55 pp</span>
+              </div>
+              <p class="small">
+                cold wall: OFF 26582.52 ms / ON 14225.36 ms<br/>
+                exec us/iter: OFF 1075.89 us / ON 5143.48 us<br/>
+                top category: OFF unknown 51.61% / ON evm_host 75.59%
+              </p>
+            </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Hotspot Deltas</h2>
+          <p>这里看 SSA 是否真的把样本从 EVM 基本块、host helper 或 keccak 上搬走。</p>
+        </div>
+      </div>
+      <section class="panel">
+        <div class="grid-2">
+          <div>
+            <h3>Category Delta</h3>
+            <table class="data-table"><thead><tr><th>Category</th><th>OFF</th><th>ON</th><th>Delta</th></tr></thead><tbody><tr><td>evm_host</td><td>2.96%</td><td>86.38%</td><td>+83.42 pp</td></tr><tr><td>unknown</td><td>46.79%</td><td>1.27%</td><td>-45.53 pp</td></tr><tr><td>other</td><td>29.91%</td><td>2.10%</td><td>-27.80 pp</td></tr><tr><td>compiler</td><td>0.00%</td><td>8.20%</td><td>+8.20 pp</td></tr><tr><td>keccak</td><td>7.91%</td><td>0.04%</td><td>-7.87 pp</td></tr><tr><td>memory</td><td>4.91%</td><td>0.34%</td><td>-4.57 pp</td></tr><tr><td>kernel</td><td>6.06%</td><td>1.66%</td><td>-4.41 pp</td></tr><tr><td>evm_bb</td><td>1.45%</td><td>0.01%</td><td>-1.45 pp</td></tr><tr><td>profiling_overhead</td><td>0.00%</td><td>0.00%</td><td>+0.00 pp</td></tr></tbody></table>
+          </div>
+          <div>
+            <h3>Host Symbol Delta</h3>
+            <table class="data-table"><thead><tr><th>Host Symbol</th><th>OFF</th><th>ON</th><th>Delta</th></tr></thead><tbody><tr><td>EVMMirBuilder::setInsertBlock</td><td>0.00%</td><td>74.74%</td><td>+74.74 pp</td></tr><tr><td>EVMMirBuilder::registerPhiIncomingBlock</td><td>0.00%</td><td>3.69%</td><td>+3.69 pp</td></tr><tr><td>EVMMirBuilder::getOrCreateIndirectJumpBB</td><td>0.00%</td><td>2.92%</td><td>+2.92 pp</td></tr><tr><td>EVMMirBuilder::resolvePhiIncomingPredecessorBB</td><td>0.00%</td><td>2.67%</td><td>+2.67 pp</td></tr><tr><td>evmGetCallDataLoad</td><td>0.81%</td><td>0.00%</td><td>-0.81 pp</td></tr><tr><td>evmHandleCallInternal</td><td>0.64%</td><td>0.00%</td><td>-0.64 pp</td></tr><tr><td>evmGetSLoad</td><td>0.29%</td><td>0.00%</td><td>-0.29 pp</td></tr><tr><td>EVMMirBuilder::createIntConstInstruction</td><td>0.00%</td><td>0.21%</td><td>+0.21 pp</td></tr><tr><td>evmGetMulMod</td><td>0.20%</td><td>0.00%</td><td>-0.20 pp</td></tr><tr><td>evmEmitLog3</td><td>0.19%</td><td>0.00%</td><td>-0.19 pp</td></tr></tbody></table>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div>
+            <h3>Keccak Symbol Delta</h3>
+            <table class="data-table"><thead><tr><th>Keccak Symbol</th><th>OFF</th><th>ON</th><th>Delta</th></tr></thead><tbody><tr><td>keccakf1600_bmi</td><td>7.05%</td><td>0.04%</td><td>-7.01 pp</td></tr><tr><td>evmGetKeccak256</td><td>0.42%</td><td>0.00%</td><td>-0.42 pp</td></tr><tr><td>ethash_keccak256</td><td>0.33%</td><td>0.00%</td><td>-0.33 pp</td></tr><tr><td>zen::host::evm::crypto::keccak256</td><td>0.12%</td><td>0.00%</td><td>-0.12 pp</td></tr></tbody></table>
+          </div>
+          <div>
+            <h3>EVM BB Delta</h3>
+            <table class="data-table"><thead><tr><th>EVM BB</th><th>OFF</th><th>ON</th><th>Delta</th></tr></thead><tbody><tr><td>EVMBB0_MAIN_ENTRY_1</td><td>0.06%</td><td>0.00%</td><td>-0.06 pp</td></tr><tr><td>EVMBB0_JUMPDEST_8136</td><td>0.04%</td><td>0.00%</td><td>-0.04 pp</td></tr><tr><td>EVMBB0_JUMPDEST_10347</td><td>0.03%</td><td>0.00%</td><td>-0.03 pp</td></tr><tr><td>EVMBB0_JUMPDEST_10422</td><td>0.03%</td><td>0.00%</td><td>-0.03 pp</td></tr><tr><td>EVMBB0_JUMPDEST_18336</td><td>0.03%</td><td>0.00%</td><td>-0.03 pp</td></tr><tr><td>EVMBB0_JUMPDEST_5225</td><td>0.02%</td><td>0.00%</td><td>-0.02 pp</td></tr><tr><td>EVMBB0_JUMPDEST_16633</td><td>0.02%</td><td>0.00%</td><td>-0.02 pp</td></tr><tr><td>EVMBB0_JUMPDEST_2692</td><td>0.02%</td><td>0.00%</td><td>-0.02 pp</td></tr><tr><td>EVMBB0_JUMPDEST_18621</td><td>0.02%</td><td>0.00%</td><td>-0.02 pp</td></tr><tr><td>EVMBB0_JUMPDEST_8671</td><td>0.02%</td><td>0.00%</td><td>-0.02 pp</td></tr><tr><td>EVMBB0_JUMPDEST_10361</td><td>0.02%</td><td>0.00%</td><td>-0.02 pp</td></tr><tr><td>EVMBB0_JUMPDEST_18481</td><td>0.02%</td><td>0.00%</td><td>-0.02 pp</td></tr></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Takeaways</h2>
+          <p>这部分是把数字翻译成工程判断，重点看 SSA 值不值得在当前真实交易负载里默认开启。</p>
+        </div>
+      </div>
+      <section class="grid-2">
+        <article class="panel">
+          <h3>Observations</h3>
+          <ul class="list">
+            <li>发现返回码差异: benchmark 24 条, perf 24 条；性能数字需要先让位于正确性排查。</li><li>SSA=ON 触发 verifier error: benchmark 7 条, perf 7 条。这说明当前 SSA 路径在真实交易上存在 IR 合法性问题。</li><li>raw steady-state us/iter 从 1189.11 增长到 14531.54，但由于 perf 路径已有 24 条返回码差异和 7 条 verifier error，这组时间只能按故障症状解读。</li><li>raw 冷启动 wall time 从 13068.43 ms 变到 5935.45 ms，但 benchmark 已有 24 条返回码差异和 7 条 verifier error，这组时间不能当作正常加速。</li><li>执行收益最好的数据集是 erc4337_bundle (0.43%)，最弱的是 cow_settlement (-3282.52%)。</li><li>host helper 仍是显著热点（最高 86.38%），说明内部调用、SLOAD/SSTORE、calldata/memory helper 仍然是更直接的优化抓手。</li><li>SSA=ON 的所谓 evm_host 热点，实际上被 EVM frontend / MIR builder 符号占满，说明当前分类桶里混入了编译前端工作；这本质上是 compile-time explosion，而不是 host call 变慢。</li><li>EVM basic block 样本占比从 1.45% 降到 0.01%，这和 SSA 预期方向一致: 少做一部分 runtime stack 读写。</li>
+          </ul>
+        </article>
+        <article class="panel">
+          <h3>Limitations</h3>
+          <ul class="list">
+            <li>当前 hotset 只覆盖 4 类交易，各 10 条；不包含 UniswapX Reactor，因此不能把结论外推成五类全覆盖。</li><li>execution-only 指标来自 perf attach 窗口，适合做 on/off 相对比较，但绝对数值包含 perf 采样开销。</li><li>冷启动 benchmark 仍带有 --enable-statistics，因此 wall time 中包含统计采样本身的额外成本。</li><li>这是一组主网真实交易 prepared replay，不是链上全量样本；对长尾 bytecode 结构的代表性有限。</li>
+          </ul>
+        </article>
+      </section>
+    </main>
+  </body>
+</html>

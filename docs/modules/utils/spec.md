@@ -31,7 +31,7 @@ The utils module is DTVM's **utility and shared facilities layer**, providing cr
 | **Logging singleton** | Global unique Logger holder; replaceable via `setLogger`; multi-thread safe |
 | **ILogger** | Six-level log interface (trace/debug/info/warn/error/fatal); implemented by SpdLoggerImpl, SimpleLoggerImpl, etc. |
 | **ThreadSafeMap** | Read-heavy map wrapper over `common::SharedMutex`; read and write ops locked |
-| **Statistics** | Phase timers by `StatisticPhase`; use `startRecord`/`stopRecord`/`revertRecord` in pairs |
+| **Statistics** | Phase timers by `StatisticPhase`; use `startRecord`/`stopRecord`/`revertRecord` in pairs; supports both runtime-internal and CLI-scoped EVM timing phases |
 | **PerfMapWriter / JitDumpWriter** | JIT code address mapping for Linux perf; symbol resolution |
 | **StackMemPool** | Pre-allocated virtual stack memory for `VirtualStackInfo`; recyclable |
 | **VirtualStackInfo** | Holds RSP/RBP, WASM/EVM call context; switch stack via `runInVirtualStack` |
@@ -81,6 +81,12 @@ The utils module is DTVM's **utility and shared facilities layer**, providing cr
 | `revertRecord` | `void revertRecord(StatisticTimer Timer)` | Cancel; do not write |
 | `clearAllTimers` | `void clearAllTimers()` | Clear active timers |
 | `report` | `void report() const` | Summarize Records and output to log |
+
+For EVM replay/cold-start analysis, `StatisticPhase` also includes CLI-scoped
+phases such as runtime setup, detailed state-load subphases (file read, JSON
+parse, state materialization, access-list warmup), input decode, message
+setup, pre-execution checks, and post-execution cleanup in addition to the
+existing runtime-internal phases.
 
 ### 5. Perf Integration (`perf.h`)
 

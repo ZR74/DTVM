@@ -1,0 +1,2 @@
+[ perf record: Woken up 2 times to write data ]
+[ perf record: Captured and wrote 0.415 MB data/tx_replay_perf_smoke/erc20_f5d97_attach_x500_map/perf_dtvm.data (5508 samples) ]

@@ -1,0 +1,2 @@
+[ perf record: Woken up 17 times to write data ]
+[ perf record: Captured and wrote 3.810 MB /root/DTVM_zr/DTVM/data/tx_replay_perf_profiles/hotset_execution_x5000_20260518/erc20_transfer/0xffca4cf617890a299fcbf771ed656413df3d44921c2822773fd5a43fa1e835f1/perf_dtvm.data (58740 samples) ]

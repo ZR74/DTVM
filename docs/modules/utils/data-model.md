@@ -233,14 +233,23 @@ Pure virtual interface defining six log levels; all methods share the signature 
 | Value | Description |
 |-------|-------------|
 | Load (0) | Module load |
-| JITCompilation (1) | JIT compilation |
-| JITLazyPrecompilation (2) | JIT lazy precompilation |
-| JITLazyFgCompilation (3) | Foreground lazy compilation |
-| JITLazyBgCompilation (4) | Background lazy compilation |
-| JITLazyReleaseDelay (5) | Lazy release delay |
-| MemoryBucketMap (6) | Memory bucket map |
-| Instantiation (7) | Instantiation |
-| Execution (8) | Execution |
+| RuntimeSetup (1) | EVM runtime/host setup in CLI path |
+| StateFileRead (2) | Replay state file IO |
+| StateJsonParse (3) | Replay state JSON parse |
+| StateMaterialization (4) | Account/storage/tx_context import into host |
+| StateAccessListWarmup (5) | Access-list warmup into host |
+| InputDecode (6) | CLI calldata/input decoding |
+| MessageSetup (7) | EVM message and deploy-bytecode preparation |
+| PreExecutionChecks (8) | Sender validation, intrinsic gas, prewarm checks |
+| JITCompilation (9) | JIT compilation |
+| JITLazyPrecompilation (10) | JIT lazy precompilation |
+| JITLazyFgCompilation (11) | Foreground lazy compilation |
+| JITLazyBgCompilation (12) | Background lazy compilation |
+| JITLazyReleaseDelay (13) | Lazy release delay |
+| MemoryBucketMap (14) | Memory bucket map |
+| Instantiation (15) | Instantiation |
+| Execution (16) | Execution |
+| PostExecutionCleanup (17) | Output/save-state/unload cleanup |
 | NumStatisticPhases | Total number of phases |
 
 ### RecordType (perf JitDump)

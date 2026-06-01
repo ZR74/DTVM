@@ -1,0 +1,129 @@
+{
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200",
+  "evmone_t8n": "/root/DTVM_zr/DTVM_pr507_eval/evmone/build/bin/evmone-t8n",
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_benchmarks/ssa200_evmone_smoke",
+  "runs": 1,
+  "summary": {
+    "runs": 1,
+    "exit_codes": {
+      "0": 1
+    },
+    "receipt_status": {
+      "0x1": 1
+    },
+    "rejected_errors": {},
+    "wall_time_ms": {
+      "count": 1,
+      "sum": 29.903823975473642,
+      "mean": 29.903823975473642,
+      "median": 29.903823975473642,
+      "min": 29.903823975473642,
+      "max": 29.903823975473642
+    },
+    "gas_used": {
+      "count": 1,
+      "sum": 450867.0,
+      "mean": 450867.0,
+      "median": 450867.0,
+      "min": 450867.0,
+      "max": 450867.0
+    },
+    "datasets": {
+      "cow_settlement": {
+        "runs": 1,
+        "exit_codes": {
+          "0": 1
+        },
+        "receipt_status": {
+          "0x1": 1
+        },
+        "rejected_errors": {},
+        "wall_time_ms": {
+          "count": 1,
+          "sum": 29.903823975473642,
+          "mean": 29.903823975473642,
+          "median": 29.903823975473642,
+          "min": 29.903823975473642,
+          "max": 29.903823975473642
+        },
+        "gas_used": {
+          "count": 1,
+          "sum": 450867.0,
+          "mean": 450867.0,
+          "median": 450867.0,
+          "min": 450867.0,
+          "max": 450867.0
+        }
+      }
+    },
+    "slowest_runs": [
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0x15c1e519f682cce39a8d35b939745f3905c205a921f3a171ea5558b0746b4f0d",
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/cow_settlement/0x15c1e519f682cce39a8d35b939745f3905c205a921f3a171ea5558b0746b4f0d/prepared.json",
+        "state_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_175/cow_settlement/0x15c1e519f682cce39a8d35b939745f3905c205a921f3a171ea5558b0746b4f0d/state.json",
+        "command": [
+          "/root/DTVM_zr/DTVM_pr507_eval/evmone/build/bin/evmone-t8n",
+          "--state.fork",
+          "Cancun",
+          "--state.reward",
+          "0",
+          "--state.chainid",
+          "1",
+          "--input.alloc",
+          "/tmp/evmone_t8n_pkzc5goq/alloc.json",
+          "--input.env",
+          "/tmp/evmone_t8n_pkzc5goq/env.json",
+          "--input.txs",
+          "/tmp/evmone_t8n_pkzc5goq/txs.json",
+          "--output.basedir",
+          "/tmp/evmone_t8n_pkzc5goq/out",
+          "--output.result",
+          "out.json",
+          "--output.alloc",
+          "outAlloc.json"
+        ],
+        "command_shell": "/root/DTVM_zr/DTVM_pr507_eval/evmone/build/bin/evmone-t8n --state.fork Cancun --state.reward 0 --state.chainid 1 --input.alloc /tmp/evmone_t8n_pkzc5goq/alloc.json --input.env /tmp/evmone_t8n_pkzc5goq/env.json --input.txs /tmp/evmone_t8n_pkzc5goq/txs.json --output.basedir /tmp/evmone_t8n_pkzc5goq/out --output.result out.json --output.alloc outAlloc.json",
+        "returncode": 0,
+        "timed_out": false,
+        "error": null,
+        "wall_time_ms": 29.903823975473642,
+        "receipt_status": "0x1",
+        "receipt_gas_used": "0x6e133",
+        "receipt_cumulative_gas_used": "0x6e133",
+        "rejected_count": 0,
+        "rejected_error": null,
+        "output_result": {
+          "blobGasUsed": "0x0",
+          "currentBaseFee": "0x10ae9768",
+          "currentDifficulty": "0x0",
+          "currentExcessBlobGas": "0x0",
+          "gasUsed": "0x6e133",
+          "logsBloom": "0x20001100000000000000000000001000014000080000000000000000000000000000000000000004000000000000000000000000000000000000044000200003000200000000000028000108000010100002000100440080000000004000080200000000080000000000808004200000000040020000000010044010000010100000080000000080000000000000002000000000410000800000000000000000020000e00001208000000000800200000000000000000000010000000000000000000002000800200008000400000000000020000400000000000000000000002010000000000000100102000000000000804000000000080000000000000000",
+          "logsHash": "0x2cf6caafc61fe7f25e30273bfdf33217e15b63aeec3dec84fdbef351ecc97658",
+          "receipts": [
+            {
+              "blockHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+              "contractAddress": "0x0000000000000000000000000000000000000000",
+              "cumulativeGasUsed": "0x6e133",
+              "gasUsed": "0x6e133",
+              "logs": [],
+              "logsBloom": "0x20001100000000000000000000001000014000080000000000000000000000000000000000000004000000000000000000000000000000000000044000200003000200000000000028000108000010100002000100440080000000004000080200000000080000000000808004200000000040020000000010044010000010100000080000000080000000000000002000000000410000800000000000000000020000e00001208000000000800200000000000000000000010000000000000000000002000800200008000400000000000020000400000000000000000000002010000000000000100102000000000000804000000000080000000000000000",
+              "root": "",
+              "status": "0x1",
+              "transactionHash": "0xec2f3db273ce6ac873fe4c941bc074ebd624e414173263a084b9f0b19907a05e",
+              "transactionIndex": "0x0"
+            }
+          ],
+          "receiptsRoot": "0xed7fdbc37e300846d97c513c80736194f0b193ad96e4f989681894610cc62fd5",
+          "rejected": [],
+          "stateRoot": "0x25f579c7a25af86b255219b0e62c7415db8469ec2e3534b73693fa1cc87cb238",
+          "txRoot": "0x74e210417cc4d29ede436bef628dd2722cdb9b1c94b6bfa750ff9abae52f7ac5",
+          "withdrawalsRoot": "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
+        },
+        "stdout_tail": "",
+        "stderr_tail": ""
+      }
+    ]
+  }
+}

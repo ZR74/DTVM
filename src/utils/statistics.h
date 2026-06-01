@@ -14,14 +14,23 @@ namespace zen::utils {
 
 enum class StatisticPhase : uint32_t {
   Load = 0,
-  JITCompilation = 1,        // only for JIT mode
-  JITLazyPrecompilation = 2, // only for multipass JIT lazy mode
-  JITLazyFgCompilation = 3,  // only for multipass JIT lazy mode(foreground)
-  JITLazyBgCompilation = 4,  // only for multipass JIT lazy mode(background)
-  JITLazyReleaseDelay = 5,   // only for multipass JIT lazy mode
-  MemoryBucketMap = 6,
-  Instantiation = 7,
-  Execution = 8,
+  RuntimeSetup = 1,          // mainly for EVM CLI cold-start staging
+  StateFileRead = 2,         // mainly for EVM CLI replay state file IO
+  StateJsonParse = 3,        // mainly for EVM CLI replay JSON parse
+  StateMaterialization = 4,  // mainly for EVM CLI account/storage import
+  StateAccessListWarmup = 5, // mainly for EVM CLI access-list warmup
+  InputDecode = 6,           // mainly for EVM CLI calldata/input decode
+  MessageSetup = 7,          // mainly for EVM CLI message preparation
+  PreExecutionChecks = 8,    // mainly for EVM CLI pre-execution checks
+  JITCompilation = 9,        // only for JIT mode
+  JITLazyPrecompilation = 10,// only for multipass JIT lazy mode
+  JITLazyFgCompilation = 11, // only for multipass JIT lazy mode(foreground)
+  JITLazyBgCompilation = 12, // only for multipass JIT lazy mode(background)
+  JITLazyReleaseDelay = 13,  // only for multipass JIT lazy mode
+  MemoryBucketMap = 14,
+  Instantiation = 15,
+  Execution = 16,
+  PostExecutionCleanup = 17, // mainly for EVM CLI output/save/unload stages
   NumStatisticPhases
 };
 

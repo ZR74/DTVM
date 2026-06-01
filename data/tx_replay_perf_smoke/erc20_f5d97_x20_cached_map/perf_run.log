@@ -1,0 +1,4 @@
+
+[stderr]
+[ perf record: Woken up 45 times to write data ]
+[ perf record: Captured and wrote 11.221 MB data/tx_replay_perf_smoke/erc20_f5d97_x20_cached_map/perf_dtvm.data (91963 samples) ]

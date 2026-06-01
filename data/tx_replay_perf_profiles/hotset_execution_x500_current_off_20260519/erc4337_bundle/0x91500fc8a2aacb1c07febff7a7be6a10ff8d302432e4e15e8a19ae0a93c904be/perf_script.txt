@@ -1,0 +1,1309 @@
+dtvm  306759 1043585.227149:      50005 cycles:P: 
+	    5e25dce61665 evmc::MockedHost::access_account(evmc::address const&)+0x445 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.227227:      50005 cycles:P: 
+	ffffffff8aec7b36 native_write_msr+0x6 ([kernel.kallsyms])
+	ffffffff8ae1ace5 intel_pmu_enable_all+0x15 ([kernel.kallsyms])
+	ffffffff8ae0dde6 x86_pmu_enable+0x196 ([kernel.kallsyms])
+	ffffffff8b1a2e7c __pmu_ctx_sched_out+0x12c ([kernel.kallsyms])
+	ffffffff8b1a2f84 ctx_sched_out+0xd4 ([kernel.kallsyms])
+	ffffffff8b1a75b0 __perf_event_enable+0x130 ([kernel.kallsyms])
+	ffffffff8b19d610 event_function+0xa0 ([kernel.kallsyms])
+	ffffffff8b199834 remote_function+0x54 ([kernel.kallsyms])
+	ffffffff8b02d13f __flush_smp_call_function_queue+0x9f ([kernel.kallsyms])
+	ffffffff8b02d513 generic_smp_call_function_single_interrupt+0x13 ([kernel.kallsyms])
+	ffffffff8aea7adc __sysvec_call_function_single+0x1c ([kernel.kallsyms])
+	ffffffff8c02c49b sysvec_call_function_single+0x3b ([kernel.kallsyms])
+	ffffffff8c200fcb asm_sysvec_call_function_single+0x1b ([kernel.kallsyms])
+	    5e25dcebaf01 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x41 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.227296:      51692 cycles:P: 
+	    5e25de1d404e keccakf1600_bmi+0x58e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.227367:      54551 cycles:P: 
+	    7f702f44622c malloc+0x18c (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.227441:      57328 cycles:P: 
+	    5e25de1d4211 keccakf1600_bmi+0x751 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.227519:      59899 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.227599:      61991 cycles:P: 
+	    7f702f44564b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.227682:      63873 cycles:P: 
+	    5e25de1d3cbe keccakf1600_bmi+0x1fe (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.227768:      65535 cycles:P: 
+	    5e25dce556cb std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]+0x4b (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.227856:      66941 cycles:P: 
+	ffffffff8c20198e clear_bhb_loop+0x5e ([kernel.kallsyms])
+	ffffffff8c20012b entry_SYSCALL_64_after_hwframe+0x73 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.227944:      68038 cycles:P: 
+	    5e25de1d3e30 keccakf1600_bmi+0x370 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.228039:      69135 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.228131:      69621 cycles:P: 
+	    5e25dce87e3f zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x5f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.228222:      70330 cycles:P: 
+	    5e25de1d3f47 keccakf1600_bmi+0x487 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.228316:      71190 cycles:P: 
+	    7f6faf261e61 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.228411:      71772 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.228507:      72239 cycles:P: 
+	ffffffff8c20012b entry_SYSCALL_64_after_hwframe+0x73 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.228601:      72606 cycles:P: 
+	    5e25de1d3cde keccakf1600_bmi+0x21e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.228698:      73154 cycles:P: 
+	    5e25dd088471 std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)+0x21 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.228795:      73473 cycles:P: 
+	    5e25dcec1118 evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0x158 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7ffdee078240 [unknown] (/tmp/perf-306759.map)
+
+dtvm  306759 1043585.228893:      73755 cycles:P: 
+	    7f702f4436c3 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.228991:      73993 cycles:P: 
+	    7f6faf28f814 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.229091:      74235 cycles:P: 
+	    7f702f43afc6 pthread_once+0x6 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	79cc59f74ccc2e51 [unknown] ([unknown])
+
+dtvm  306759 1043585.229190:      74189 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.229289:      74305 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.229387:      74431 cycles:P: 
+	    7f6faf2b16b3 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.229485:      74544 cycles:P: 
+	    5e25de1d3e69 keccakf1600_bmi+0x3a9 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.229584:      74813 cycles:P: 
+	    7f6faf2e5ab5 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.229683:      74895 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.229783:      74979 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.229882:      74961 cycles:P: 
+	    7f702f54fe65 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.229982:      75019 cycles:P: 
+	    5e25de1d3fab keccakf1600_bmi+0x4eb (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.230084:      75118 cycles:P: 
+	    5e25dce61560 evmc::MockedHost::access_account(evmc::address const&)+0x340 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.230184:      74942 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.230283:      74923 cycles:P: 
+	    7f6faf2e0e95 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.230381:      74962 cycles:P: 
+	    5e25de1d3ef5 keccakf1600_bmi+0x435 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.230479:      75184 cycles:P: 
+	    5e25de1d4090 keccakf1600_bmi+0x5d0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.230578:      75422 cycles:P: 
+	    5e25dce6141b evmc::MockedHost::access_account(evmc::address const&)+0x1fb (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.230680:      75435 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.230780:      75299 cycles:P: 
+	    5e25dce32461 main+0x3de1 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.230878:      75294 cycles:P: 
+	    5e25de1d3c9a keccakf1600_bmi+0x1da (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.230976:      75477 cycles:P: 
+	    5e25de1d3eb3 keccakf1600_bmi+0x3f3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.231079:      75652 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.231179:      75428 cycles:P: 
+	    5e25dce5520b std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .isra.0]+0x1b (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	edfbd7901374aa97 [unknown] ([unknown])
+	e8fb895e844e540a [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.231279:      75365 cycles:P: 
+	    7f702f444ea0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.231379:      75380 cycles:P: 
+	    5e25de1d4223 keccakf1600_bmi+0x763 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.231477:      75432 cycles:P: 
+	    5e25de1d3dd3 keccakf1600_bmi+0x313 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.231577:      75610 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.231677:      75612 cycles:P: 
+	    7f702f445790 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.231777:      75598 cycles:P: 
+	    7f702f4452b7 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e2602bc2810 [unknown] ([unknown])
+	             961 [unknown] ([unknown])
+
+dtvm  306759 1043585.231876:      75553 cycles:P: 
+	    5e25de1d3f9d keccakf1600_bmi+0x4dd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.231976:      75701 cycles:P: 
+	    5e25de1d404e keccakf1600_bmi+0x58e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.232078:      75700 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.232180:      75455 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.232280:      75318 cycles:P: 
+	    5e25dd088461 std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)+0x11 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.232378:      75310 cycles:P: 
+	    5e25de1d4090 keccakf1600_bmi+0x5d0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.232478:      75498 cycles:P: 
+	    5e25de1d4120 keccakf1600_bmi+0x660 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.232578:      75550 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.232680:      75519 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.232780:      75339 cycles:P: 
+	    5e25dce8e5ba zen::runtime::Isolation::createEVMInstance(zen::runtime::EVMModule&, unsigned long)+0x1ba (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e26033a3110 [unknown] ([unknown])
+
+dtvm  306759 1043585.232878:      75326 cycles:P: 
+	    5e25de1d4144 keccakf1600_bmi+0x684 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.232976:      75512 cycles:P: 
+	    5e25de1d3e8a keccakf1600_bmi+0x3ca (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.233079:      75662 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.233180:      75434 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.233280:      75284 cycles:P: 
+	    7f6faf2a18d8 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.233379:      75267 cycles:P: 
+	    5e25de1d404e keccakf1600_bmi+0x58e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.233478:      75450 cycles:P: 
+	    5e25de1d3fab keccakf1600_bmi+0x4eb (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.233578:      75509 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.233678:      75492 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.233780:      75485 cycles:P: 
+	ffffffff8ae6c6dd fpregs_assert_state_consistent+0x4d ([kernel.kallsyms])
+	ffffffff8aff5cca arch_exit_to_user_mode_prepare.constprop.0+0x1a ([kernel.kallsyms])
+	ffffffff8c02d859 syscall_exit_to_user_mode+0x39 ([kernel.kallsyms])
+	ffffffff8c0270cd do_syscall_64+0x8d ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.233879:      75344 cycles:P: 
+	    5e25de1d4060 keccakf1600_bmi+0x5a0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.233978:      75375 cycles:P: 
+	    5e25de1d3c78 keccakf1600_bmi+0x1b8 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.234080:      75520 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.234181:      75312 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.234281:      75170 cycles:P: 
+	    5e25dd088526 std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)+0xd6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7ffdee078180 [unknown] (/tmp/perf-306759.map)
+
+dtvm  306759 1043585.234379:      75186 cycles:P: 
+	    5e25de1d3e7c keccakf1600_bmi+0x3bc (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.234477:      75385 cycles:P: 
+	    5e25de1d3f7a keccakf1600_bmi+0x4ba (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.234577:      75594 cycles:P: 
+	    5e25dcebaefa zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.234677:      75574 cycles:P: 
+	    7f702f4463fe cfree+0x1e (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	68ec888888888888 [unknown] ([unknown])
+
+dtvm  306759 1043585.234779:      75549 cycles:P: 
+	ffffffff8c0404e0 its_return_thunk+0x0 ([kernel.kallsyms])
+	ffffffff8c0270cd do_syscall_64+0x8d ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.234877:      75417 cycles:P: 
+	    5e25de1d3dd8 keccakf1600_bmi+0x318 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.234975:      75575 cycles:P: 
+	    5e25de1d418a keccakf1600_bmi+0x6ca (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.235078:      75743 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.235179:      75509 cycles:P: 
+	    5e25dce794c4 evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x184 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	a8691461eb043c70 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.235279:      75378 cycles:P: 
+	    5e25dd0884fe std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)+0xae (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f5bbce0 [unknown] ([unknown])
+
+dtvm  306759 1043585.235379:      75370 cycles:P: 
+	    5e25de1d3e43 keccakf1600_bmi+0x383 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.235477:      75409 cycles:P: 
+	    5e25de1d3c52 keccakf1600_bmi+0x192 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.235577:      75596 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.235678:      75577 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.235777:      75519 cycles:P: 
+	    5e25dd083d49 COMPILER::evmHandleUndefined(zen::runtime::EVMInstance*)+0x129 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9dc7300 [unknown] ([unknown])
+	    5e25dce96e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  306759 1043585.235877:      75620 cycles:P: 
+	    5e25de1d4082 keccakf1600_bmi+0x5c2 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.235975:      75635 cycles:P: 
+	    5e25de1d3f17 keccakf1600_bmi+0x457 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.236078:      75743 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.236178:      75509 cycles:P: 
+	    7f702f4460c9 malloc+0x29 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.236277:      75482 cycles:P: 
+	    5e25dce969a7 zen::runtime::EVMInstance::expandMemory(unsigned long)+0x47 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9dc7300 [unknown] ([unknown])
+	    5e25dce96e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  306759 1043585.236375:      75604 cycles:P: 
+	    5e25de1d3e8a keccakf1600_bmi+0x3ca (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.236475:      75772 cycles:P: 
+	    5e25dd0822eb COMPILER::evmSetCallDataCopy(zen::runtime::EVMInstance*, unsigned long, unsigned long, unsigned long)+0x6b (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.236574:      75763 cycles:P: 
+	    5e25dce61421 evmc::MockedHost::access_account(evmc::address const&)+0x201 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9de4450 [unknown] ([unknown])
+	    5e25dce633d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  306759 1043585.236675:      75845 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.236775:      75745 cycles:P: 
+	    5e25dce61815 evmc::MockedHost::get_code_size(evmc::address const&) const+0x45 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9dc7300 [unknown] ([unknown])
+	    5e25dce96e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  306759 1043585.236875:      75823 cycles:P: 
+	    5e25dce96350 zen::runtime::EVMInstance::setGas(unsigned long)+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.236974:      75797 cycles:P: 
+	    5e25de1d3fdf keccakf1600_bmi+0x51f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.237077:      75915 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.237178:      75643 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.237279:      75524 cycles:P: 
+	ffffffff8c20198e clear_bhb_loop+0x5e ([kernel.kallsyms])
+	ffffffff8c20012b entry_SYSCALL_64_after_hwframe+0x73 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.237379:      75399 cycles:P: 
+	    5e25de1d3e1c keccakf1600_bmi+0x35c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.237477:      75424 cycles:P: 
+	    5e25de1d3e8a keccakf1600_bmi+0x3ca (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.237577:      75605 cycles:P: 
+	    5e25dce61385 evmc::MockedHost::access_account(evmc::address const&)+0x165 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.237678:      75614 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.237760:      75529 cycles:P: 
+	    7f702f442846 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.237832:      77569 cycles:P: 
+	    5e25de1d417d keccakf1600_bmi+0x6bd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.237905:      81432 cycles:P: 
+	    5e25de1d40aa keccakf1600_bmi+0x5ea (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.237983:      85122 cycles:P: 
+	    5e25dce17540 pthread_once@plt+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.238067:      87514 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.238151:      89718 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.238236:      91858 cycles:P: 
+	    7f702f7ab37b std::__detail::_Prime_rehash_policy::_M_next_bkt(unsigned long) const+0x10b (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	    5e2605c9d0b0 [unknown] ([unknown])
+
+dtvm  306759 1043585.238324:      93763 cycles:P: 
+	    5e25dcec1032 evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0x72 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7ffdee078190 [unknown] (/tmp/perf-306759.map)
+
+dtvm  306759 1043585.238414:      95405 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.238505:      96816 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.238597:      98019 cycles:P: 
+	    5e25dce61488 evmc::MockedHost::access_account(evmc::address const&)+0x268 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.238690:      99063 cycles:P: 
+	    7f6faf2cb176 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.238784:      99932 cycles:P: 
+	    5e25de1d41b3 keccakf1600_bmi+0x6f3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.238878:     100720 cycles:P: 
+	    5e25de1d3cde keccakf1600_bmi+0x21e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.238972:     101567 cycles:P: 
+	    5e25de1d3f17 keccakf1600_bmi+0x457 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.239069:     102658 cycles:P: 
+	    5e25de1d41e7 keccakf1600_bmi+0x727 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.239167:     103065 cycles:P: 
+	    7f6faf2d0563 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.239265:     103365 cycles:P: 
+	    7f702f446410 cfree+0x30 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.239364:     103629 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.239462:     103825 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.239561:     104023 cycles:P: 
+	    7f6faf297e3a [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.239659:     104192 cycles:P: 
+	    5e25de1d4090 keccakf1600_bmi+0x5d0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.239756:     104517 cycles:P: 
+	    5e25de1d4120 keccakf1600_bmi+0x660 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.239855:     104822 cycles:P: 
+	    5e25dce96499 zen::runtime::EVMInstance::calculateMemoryExpansionCost(unsigned long, unsigned long)+0x29 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9dc7300 [unknown] ([unknown])
+	    5e25dce96e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  306759 1043585.239955:     105048 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.240057:     104993 cycles:P: 
+	    5e25dce79546 evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x206 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	e8fb895e844e540a [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.240157:     104799 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.240256:     104831 cycles:P: 
+	    7f6faf278ced [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.240355:     104881 cycles:P: 
+	    5e25de1d3f07 keccakf1600_bmi+0x447 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.240454:     105109 cycles:P: 
+	    5e25de1d3f8b keccakf1600_bmi+0x4cb (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.240554:     105196 cycles:P: 
+	    7f6faf2b4b84 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.240655:     105209 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.240755:     105007 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.240855:     105012 cycles:P: 
+	    5e25dce61385 evmc::MockedHost::access_account(evmc::address const&)+0x165 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.240954:     105050 cycles:P: 
+	    7f702f550abc [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25f9dc7300 [unknown] ([unknown])
+	    5e25dce96e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  306759 1043585.241054:     105216 cycles:P: 
+	    5e25de1d3d36 keccakf1600_bmi+0x276 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.241154:     105193 cycles:P: 
+	    5e25de1d40b6 keccakf1600_bmi+0x5f6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.241254:     105239 cycles:P: 
+	    5e25dd0822a3 COMPILER::evmSetCallDataCopy(zen::runtime::EVMInstance*, unsigned long, unsigned long, unsigned long)+0x23 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.241355:     105260 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.241455:     105137 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.241555:     105084 cycles:P: 
+	    5e25dce61439 evmc::MockedHost::access_account(evmc::address const&)+0x219 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.241654:     105118 cycles:P: 
+	    7f702f54f89e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.241753:     105152 cycles:P: 
+	    5e25de1d3f54 keccakf1600_bmi+0x494 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.241851:     105351 cycles:P: 
+	    5e25de1d40a5 keccakf1600_bmi+0x5e5 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.241951:     105561 cycles:P: 
+	    7f702f4437d3 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              51 [unknown] ([unknown])
+
+dtvm  306759 1043585.242054:     105531 cycles:P: 
+	    7f702f77f970 operator new(unsigned long)+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	e8fb895e844e540a [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.242154:     105242 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.242254:     105210 cycles:P: 
+	    5e25dce615c6 evmc::MockedHost::access_account(evmc::address const&)+0x3a6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.242352:     105225 cycles:P: 
+	    5e25de1d4120 keccakf1600_bmi+0x660 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.242452:     105414 cycles:P: 
+	    5e25de1d3f54 keccakf1600_bmi+0x494 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.242552:     105458 cycles:P: 
+	    7f6faf2ce854 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.242652:     105436 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.242753:     105425 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.242852:     105414 cycles:P: 
+	    5e25dce61373 evmc::MockedHost::access_account(evmc::address const&)+0x153 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9de4450 [unknown] ([unknown])
+	    5e25dce633d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  306759 1043585.242952:     105517 cycles:P: 
+	    5e25dd0882bd std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const+0x1d (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.243052:     105490 cycles:P: 
+	    5e25de1d3c78 keccakf1600_bmi+0x1b8 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.243153:     105422 cycles:P: 
+	    5e25de1d436e ethash_keccak256+0x7e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.243253:     105403 cycles:P: 
+	    7f6faf2a1c2a [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.243353:     105380 cycles:P: 
+	    7f702f443a00 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              81 [unknown] ([unknown])
+
+dtvm  306759 1043585.243453:     105365 cycles:P: 
+	    5e25dce794cc evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x18c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	af59d1d7ff4edc72 [unknown] ([unknown])
+
+dtvm  306759 1043585.243553:     105360 cycles:P: 
+	    5e25dce6150a evmc::MockedHost::access_account(evmc::address const&)+0x2ea (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.243652:     105365 cycles:P: 
+	    5e25de1d4028 keccakf1600_bmi+0x568 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.243750:     105536 cycles:P: 
+	    5e25de1d3d36 keccakf1600_bmi+0x276 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.243851:     105704 cycles:P: 
+	    7f6faf2cf5c6 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.243951:     105651 cycles:P: 
+	    7f702f4451af [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e2602ef7930 [unknown] ([unknown])
+	            5931 [unknown] ([unknown])
+
+dtvm  306759 1043585.244053:     105571 cycles:P: 
+	    7f702f446205 malloc+0x165 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.244154:     105334 cycles:P: 
+	    5e25dcec106a evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0xaa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7ffdee078190 [unknown] (/tmp/perf-306759.map)
+
+dtvm  306759 1043585.244255:     105298 cycles:P: 
+	    7f702f445450 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	             6b1 [unknown] ([unknown])
+	    7ffdee076a70 [unknown] (/tmp/perf-306759.map)
+	    5e25dcf79920 COMPILER::CgInstruction::~CgInstruction()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	48018914a1058d48 [unknown] ([unknown])
+
+dtvm  306759 1043585.244353:     105177 cycles:P: 
+	    5e25de1d3be8 keccakf1600_bmi+0x128 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.244453:     105356 cycles:P: 
+	    5e25de1d4096 keccakf1600_bmi+0x5d6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.244553:     105421 cycles:P: 
+	    7f6faf2b1b4a [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.244654:     105402 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.244754:     105264 cycles:P: 
+	    5e25dce7ad40 void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x390 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	de5cd13556f0547f [unknown] ([unknown])
+
+dtvm  306759 1043585.244854:     105254 cycles:P: 
+	    5e25dce61421 evmc::MockedHost::access_account(evmc::address const&)+0x201 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.244954:     105270 cycles:P: 
+	    7f6faf2b0d53 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245055:     105238 cycles:P: 
+	    5e25de1d40cb keccakf1600_bmi+0x60b (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245155:     105065 cycles:P: 
+	    5e25de1d3e0a keccakf1600_bmi+0x34a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245255:     105119 cycles:P: 
+	    7f6faf2a190f [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245356:     105136 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.245455:     105023 cycles:P: 
+	    7f702f446453 cfree+0x73 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.245555:     105051 cycles:P: 
+	    5e25dce61385 evmc::MockedHost::access_account(evmc::address const&)+0x165 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245655:     105087 cycles:P: 
+	    5e25de1d3e69 keccakf1600_bmi+0x3a9 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245754:     105164 cycles:P: 
+	    5e25de1d3f66 keccakf1600_bmi+0x4a6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245854:     105233 cycles:P: 
+	    7f6faf2cdc07 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.245954:     105235 cycles:P: 
+	    7f702f550a77 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	8dfe23b239aa2ac0 [unknown] ([unknown])
+
+dtvm  306759 1043585.246056:     105212 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.246157:     104915 cycles:P: 
+	    5e25dce55fae createEvmMessage(evmc::MockedHost&, EVMMessageConfig const&, std::vector<unsigned char, std::allocator<unsigned char> > const&)+0x2e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.246256:     104913 cycles:P: 
+	    5e25dce88ac7 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x397 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.246356:     104962 cycles:P: 
+	    5e25de1d4073 keccakf1600_bmi+0x5b3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.246454:     105040 cycles:P: 
+	    5e25de1d3dd8 keccakf1600_bmi+0x318 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.246554:     105274 cycles:P: 
+	    7f6faf2cf386 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.246654:     105298 cycles:P: 
+	    5e25dce7ad80 void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x3d0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	 f94e2336f003743 [unknown] ([unknown])
+
+dtvm  306759 1043585.246754:     105299 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.246854:     105274 cycles:P: 
+	    5e25dce61678 evmc::MockedHost::access_account(evmc::address const&)+0x458 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.246954:     105266 cycles:P: 
+	    7f6faf29275c [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.247055:     105255 cycles:P: 
+	    5e25de1d3c2f keccakf1600_bmi+0x16f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.247155:     105074 cycles:P: 
+	    5e25de1d40b6 keccakf1600_bmi+0x5f6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.247255:     105116 cycles:P: 
+	    5e25dce96900 zen::runtime::EVMInstance::chargeGas(unsigned long)+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.247356:     105149 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.247456:     104991 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.247556:     104974 cycles:P: 
+	    5e25dce613a0 evmc::MockedHost::access_account(evmc::address const&)+0x180 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.247656:     105023 cycles:P: 
+	    5e25de1d4338 ethash_keccak256+0x48 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.247755:     105067 cycles:P: 
+	    5e25de1d4159 keccakf1600_bmi+0x699 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.247855:     105130 cycles:P: 
+	    5e25de1d3c3f keccakf1600_bmi+0x17f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.247953:     105200 cycles:P: 
+	    5e25dce9750e std::_Deque_base<evmc::bytes32, std::allocator<evmc::bytes32> >::~_Deque_base()+0xe (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9dc7300 [unknown] ([unknown])
+	    5e25dce96e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  306759 1043585.248056:     105319 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.248156:     105012 cycles:P: 
+	    5e25dce7ac76 void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x2c6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	eca043dc25e92fb9 [unknown] ([unknown])
+
+dtvm  306759 1043585.248256:     105001 cycles:P: 
+	    5e25dce6153c evmc::MockedHost::access_account(evmc::address const&)+0x31c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.248355:     105045 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.248454:     105086 cycles:P: 
+	    5e25de1d3e30 keccakf1600_bmi+0x370 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.248553:     105285 cycles:P: 
+	    5e25de1d3f07 keccakf1600_bmi+0x447 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.248653:     105351 cycles:P: 
+	    7f702f443a00 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              21 [unknown] ([unknown])
+
+dtvm  306759 1043585.248735:     105343 cycles:P: 
+	    5e25dce5521b std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .isra.0]+0x2b (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	3809ace595b84ace [unknown] ([unknown])
+
+dtvm  306759 1043585.248799:     108396 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.248866:     115760 cycles:P: 
+	    7f6faf2af19a [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.248937:     123017 cycles:P: 
+	    7f6faf2aeee3 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.249014:     128477 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.249092:     133359 cycles:P: 
+	    7f702f7700d0 malloc@plt+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.249173:     137964 cycles:P: 
+	    7f6faf2d1586 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.249257:     141912 cycles:P: 
+	    5e25de1d4049 keccakf1600_bmi+0x589 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.249344:     145363 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.249432:     148225 cycles:P: 
+	    5e25de1d419c keccakf1600_bmi+0x6dc (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.249522:     150727 cycles:P: 
+	    5e25dce6154a evmc::MockedHost::access_account(evmc::address const&)+0x32a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.249613:     152824 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.249706:     154568 cycles:P: 
+	    5e25de1d3f9a keccakf1600_bmi+0x4da (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.249800:     156138 cycles:P: 
+	    5e25de1d3d9c keccakf1600_bmi+0x2dc (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.249894:     157448 cycles:P: 
+	    5e25dcec1032 evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0x72 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7ffdee078240 [unknown] (/tmp/perf-306759.map)
+
+dtvm  306759 1043585.249990:     158558 cycles:P: 
+	    7f702f4436a0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.250087:     160091 cycles:P: 
+	    5e25de1d3bdc keccakf1600_bmi+0x11c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.250184:     160726 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.250281:     161323 cycles:P: 
+	    7f702f4451a0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.250379:     161882 cycles:P: 
+	    5e25dd0882bd std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const+0x1d (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.250477:     162346 cycles:P: 
+	    5e25de1d3ec1 keccakf1600_bmi+0x401 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.250575:     162780 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.250674:     163122 cycles:P: 
+	    5e25dce59650 evmc::operator==(evmc::address const&, evmc::address const&)+0x20 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.250772:     163423 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.250871:     163666 cycles:P: 
+	    7f702f4436c3 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.250970:     163907 cycles:P: 
+	    7f6faf2d024b [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.251071:     164206 cycles:P: 
+	    5e25de1d3eae keccakf1600_bmi+0x3ee (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.251170:     164169 cycles:P: 
+	    7f6faf2c94f1 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.251270:     164269 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.251369:     164403 cycles:P: 
+	    7f702f44281b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.251468:     164529 cycles:P: 
+	    7f702f44644c cfree+0x6c (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.251567:     164639 cycles:P: 
+	    5e25de1d3f7a keccakf1600_bmi+0x4ba (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.251667:     164904 cycles:P: 
+	    5e25de1d3f07 keccakf1600_bmi+0x447 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.251766:     165016 cycles:P: 
+	    5e25de1d4423 ethash_keccak256+0x133 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.251866:     165048 cycles:P: 
+	    5e25dce61554 evmc::MockedHost::access_account(evmc::address const&)+0x334 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9de4450 [unknown] ([unknown])
+	    5e25dce633d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  306759 1043585.251966:     165202 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.252067:     165127 cycles:P: 
+	    5e25dce87b3e zen::runtime::Runtime::deleteManagedIsolation(zen::runtime::Isolation*)+0x10e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	       10004ae47 [unknown] ([unknown])
+
+dtvm  306759 1043585.252167:     164911 cycles:P: 
+	    5e25de1d3c0e keccakf1600_bmi+0x14e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.252267:     164951 cycles:P: 
+	    5e25de1d4090 keccakf1600_bmi+0x5d0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.252366:     165006 cycles:P: 
+	    5e25de1d3bd8 keccakf1600_bmi+0x118 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.252467:     165083 cycles:P: 
+	ffffffff8c201996 clear_bhb_loop+0x66 ([kernel.kallsyms])
+	ffffffff8c20012b entry_SYSCALL_64_after_hwframe+0x73 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.252567:     164969 cycles:P: 
+	    5e25dcebb9e7 zen::utils::parseAddress(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)+0x37 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	              14 [unknown] ([unknown])
+	dc34fe329f909c1c [unknown] ([unknown])
+
+dtvm  306759 1043585.252667:     164986 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.252767:     164969 cycles:P: 
+	ffffffff8c20198e clear_bhb_loop+0x5e ([kernel.kallsyms])
+	ffffffff8c20012b entry_SYSCALL_64_after_hwframe+0x73 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.252866:     164907 cycles:P: 
+	    5e25de1d3fdc keccakf1600_bmi+0x51c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.252966:     165126 cycles:P: 
+	    5e25de1d3b91 keccakf1600_bmi+0xd1 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.253066:     165145 cycles:P: 
+	    5e25dce61421 evmc::MockedHost::access_account(evmc::address const&)+0x201 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.253166:     165097 cycles:P: 
+	    5e25dcec115b evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0x19b (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7ffdee078240 [unknown] (/tmp/perf-306759.map)
+
+dtvm  306759 1043585.253267:     165091 cycles:P: 
+	    7f702f7700d0 malloc@plt+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.253367:     165082 cycles:P: 
+	    7f702f3e3140 __sigsetjmp+0x30 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.253466:     165066 cycles:P: 
+	    5e25de1d3df8 keccakf1600_bmi+0x338 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.253565:     165243 cycles:P: 
+	    5e25de1d3ce1 keccakf1600_bmi+0x221 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.253665:     165304 cycles:P: 
+	    5e25de1d3d85 keccakf1600_bmi+0x2c5 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.253765:     165339 cycles:P: 
+	    5e25dce613d4 evmc::MockedHost::access_account(evmc::address const&)+0x1b4 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9de4450 [unknown] ([unknown])
+	    5e25dce633d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  306759 1043585.253865:     165442 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.253966:     165330 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.254067:     165188 cycles:P: 
+	    5e25de1d3d22 keccakf1600_bmi+0x262 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.254166:     165003 cycles:P: 
+	    5e25de1d3e8a keccakf1600_bmi+0x3ca (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.254265:     165186 cycles:P: 
+	    5e25de1d3c78 keccakf1600_bmi+0x1b8 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.254366:     165396 cycles:P: 
+	ffffffff8c200080 entry_SYSCALL_64+0x0 ([kernel.kallsyms])
+	    7f702f43cc1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e25dce87f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dce88b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  306759 1043585.254466:     165279 cycles:P: 
+	    5e25dce975da std::_Deque_base<evmc::bytes32, std::allocator<evmc::bytes32> >::_M_initialize_map(unsigned long)+0x6a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               8 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.254566:     165239 cycles:P: 
+	    5e25dce7970a evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x3ca (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.254666:     165231 cycles:P: 
+	    7f6f2f200005 EVMBB0_MAIN_ENTRY_1+0x5 (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.254765:     165216 cycles:P: 
+	    5e25de1d4073 keccakf1600_bmi+0x5b3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.254865:     165392 cycles:P: 
+	    5e25de1d436e ethash_keccak256+0x7e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.254965:     165386 cycles:P: 
+	    5e25de1d3f17 keccakf1600_bmi+0x457 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.255066:     165543 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.255166:     165283 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.255266:     165207 cycles:P: 
+	    5e25dce7aa35 void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x85 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9e523f8 [unknown] ([unknown])
+
+dtvm  306759 1043585.255366:     165190 cycles:P: 
+	    7f6faf2cf80b [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.255466:     165163 cycles:P: 
+	    5e25de1d403c keccakf1600_bmi+0x57c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.255565:     165194 cycles:P: 
+	    5e25de1d3ca9 keccakf1600_bmi+0x1e9 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.255666:     165381 cycles:P: 
+	    7f6faf261bf3 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.255766:     165357 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.255866:     165320 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.255966:     165273 cycles:P: 
+	    7f702f4437e8 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              21 [unknown] ([unknown])
+
+dtvm  306759 1043585.256066:     165224 cycles:P: 
+	    5e25de1d4120 keccakf1600_bmi+0x660 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.256166:     165155 cycles:P: 
+	    5e25de1d40fd keccakf1600_bmi+0x63d (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.256266:     165188 cycles:P: 
+	    7f6faf2af0d4 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.256366:     165167 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.256466:     165157 cycles:P: 
+	    5e25dce7ac22 void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x272 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	de5cd13556f0547f [unknown] ([unknown])
+
+dtvm  306759 1043585.256567:     165161 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.256667:     165116 cycles:P: 
+	    7f702f446242 malloc+0x1a2 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.256766:     165131 cycles:P: 
+	    5e25de1d4060 keccakf1600_bmi+0x5a0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.256866:     165168 cycles:P: 
+	    5e25de1d3ec1 keccakf1600_bmi+0x401 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.256966:     165340 cycles:P: 
+	    7f6faf2bce43 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.257067:     165327 cycles:P: 
+	    7f702f445794 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.257167:     165084 cycles:P: 
+	    7f702f4436a0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.257267:     165081 cycles:P: 
+	    5e25dce88050 zen::runtime::Runtime::endCPUTracing()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.257367:     165106 cycles:P: 
+	    5e25dce96937 zen::runtime::EVMInstance::chargeGas(unsigned long)+0x37 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.257467:     165115 cycles:P: 
+	    5e25de1d3fdf keccakf1600_bmi+0x51f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.257567:     165155 cycles:P: 
+	    7f6faf2aed10 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.257667:     165152 cycles:P: 
+	    5e25dce613a0 evmc::MockedHost::access_account(evmc::address const&)+0x180 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.257767:     165165 cycles:P: 
+	    5e25dce3254b main+0x3ecb (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.257867:     165163 cycles:P: 
+	    7f702f77f97d operator new(unsigned long)+0xd (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	a8691461eb043c70 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.257967:     165034 cycles:P: 
+	    5e25dce8e500 zen::runtime::Isolation::createEVMInstance(zen::runtime::EVMModule&, unsigned long)+0x100 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e26033a3110 [unknown] ([unknown])
+
+dtvm  306759 1043585.258067:     165016 cycles:P: 
+	    5e25de1d3c3f keccakf1600_bmi+0x17f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.258166:     164980 cycles:P: 
+	    5e25de1d3e30 keccakf1600_bmi+0x370 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.258266:     165174 cycles:P: 
+	    5e25dce887ca zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x9a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.258339:     165182 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.258404:     173058 cycles:P: 
+	    7f702f44281b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.258473:     184531 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.258545:     195181 cycles:P: 
+	    5e25dce17640 memset@plt+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.258622:     204303 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.258703:     211944 cycles:P: 
+	    5e25de1d3f54 keccakf1600_bmi+0x494 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.258787:     218421 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.258872:     223686 cycles:P: 
+	    5e25de1d4338 ethash_keccak256+0x48 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  306759 1043585.258961:     228282 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.259051:     231570 cycles:P: 
+	    5e25de1d3cde keccakf1600_bmi+0x21e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.259142:     234677 cycles:P: 
+	    7f702f444f9f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5e2602bc0d50 [unknown] ([unknown])
+	             4c1 [unknown] ([unknown])
+
+dtvm  306759 1043585.259235:     237546 cycles:P: 
+	    7f6faf2cce40 [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.259328:     240043 cycles:P: 
+	    5e25de1d4004 keccakf1600_bmi+0x544 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.259422:     242231 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.259518:     244076 cycles:P: 
+	    7f702f55018e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.259613:     245444 cycles:P: 
+	    5e25de1d404e keccakf1600_bmi+0x58e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.259709:     246981 cycles:P: 
+	    5e25de1d3f27 keccakf1600_bmi+0x467 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.259806:     248354 cycles:P: 
+	    7f6faf2c9acf [unknown] (/tmp/perf-306759.map)
+	    5e25dcef53af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25dcef5775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.259903:     249330 cycles:P: 
+	    5e25dcebaef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.260001:     250147 cycles:P: 
+	    5e25dce793f3 evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0xb3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.260099:     251390 cycles:P: 
+	    5e25dce96470 zen::runtime::EVMInstance::calculateMemoryExpansionCost(unsigned long, unsigned long)+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5e25f9dc7300 [unknown] ([unknown])
+	    5e25dce96e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  306759 1043585.260198:     251900 cycles:P: 
+	    5e25de1d3c3f keccakf1600_bmi+0x17f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.260296:     252352 cycles:P: 
+	    5e25de1d3f07 keccakf1600_bmi+0x447 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  306759 1043585.260395:     252916 cycles:P: 
+	    7f702f4461b0 malloc+0x110 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  306759 1043585.260494:     253249 cycles:P: 
+	    5e25dcebaefe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7f702f3cad90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+

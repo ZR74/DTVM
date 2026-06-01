@@ -1,0 +1,836 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 394  of event 'cycles:P'
+# Event count (approx.): 43044864
+#
+# Overhead  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           IPC   [IPC Coverage]
+# ........  ....................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................  ....................
+#
+    31.38%  [.] 0x00000000001af18c                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+    19.80%  [.] zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0x7c6be57d5d90
+
+     6.01%  [.] malloc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+            |          
+            |--5.40%--malloc
+            |          
+             --0.61%--operator new(unsigned long)
+                       |          
+                       |--0.27%--0x84b332f141e2dfbc
+                       |          0x642cc9524119d55f
+                       |          0x7a58e3b57f6b68fc
+                       |          0x4127622062efad31
+                       |          0x56ccb42285ca2313
+                       |          0xdd92d9a12559c8f8
+                       |          0
+                       |          0
+                       |          0x4021f5416917d618
+                       |          0
+                       |          0
+                       |          0
+                       |          
+                       |--0.17%--0
+                       |          0x1cda845dc8eec537
+                       |          0xeb9fc197f6f3a582
+                       |          0xe023a812fa875740
+                       |          0x28cea8bd1a881622
+                       |          0x1cda845dc8eec537
+                       |          0x1cda845dc8eec537
+                       |          0x3af70331f566eadc
+                       |          0x1cda845dc8eec537
+                       |          0xe023a812fa875740
+                       |          0x1cda845dc8eec537
+                       |          0x1cda845dc8eec537
+                       |          0xe023a812fa875740
+                       |          0xeb9fc197f6f3a582
+                       |          0xe023a812fa875740
+                       |          0xf8abd186f3471e44
+                       |          0xe023a812fa875740
+                       |          0xf8abd186f3471e44
+                       |          0xcd6f2d48b30b6bce
+                       |          0xe023a812fa875740
+                       |          0xf8abd186f3471e44
+                       |          
+                        --0.17%--0x96f18b8078b6d358
+                                  0x93fa8fbda404233c
+                                  0x86c854474aa5d610
+                                  0xb1804e139b087518
+                                  0
+                                  0
+
+     5.02%  [.] evmc::MockedHost::access_account(evmc::address const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+     3.53%  [.] evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    -      -            
+            |          
+            |--2.31%--evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)
+            |          |          
+            |          |--0.53%--0x43a600b658b6462a
+            |          |          0xf7029cdc71c68321
+            |          |          0x43a600b658b6462a
+            |          |          |          
+            |          |          |--0.27%--0x43a600b658b6462a
+            |          |          |          
+            |          |           --0.27%--0xfa955a7aa843158c
+            |          |                     0x43a600b658b6462a
+            |          |                     0xf7029cdc71c68321
+            |          |                     0x43a600b658b6462a
+            |          |                     0x43a600b658b6462a
+            |          |          
+            |          |--0.38%--0x66091b85398ebb9b
+            |          |          
+            |          |--0.35%--0xf3146d2b7d9baa67
+            |          |          0x54defcd8bc1c2c29
+            |          |          0xf3146d2b7d9baa67
+            |          |          0x54defcd8bc1c2c29
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xa4e6871f68620c4e
+            |          |          0xf8abd186f3471e44
+            |          |          0xa62557db04cc261f
+            |          |          0
+            |          |          0x54defcd8bc1c2c29
+            |          |          0xeda4beea287c1300
+            |          |          0xeda4beea287c1300
+            |          |          0
+            |          |          0
+            |          |          0x1cda845dc8eec537
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xe023a812fa875740
+            |          |          0x28cea8bd1a881622
+            |          |          0x1cda845dc8eec537
+            |          |          0x1cda845dc8eec537
+            |          |          0x3af70331f566eadc
+            |          |          0x1cda845dc8eec537
+            |          |          0xe023a812fa875740
+            |          |          0x1cda845dc8eec537
+            |          |          0x1cda845dc8eec537
+            |          |          0xe023a812fa875740
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          0xcd6f2d48b30b6bce
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          
+            |          |--0.27%--0
+            |          |          
+            |           --0.27%--0xf8abd186f3471e44
+            |                     0x54defcd8bc1c2c29
+            |                     0xf3146d2b7d9baa67
+            |                     0x54defcd8bc1c2c29
+            |                     0xf3146d2b7d9baa67
+            |                     0x54defcd8bc1c2c29
+            |                     0xf3146d2b7d9baa67
+            |                     0x54defcd8bc1c2c29
+            |                     0xf3146d2b7d9baa67
+            |                     0x54defcd8bc1c2c29
+            |                     0xeb9fc197f6f3a582
+            |                     0xa4e6871f68620c4e
+            |                     0xf8abd186f3471e44
+            |                     0xa62557db04cc261f
+            |                     0
+            |                     0x54defcd8bc1c2c29
+            |                     0xeda4beea287c1300
+            |                     0xeda4beea287c1300
+            |                     0
+            |                     0
+            |                     0x1cda845dc8eec537
+            |                     0xeb9fc197f6f3a582
+            |                     0xe023a812fa875740
+            |                     0x28cea8bd1a881622
+            |                     0x1cda845dc8eec537
+            |                     0x1cda845dc8eec537
+            |                     0x3af70331f566eadc
+            |                     0x1cda845dc8eec537
+            |                     0xe023a812fa875740
+            |                     0x1cda845dc8eec537
+            |                     0x1cda845dc8eec537
+            |                     0xe023a812fa875740
+            |                     0xeb9fc197f6f3a582
+            |                     0xe023a812fa875740
+            |                     0xf8abd186f3471e44
+            |                     0xe023a812fa875740
+            |                     0xf8abd186f3471e44
+            |                     0xcd6f2d48b30b6bce
+            |                     0xe023a812fa875740
+            |                     0xf8abd186f3471e44
+            |          
+            |--0.50%--operator new(unsigned long)@plt
+            |          |          
+            |          |--0.32%--0x4127622062efad31
+            |          |          0x56ccb42285ca2313
+            |          |          0xdd92d9a12559c8f8
+            |          |          0
+            |          |          0
+            |          |          0x4021f5416917d618
+            |          |          0
+            |          |          0
+            |          |          0
+            |          |          
+            |           --0.17%--0x26fa1b35bc948fe6
+            |                     0xfe5a59079ed084b7
+            |                     0xbdee4d352c75989d
+            |                     0x3136ca191495e565
+            |                     0x33993208b4eeab1a
+            |                     0
+            |          
+            |--0.38%--memset@plt
+            |          
+             --0.35%--std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .isra.0]
+                       |          
+                       |--0.17%--0x56ccb42285ca2313
+                       |          0xdd92d9a12559c8f8
+                       |          0
+                       |          0
+                       |          0x4021f5416917d618
+                       |          0
+                       |          0
+                       |          0
+                       |          
+                        --0.17%--0xf3146d2b7d9baa67
+                                  0xa4e6871f68620c4e
+                                  0xcd6f2d48b30b6bce
+                                  0xeb9fc197f6f3a582
+                                  0xa4e6871f68620c4e
+                                  0xeb9fc197f6f3a582
+                                  0xa4e6871f68620c4e
+                                  0xa4e6871f68620c4e
+                                  0xa4e6871f68620c4e
+                                  0xf8abd186f3471e44
+                                  0xf8abd186f3471e44
+                                  0x54defcd8bc1c2c29
+                                  0xf3146d2b7d9baa67
+                                  0x54defcd8bc1c2c29
+                                  0xf3146d2b7d9baa67
+                                  0x54defcd8bc1c2c29
+                                  0xf3146d2b7d9baa67
+                                  0x54defcd8bc1c2c29
+                                  0xf3146d2b7d9baa67
+                                  0x54defcd8bc1c2c29
+                                  0xeb9fc197f6f3a582
+                                  0xa4e6871f68620c4e
+                                  0xf8abd186f3471e44
+                                  0xa62557db04cc261f
+                                  0
+                                  0x54defcd8bc1c2c29
+                                  0xeda4beea287c1300
+                                  0xeda4beea287c1300
+                                  0
+                                  0
+                                  0x1cda845dc8eec537
+                                  0xeb9fc197f6f3a582
+                                  0xe023a812fa875740
+                                  0x28cea8bd1a881622
+                                  0x1cda845dc8eec537
+                                  0x1cda845dc8eec537
+                                  0x3af70331f566eadc
+                                  0x1cda845dc8eec537
+                                  0xe023a812fa875740
+                                  0x1cda845dc8eec537
+                                  0x1cda845dc8eec537
+                                  0xe023a812fa875740
+                                  0xeb9fc197f6f3a582
+                                  0xe023a812fa875740
+                                  0xf8abd186f3471e44
+                                  0xe023a812fa875740
+                                  0xf8abd186f3471e44
+                                  0xcd6f2d48b30b6bce
+                                  0xe023a812fa875740
+                                  0xf8abd186f3471e44
+
+     3.00%  [.] void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)  -      -            
+            |          
+            |--2.56%--void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address co
+            |          |          
+            |          |--0.38%--0x5e9cacbddd284c2c
+            |          |          
+            |          |--0.38%--0xeb37bc85ef35d6a9
+            |          |          
+            |          |--0.27%--0x7b64e9fc06b13848
+            |          |          
+            |          |--0.26%--0x537cbc088ba74a5d
+            |          |          
+            |          |--0.23%--0x46bf60c84ed831a3
+            |          |          
+            |          |--0.17%--0x914fc0d749685043
+            |          |          0x841f342781450002
+            |          |          0x7b64e9fc06b13848
+            |          |          0x537cbc088ba74a5d
+            |          |          0xd5cb91825c35adc8
+            |          |          0x5521bb0dd1ee2cba
+            |          |          0x777efb31c6a84860
+            |          |          0x2497c627e96df0bb
+            |          |          0x437645649c931c74
+            |          |          0x143ff0fee04e0855
+            |          |          0xaa7317d1cd23d77c
+            |          |          0xa6da4df647d3a360
+            |          |          0xe452fb1820744e7d
+            |          |          0x5e9cacbddd284c2c
+            |          |          0xad764ac80065c67f
+            |          |          0x63a61a2ffa7ee23d
+            |          |          0xe6de4fbd3cc29d8c
+            |          |          
+            |          |--0.17%--0x463236e742ca3f88
+            |          |          
+            |          |--0.17%--0x2ea4b0b83e634804
+            |          |          0xe88dee48f0691164
+            |          |          0x9b0159828264358
+            |          |          0x65dbaf2296a0e1c9
+            |          |          0x4c44040000000000
+            |          |          0x3cb595f581c5397f
+            |          |          0x463236e742ca3f88
+            |          |          0x46a39ababde87a9e
+            |          |          0x1be3fdf3ad4a5f0d
+            |          |          0
+            |          |          0x401ad13ab1e7d3e
+            |          |          0x73d4220000000000
+            |          |          0x914fc0d749685043
+            |          |          0x841f342781450002
+            |          |          0x7b64e9fc06b13848
+            |          |          0x537cbc088ba74a5d
+            |          |          0xd5cb91825c35adc8
+            |          |          0x5521bb0dd1ee2cba
+            |          |          0x777efb31c6a84860
+            |          |          0x2497c627e96df0bb
+            |          |          0x437645649c931c74
+            |          |          0x143ff0fee04e0855
+            |          |          0xaa7317d1cd23d77c
+            |          |          0xa6da4df647d3a360
+            |          |          0xe452fb1820744e7d
+            |          |          0x5e9cacbddd284c2c
+            |          |          0xad764ac80065c67f
+            |          |          0x63a61a2ffa7ee23d
+            |          |          0xe6de4fbd3cc29d8c
+            |          |          
+            |          |--0.17%--0x7f50f079df8b2ec9
+            |          |          
+            |          |--0.17%--0x54347a2410b8f71e
+            |          |          
+            |           --0.17%--0x2497c627e96df0bb
+            |          
+            |--0.27%--evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)
+            |          0x1ba2e6fd0dfb6f04
+            |          
+             --0.17%--operator delete(void*, unsigned long)@plt
+                       0x5b11b6afd4ffff8f
+
+     2.63%  [.] cfree                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |          
+            |--1.80%--cfree
+            |          |          
+            |          |--0.43%--0x7f50f079df8b2ec9
+            |          |          
+            |          |--0.38%--0x1ba2e6fd0dfb6f04
+            |          |          
+            |           --0.17%--0x8dfe23b239aa2ac0
+            |          
+            |--0.45%--0x7c6be584e6a0
+            |          
+             --0.38%--void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address co
+                       0x401ad13ab1e7d3e
+
+     1.45%  [.] evmc::operator==(evmc::address const&, evmc::address const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |          
+            |--1.01%--evmc::operator==(evmc::address const&, evmc::address const&)
+            |          
+             --0.44%--evmc::MockedHost::access_account(evmc::address const&)
+
+     1.31%  [.] operator new(unsigned long)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |          
+            |--0.38%--0x54defcd8bc1c2c29
+            |          0xf3146d2b7d9baa67
+            |          0x54defcd8bc1c2c29
+            |          0xf3146d2b7d9baa67
+            |          0x54defcd8bc1c2c29
+            |          0xf3146d2b7d9baa67
+            |          0x54defcd8bc1c2c29
+            |          0xeb9fc197f6f3a582
+            |          0xa4e6871f68620c4e
+            |          0xf8abd186f3471e44
+            |          0xa62557db04cc261f
+            |          0
+            |          0x54defcd8bc1c2c29
+            |          0xeda4beea287c1300
+            |          0xeda4beea287c1300
+            |          0
+            |          0
+            |          0x1cda845dc8eec537
+            |          0xeb9fc197f6f3a582
+            |          0xe023a812fa875740
+            |          0x28cea8bd1a881622
+            |          0x1cda845dc8eec537
+            |          0x1cda845dc8eec537
+            |          0x3af70331f566eadc
+            |          0x1cda845dc8eec537
+            |          0xe023a812fa875740
+            |          0x1cda845dc8eec537
+            |          0x1cda845dc8eec537
+            |          0xe023a812fa875740
+            |          0xeb9fc197f6f3a582
+            |          0xe023a812fa875740
+            |          0xf8abd186f3471e44
+            |          0xe023a812fa875740
+            |          0xf8abd186f3471e44
+            |          0xcd6f2d48b30b6bce
+            |          0xe023a812fa875740
+            |          0xf8abd186f3471e44
+            |          
+             --0.17%--0x2e83adf0efac445c
+                       0
+                       0
+                       0
+                       0
+                       0x572c723816a41f96
+                       0
+                       0x1fa369301692d6af
+                       0x4bb923525e7a7e3d
+                       0
+                       0x4436f099bc1be81f
+                       0x78b4e4a93d0cf7d4
+                       0x3187e6e8acdd1d37
+                       0x3187e6e8acdd1d37
+                       0xd7eed6dd5f76e56c
+                       0x2e83adf0efac445c
+                       0
+                       0xf7c419cd01b5d93b
+                       0xf7c419cd01b5d93b
+                       0x9bc5cc0796db8298
+                       0xf7c419cd01b5d93b
+
+     1.14%  [.] std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .isra.0]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |          
+            |--0.88%--std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .isra.0]
+            |          |          
+            |          |--0.53%--0xa93b43617023fd11
+            |          |          
+            |          |--0.17%--0xbb9bd4bb6c73709b
+            |          |          0xb51b7d6d52598061
+            |          |          0xfd146d2386983135
+            |          |          0xa93b43617023fd11
+            |          |          
+            |           --0.17%--0x78b4e4a93d0cf7d4
+            |                     0x3187e6e8acdd1d37
+            |                     0x3187e6e8acdd1d37
+            |                     0xd7eed6dd5f76e56c
+            |                     0x2e83adf0efac445c
+            |                     0
+            |                     0xf7c419cd01b5d93b
+            |                     0xf7c419cd01b5d93b
+            |                     0x9bc5cc0796db8298
+            |                     0xf7c419cd01b5d93b
+            |          
+             --0.26%--evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)
+                       0x2e83adf0efac445c
+                       0
+                       0
+                       0
+                       0
+                       0x572c723816a41f96
+                       0
+                       0x1fa369301692d6af
+                       0x4bb923525e7a7e3d
+                       0
+                       0x4436f099bc1be81f
+                       0x78b4e4a93d0cf7d4
+                       0x3187e6e8acdd1d37
+                       0x3187e6e8acdd1d37
+                       0xd7eed6dd5f76e56c
+                       0x2e83adf0efac445c
+                       0
+                       0xf7c419cd01b5d93b
+                       0xf7c419cd01b5d93b
+                       0x9bc5cc0796db8298
+                       0xf7c419cd01b5d93b
+
+     1.13%  [.] operator new(unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |          
+            |--0.44%--evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)
+            |          |          
+            |          |--0.27%--0x54defcd8bc1c2c29
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xa4e6871f68620c4e
+            |          |          0xf8abd186f3471e44
+            |          |          0xa62557db04cc261f
+            |          |          0
+            |          |          0x54defcd8bc1c2c29
+            |          |          0xeda4beea287c1300
+            |          |          0xeda4beea287c1300
+            |          |          0
+            |          |          0
+            |          |          0x1cda845dc8eec537
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xe023a812fa875740
+            |          |          0x28cea8bd1a881622
+            |          |          0x1cda845dc8eec537
+            |          |          0x1cda845dc8eec537
+            |          |          0x3af70331f566eadc
+            |          |          0x1cda845dc8eec537
+            |          |          0xe023a812fa875740
+            |          |          0x1cda845dc8eec537
+            |          |          0x1cda845dc8eec537
+            |          |          0xe023a812fa875740
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          0xcd6f2d48b30b6bce
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          
+            |           --0.17%--0xe023a812fa875740
+            |                     0xf8abd186f3471e44
+            |                     0xe023a812fa875740
+            |                     0xf8abd186f3471e44
+            |                     0xcd6f2d48b30b6bce
+            |                     0xe023a812fa875740
+            |                     0xf8abd186f3471e44
+            |          
+            |--0.35%--operator new(unsigned long)
+            |          |          
+            |          |--0.17%--0xeda4beea287c1300
+            |          |          0
+            |          |          0
+            |          |          0x1cda845dc8eec537
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xe023a812fa875740
+            |          |          0x28cea8bd1a881622
+            |          |          0x1cda845dc8eec537
+            |          |          0x1cda845dc8eec537
+            |          |          0x3af70331f566eadc
+            |          |          0x1cda845dc8eec537
+            |          |          0xe023a812fa875740
+            |          |          0x1cda845dc8eec537
+            |          |          0x1cda845dc8eec537
+            |          |          0xe023a812fa875740
+            |          |          0xeb9fc197f6f3a582
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          0xcd6f2d48b30b6bce
+            |          |          0xe023a812fa875740
+            |          |          0xf8abd186f3471e44
+            |          |          
+            |           --0.17%--0xcd6f2d48b30b6bce
+            |                     0xe023a812fa875740
+            |                     0xf8abd186f3471e44
+            |          
+             --0.35%--malloc@plt
+                       |          
+                       |--0.17%--0x572c723816a41f96
+                       |          0xd7eed6dd5f76e56c
+                       |          0x2e83adf0efac445c
+                       |          0
+                       |          0
+                       |          0
+                       |          0
+                       |          0x572c723816a41f96
+                       |          0
+                       |          0x1fa369301692d6af
+                       |          0x4bb923525e7a7e3d
+                       |          0
+                       |          0x4436f099bc1be81f
+                       |          0x78b4e4a93d0cf7d4
+                       |          0x3187e6e8acdd1d37
+                       |          0x3187e6e8acdd1d37
+                       |          0xd7eed6dd5f76e56c
+                       |          0x2e83adf0efac445c
+                       |          0
+                       |          0xf7c419cd01b5d93b
+                       |          0xf7c419cd01b5d93b
+                       |          0x9bc5cc0796db8298
+                       |          0xf7c419cd01b5d93b
+                       |          
+                        --0.17%--0
+                                  0
+
+     1.09%  [.] pthread_sigmask                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |          
+            |--0.91%--pthread_sigmask
+            |          zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+            |          zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+            |          0
+            |          
+             --0.17%--std::hash<evmc::bytes32>::operator()(evmc::bytes32 const&) const [clone .isra.0]
+                       0xf3146d2b7d9baa67
+                       0xa4e6871f68620c4e
+                       0xcd6f2d48b30b6bce
+                       0xeb9fc197f6f3a582
+                       0xa4e6871f68620c4e
+                       0xeb9fc197f6f3a582
+                       0xa4e6871f68620c4e
+                       0xa4e6871f68620c4e
+                       0xa4e6871f68620c4e
+                       0xf8abd186f3471e44
+                       0xf8abd186f3471e44
+                       0x54defcd8bc1c2c29
+                       0xf3146d2b7d9baa67
+                       0x54defcd8bc1c2c29
+                       0xf3146d2b7d9baa67
+                       0x54defcd8bc1c2c29
+                       0xf3146d2b7d9baa67
+                       0x54defcd8bc1c2c29
+                       0xf3146d2b7d9baa67
+                       0x54defcd8bc1c2c29
+                       0xeb9fc197f6f3a582
+                       0xa4e6871f68620c4e
+                       0xf8abd186f3471e44
+                       0xa62557db04cc261f
+                       0
+                       0x54defcd8bc1c2c29
+                       0xeda4beea287c1300
+                       0xeda4beea287c1300
+                       0
+                       0
+                       0x1cda845dc8eec537
+                       0xeb9fc197f6f3a582
+                       0xe023a812fa875740
+                       0x28cea8bd1a881622
+                       0x1cda845dc8eec537
+                       0x1cda845dc8eec537
+                       0x3af70331f566eadc
+                       0x1cda845dc8eec537
+                       0xe023a812fa875740
+                       0x1cda845dc8eec537
+                       0x1cda845dc8eec537
+                       0xe023a812fa875740
+                       0xeb9fc197f6f3a582
+                       0xe023a812fa875740
+                       0xf8abd186f3471e44
+                       0xe023a812fa875740
+                       0xf8abd186f3471e44
+                       0xcd6f2d48b30b6bce
+                       0xe023a812fa875740
+                       0xf8abd186f3471e44
+
+     0.99%  [.] 0x00000000000a26be                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.97%  [.] 0x00000000000a1817                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.90%  [.] 0x00000000000a26ad                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.80%  [.] operator delete(void*, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             -      -            
+            |          
+            |--0.27%--0x1ba2e6fd0dfb6f04
+            |          
+            |--0.27%--0xaa7317d1cd23d77c
+            |          
+             --0.27%--0x65dbaf2296a0e1c9
+
+     0.65%  [.] 0x00000000000a3a14                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.63%  [.] 0x00000000000a2726                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |          
+            |--0.36%--0x81
+            |          
+             --0.27%--0x71
+
+     0.61%  [.] 0x00000000000a2800                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |          
+            |--0.44%--0x81
+            |          
+             --0.17%--0x71
+
+     0.56%  [.] 0x00000000000a1729                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.55%  [.] operator delete(void*)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+            |          
+            |--0.38%--0x5e9cacbddd284c2c
+            |          
+             --0.17%--0x642c74526e40
+
+     0.52%  [.] main                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---0x7c6be57d5d90
+
+     0.50%  [.] 0x00000000000a28c4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |          
+            |--0.38%--0x5711
+            |          
+             --0.12%--0xd91
+
+     0.45%  [k] _raw_spin_lock_irq                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---do_group_exit
+               __x64_sys_exit_group
+               x64_sys_call
+               do_syscall_64
+               entry_SYSCALL_64_after_hwframe
+               _exit
+               0x7c6be57d5d90
+
+     0.44%  [.] memset@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |          
+            |--0.27%--0x8dfe23b239aa2ac0
+            |          
+             --0.17%--0x65dbaf2296a0e1c9
+
+     0.44%  [.] 0x00000000000a26de                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x81
+
+     0.40%  [.] 0x00000000000a3bb4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.38%  [.] 0x00000000000a422f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x642c743a8c60
+               0x51
+
+     0.38%  [.] 0x00000000000a3b7e                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.38%  [.] 0x00000000000a273f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x81
+
+     0.38%  [.] 0x00000000000a3f7d                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.38%  [.] operator delete(void*, unsigned long)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         -      -            
+            |
+            ---0x14
+               0x23ea815416d6f99f
+
+     0.38%  [.] 0x00000000000a3e85                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.38%  [.] 0x00000000000a3b8d                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.38%  [.] evmc::operator<(evmc::address const&, evmc::address const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+     0.38%  [.] 0x00000000000a3f77                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.38%  [.] operator delete(void*)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |
+            ---0x5521bb0dd1ee2cba
+
+     0.38%  [.] 0x00000000000a175f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.37%  [.] 0x00000000000a2a0e                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x81
+
+     0.35%  [.] 0x00000000000a26a6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.33%  [.] 0x00000000000a28ed                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x5751
+
+     0.27%  [.] 0x00000000001afa70                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.27%  [.] 0x00000000000a3f09                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.27%  [.] zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)::{lambda()#2}::operator()() const                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0
+
+     0.27%  [.] std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---0x7c6be57d5d90
+
+     0.27%  [.] 0x00000000000a3f74                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x7c6be59c6ec0
+               0x7c6be59c6eb0
+               0x7c6be59c6ea0
+               0x7c6be59c6e90
+               0x7c6be59c6e80
+               0x7c6be59c6e70
+               0x7c6be59c6e60
+               0x7c6be59c6e50
+               0x7c6be59c6e40
+               0x7c6be59c6e30
+               0x7c6be59c6e20
+               0x7c6be59c6e10
+               0x7c6be59c6e00
+               0x7c6be59c6df0
+               0x7c6be59c6de0
+               0x7c6be59c6dd0
+               0x7c6be59c6dc0
+               0x7c6be59c6db0
+               0x7c6be59c6da0
+               0x7c6be59c6d90
+               0x7c6be59c6d80
+               0x7c6be59c6d70
+               0x7c6be59c6d60
+               0x7c6be59c6d50
+               0x642c744a7b10
+               0x71
+
+     0.27%  [.] zen::runtime::Isolation::createEVMInstance(zen::runtime::EVMModule&, unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0
+
+     0.27%  [k] _copy_to_user                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     -      -            
+            |
+            ---__x64_sys_rt_sigprocmask
+               x64_sys_call
+               do_syscall_64
+               entry_SYSCALL_64_after_hwframe
+               pthread_sigmask
+               zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0
+
+     0.27%  [.] 0x00000000000a3f61                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.27%  [.] 0x00000000000a181b                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.27%  [.] 0x00000000000a4122                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.26%  [.] zen::runtime::Runtime::endCPUTracing()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+     0.26%  [.] 0x00000000000a276f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x81
+
+     0.26%  [.] 0x00000000000a3f63                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.26%  [.] 0x00000000000a3b1c                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.26%  [.] 0x00000000000a2806                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.26%  [.] 0x00000000000a3ede                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.25%  [.] 0x00000000000a3ec5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] 0x00000000000a2894                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0xce1
+
+     0.17%  [.] 0x00000000000a3e6f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] 0x00000000000a3a9b                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] 0x00000000000a27a2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x81
+
+     0.17%  [.] 0x00000000000a4081                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] 0x00000000001afa57                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0xa6da4df647d3a360
+
+     0.17%  [.] 0x00000000001aee4d                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] 0x00000000000a2874                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x5bc1
+
+     0.17%  [.] 0x00000000000a42a8                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x642c744752e0
+               0x41
+
+     0.17%  [.] 0x00000000000a280a                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] 0x00000000000a2702                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x81
+
+     0.17%  [.] 0x00000000000a3ebb                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] 0x00000000001afa7e                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x437645649c931c74
+
+     0.17%  [.] 0x00000000000a1886                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.17%  [.] malloc@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |
+            ---0x3187e6e8acdd1d37
+               0xd7eed6dd5f76e56c
+               0x2e83adf0efac445c
+               0
+               0xf7c419cd01b5d93b
+               0xf7c419cd01b5d93b
+               0x9bc5cc0796db8298
+               0xf7c419cd01b5d93b
+
+     0.17%  [.] 0x00000000000a18bb                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.16%  [.] 0x00000000000a1861                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.15%  [.] 0x00000000000a1840                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.14%  [.] 0x00000000000a18e3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+     0.13%  [.] 0x00000000000a4113                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x642c744752e0
+               0x41
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

@@ -1,0 +1,74 @@
+{
+  "output_root": "../data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18",
+  "cache_dir": "../.cache/tx_corpus",
+  "trace_output_dir": "../data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/traces",
+  "collect": {
+    "chunk_size": 5000,
+    "page_size": 1000,
+    "max_etherscan_calls": 40,
+    "sleep_seconds": 0.2,
+    "timeout_seconds": 30.0,
+    "txlist_sort": "desc",
+    "allow_missing_api_key": false
+  },
+  "enrich": {
+    "sleep_seconds": 0.0,
+    "timeout_seconds": 30.0,
+    "max_rpc_calls": 400,
+    "max_trace_calls": 0,
+    "code_block_tag": "latest",
+    "trace_method": "none",
+    "skip_done": true,
+    "continue_on_error": true
+  },
+  "sample": {
+    "seed": 0,
+    "require_done": true,
+    "exclude_trace_failed": true
+  },
+  "datasets": {
+    "erc20_transfer": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/erc20_transfer_transactions.jsonl",
+      "enrich_enabled": false,
+      "sample_target_count": 50
+    },
+    "uniswap_v3_swap": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/uniswap_v3_swap_transactions.jsonl",
+      "enrich_enabled": false,
+      "sample_target_count": 50
+    },
+    "erc4337_bundle": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/erc4337_bundle_transactions.jsonl",
+      "enrich_enabled": true,
+      "pre_enrich_sample_count": 80,
+      "sample_target_count": 50
+    },
+    "cow_settlement": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/cow_settlement_transactions.jsonl",
+      "enrich_enabled": true,
+      "pre_enrich_sample_count": 40,
+      "sample_target_count": 25
+    },
+    "uniswapx_reactor": {
+      "enabled": true,
+      "enrich_enabled": true,
+      "from_block": 24950000,
+      "to_block": 25119252,
+      "collect_max_transactions": 80,
+      "sample_target_count": 25,
+      "notes": "Recent mainnet window ending at Ethereum block 25,119,252 observed on 2026-05-18."
+    }
+  },
+  "metadata": {
+    "prepared_on": "2026-05-18",
+    "network": "Ethereum Mainnet",
+    "uniswapx_sources": [
+      "https://github.com/Uniswap/UniswapX",
+      "https://etherscan.io/block/25119252"
+    ]
+  }
+}

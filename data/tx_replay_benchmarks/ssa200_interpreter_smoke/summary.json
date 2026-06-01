@@ -1,0 +1,99 @@
+{
+  "dtvm_path": "./build-ssa175-off/dtvm",
+  "filters": {
+    "datasets": [],
+    "limit": 1,
+    "tx_hashes": []
+  },
+  "mode_override": "interpreter",
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_benchmarks/ssa200_interpreter_smoke",
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200",
+  "repetitions": 1,
+  "summary": {
+    "datasets": {
+      "cow_settlement": {
+        "exit_codes": {
+          "2": 1
+        },
+        "instantiation_ms": {
+          "count": 1,
+          "max": 0.018,
+          "mean": 0.018,
+          "median": 0.018,
+          "min": 0.018,
+          "p95": 0.018,
+          "sum": 0.018
+        },
+        "jit_compilation_ms": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "median": null,
+          "min": null,
+          "p95": null,
+          "sum": null
+        },
+        "runs": 1,
+        "statistics_total_ms": {
+          "count": 1,
+          "max": 0.031,
+          "mean": 0.031,
+          "median": 0.031,
+          "min": 0.031,
+          "p95": 0.031,
+          "sum": 0.031
+        },
+        "wall_time_ms": {
+          "count": 1,
+          "max": 29.376978985965252,
+          "mean": 29.376978985965252,
+          "median": 29.376978985965252,
+          "min": 29.376978985965252,
+          "p95": 29.376978985965252,
+          "sum": 29.376978985965252
+        }
+      }
+    },
+    "exit_codes": {
+      "2": 1
+    },
+    "runs": 1,
+    "slowest_runs": [
+      {
+        "dataset": "cow_settlement",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/cow_settlement/0x15c1e519f682cce39a8d35b939745f3905c205a921f3a171ea5558b0746b4f0d/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x15c1e519f682cce39a8d35b939745f3905c205a921f3a171ea5558b0746b4f0d",
+        "wall_time_ms": 29.376978985965252
+      }
+    ],
+    "system_cpu_ms": {
+      "count": 1,
+      "max": 7.771999999999999,
+      "mean": 7.771999999999999,
+      "median": 7.771999999999999,
+      "min": 7.771999999999999,
+      "p95": 7.771999999999999,
+      "sum": 7.771999999999999
+    },
+    "user_cpu_ms": {
+      "count": 1,
+      "max": 21.374999999999996,
+      "mean": 21.374999999999996,
+      "median": 21.374999999999996,
+      "min": 21.374999999999996,
+      "p95": 21.374999999999996,
+      "sum": 21.374999999999996
+    },
+    "wall_time_ms": {
+      "count": 1,
+      "max": 29.376978985965252,
+      "mean": 29.376978985965252,
+      "median": 29.376978985965252,
+      "min": 29.376978985965252,
+      "p95": 29.376978985965252,
+      "sum": 29.376978985965252
+    }
+  }
+}

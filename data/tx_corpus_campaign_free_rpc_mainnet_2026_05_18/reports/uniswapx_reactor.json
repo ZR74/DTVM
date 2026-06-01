@@ -1,0 +1,59 @@
+{
+  "candidate_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/candidates/uniswapx_reactor.jsonl",
+  "dataset": "uniswapx_reactor",
+  "enriched_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/uniswapx_reactor.jsonl",
+  "input_path": null,
+  "perf_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/uniswapx_reactor.jsonl",
+  "pre_enrich_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/working/uniswapx_reactor_pre_enrich.jsonl",
+  "steps": [
+    {
+      "from_block": 24950000,
+      "max_transactions": 80,
+      "name": "collect",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/candidates/uniswapx_reactor.jsonl",
+      "result": {
+        "candidate_rows": 47,
+        "dataset": "uniswapx_reactor",
+        "etherscan_calls": 2,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/candidates/uniswapx_reactor.jsonl"
+      },
+      "to_block": 25119252
+    },
+    {
+      "estimated_budget": {
+        "block_queries": 0,
+        "code_queries": 2,
+        "ordinary_rpc_calls": 96,
+        "total_rpc_calls": 96,
+        "trace_rpc_calls": 0,
+        "transactions": 47
+      },
+      "input": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/candidates/uniswapx_reactor.jsonl",
+      "max_rpc_calls": 400,
+      "max_trace_calls": 0,
+      "name": "enrich",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/uniswapx_reactor.jsonl",
+      "result": {
+        "input_rows": 47,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/uniswapx_reactor.jsonl",
+        "output_rows": 47,
+        "rpc_calls": 96,
+        "trace_calls": 0
+      },
+      "trace_method": "none"
+    },
+    {
+      "input": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/uniswapx_reactor.jsonl",
+      "name": "sample",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/uniswapx_reactor.jsonl",
+      "result": {
+        "eligible_rows": 47,
+        "input_rows": 47,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/uniswapx_reactor.jsonl",
+        "sampled_rows": 25,
+        "unique_template_keys": 2
+      },
+      "target_count": 25
+    }
+  ]
+}

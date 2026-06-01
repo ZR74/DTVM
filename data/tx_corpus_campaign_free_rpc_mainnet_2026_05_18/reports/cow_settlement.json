@@ -1,0 +1,59 @@
+{
+  "candidate_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/candidates/cow_settlement.jsonl",
+  "dataset": "cow_settlement",
+  "enriched_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/cow_settlement.jsonl",
+  "input_path": "/root/DTVM_zr/DTVM/tests/fulltrace_transactions/cow_settlement_transactions.jsonl",
+  "perf_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/cow_settlement.jsonl",
+  "pre_enrich_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/working/cow_settlement_pre_enrich.jsonl",
+  "steps": [
+    {
+      "input": "/root/DTVM_zr/DTVM/tests/fulltrace_transactions/cow_settlement_transactions.jsonl",
+      "name": "pre_enrich_sample",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/working/cow_settlement_pre_enrich.jsonl",
+      "result": {
+        "eligible_rows": 120,
+        "input_rows": 120,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/working/cow_settlement_pre_enrich.jsonl",
+        "sampled_rows": 40,
+        "unique_template_keys": 1
+      },
+      "target_count": 40
+    },
+    {
+      "estimated_budget": {
+        "block_queries": 0,
+        "code_queries": 9,
+        "ordinary_rpc_calls": 89,
+        "total_rpc_calls": 89,
+        "trace_rpc_calls": 0,
+        "transactions": 40
+      },
+      "input": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/working/cow_settlement_pre_enrich.jsonl",
+      "max_rpc_calls": 400,
+      "max_trace_calls": 0,
+      "name": "enrich",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/cow_settlement.jsonl",
+      "result": {
+        "input_rows": 40,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/cow_settlement.jsonl",
+        "output_rows": 40,
+        "rpc_calls": 89,
+        "trace_calls": 0
+      },
+      "trace_method": "none"
+    },
+    {
+      "input": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/cow_settlement.jsonl",
+      "name": "sample",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/cow_settlement.jsonl",
+      "result": {
+        "eligible_rows": 38,
+        "input_rows": 40,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/cow_settlement.jsonl",
+        "sampled_rows": 25,
+        "unique_template_keys": 9
+      },
+      "target_count": 25
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+[
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 139314,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x446509ac8803a4b9502fb4f178454d647cfa177f31f0a3b96abc144f3207239e"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 139986,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x0c5ca845da142a41b9810722965f62018a8e2071774bdbd56cc3dcf62b8b29f0"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 143107,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x7ddd94c4f99f86a7265ae1801279700fb6f2ea942c679c135e76d8205414438b"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 155299,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xa339f2e360665a5bedf3c4360314c9ab3a2048e17b5ecbef09e5afb71ad8a00c"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 153716,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xc36e5b814951adb0f0b83ca730753115d17504e3f3616f4501b2b0e6e072d097"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 172447,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xf3f40485efdc7e172fd141c4d09a5cbeb631bdaa7487a2102d4550b90176569c"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 161518,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xfa97574570a4a3de724ba6b96c0c1187fa021abbc3c551ee3bee9e560602e23f"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 137322,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xf47e949bd3c8062c826678975b9ed193dc3f6462dc27e848ab8a9fc9dc87f6d9"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 134054,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x7b6a605d1ee0501c450a32c68494a5f231a4bc08ddd5d8307bd49457fb90c1d3"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 129108,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x7c365f8c3988d435985e43523041d802c6377f39d2f906438d8fb3fccacca16d"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 145804,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xeed43893e98629495ee35bd386b8ffe452463c5c8098d7c7c2e5c50491af8ebd"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 69985,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xbc258ff9745cede538b3466114ab76b77713ad633e36d4ababd6eb02843e2634"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 119211,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0x2c40c62a66e1f1c254a739de6e1e25b126f7dd677de74fa715a43d1114d89946",
+    "tx_hash": "0xdb878f5c39f4ec654f15579ac86a24ac4e0394bb686c4dda71023941832ba357"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 157095,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x83f52580216423ed16a3008110c0da9075033164010df6001a5ef643bde158df"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 124593,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x7f15353ab913908a8105f7c7bec360d898f140f09f90d5f4cf2b93789d4f9936"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 138612,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x48fa7affe7e581d661b37c46bc56981bdec6278e8b3e5f077ee04aac848f2627"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 173910,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x4fb77c8aebb5c82c45a52e62844cf490ab2796ea41d0bb2bfd187a7e9a23da68"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 144399,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xc84dbcab4f8bb818b6ecf80ab08f012fb0f6a858397f29ba72e4defd16a78395"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 129536,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x2f520320da92a99f3fb376198a5cdbeead33437a8f2e68f805823efdf800e8eb"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 151926,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xd8743567d6ab74742bfe60452fa9d73476cb741bbf608e5958159e4040ab42ab"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 146636,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x2476c9714903d91baf44c32f3225ea58b1aa6f6991fe98d84a807721d662bc52"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 134015,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0xc4fe9dbdc8fa0e253a541ee3c67a14a95ea42789358493fe019852dea9cf0169"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 169419,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x8da830aa13464c10eb7b5157fcf44a6496c7ae3bbbab22753a62bd32aac2016a"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 135302,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x66d1b65dfb891e648529f3bf9a64fb0c5d79d9880f6f9a981d117d8bbf2d9ee3"
+  },
+  {
+    "dataset": "uniswapx_reactor",
+    "gas_used": 70112,
+    "reason": "missing_trace_path",
+    "selector": "0x3f62192e",
+    "template_key": "0xb9a2f8c1e26718dcbfd6b091dc077b3e3412f3cb3841913865a4f8dbbc835400",
+    "tx_hash": "0x537ec72c94d94a803711e25553787ac6916c668b3addda8f0882eda14a2e6ae5"
+  }
+]

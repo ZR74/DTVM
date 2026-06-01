@@ -1,0 +1,56 @@
+{
+  "output_root": "../data/tx_corpus_campaign",
+  "cache_dir": "../.cache/tx_corpus",
+  "trace_output_dir": "../data/tx_corpus_campaign/traces",
+  "collect": {
+    "max_etherscan_calls": 60
+  },
+  "enrich": {
+    "max_rpc_calls": 1200,
+    "max_trace_calls": 0,
+    "trace_method": "none",
+    "skip_done": true,
+    "continue_on_error": true
+  },
+  "sample": {
+    "seed": 0,
+    "require_done": true,
+    "exclude_trace_failed": true
+  },
+  "datasets": {
+    "erc20_transfer": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/erc20_transfer_transactions.jsonl",
+      "enrich_enabled": false,
+      "sample_target_count": 50
+    },
+    "uniswap_v3_swap": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/uniswap_v3_swap_transactions.jsonl",
+      "enrich_enabled": false,
+      "sample_target_count": 50
+    },
+    "erc4337_bundle": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/erc4337_bundle_transactions.jsonl",
+      "enrich_enabled": true,
+      "pre_enrich_sample_count": 80,
+      "sample_target_count": 50
+    },
+    "cow_settlement": {
+      "enabled": true,
+      "input_path": "../tests/fulltrace_transactions/cow_settlement_transactions.jsonl",
+      "enrich_enabled": true,
+      "pre_enrich_sample_count": 40,
+      "sample_target_count": 25
+    },
+    "uniswapx_reactor": {
+      "enabled": true,
+      "enrich_enabled": true,
+      "from_block": null,
+      "to_block": null,
+      "collect_max_transactions": 80,
+      "sample_target_count": 25
+    }
+  }
+}

@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DTVM PR507 工作总结 - 2026-05-19</title>
+    <style>
+      :root {
+        --bg: #f5efe6;
+        --paper: rgba(255, 253, 248, 0.92);
+        --ink: #1f2328;
+        --muted: #5f6570;
+        --line: rgba(31, 35, 40, 0.12);
+        --brand: #0f766e;
+        --brand-2: #c2410c;
+        --good: #16794a;
+        --warn: #9a6700;
+        --bad: #b42318;
+        --shadow: 0 18px 42px rgba(33, 28, 18, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "IBM Plex Sans", "Source Sans 3", "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(15, 118, 110, 0.12), transparent 24%),
+          radial-gradient(circle at top right, rgba(194, 65, 12, 0.12), transparent 24%),
+          linear-gradient(180deg, #fcfaf4 0%, var(--bg) 54%, #efe6d8 100%);
+      }
+
+      .page {
+        width: min(1240px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 34px 0 64px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 28px;
+        padding: 32px 34px 34px;
+        background:
+          linear-gradient(135deg, rgba(15, 118, 110, 0.95), rgba(30, 41, 59, 0.95));
+        color: #fff;
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        right: -90px;
+        top: -90px;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 70%);
+      }
+
+      .eyebrow {
+        margin-bottom: 10px;
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        opacity: 0.82;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-family: "Space Grotesk", "Avenir Next", "IBM Plex Sans", sans-serif;
+        font-size: clamp(34px, 4.2vw, 56px);
+        line-height: 0.96;
+      }
+
+      .lead {
+        margin: 0;
+        width: min(900px, 100%);
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 16px;
+        line-height: 1.72;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.11);
+        color: #fff;
+        font-size: 13px;
+      }
+
+      .section {
+        margin-top: 18px;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        padding: 20px 22px;
+      }
+
+      .section h2 {
+        margin: 0 0 12px;
+        font-size: 22px;
+      }
+
+      .section p {
+        margin: 0 0 12px;
+        line-height: 1.68;
+      }
+
+      .grid4,
+      .grid2 {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .grid2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        background: rgba(255, 255, 255, 0.85);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 18px 18px 16px;
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+
+      .card p {
+        color: var(--ink);
+        margin: 0 0 10px;
+      }
+
+      .card ul {
+        margin: 0;
+        padding-left: 18px;
+        line-height: 1.62;
+      }
+
+      .callout {
+        border-left: 6px solid var(--brand);
+        background: #eefaf8;
+      }
+
+      .callout.bad {
+        border-left-color: var(--bad);
+        background: #fff1ef;
+      }
+
+      .callout.warn {
+        border-left-color: var(--warn);
+        background: #fff7e8;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+        margin: 0;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 14px 16px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .step .when {
+        font-weight: 700;
+        color: var(--brand);
+      }
+
+      .step .what {
+        line-height: 1.64;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(15, 118, 110, 0.09);
+        color: var(--brand);
+        border: 1px solid rgba(15, 118, 110, 0.16);
+        font-size: 12px;
+      }
+
+      .foot {
+        margin-top: 18px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 980px) {
+        .grid4,
+        .grid2,
+        .step {
+          grid-template-columns: 1fr;
+        }
+        .page {
+          width: min(100vw - 20px, 1240px);
+          padding-top: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="eyebrow">PR507 WORK SUMMARY</div>
+        <h1>把一条 legacy CALL 回归，修成可复现、可对照、可回归的正确性修复</h1>
+        <p class="lead">
+          PR507 的主线不是性能优化，而是围绕一条真实历史交易的 legacy CALL
+          回归，把问题从“偶发分叉”整理成“可独立复现、可在 DTVM-only
+          环境运行、并且能稳住 interpreter / multipass 一致性”的完整闭环。
+          核心修复点在于：非 lifted block 边界上的 EVM
+          栈状态和实例元数据必须同步，不能让过期的逻辑栈污染后续 CALL
+          的受体、gas 和 provenance。
+        </p>
+        <div class="chips">
+          <span class="chip">legacy CALL 回归</span>
+          <span class="chip">跨 block 栈同步</span>
+          <span class="chip">interpreter / multipass 对照</span>
+          <span class="chip">dtvmapi DTVM-only 回放</span>
+          <span class="chip">fixture / schema 加固</span>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>一句话结论</h2>
+        <div class="card callout">
+          <p>
+            PR507 解决的是“历史 legacy CALL 在不同执行路径上行为不一致”的正确性问题。
+            它做了两件事：一是补齐可复现的回归测试和 fixture，二是修正
+            compiler frontend 在非 lifted block 边界上的栈状态同步逻辑。
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>发现了什么问题</h2>
+        <div class="grid2">
+          <div class="card callout bad">
+            <h3>1. 跨 block 的逻辑栈状态会失真</h3>
+            <p>
+              在 lifted / non-lifted 的块边界上，tracked stack 没有稳定地写回或重新加载到
+              `EVMInstance`，dead block 在某些终止后还可能被重复 finalize。
+            </p>
+            <ul>
+              <li>非 lifted 入口可能拿到过期的 stack 元数据。</li>
+              <li>materialize 后的 hidden prefix 容易和实例态脱节。</li>
+              <li>CALL 的 recipient / gas / provenance 可能被旧栈污染。</li>
+            </ul>
+          </div>
+          <div class="card callout warn">
+            <h3>2. 旧回归样本不够独立</h3>
+            <p>
+              原始 legacy CALL 回归依赖较重的外部链上下文，DTVM-only
+              的回放能力不足，fixtures 也没有把 `BLOCKHASH`
+              相关环境完整表达出来。
+            </p>
+            <ul>
+              <li>没有稳定的 `dtvmapi` 直跑路径。</li>
+              <li>fixture 缺少 block hash 及其覆盖映射。</li>
+              <li>测试对 JSON 结构的校验也偏松。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>为什么要修</h2>
+        <div class="grid4">
+          <div class="card">
+            <h3>避免 interpreter / multipass 分叉</h3>
+            <p>
+              同一条交易在两条路径上如果拿到不同的 CALL 受体或不同的栈状态，
+              就不再是“性能差异”，而是实打实的语义不一致。
+            </p>
+          </div>
+          <div class="card">
+            <h3>防止历史回归被掩盖</h3>
+            <p>
+              没有独立 fixture，问题只能靠外部环境碰运气复现，修复后也很难确认是否真的稳定。
+            </p>
+          </div>
+          <div class="card">
+            <h3>避免错误向后传播</h3>
+            <p>
+              过期的 stack provenance 一旦进入后续 block，会把后面的 CALL、JUMP、POP
+              都带偏，问题会从单点扩大成链式故障。
+            </p>
+          </div>
+          <div class="card">
+            <h3>让回归测试变成长期护栏</h3>
+            <p>
+              这个 PR 最重要的价值之一，是把一次故障整理成以后每次改 compiler
+              都能重新跑的回归资产。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>修复方法</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>编译器侧</h3>
+            <ul>
+              <li>在非 lifted 入口重新从 `EVMInstance` 加载 tracked stack 元数据。</li>
+              <li>在 materialize 时把 tracked stack 的元数据同步回实例态。</li>
+              <li>新增 `CurrentBlockNeedsFinalize`，避免 terminator 后重复 finalize。</li>
+              <li>把 trap 后的块清理收敛到统一路径，防止“死块二次收尾”。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>测试与 fixture 侧</h3>
+            <ul>
+              <li>新增 standalone legacy CALL repro 及 runner。</li>
+              <li>把样本扩展为 DTVM-only 可回放的数据包。</li>
+              <li>补 `block_hash` / `block_hashes`，覆盖历史 `BLOCKHASH` 依赖。</li>
+              <li>通过 `dtvmapi` 跑 interpreter / multipass 双路径对照。</li>
+              <li>加强 fixture 解析、选项设置和状态码检查。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>具体做了哪些事</h2>
+        <div class="timeline">
+          <div class="step">
+            <div class="when">d1a038b</div>
+            <div class="what">
+              新增 legacy CALL 的独立回归 fixtures 和 runner，把历史问题从外部链快照里拆出来，
+              变成 DTVM 自己能跑的测试资产。
+            </div>
+          </div>
+          <div class="step">
+            <div class="when">fe86326</div>
+            <div class="what">
+              把同一套样本接到 `dtvmapi` 执行路径上，同时补充 `block_hash`
+              和更完整的环境数据，让解释器和 multipass 都能对照回放。
+            </div>
+          </div>
+          <div class="step">
+            <div class="when">1329caa</div>
+            <div class="what">
+              修正 compiler frontend 的跨 block 栈同步：非 lifted 入口先重载，
+              materialize 后再回写，block 结束时不再重复 finalize 已死的块。
+            </div>
+          </div>
+          <div class="step">
+            <div class="when">5804680 / 8f21f9b</div>
+            <div class="what">
+              把 dtvmapi 覆盖从“混在一起跑”整理成独立用例，并顺手把 CMake
+              挂线和格式整理干净。
+            </div>
+          </div>
+          <div class="step">
+            <div class="when">a828a7a</div>
+            <div class="what">
+              回应 review 意见，强化 fixture 校验、选项返回值检查和测试断言，
+              让回归更像生产级护栏，而不是一次性脚本。
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>如果不修会怎样</h2>
+        <div class="card callout bad">
+          <ul>
+            <li>同一笔交易在 interpreter 和 multipass 上可能出现不同的 CALL 结果。</li>
+            <li>历史 legacy CALL 回归可能只能“偶尔复现”，难以稳定定位。</li>
+            <li>后续 block 会继承错误的栈前缀，问题会沿着 CFG 继续放大。</li>
+            <li>修复前后的对照没有护栏，新的 compiler 改动可能再次引入同类错误。</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>结果</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>技术结果</h3>
+            <p>
+              PR507 把 legacy CALL 的问题从“现象”变成“机制”：问题不只是某条交易坏了，
+              而是非 lifted block 的栈状态和实例态没有对齐。
+            </p>
+          </div>
+          <div class="card">
+            <h3>工程结果</h3>
+            <p>
+              现在有了可以长期保留的回归 fixture、dtvmapi 路径和 compiler 级别的对照测试，
+              后续再改 SSA / 栈传播逻辑时，有地方直接验收。
+            </p>
+          </div>
+        </div>
+        <p class="foot">
+          注：这份总结强调的是 PR507 的正确性修复链，不是性能优化结论。
+          如果后续要单独写性能分析，应和这条回归修复线分开看。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

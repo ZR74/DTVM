@@ -1,0 +1,2734 @@
+dtvm  305541 1043342.156594:      50005 cycles:P: 
+	    71bf49c710aa malloc+0xa (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.156674:      50005 cycles:P: 
+	ffffffff8b2338ca get_unmapped_area+0x7a ([kernel.kallsyms])
+	ffffffff8b2339f6 check_brk_limits+0x26 ([kernel.kallsyms])
+	ffffffff8b2381db __do_sys_brk+0x21b ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.156746:      51533 cycles:P: 
+	ffffffff8c201285 early_xen_iret_patch+0x5 ([kernel.kallsyms])
+	ffffffff8b27d462 __folio_throttle_swaprate+0x32 ([kernel.kallsyms])
+	ffffffff8b22c1c1 do_anonymous_page+0xf1 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.156819:      53947 cycles:P: 
+	    5b984d473588 evmc::hex[abi:cxx11](std::basic_string_view<unsigned char, evmc::byte_traits<unsigned char> >)+0x88 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.156894:      56479 cycles:P: 
+	    5b984d49ff52 zen::common::getError(zen::common::ErrorCode)+0x42 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	    5b984d4723e0 zen::common::Error::~Error()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	48fd894855019af9 [unknown] ([unknown])
+
+dtvm  305541 1043342.156970:      58849 cycles:P: 
+	    5b984e7ee159 keccakf1600_bmi+0x699 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.157057:      57831 cycles:P: 
+	ffffffff8b253c4a get_pfnblock_flags_mask+0x6a ([kernel.kallsyms])
+	ffffffff8b259087 free_unref_page_list+0x87 ([kernel.kallsyms])
+	ffffffff8b1d5e23 release_pages+0x143 ([kernel.kallsyms])
+	ffffffff8b27588a free_pages_and_swap_cache+0x4a ([kernel.kallsyms])
+	ffffffff8b23a793 tlb_batch_pages_flush+0x43 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.157136:      58931 cycles:P: 
+	    71be48810f3e EVMBB0_JUMPDEST_2441+0x7 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.157218:      60812 cycles:P: 
+	    5b984d4a86f5 zen::runtime::Isolation::~Isolation()+0x45 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b987b3d1470 [unknown] ([unknown])
+
+dtvm  305541 1043342.157301:      62545 cycles:P: 
+	    5b984e7edf66 keccakf1600_bmi+0x4a6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.157386:      64133 cycles:P: 
+	    5b984d4d4efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.157474:      65517 cycles:P: 
+	    71bf4a049b31 std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_append(char const*, unsigned long)+0x51 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+
+dtvm  305541 1043342.157563:      66675 cycles:P: 
+	    5b984d69d970 COMPILER::evmGetSLoad(zen::runtime::EVMInstance*, intx::uint<256u> const&)+0x20 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.157657:      67632 cycles:P: 
+	ffffffff8b2ca5cb __mod_memcg_lruvec_state+0xb ([kernel.kallsyms])
+	ffffffff8b1d3e23 lru_gen_del_folio.constprop.0+0x173 ([kernel.kallsyms])
+	ffffffff8b1d60df release_pages+0x3ff ([kernel.kallsyms])
+	ffffffff8b27588a free_pages_and_swap_cache+0x4a ([kernel.kallsyms])
+	ffffffff8b23a793 tlb_batch_pages_flush+0x43 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.157749:      68245 cycles:P: 
+	    5b984e7ee247 keccakf1600_bmi+0x787 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.157841:      68998 cycles:P: 
+	    5b984d47b373 evmc::MockedHost::access_account(evmc::address const&)+0x153 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.157938:      69652 cycles:P: 
+	ffffffff8c02a216 native_sched_clock+0x86 ([kernel.kallsyms])
+	ffffffff8c02a2b9 sched_clock_noinstr+0x9 ([kernel.kallsyms])
+	ffffffff8c02d5fe local_clock_noinstr+0xe ([kernel.kallsyms])
+	ffffffff8af98e65 local_clock+0x15 ([kernel.kallsyms])
+	ffffffff8b1a2fe2 ctx_sched_out+0x132 ([kernel.kallsyms])
+	ffffffff8b1a75b0 __perf_event_enable+0x130 ([kernel.kallsyms])
+	ffffffff8b19d610 event_function+0xa0 ([kernel.kallsyms])
+	ffffffff8b199834 remote_function+0x54 ([kernel.kallsyms])
+	ffffffff8b02d13f __flush_smp_call_function_queue+0x9f ([kernel.kallsyms])
+	ffffffff8b02d513 generic_smp_call_function_single_interrupt+0x13 ([kernel.kallsyms])
+	ffffffff8aea7adc __sysvec_call_function_single+0x1c ([kernel.kallsyms])
+	ffffffff8c02c49b sysvec_call_function_single+0x3b ([kernel.kallsyms])
+	ffffffff8c200fcb asm_sysvec_call_function_single+0x1b ([kernel.kallsyms])
+	    71bf49c59e22 _IO_default_xsputn+0x62 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.158038:      70270 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.158135:      70251 cycles:P: 
+	ffffffff8c200fb0 asm_sysvec_call_function_single+0x0 ([kernel.kallsyms])
+	ffffffff8b2d096c __mem_cgroup_charge+0x1c ([kernel.kallsyms])
+	ffffffff8b22c182 do_anonymous_page+0xb2 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49d7ba5f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.158232:      70534 cycles:P: 
+	ffffffff8c200ba0 asm_exc_page_fault+0x0 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.158330:      70829 cycles:P: 
+	ffffffff8b2252dd zap_pte_range+0x26d ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.158424:      71037 cycles:P: 
+	    5b984e7ee060 keccakf1600_bmi+0x5a0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.158522:      71537 cycles:P: 
+	ffffffff8b19bc8a perf_iterate_ctx+0x4a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.158619:      71775 cycles:P: 
+	ffffffff8b1d6069 release_pages+0x389 ([kernel.kallsyms])
+	ffffffff8b27588a free_pages_and_swap_cache+0x4a ([kernel.kallsyms])
+	ffffffff8b23a793 tlb_batch_pages_flush+0x43 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.158713:      72018 cycles:P: 
+	    5b984d46f1e9 std::hash<evmc::address>::operator()(evmc::address const&) const [clone .constprop.0]+0x29 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.158811:      72583 cycles:P: 
+	ffffffff8b19bca5 perf_iterate_ctx+0x65 ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.158908:      72799 cycles:P: 
+	    5b984d4d4efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.159008:      73036 cycles:P: 
+	ffffffff8b1d4418 lru_gen_add_folio+0x1b8 ([kernel.kallsyms])
+	ffffffff8b1d5356 lru_add_fn+0xb6 ([kernel.kallsyms])
+	ffffffff8b1d622f folio_batch_move_lru+0xaf ([kernel.kallsyms])
+	ffffffff8b1d7459 lru_add_drain_cpu+0xc9 ([kernel.kallsyms])
+	ffffffff8b1d78fc lru_add_drain+0x1c ([kernel.kallsyms])
+	ffffffff8b2333fa unmap_region+0x6a ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.159108:      73206 cycles:P: 
+	    71bf49c711b0 malloc+0x110 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.159207:      73178 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.159307:      73229 cycles:P: 
+	ffffffff8bf8b403 mas_pop_node+0xb3 ([kernel.kallsyms])
+	ffffffff8bf90024 mas_wr_node_store+0x304 ([kernel.kallsyms])
+	ffffffff8bf9875a mas_wr_modify+0x9a ([kernel.kallsyms])
+	ffffffff8bf98dd5 mas_wr_store_entry.isra.0+0xa5 ([kernel.kallsyms])
+	ffffffff8bf9906f mas_store_prealloc+0x4f ([kernel.kallsyms])
+	ffffffff8b233ecb vma_complete+0x28b ([kernel.kallsyms])
+	ffffffff8b234186 __split_vma+0x276 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.159404:      73280 cycles:P: 
+	    5b984e7edd4a keccakf1600_bmi+0x28a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.159501:      73496 cycles:P: 
+	    5b984d6a010d COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x8bd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.159599:      73830 cycles:P: 
+	    5b984d4a00b9 zen::common::Error::Error(zen::common::ErrorCode)+0x29 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	    5b984d4723e0 zen::common::Error::~Error()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	48fd894855019af9 [unknown] ([unknown])
+
+dtvm  305541 1043342.159700:      73982 cycles:P: 
+	ffffffff8b1d4362 lru_gen_add_folio+0x102 ([kernel.kallsyms])
+	ffffffff8b1d5356 lru_add_fn+0xb6 ([kernel.kallsyms])
+	ffffffff8b1d622f folio_batch_move_lru+0xaf ([kernel.kallsyms])
+	ffffffff8b1d7459 lru_add_drain_cpu+0xc9 ([kernel.kallsyms])
+	ffffffff8b1d78fc lru_add_drain+0x1c ([kernel.kallsyms])
+	ffffffff8b2333fa unmap_region+0x6a ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.159799:      73956 cycles:P: 
+	ffffffff8c200ba0 asm_exc_page_fault+0x0 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.159899:      74029 cycles:P: 
+	ffffffff8b1fa064 __vm_enough_memory+0x54 ([kernel.kallsyms])
+	ffffffff8b4ef611 security_vm_enough_memory_mm+0x51 ([kernel.kallsyms])
+	ffffffff8b237978 do_brk_flags+0xb8 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.159999:      74003 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.160100:      74003 cycles:P: 
+	    71bf49c6e72d [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	             110 [unknown] ([unknown])
+
+dtvm  305541 1043342.160198:      73879 cycles:P: 
+	    5b984d4b0978 zen::runtime::EVMInstance::expandMemory(unsigned long)+0x18 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.160297:      74096 cycles:P: 
+	ffffffff8b22d703 __handle_mm_fault+0x3c3 ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.160398:      74127 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.160499:      74024 cycles:P: 
+	ffffffff8bf8d960 mas_wr_walk+0xa0 ([kernel.kallsyms])
+	ffffffff8bf8f8b7 mas_preallocate+0x147 ([kernel.kallsyms])
+	ffffffff8b233ff8 __split_vma+0xe8 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.160598:      73982 cycles:P: 
+	    71be488b4ae3 EVMBB0_JUMPDEST_18481+0x12cd (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.160696:      74083 cycles:P: 
+	    5b984d47b678 evmc::MockedHost::access_account(evmc::address const&)+0x458 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.160795:      74242 cycles:P: 
+	    5b984d4b0e76 zen::runtime::EVMInstance::newEVMInstance(zen::runtime::Isolation&, zen::runtime::EVMModule const&, unsigned long)+0x26 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.160895:      74372 cycles:P: 
+	ffffffff8bf96c2b mas_prev_slot+0x7b ([kernel.kallsyms])
+	ffffffff8bf9749b mas_prev_range+0x6b ([kernel.kallsyms])
+	ffffffff8b234597 do_vmi_align_munmap+0x387 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.160995:      74321 cycles:P: 
+	ffffffff8c200ba0 asm_exc_page_fault+0x0 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.161099:      74273 cycles:P: 
+	ffffffff8b2ca24a __mod_memcg_state+0xaa ([kernel.kallsyms])
+	ffffffff8b2ca35b mod_memcg_state+0x2b ([kernel.kallsyms])
+	ffffffff8b2ca3be memcg_account_kmem+0x1e ([kernel.kallsyms])
+	ffffffff8b2cf746 __memcg_kmem_charge_page+0xf6 ([kernel.kallsyms])
+	ffffffff8b25b673 __alloc_pages+0x213 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.161198:      73942 cycles:P: 
+	    71bf49c71217 malloc+0x177 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.161297:      73994 cycles:P: 
+	    71bf49c6e716 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              c1 [unknown] ([unknown])
+
+dtvm  305541 1043342.161394:      74102 cycles:P: 
+	    5b984e7ee0b6 keccakf1600_bmi+0x5f6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.161493:      74400 cycles:P: 
+	    71bf49c7126b malloc+0x1cb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.161592:      74526 cycles:P: 
+	    5b984d44c536 main+0x3eb6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.161693:      74577 cycles:P: 
+	ffffffff8b1d78e0 lru_add_drain+0x0 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.161793:      74509 cycles:P: 
+	ffffffff8c200ba0 asm_exc_page_fault+0x0 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.161894:      74507 cycles:P: 
+	ffffffff8b19bc8a perf_iterate_ctx+0x4a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.161992:      74421 cycles:P: 
+	    5b984d47b650 evmc::MockedHost::access_account(evmc::address const&)+0x430 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873fc31d0 [unknown] ([unknown])
+	    5b984d47d3d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305541 1043342.162094:      74574 cycles:P: 
+	    71bf49c6d8dc [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.162192:      74417 cycles:P: 
+	    5b984e7ee199 keccakf1600_bmi+0x6d9 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.162290:      74636 cycles:P: 
+	    71bf49faa991 operator new(unsigned long)+0x21 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.162389:      74852 cycles:P: 
+	    5b984d49ffaf zen::common::getError(zen::common::ErrorCode)+0x9f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	    5b984d4723e0 zen::common::Error::~Error()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	48fd894855019af9 [unknown] ([unknown])
+
+dtvm  305541 1043342.162491:      74891 cycles:P: 
+	ffffffff8b225113 zap_pte_range+0xa3 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.162590:      74746 cycles:P: 
+	ffffffff8b22d531 __handle_mm_fault+0x1f1 ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49d7ba5f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.162692:      74789 cycles:P: 
+	ffffffff8b19bc83 perf_iterate_ctx+0x43 ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.162791:      74673 cycles:P: 
+	    5b984d47b41b evmc::MockedHost::access_account(evmc::address const&)+0x1fb (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.162893:      74684 cycles:P: 
+	ffffffff8b2223dd free_pud_range+0x37d ([kernel.kallsyms])
+	ffffffff8b223fca free_pgd_range+0x18a ([kernel.kallsyms])
+	ffffffff8b2240f5 free_pgtables+0xf5 ([kernel.kallsyms])
+	ffffffff8b2334cd unmap_region+0x13d ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.162992:      74585 cycles:P: 
+	    71be48841a1d EVMBB0_JUMPDEST_8671+0xeb9 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.163094:      74640 cycles:P: 
+	    71bf49c6f24f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.163195:      74457 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.163296:      74400 cycles:P: 
+	ffffffff8bf8b0f3 mas_alloc_nodes+0x73 ([kernel.kallsyms])
+	ffffffff8bf8b300 mas_node_count_gfp+0x40 ([kernel.kallsyms])
+	ffffffff8bf90016 mas_wr_node_store+0x2f6 ([kernel.kallsyms])
+	ffffffff8bf9875a mas_wr_modify+0x9a ([kernel.kallsyms])
+	ffffffff8bf98dd5 mas_wr_store_entry.isra.0+0xa5 ([kernel.kallsyms])
+	ffffffff8bf9aa14 mas_store_gfp+0x54 ([kernel.kallsyms])
+	ffffffff8b234513 do_vmi_align_munmap+0x303 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.163393:      74297 cycles:P: 
+	    5b984e7ee1c3 keccakf1600_bmi+0x703 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.163494:      74541 cycles:P: 
+	ffffffff8bf99020 mas_store_prealloc+0x0 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.163592:      74506 cycles:P: 
+	    5b984d47b54a evmc::MockedHost::access_account(evmc::address const&)+0x32a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873fc31d0 [unknown] ([unknown])
+	    5b984d47d3d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305541 1043342.163693:      74694 cycles:P: 
+	ffffffff8b222662 free_p4d_range+0x152 ([kernel.kallsyms])
+	ffffffff8b2240f5 free_pgtables+0xf5 ([kernel.kallsyms])
+	ffffffff8b2334cd unmap_region+0x13d ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.163792:      74609 cycles:P: 
+	    5b984d47b512 evmc::MockedHost::access_account(evmc::address const&)+0x2f2 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.163892:      74669 cycles:P: 
+	    5b984d6a22b1 std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const+0x11 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.163993:      74709 cycles:P: 
+	ffffffff8b1a3bce perf_event_mmap_output+0x4e ([kernel.kallsyms])
+	ffffffff8b19bc73 perf_iterate_ctx+0x33 ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.164133:      74553 cycles:P: 
+	    71bf49c54380 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.164234:      71914 cycles:P: 
+	ffffffff8b257bb9 rmqueue+0x3d9 ([kernel.kallsyms])
+	ffffffff8b259dfb get_page_from_freelist+0x1db ([kernel.kallsyms])
+	ffffffff8b25b647 __alloc_pages+0x1e7 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.164331:      71767 cycles:P: 
+	    5b984d47b385 evmc::MockedHost::access_account(evmc::address const&)+0x165 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.164428:      72078 cycles:P: 
+	ffffffff8b2252f6 zap_pte_range+0x286 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.164525:      72321 cycles:P: 
+	ffffffff8c028c71 sync_regs+0x21 ([kernel.kallsyms])
+	    71bf49d7ba5f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.164623:      72675 cycles:P: 
+	ffffffff8b715bb6 percpu_counter_add_batch+0x16 ([kernel.kallsyms])
+	ffffffff8b1fa03b __vm_enough_memory+0x2b ([kernel.kallsyms])
+	ffffffff8b4ef611 security_vm_enough_memory_mm+0x51 ([kernel.kallsyms])
+	ffffffff8b237978 do_brk_flags+0xb8 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.164720:      72858 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.164819:      73105 cycles:P: 
+	ffffffff8c03eb47 _raw_spin_lock+0x17 ([kernel.kallsyms])
+	ffffffff8b2250d7 zap_pte_range+0x67 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.164917:      73208 cycles:P: 
+	ffffffff8c200ba0 asm_exc_page_fault+0x0 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.165020:      73164 cycles:P: 
+	ffffffff8c03eba5 _raw_spin_lock_irq+0x5 ([kernel.kallsyms])
+	ffffffff8b00bf36 hrtimer_interrupt+0xf6 ([kernel.kallsyms])
+	ffffffff8aead26e __sysvec_apic_timer_interrupt+0x4e ([kernel.kallsyms])
+	ffffffff8c02c5cd sysvec_apic_timer_interrupt+0x8d ([kernel.kallsyms])
+	ffffffff8c200f4b asm_sysvec_apic_timer_interrupt+0x1b ([kernel.kallsyms])
+	ffffffff8b2ca608 __mod_memcg_lruvec_state+0x48 ([kernel.kallsyms])
+	ffffffff8b2cb956 __mod_lruvec_state+0x36 ([kernel.kallsyms])
+	ffffffff8b2cb9eb __lruvec_stat_mod_folio+0x6b ([kernel.kallsyms])
+	ffffffff8b245b34 folio_add_new_anon_rmap+0x64 ([kernel.kallsyms])
+	ffffffff8b22c436 do_anonymous_page+0x366 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.165119:      72879 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.165214:      73054 cycles:P: 
+	    5b984d6a04fd COMPILER::evmSetRevert(zen::runtime::EVMInstance*, unsigned long, unsigned long)+0x12d (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.165310:      73460 cycles:P: 
+	    5b984d46f687 std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]+0x7 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	211e5009887cd30b [unknown] ([unknown])
+
+dtvm  305541 1043342.165410:      73874 cycles:P: 
+	ffffffff8b1a3bd9 perf_event_mmap_output+0x59 ([kernel.kallsyms])
+	ffffffff8b19bc73 perf_iterate_ctx+0x33 ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.165508:      73902 cycles:P: 
+	    71bf49c6d81b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.165605:      74029 cycles:P: 
+	    5b984d4b050e zen::runtime::EVMInstance::setExecutionError(zen::common::Error const&, unsigned int, zen::common::evm_traphandler::EVMTrapState)+0x4e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.165704:      74306 cycles:P: 
+	    71be488b2232 EVMBB0_JUMPDEST_18336+0x256 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.165805:      74411 cycles:P: 
+	ffffffff8b220a4c pud_populate+0x4c ([kernel.kallsyms])
+	ffffffff8b229061 __pmd_alloc+0xd1 ([kernel.kallsyms])
+	ffffffff8b22d83c __handle_mm_fault+0x4fc ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.165904:      74372 cycles:P: 
+	    5b984d493506 evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x1c6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.166003:      74426 cycles:P: 
+	    71bf49c7144c cfree+0x6c (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.166107:      74572 cycles:P: 
+	ffffffff8afded03 __rcu_read_unlock+0x23 ([kernel.kallsyms])
+	ffffffff8b25b673 __alloc_pages+0x213 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.166207:      74255 cycles:P: 
+	    5b984d49334a evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0xa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	d6b38de5ffec8087 [unknown] ([unknown])
+
+dtvm  305541 1043342.166292:      74285 cycles:P: 
+	    71bf49c71230 malloc+0x190 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.166363:      75784 cycles:P: 
+	    5b984e7edd22 keccakf1600_bmi+0x262 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.166436:      79709 cycles:P: 
+	    5b984d491349 zen::evm::ZenMockedEVMHost::resolveInternalCallModule(evmc::address const&, evmc::MockedAccount&, evmc_revision, zen::runtime::EVMMemorySpecializationProfile)+0x159 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d69fc4a COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x3fa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.166513:      83475 cycles:P: 
+	    5b984d47b385 evmc::MockedHost::access_account(evmc::address const&)+0x165 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.166593:      86593 cycles:P: 
+	    5b984d494d4c void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x39c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	914fc0d749685043 [unknown] ([unknown])
+
+dtvm  305541 1043342.166677:      89204 cycles:P: 
+	    71bf49c6e5d0 __default_morecore+0x20 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.166764:      91443 cycles:P: 
+	ffffffff8b2252dd zap_pte_range+0x26d ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.166852:      93169 cycles:P: 
+	ffffffff8bf9aa1f mas_store_gfp+0x5f ([kernel.kallsyms])
+	ffffffff8b2343c7 do_vmi_align_munmap+0x1b7 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.166943:      94652 cycles:P: 
+	ffffffff8b23427b do_vmi_align_munmap+0x6b ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.167034:      95877 cycles:P: 
+	    5b984d69da0d COMPILER::evmGetSLoad(zen::runtime::EVMInstance*, intx::uint<256u> const&)+0xbd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.167126:      96979 cycles:P: 
+	ffffffff8b2cbb3d __count_memcg_events+0xed ([kernel.kallsyms])
+	ffffffff8b22db88 handle_mm_fault+0xa8 ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49d7ba5f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.167218:      98061 cycles:P: 
+	    5b984d69da8d COMPILER::evmGetSLoad(zen::runtime::EVMInstance*, intx::uint<256u> const&)+0x13d (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.167311:      99159 cycles:P: 
+	    71bf4a0486e6 std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve(unsigned long)+0x6 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	    5b984d69fc4a COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x3fa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.167406:     100115 cycles:P: 
+	    5b984d482655 void std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > >(std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > const&)+0x185 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               d [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.167503:     100777 cycles:P: 
+	ffffffff8b2c2aa8 consume_obj_stock+0x48 ([kernel.kallsyms])
+	ffffffff8b2cfc46 obj_cgroup_charge+0x26 ([kernel.kallsyms])
+	ffffffff8b26cb95 kmem_cache_alloc+0x2e5 ([kernel.kallsyms])
+	ffffffff8af03124 vm_area_dup+0x24 ([kernel.kallsyms])
+	ffffffff8b233f90 __split_vma+0x80 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.167600:     101183 cycles:P: 
+	ffffffff8b225113 zap_pte_range+0xa3 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.167698:     101514 cycles:P: 
+	ffffffff8b2222a3 free_pud_range+0x243 ([kernel.kallsyms])
+	ffffffff8b2225b7 free_p4d_range+0xa7 ([kernel.kallsyms])
+	ffffffff8b223fca free_pgd_range+0x18a ([kernel.kallsyms])
+	ffffffff8b2240f5 free_pgtables+0xf5 ([kernel.kallsyms])
+	ffffffff8b2334cd unmap_region+0x13d ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.167795:     101771 cycles:P: 
+	    71bf49ce68a2 brk+0x12 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.167893:     102122 cycles:P: 
+	    5b984d49353e evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x1fe (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.167991:     102449 cycles:P: 
+	    5b984d4db118 evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)+0x158 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    7ffca4279d50 [unknown] (/tmp/perf-305541.map)
+
+dtvm  305541 1043342.168090:     102912 cycles:P: 
+	    5b984d4936d9 evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)+0x399 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.168188:     102941 cycles:P: 
+	    5b984d47b385 evmc::MockedHost::access_account(evmc::address const&)+0x165 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873fc31d0 [unknown] ([unknown])
+	    5b984d47d3d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305541 1043342.168287:     103288 cycles:P: 
+	ffffffff8b19bc8a perf_iterate_ctx+0x4a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.168386:     103361 cycles:P: 
+	    5b984d47b56a evmc::MockedHost::access_account(evmc::address const&)+0x34a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.168485:     103573 cycles:P: 
+	ffffffff8c028c71 sync_regs+0x21 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.168584:     103683 cycles:P: 
+	    5b984e7ee360 ethash_keccak256+0x70 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.168683:     103828 cycles:P: 
+	    5b984e7ee445 ethash_keccak256+0x155 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.168782:     103953 cycles:P: 
+	    71bf49c4104d [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    7ffca426e540 [unknown] (/tmp/perf-305541.map)
+
+dtvm  305541 1043342.168882:     104048 cycles:P: 
+	ffffffff8c027058 do_syscall_64+0x18 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.168983:     104056 cycles:P: 
+	ffffffff8b2252f6 zap_pte_range+0x286 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.169085:     104015 cycles:P: 
+	ffffffff8b2252dd zap_pte_range+0x26d ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.169185:     103697 cycles:P: 
+	    71bf49f9b2e4 operator delete(void*)@plt+0x4 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	    5b987b3d1470 [unknown] ([unknown])
+
+dtvm  305541 1043342.169284:     103761 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.169383:     103868 cycles:P: 
+	    5b984d47b54a evmc::MockedHost::access_account(evmc::address const&)+0x32a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.169483:     103994 cycles:P: 
+	ffffffff8bfaeba9 clear_page_erms+0x9 ([kernel.kallsyms])
+	ffffffff8b259e15 get_page_from_freelist+0x1f5 ([kernel.kallsyms])
+	ffffffff8b25b647 __alloc_pages+0x1e7 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.169583:     103937 cycles:P: 
+	ffffffff8c200080 entry_SYSCALL_64+0x0 ([kernel.kallsyms])
+	    71bf49c67c1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b984d4a1f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d4a2b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.169682:     103958 cycles:P: 
+	    71bf49d7ae53 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.169781:     104069 cycles:P: 
+	    5b984e7ee120 keccakf1600_bmi+0x660 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.169880:     104216 cycles:P: 
+	    5b984d47b32a evmc::MockedHost::access_account(evmc::address const&)+0x10a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.169980:     104310 cycles:P: 
+	    71bf49c6e742 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              50 [unknown] ([unknown])
+
+dtvm  305541 1043342.170081:     104356 cycles:P: 
+	    5b984d47b50a evmc::MockedHost::access_account(evmc::address const&)+0x2ea (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.170182:     104223 cycles:P: 
+	ffffffff8b19bc9a perf_iterate_ctx+0x5a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.170282:     104112 cycles:P: 
+	    71be4881321c EVMBB0_JUMPDEST_2779+0x4f3 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.170380:     104168 cycles:P: 
+	    5b984e7edf27 keccakf1600_bmi+0x467 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.170478:     104428 cycles:P: 
+	    5b984d49e2be zen::evm::ZenMockedEVMHost::call(evmc_message const&)+0xa0e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d69fc4a COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x3fa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.170579:     104633 cycles:P: 
+	ffffffff8b26c981 kmem_cache_alloc+0xd1 ([kernel.kallsyms])
+	ffffffff8af0314f vm_area_dup+0x4f ([kernel.kallsyms])
+	ffffffff8b233f90 __split_vma+0x80 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.170680:     104532 cycles:P: 
+	ffffffff8b2221a4 free_pud_range+0x144 ([kernel.kallsyms])
+	ffffffff8b2225b7 free_p4d_range+0xa7 ([kernel.kallsyms])
+	ffffffff8b223fca free_pgd_range+0x18a ([kernel.kallsyms])
+	ffffffff8b2240f5 free_pgtables+0xf5 ([kernel.kallsyms])
+	ffffffff8b2334cd unmap_region+0x13d ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.170780:     104393 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.170880:     104401 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.170981:     104425 cycles:P: 
+	ffffffff8bf8fc40 mas_wr_slot_store+0xc0 ([kernel.kallsyms])
+	ffffffff8bf98dd5 mas_wr_store_entry.isra.0+0xa5 ([kernel.kallsyms])
+	ffffffff8bf9906f mas_store_prealloc+0x4f ([kernel.kallsyms])
+	ffffffff8b237ca2 do_brk_flags+0x3e2 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.171084:     104321 cycles:P: 
+	ffffffff8b1fceaa __mod_zone_page_state+0x4a ([kernel.kallsyms])
+	ffffffff8b1d3e48 lru_gen_del_folio.constprop.0+0x198 ([kernel.kallsyms])
+	ffffffff8b1d60df release_pages+0x3ff ([kernel.kallsyms])
+	ffffffff8b27588a free_pages_and_swap_cache+0x4a ([kernel.kallsyms])
+	ffffffff8b23a793 tlb_batch_pages_flush+0x43 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.171184:     103940 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.171283:     103920 cycles:P: 
+	    5b984d4d4efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.171383:     104012 cycles:P: 
+	ffffffff8afd9025 __rcu_read_lock+0x5 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.171483:     103980 cycles:P: 
+	    5b984d473620 evmc::load64le(unsigned char const*)+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.171583:     104070 cycles:P: 
+	ffffffff8b25b560 __alloc_pages+0x100 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8b228fc1 __pmd_alloc+0x31 ([kernel.kallsyms])
+	ffffffff8b22d83c __handle_mm_fault+0x4fc ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.171681:     104030 cycles:P: 
+	    5b984d4a8422 zen::runtime::Isolation::createEVMInstance(zen::runtime::EVMModule&, unsigned long)+0x22 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d69fc4a COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x3fa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.171781:     104227 cycles:P: 
+	    5b984d6a24d0 std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)+0x80 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.171879:     104321 cycles:P: 
+	    5b984e7edef5 keccakf1600_bmi+0x435 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.171979:     104559 cycles:P: 
+	    71be48840b71 EVMBB0_JUMPDEST_8671+0xd (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.172093:     104582 cycles:P: 
+	    5b984e7ede43 keccakf1600_bmi+0x383 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.172192:     102994 cycles:P: 
+	ffffffff8aedb489 pte_mkwrite+0x9 ([kernel.kallsyms])
+	ffffffff8b22c398 do_anonymous_page+0x2c8 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49d7ba5f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.172291:     102996 cycles:P: 
+	    71bf49d7e124 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    7ffca426e540 [unknown] (/tmp/perf-305541.map)
+
+dtvm  305541 1043342.172391:     103192 cycles:P: 
+	ffffffff8c02f17b memset_orig+0x7b ([kernel.kallsyms])
+	ffffffff8af03124 vm_area_dup+0x24 ([kernel.kallsyms])
+	ffffffff8b233f90 __split_vma+0x80 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.172490:     103248 cycles:P: 
+	ffffffff8b245db3 folio_remove_rmap_ptes+0x33 ([kernel.kallsyms])
+	ffffffff8b2252b5 zap_pte_range+0x245 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.172589:     103276 cycles:P: 
+	    71bf49c6e85b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	            8531 [unknown] ([unknown])
+
+dtvm  305541 1043342.172688:     103430 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.172787:     103603 cycles:P: 
+	    5b984d47b53c evmc::MockedHost::access_account(evmc::address const&)+0x31c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.172887:     103766 cycles:P: 
+	ffffffff8b259e04 get_page_from_freelist+0x1e4 ([kernel.kallsyms])
+	ffffffff8b25b647 __alloc_pages+0x1e7 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8b228fc1 __pmd_alloc+0x31 ([kernel.kallsyms])
+	ffffffff8b22d83c __handle_mm_fault+0x4fc ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.172986:     103775 cycles:P: 
+	    5b984d4b1a83 void std::vector<unsigned long, std::allocator<unsigned long> >::_M_realloc_insert<unsigned long>(__gnu_cxx::__normal_iterator<unsigned long*, std::vector<unsigned long, std::allocator<unsigned long> > >, unsigned long&&)+0xa3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b987dfeb278 [unknown] ([unknown])
+	    5b987f71d4b0 [unknown] ([unknown])
+
+dtvm  305541 1043342.173087:     103730 cycles:P: 
+	    5b984d47b650 evmc::MockedHost::access_account(evmc::address const&)+0x430 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.173186:     103622 cycles:P: 
+	ffffffff8c028c71 sync_regs+0x21 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.173285:     103695 cycles:P: 
+	    5b984e7edac0 keccakf1600_bmi+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.173384:     103834 cycles:P: 
+	    71be488b5249 EVMBB0_JUMPDEST_18621+0x140 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.173483:     103940 cycles:P: 
+	    71bf49d7d647 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    7ffca426e540 [unknown] (/tmp/perf-305541.map)
+
+dtvm  305541 1043342.173583:     104047 cycles:P: 
+	    5b984d490add zen::evm::ZenMockedEVMHost::applyCallValueTransfer(evmc_message const&)+0x10d (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.173683:     104138 cycles:P: 
+	ffffffff8afa4074 up_write+0x24 ([kernel.kallsyms])
+	ffffffff8b234103 __split_vma+0x1f3 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.173784:     104065 cycles:P: 
+	ffffffff8b2cb9cf __lruvec_stat_mod_folio+0x4f ([kernel.kallsyms])
+	ffffffff8aeda0aa lruvec_stat_mod_folio.constprop.0+0x2a ([kernel.kallsyms])
+	ffffffff8aeda2e2 ___pte_free_tlb+0x32 ([kernel.kallsyms])
+	ffffffff8b222294 free_pud_range+0x234 ([kernel.kallsyms])
+	ffffffff8b2225b7 free_p4d_range+0xa7 ([kernel.kallsyms])
+	ffffffff8b223fca free_pgd_range+0x18a ([kernel.kallsyms])
+	ffffffff8b2240f5 free_pgtables+0xf5 ([kernel.kallsyms])
+	ffffffff8b2334cd unmap_region+0x13d ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.173884:     103963 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.173983:     103978 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.174084:     104071 cycles:P: 
+	    71bf49c6e6a0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.174185:     103939 cycles:P: 
+	ffffffff8bf986c6 mas_wr_modify+0x6 ([kernel.kallsyms])
+	ffffffff8bf98dd5 mas_wr_store_entry.isra.0+0xa5 ([kernel.kallsyms])
+	ffffffff8bf9aa14 mas_store_gfp+0x54 ([kernel.kallsyms])
+	ffffffff8b234513 do_vmi_align_munmap+0x303 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.174286:     103865 cycles:P: 
+	ffffffff8afd903b __rcu_read_lock+0x1b ([kernel.kallsyms])
+	ffffffff8b2cbe51 uncharge_folio+0x161 ([kernel.kallsyms])
+	ffffffff8b2d0d42 __mem_cgroup_uncharge_list+0x62 ([kernel.kallsyms])
+	ffffffff8b1d5e1a release_pages+0x13a ([kernel.kallsyms])
+	ffffffff8b27588a free_pages_and_swap_cache+0x4a ([kernel.kallsyms])
+	ffffffff8b23a793 tlb_batch_pages_flush+0x43 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.174385:     103790 cycles:P: 
+	    5b984d494cc6 void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)+0x316 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	d6b38de5ffec8087 [unknown] ([unknown])
+
+dtvm  305541 1043342.174484:     103892 cycles:P: 
+	    5b984d4d4efe zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x3e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.174584:     104007 cycles:P: 
+	ffffffff8b1adbb5 perf_event_mmap+0x75 ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.174684:     103985 cycles:P: 
+	ffffffff8b245b28 folio_add_new_anon_rmap+0x58 ([kernel.kallsyms])
+	ffffffff8b22c436 do_anonymous_page+0x366 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.174785:     103967 cycles:P: 
+	ffffffff8b19ca7c perf_event_mmap_event+0x16c ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.174884:     103938 cycles:P: 
+	    71be48811004 EVMBB0_JUMPDEST_2441+0xcd (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.174983:     104023 cycles:P: 
+	    71be488b38e2 EVMBB0_JUMPDEST_18481+0xcc (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.175085:     104102 cycles:P: 
+	    5b984e7edb86 keccakf1600_bmi+0xc6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.175184:     103921 cycles:P: 
+	ffffffff8b295000 alloc_pages_mpol+0x80 ([kernel.kallsyms])
+	ffffffff8b295384 vma_alloc_folio+0x64 ([kernel.kallsyms])
+	ffffffff8b22bf3c alloc_anon_folio+0x1dc ([kernel.kallsyms])
+	ffffffff8b22c13c do_anonymous_page+0x6c ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49d7ba5f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.175282:     103984 cycles:P: 
+	    5b984d4b0365 zen::runtime::EVMInstance::popMessage()+0x5 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.175383:     104227 cycles:P: 
+	ffffffff8bf900f3 mas_wr_node_store+0x3d3 ([kernel.kallsyms])
+	ffffffff8bf9875a mas_wr_modify+0x9a ([kernel.kallsyms])
+	ffffffff8bf98dd5 mas_wr_store_entry.isra.0+0xa5 ([kernel.kallsyms])
+	ffffffff8bf9aa14 mas_store_gfp+0x54 ([kernel.kallsyms])
+	ffffffff8b234513 do_vmi_align_munmap+0x303 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.175484:     104182 cycles:P: 
+	ffffffff8b1d5d3c release_pages+0x5c ([kernel.kallsyms])
+	ffffffff8b27588a free_pages_and_swap_cache+0x4a ([kernel.kallsyms])
+	ffffffff8b23a793 tlb_batch_pages_flush+0x43 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.175583:     104081 cycles:P: 
+	    71bf49c710b6 malloc+0x16 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.175681:     104163 cycles:P: 
+	    5b984d47b650 evmc::MockedHost::access_account(evmc::address const&)+0x430 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873fc31d0 [unknown] ([unknown])
+	    5b984d47d3d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305541 1043342.175781:     104387 cycles:P: 
+	ffffffff8c2015c0 error_entry+0x10 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.175881:     104437 cycles:P: 
+	ffffffff8c200080 entry_SYSCALL_64+0x0 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.175960:     104444 cycles:P: 
+	    71bf49c6d729 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.176030:     107993 cycles:P: 
+	    71be488121a5 EVMBB0_JUMPDEST_2587+0x4e4 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.176101:     113813 cycles:P: 
+	    5b984e7ee2e0 keccakf1600_bmi+0x820 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.176176:     119681 cycles:P: 
+	ffffffff8b2b70f3 vma_adjust_trans_huge+0xc3 ([kernel.kallsyms])
+	ffffffff8b234158 __split_vma+0x248 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.176254:     124632 cycles:P: 
+	    5b984d46ffae createEvmMessage(evmc::MockedHost&, EVMMessageConfig const&, std::vector<unsigned char, std::allocator<unsigned char> > const&)+0x2e (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.176336:     128981 cycles:P: 
+	ffffffff8b2cf73b __memcg_kmem_charge_page+0xeb ([kernel.kallsyms])
+	ffffffff8b25b673 __alloc_pages+0x213 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.176420:     132545 cycles:P: 
+	    5b984d4a2b11 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x3e1 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.176507:     135692 cycles:P: 
+	ffffffff8b1adb46 perf_event_mmap+0x6 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.176595:     138301 cycles:P: 
+	    71be48831639 EVMBB0_JUMPDEST_7020+0x48a (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.176684:     140619 cycles:P: 
+	    5b984d47b56a evmc::MockedHost::access_account(evmc::address const&)+0x34a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.176776:     142626 cycles:P: 
+	    5b984d47b421 evmc::MockedHost::access_account(evmc::address const&)+0x201 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.176869:     144376 cycles:P: 
+	ffffffff8b19bc95 perf_iterate_ctx+0x55 ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.176962:     145701 cycles:P: 
+	    71bf49d7af00 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.177058:     147874 cycles:P: 
+	ffffffff8b233c41 vma_complete+0x1 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.177153:     148551 cycles:P: 
+	    5b984d49ffaf zen::common::getError(zen::common::ErrorCode)+0x9f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d6a05b1 COMPILER::evmSetRevert(zen::runtime::EVMInstance*, unsigned long, unsigned long)+0x1e1 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.177250:     149502 cycles:P: 
+	ffffffff8b19bc95 perf_iterate_ctx+0x55 ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.177347:     150099 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.177444:     150731 cycles:P: 
+	ffffffff8b2c8663 get_mem_cgroup_from_mm+0x33 ([kernel.kallsyms])
+	ffffffff8b2d096c __mem_cgroup_charge+0x1c ([kernel.kallsyms])
+	ffffffff8b22c182 do_anonymous_page+0xb2 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49d7ba5f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.177542:     151296 cycles:P: 
+	ffffffff8b220a62 pud_populate+0x62 ([kernel.kallsyms])
+	ffffffff8b229061 __pmd_alloc+0xd1 ([kernel.kallsyms])
+	ffffffff8b22d83c __handle_mm_fault+0x4fc ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.177641:     151678 cycles:P: 
+	ffffffff8b2cfa42 mod_objcg_state+0xf2 ([kernel.kallsyms])
+	ffffffff8b265a2f __memcg_slab_free_hook+0xff ([kernel.kallsyms])
+	ffffffff8b26f03f kmem_cache_free+0x36f ([kernel.kallsyms])
+	ffffffff8b24818e unlink_anon_vmas+0x6e ([kernel.kallsyms])
+	ffffffff8b224060 free_pgtables+0x60 ([kernel.kallsyms])
+	ffffffff8b2334cd unmap_region+0x13d ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.177739:     151926 cycles:P: 
+	    5b984e7ee049 keccakf1600_bmi+0x589 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.177837:     152329 cycles:P: 
+	    5b984d47b41b evmc::MockedHost::access_account(evmc::address const&)+0x1fb (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.177936:     152660 cycles:P: 
+	ffffffff8bf986c0 mas_wr_modify+0x0 ([kernel.kallsyms])
+	ffffffff8bf9aa14 mas_store_gfp+0x54 ([kernel.kallsyms])
+	ffffffff8b234513 do_vmi_align_munmap+0x303 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.178037:     152966 cycles:P: 
+	ffffffff8c03eb47 _raw_spin_lock+0x17 ([kernel.kallsyms])
+	ffffffff8b1a7275 __perf_event_task_sched_out+0x45 ([kernel.kallsyms])
+	ffffffff8af5763b prepare_task_switch+0xcb ([kernel.kallsyms])
+	ffffffff8c0356d5 __schedule+0x1d5 ([kernel.kallsyms])
+	ffffffff8c035efd __cond_resched+0x5d ([kernel.kallsyms])
+	ffffffff8b23a7a3 tlb_batch_pages_flush+0x53 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.178150:     152754 cycles:P: 
+	    71bf49d7af3c [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.178249:     150586 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.178347:     150793 cycles:P: 
+	    71bf49c6e72d [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              91 [unknown] ([unknown])
+	   1000500000000 [unknown] ([unknown])
+
+dtvm  305541 1043342.178445:     151250 cycles:P: 
+	ffffffff8bf8d971 mas_wr_walk+0xb1 ([kernel.kallsyms])
+	ffffffff8bf98db2 mas_wr_store_entry.isra.0+0x82 ([kernel.kallsyms])
+	ffffffff8bf9906f mas_store_prealloc+0x4f ([kernel.kallsyms])
+	ffffffff8b237ca2 do_brk_flags+0x3e2 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.178544:     151571 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.178642:     151807 cycles:P: 
+	    71be488b5b6c EVMBB0_JUMPDEST_18621+0xa63 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.178741:     152192 cycles:P: 
+	ffffffff8c03eb47 _raw_spin_lock+0x17 ([kernel.kallsyms])
+	ffffffff8b22c213 do_anonymous_page+0x143 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.178840:     152413 cycles:P: 
+	ffffffff8aedce6a native_flush_tlb_local+0x3a ([kernel.kallsyms])
+	ffffffff8aedc366 flush_tlb_func+0x106 ([kernel.kallsyms])
+	ffffffff8aedca0f flush_tlb_mm_range+0x16f ([kernel.kallsyms])
+	ffffffff8b23af04 tlb_finish_mmu+0x104 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.178939:     152533 cycles:P: 
+	    5b984e7edc9a keccakf1600_bmi+0x1da (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.179039:     152687 cycles:P: 
+	    71bf49f9b2e0 operator delete(void*)@plt+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.179137:     152649 cycles:P: 
+	    71bf49bf43e0 __mempcpy@plt+0x0 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.179236:     152882 cycles:P: 
+	    71bf49c6f9c9 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.179335:     153128 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.179434:     153318 cycles:P: 
+	    5b984d431640 memset@plt+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.179533:     153653 cycles:P: 
+	    71bf49c6f9b0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.179632:     153821 cycles:P: 
+	    71bf49c710b6 malloc+0x16 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.179731:     153912 cycles:P: 
+	    71bf49d7ba67 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.179831:     154152 cycles:P: 
+	    5b984d46f687 std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]+0x7 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               d [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+	914fc0d749685043 [unknown] ([unknown])
+	1b34329f095c6741 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.179931:     154179 cycles:P: 
+	    71bf49c6d81b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.180031:     154265 cycles:P: 
+	    5b984e7ee028 keccakf1600_bmi+0x568 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.180131:     154236 cycles:P: 
+	    71bec9a00001 [unknown] (/tmp/perf-305541.map)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.180231:     154253 cycles:P: 
+	ffffffff8c0404e0 its_return_thunk+0x0 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.180331:     154115 cycles:P: 
+	    5b984e7ee141 keccakf1600_bmi+0x681 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.180431:     154205 cycles:P: 
+	    71bec9a00001 [unknown] (/tmp/perf-305541.map)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.180532:     154235 cycles:P: 
+	ffffffff8b245db5 folio_remove_rmap_ptes+0x35 ([kernel.kallsyms])
+	ffffffff8b2252b5 zap_pte_range+0x245 ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.180631:     154107 cycles:P: 
+	    5b984e7edec1 keccakf1600_bmi+0x401 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.180731:     154196 cycles:P: 
+	ffffffff8c20008c entry_SYSCALL_64+0xc ([kernel.kallsyms])
+	    71bf49c67c1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b984d4a1f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d4a2b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.180832:     154193 cycles:P: 
+	ffffffff8b1d42f9 lru_gen_add_folio+0x99 ([kernel.kallsyms])
+	ffffffff8b1d5356 lru_add_fn+0xb6 ([kernel.kallsyms])
+	ffffffff8b1d622f folio_batch_move_lru+0xaf ([kernel.kallsyms])
+	ffffffff8b1d7459 lru_add_drain_cpu+0xc9 ([kernel.kallsyms])
+	ffffffff8b1d78fc lru_add_drain+0x1c ([kernel.kallsyms])
+	ffffffff8b2333fa unmap_region+0x6a ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.180931:     154064 cycles:P: 
+	    5b984e7edcfa keccakf1600_bmi+0x23a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.181032:     154295 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.181131:     154030 cycles:P: 
+	    5b984d4909d4 zen::evm::ZenMockedEVMHost::applyCallValueTransfer(evmc_message const&)+0x4 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d69fc4a COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x3fa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.181232:     154200 cycles:P: 
+	ffffffff8b19bc8e perf_iterate_ctx+0x4e ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.181332:     154122 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.181431:     154110 cycles:P: 
+	    5b984d46f1e6 std::hash<evmc::address>::operator()(evmc::address const&) const [clone .constprop.0]+0x26 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               f [unknown] ([unknown])
+
+dtvm  305541 1043342.181532:     154178 cycles:P: 
+	ffffffff8c03e35b _raw_spin_trylock+0x1b ([kernel.kallsyms])
+	ffffffff8b259dfb get_page_from_freelist+0x1db ([kernel.kallsyms])
+	ffffffff8b25b647 __alloc_pages+0x1e7 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.181632:     154088 cycles:P: 
+	    5b984d49ffb3 zen::common::getError(zen::common::ErrorCode)+0xa3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+	    5b984d4723e0 zen::common::Error::~Error()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	48fd894855019af9 [unknown] ([unknown])
+
+dtvm  305541 1043342.181731:     154110 cycles:P: 
+	    5b984d431640 memset@plt+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               f [unknown] ([unknown])
+
+dtvm  305541 1043342.181831:     154163 cycles:P: 
+	ffffffff8c028c71 sync_regs+0x21 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.181931:     154162 cycles:P: 
+	    71bf49c71205 malloc+0x165 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.182034:     154193 cycles:P: 
+	ffffffff8b2cb6a4 refill_obj_stock+0x24 ([kernel.kallsyms])
+	ffffffff8b2cfdc3 obj_cgroup_uncharge+0x13 ([kernel.kallsyms])
+	ffffffff8b265a02 __memcg_slab_free_hook+0xd2 ([kernel.kallsyms])
+	ffffffff8b26f03f kmem_cache_free+0x36f ([kernel.kallsyms])
+	ffffffff8af03b76 __vm_area_free+0x56 ([kernel.kallsyms])
+	ffffffff8af03bbe vm_area_free_rcu_cb+0xe ([kernel.kallsyms])
+	ffffffff8afe567c rcu_do_batch+0x1bc ([kernel.kallsyms])
+	ffffffff8afe70d5 rcu_core+0x195 ([kernel.kallsyms])
+	ffffffff8afe755e rcu_core_si+0xe ([kernel.kallsyms])
+	ffffffff8af110e8 handle_softirqs+0xd8 ([kernel.kallsyms])
+	ffffffff8af11439 __irq_exit_rcu+0xd9 ([kernel.kallsyms])
+	ffffffff8af117ce irq_exit_rcu+0xe ([kernel.kallsyms])
+	ffffffff8c02c5d2 sysvec_apic_timer_interrupt+0x92 ([kernel.kallsyms])
+	ffffffff8c200f4b asm_sysvec_apic_timer_interrupt+0x1b ([kernel.kallsyms])
+	ffffffff8afa3b6a down_read_trylock+0x2a ([kernel.kallsyms])
+	ffffffff8aed7e48 do_user_addr_fault+0x138 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.182147:     153703 cycles:P: 
+	ffffffff8c200ba0 asm_exc_page_fault+0x0 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.182247:     151513 cycles:P: 
+	ffffffff8b25b6f7 __alloc_pages+0x297 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.182346:     151396 cycles:P: 
+	ffffffff8b2252dd zap_pte_range+0x26d ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.182443:     151618 cycles:P: 
+	    5b984e7edbf2 keccakf1600_bmi+0x132 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.182541:     152176 cycles:P: 
+	    5b984d47b421 evmc::MockedHost::access_account(evmc::address const&)+0x201 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.182641:     152544 cycles:P: 
+	ffffffff8bf8ceab mas_walk+0x1b ([kernel.kallsyms])
+	ffffffff8bf99b50 mas_find+0xe0 ([kernel.kallsyms])
+	ffffffff8b238106 __do_sys_brk+0x146 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.182740:     152715 cycles:P: 
+	ffffffff8b29542d alloc_pages+0x2d ([kernel.kallsyms])
+	ffffffff8aeda25d pte_alloc_one+0x1d ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.182839:     152854 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.182937:     153025 cycles:P: 
+	    5b984d4b038a zen::runtime::EVMInstance::popMessage()+0x2a (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.183038:     153222 cycles:P: 
+	ffffffff8b256512 post_alloc_hook+0x92 ([kernel.kallsyms])
+	ffffffff8b259e15 get_page_from_freelist+0x1f5 ([kernel.kallsyms])
+	ffffffff8b25b647 __alloc_pages+0x1e7 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8b228fc1 __pmd_alloc+0x31 ([kernel.kallsyms])
+	ffffffff8b22d83c __handle_mm_fault+0x4fc ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.183138:     153009 cycles:P: 
+	ffffffff8b2252dd zap_pte_range+0x26d ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.183236:     152997 cycles:P: 
+	    5b984e7edc9a keccakf1600_bmi+0x1da (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.183336:     153365 cycles:P: 
+	ffffffff8b657012 _copy_to_user+0x22 ([kernel.kallsyms])
+	ffffffff8af1d849 __x64_sys_rt_sigprocmask+0x99 ([kernel.kallsyms])
+	ffffffff8ae07391 x64_sys_call+0x1a61 ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49c67c1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b984d4a1f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d4a2b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.183436:     153444 cycles:P: 
+	ffffffff8bf88f9a mas_wr_store_setup+0x3a ([kernel.kallsyms])
+	ffffffff8b234513 do_vmi_align_munmap+0x303 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.183535:     153452 cycles:P: 
+	    71bf49c6f9b0 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.183635:     153597 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.183734:     153728 cycles:P: 
+	ffffffff8c2000ed entry_SYSCALL_64_after_hwframe+0x35 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.183833:     153834 cycles:P: 
+	    71bf49d7ae33 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.183932:     153938 cycles:P: 
+	    5b984d47b4b9 evmc::MockedHost::access_account(evmc::address const&)+0x299 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873fc31d0 [unknown] ([unknown])
+	    5b984d47d3d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305541 1043342.184033:     154163 cycles:P: 
+	    5b984d47b560 evmc::MockedHost::access_account(evmc::address const&)+0x340 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.184133:     153987 cycles:P: 
+	    5b984d47b2a0 evmc::MockedHost::access_account(evmc::address const&)+0x80 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.184233:     154056 cycles:P: 
+	    5b984d431640 memset@plt+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	9ebdaa589fd10890 [unknown] ([unknown])
+
+dtvm  305541 1043342.184331:     154117 cycles:P: 
+	    5b984d46f1cd std::hash<evmc::address>::operator()(evmc::address const&) const [clone .constprop.0]+0xd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.184431:     154383 cycles:P: 
+	    5b984d4a6fe4 zen::runtime::Runtime::createManagedIsolation()+0x1f4 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	       10004a985 [unknown] ([unknown])
+
+dtvm  305541 1043342.184531:     154446 cycles:P: 
+	    71bf49c710d6 malloc+0x36 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.184631:     154480 cycles:P: 
+	    71bf49c6d74f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.184731:     154517 cycles:P: 
+	ffffffff8c0270cd do_syscall_64+0x8d ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49c67c1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b984d4a1f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d4a2b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.184832:     154407 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.184932:     154217 cycles:P: 
+	    71bf49d7d62e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    7ffca426e540 [unknown] (/tmp/perf-305541.map)
+
+dtvm  305541 1043342.185034:     154222 cycles:P: 
+	ffffffff8b2cdc82 try_charge_memcg+0x52 ([kernel.kallsyms])
+	ffffffff8b2cf6e6 __memcg_kmem_charge_page+0x96 ([kernel.kallsyms])
+	ffffffff8b25b673 __alloc_pages+0x213 ([kernel.kallsyms])
+	ffffffff8b295011 alloc_pages_mpol+0x91 ([kernel.kallsyms])
+	ffffffff8b29545b alloc_pages+0x5b ([kernel.kallsyms])
+	ffffffff8b228fc1 __pmd_alloc+0x31 ([kernel.kallsyms])
+	ffffffff8b22d83c __handle_mm_fault+0x4fc ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.185135:     153879 cycles:P: 
+	ffffffff8b222369 free_pud_range+0x309 ([kernel.kallsyms])
+	ffffffff8b2225b7 free_p4d_range+0xa7 ([kernel.kallsyms])
+	ffffffff8b223fca free_pgd_range+0x18a ([kernel.kallsyms])
+	ffffffff8b2240f5 free_pgtables+0xf5 ([kernel.kallsyms])
+	ffffffff8b2334cd unmap_region+0x13d ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.185234:     153736 cycles:P: 
+	    71be488b34de EVMBB0_JUMPDEST_18336+0x1502 (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.185335:     153820 cycles:P: 
+	ffffffff8b237914 do_brk_flags+0x54 ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.185435:     153796 cycles:P: 
+	ffffffff8b2ca6d5 __mod_memcg_lruvec_state+0x115 ([kernel.kallsyms])
+	ffffffff8b1d43d8 lru_gen_add_folio+0x178 ([kernel.kallsyms])
+	ffffffff8b1d5356 lru_add_fn+0xb6 ([kernel.kallsyms])
+	ffffffff8b1d622f folio_batch_move_lru+0xaf ([kernel.kallsyms])
+	ffffffff8b1d7459 lru_add_drain_cpu+0xc9 ([kernel.kallsyms])
+	ffffffff8b1d78fc lru_add_drain+0x1c ([kernel.kallsyms])
+	ffffffff8b2333fa unmap_region+0x6a ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.185535:     153717 cycles:P: 
+	    5b984d48261c void std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > >(std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > const&)+0x14c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               d [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.185633:     153791 cycles:P: 
+	    5b984d47b3a0 evmc::MockedHost::access_account(evmc::address const&)+0x180 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873fc31d0 [unknown] ([unknown])
+	    5b984d47d3d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305541 1043342.185733:     154039 cycles:P: 
+	ffffffff8b2cfa3d mod_objcg_state+0xed ([kernel.kallsyms])
+	ffffffff8b26cc0e kmem_cache_alloc+0x35e ([kernel.kallsyms])
+	ffffffff8af0314f vm_area_dup+0x4f ([kernel.kallsyms])
+	ffffffff8b233f90 __split_vma+0x80 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.185833:     153998 cycles:P: 
+	    71bf49fd64a0 std::__detail::_Prime_rehash_policy::_M_need_rehash(unsigned long, unsigned long, unsigned long) const+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	    7ffca4279020 [unknown] (/tmp/perf-305541.map)
+
+dtvm  305541 1043342.185932:     154085 cycles:P: 
+	    5b984d47b373 evmc::MockedHost::access_account(evmc::address const&)+0x153 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873fc31d0 [unknown] ([unknown])
+	    5b984d47d3d0 zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	495441019a4cfb05 [unknown] ([unknown])
+
+dtvm  305541 1043342.186034:     154268 cycles:P: 
+	ffffffff8b1fc9de __mod_node_page_state+0x3e ([kernel.kallsyms])
+	ffffffff8b2cb946 __mod_lruvec_state+0x26 ([kernel.kallsyms])
+	ffffffff8b2cb9eb __lruvec_stat_mod_folio+0x6b ([kernel.kallsyms])
+	ffffffff8aeda0aa lruvec_stat_mod_folio.constprop.0+0x2a ([kernel.kallsyms])
+	ffffffff8aeda28a pte_alloc_one+0x4a ([kernel.kallsyms])
+	ffffffff8b22430a __pte_alloc+0x2a ([kernel.kallsyms])
+	ffffffff8b22c469 do_anonymous_page+0x399 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.186148:     153890 cycles:P: 
+	    71bf49c6d81b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	         20203d1 [unknown] ([unknown])
+
+dtvm  305541 1043342.186249:     151463 cycles:P: 
+	ffffffff8b045c97 cgroup_rstat_updated+0x37 ([kernel.kallsyms])
+	ffffffff8b2ca669 __mod_memcg_lruvec_state+0xa9 ([kernel.kallsyms])
+	ffffffff8b2cb956 __mod_lruvec_state+0x36 ([kernel.kallsyms])
+	ffffffff8b2cb9eb __lruvec_stat_mod_folio+0x6b ([kernel.kallsyms])
+	ffffffff8b245b34 folio_add_new_anon_rmap+0x64 ([kernel.kallsyms])
+	ffffffff8b22c436 do_anonymous_page+0x366 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.186348:     151372 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.186446:     151622 cycles:P: 
+	    71bf49d7af00 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	              80 [unknown] ([unknown])
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.186538:     152001 cycles:P: 
+	    5b984d4a1761 zen::runtime::Runtime::findEVMModule(unsigned int) const+0x31 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	9d29a32b85dfe21f [unknown] ([unknown])
+
+dtvm  305541 1043342.186603:     153618 cycles:P: 
+	    71bf49c710f1 malloc+0x51 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.186669:     163721 cycles:P: 
+	    5b984d48ff7d zen::evm::ZenMockedEVMHost::journalAccountState(evmc::address const&)+0xbd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	211e5009887cd30b [unknown] ([unknown])
+
+dtvm  305541 1043342.186740:     174442 cycles:P: 
+	ffffffff8b22bf43 alloc_anon_folio+0x1e3 ([kernel.kallsyms])
+	ffffffff8b22c13c do_anonymous_page+0x6c ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.186815:     183410 cycles:P: 
+	    71bf49c707ae [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.186893:     191076 cycles:P: 
+	    5b984d69f97f COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x12f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.186975:     197722 cycles:P: 
+	ffffffff8b19bc8a perf_iterate_ctx+0x4a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.187061:     201195 cycles:P: 
+	    71bf49c6f374 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.187147:     205413 cycles:P: 
+	    5b984d4b0909 zen::runtime::EVMInstance::chargeGas(unsigned long)+0x9 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.187235:     209721 cycles:P: 
+	ffffffff8b233396 unmap_region+0x6 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.187325:     213181 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.187416:     216237 cycles:P: 
+	    5b984d6a2461 std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)+0x11 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.187509:     218869 cycles:P: 
+	ffffffff8b2453ed mm_find_pmd+0xad ([kernel.kallsyms])
+	ffffffff8b2b70f3 vma_adjust_trans_huge+0xc3 ([kernel.kallsyms])
+	ffffffff8b234158 __split_vma+0x248 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.187602:     220957 cycles:P: 
+	    71bf49c710b6 malloc+0x16 (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.187696:     222867 cycles:P: 
+	    5b984e7edf7a keccakf1600_bmi+0x4ba (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.187792:     224729 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.187887:     226033 cycles:P: 
+	    5b984e7ede69 keccakf1600_bmi+0x3a9 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.187984:     227264 cycles:P: 
+	    71bf49f9bb30 free@plt+0x0 (/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30)
+	d6b38de5ffec8087 [unknown] ([unknown])
+
+dtvm  305541 1043342.188082:     228955 cycles:P: 
+	ffffffff8af1d85f __x64_sys_rt_sigprocmask+0xaf ([kernel.kallsyms])
+	ffffffff8ae07391 x64_sys_call+0x1a61 ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49c67c1b pthread_sigmask+0x4b (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	    5b984d4a1f1c zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x13c (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d4a2b45 zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)+0x415 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.188181:     229412 cycles:P: 
+	ffffffff8b2252dd zap_pte_range+0x26d ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.188279:     229901 cycles:P: 
+	ffffffff8b233a25 check_brk_limits+0x55 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.188378:     230397 cycles:P: 
+	ffffffff8b2252dd zap_pte_range+0x26d ([kernel.kallsyms])
+	ffffffff8b225dd0 zap_pmd_range.isra.0+0x120 ([kernel.kallsyms])
+	ffffffff8b226957 unmap_page_range+0x287 ([kernel.kallsyms])
+	ffffffff8b226c59 unmap_single_vma+0x89 ([kernel.kallsyms])
+	ffffffff8b2272a5 unmap_vmas+0xb5 ([kernel.kallsyms])
+	ffffffff8b233478 unmap_region+0xe8 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.188477:     230775 cycles:P: 
+	ffffffff8b19bc8a perf_iterate_ctx+0x4a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.188576:     231119 cycles:P: 
+	ffffffff8b23462f do_vmi_align_munmap+0x41f ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.188674:     231433 cycles:P: 
+	    71bf49c6d753 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.188773:     231833 cycles:P: 
+	    71bf49c6d81b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.188872:     232209 cycles:P: 
+	ffffffff8b21ff4d pgd_none+0xd ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.188972:     232420 cycles:P: 
+	ffffffff8b254d1d free_unref_page_commit+0x1d ([kernel.kallsyms])
+	ffffffff8b2590fe free_unref_page_list+0xfe ([kernel.kallsyms])
+	ffffffff8b1d5e23 release_pages+0x143 ([kernel.kallsyms])
+	ffffffff8b27588a free_pages_and_swap_cache+0x4a ([kernel.kallsyms])
+	ffffffff8b23a793 tlb_batch_pages_flush+0x43 ([kernel.kallsyms])
+	ffffffff8b23ae73 tlb_finish_mmu+0x73 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.189073:     232585 cycles:P: 
+	ffffffff8b715be1 percpu_counter_add_batch+0x41 ([kernel.kallsyms])
+	ffffffff8b2346e2 do_vmi_align_munmap+0x4d2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.189173:     232226 cycles:P: 
+	ffffffff8c03a5f5 down_write_killable+0x25 ([kernel.kallsyms])
+	ffffffff8b238021 __do_sys_brk+0x61 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.189273:     232301 cycles:P: 
+	ffffffff8aedc91c flush_tlb_mm_range+0x7c ([kernel.kallsyms])
+	ffffffff8b23af04 tlb_finish_mmu+0x104 ([kernel.kallsyms])
+	ffffffff8b2334d5 unmap_region+0x145 ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.189372:     232419 cycles:P: 
+	    5b984d6a22b1 std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const+0x11 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.189471:     232673 cycles:P: 
+	    71bf49d7b18e [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.189570:     232870 cycles:P: 
+	    5b984e7ede9d keccakf1600_bmi+0x3dd (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.189670:     233110 cycles:P: 
+	    5b984d47b650 evmc::MockedHost::access_account(evmc::address const&)+0x430 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.189769:     233300 cycles:P: 
+	    71bf49c6fa0d [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.189869:     233477 cycles:P: 
+	ffffffff8b2c869a get_mem_cgroup_from_mm+0x6a ([kernel.kallsyms])
+	ffffffff8b2d096c __mem_cgroup_charge+0x1c ([kernel.kallsyms])
+	ffffffff8b22c182 do_anonymous_page+0xb2 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.189969:     233484 cycles:P: 
+	ffffffff8afe51f5 __call_rcu_common+0x135 ([kernel.kallsyms])
+	ffffffff8afe5494 call_rcu+0x34 ([kernel.kallsyms])
+	ffffffff8bf90277 mas_wr_node_store+0x557 ([kernel.kallsyms])
+	ffffffff8bf9875a mas_wr_modify+0x9a ([kernel.kallsyms])
+	ffffffff8bf98dd5 mas_wr_store_entry.isra.0+0xa5 ([kernel.kallsyms])
+	ffffffff8bf9906f mas_store_prealloc+0x4f ([kernel.kallsyms])
+	ffffffff8b233ecb vma_complete+0x28b ([kernel.kallsyms])
+	ffffffff8b234186 __split_vma+0x276 ([kernel.kallsyms])
+	ffffffff8b234302 do_vmi_align_munmap+0xf2 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.190071:     233434 cycles:P: 
+	    71bf49c6d74f [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.190171:     233012 cycles:P: 
+	    71bf49d7ab20 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	f508511378fb1840 [unknown] ([unknown])
+
+dtvm  305541 1043342.190271:     233008 cycles:P: 
+	    5b984d4d4ef0 zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)+0x30 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    71bf49bf5d90 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.190370:     233136 cycles:P: 
+	    71be488312dd EVMBB0_JUMPDEST_7020+0x12e (/tmp/perf-305541.map)
+	    5b984d50f3af call_function+0x3 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d50f775 zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)+0x65 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+
+dtvm  305541 1043342.190470:     233298 cycles:P: 
+	ffffffff8b19bc8a perf_iterate_ctx+0x4a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.190570:     233172 cycles:P: 
+	    5b984d47ceb6 std::_Hashtable<evmc::address, std::pair<evmc::address const, zen::evm::ZenMockedEVMHost::JournaledSelfdestructSnapshot>, std::allocator<std::pair<evmc::address const, zen::evm::ZenMockedEVMHost::JournaledSelfdestructSnapshot> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::clear()+0x6 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               f [unknown] ([unknown])
+
+dtvm  305541 1043342.190670:     233315 cycles:P: 
+	ffffffff8b2cb999 __lruvec_stat_mod_folio+0x19 ([kernel.kallsyms])
+	ffffffff8b245b34 folio_add_new_anon_rmap+0x64 ([kernel.kallsyms])
+	ffffffff8b22c436 do_anonymous_page+0x366 ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.190770:     233342 cycles:P: 
+	ffffffff8b1d6236 folio_batch_move_lru+0xb6 ([kernel.kallsyms])
+	ffffffff8b1d7459 lru_add_drain_cpu+0xc9 ([kernel.kallsyms])
+	ffffffff8b1d78fc lru_add_drain+0x1c ([kernel.kallsyms])
+	ffffffff8b2333fa unmap_region+0x6a ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.190871:     233319 cycles:P: 
+	ffffffff8b1d44b3 lru_gen_add_folio+0x253 ([kernel.kallsyms])
+	ffffffff8b1d5356 lru_add_fn+0xb6 ([kernel.kallsyms])
+	ffffffff8b1d622f folio_batch_move_lru+0xaf ([kernel.kallsyms])
+	ffffffff8b1d7459 lru_add_drain_cpu+0xc9 ([kernel.kallsyms])
+	ffffffff8b1d78fc lru_add_drain+0x1c ([kernel.kallsyms])
+	ffffffff8b2333fa unmap_region+0x6a ([kernel.kallsyms])
+	ffffffff8b2345f8 do_vmi_align_munmap+0x3e8 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.190970:     233091 cycles:P: 
+	ffffffff8c200111 entry_SYSCALL_64_after_hwframe+0x59 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.191071:     233166 cycles:P: 
+	    5b984d490b0f zen::evm::ZenMockedEVMHost::applyCallValueTransfer(evmc_message const&)+0x13f (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b984d69fc4a COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)+0x3fa (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	    5b9873ff5250 [unknown] ([unknown])
+	    5b984d4b0e30 zen::runtime::EVMInstance::~EVMInstance()+0x0 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	834855544101971f [unknown] ([unknown])
+
+dtvm  305541 1043342.191171:     233008 cycles:P: 
+	ffffffff8b715bcc percpu_counter_add_batch+0x2c ([kernel.kallsyms])
+	ffffffff8b22c41b do_anonymous_page+0x34b ([kernel.kallsyms])
+	ffffffff8b22d32b handle_pte_fault+0x1cb ([kernel.kallsyms])
+	ffffffff8b22d98f __handle_mm_fault+0x64f ([kernel.kallsyms])
+	ffffffff8b22dc6d handle_mm_fault+0x18d ([kernel.kallsyms])
+	ffffffff8aed7e79 do_user_addr_fault+0x169 ([kernel.kallsyms])
+	ffffffff8c02d413 exc_page_fault+0x83 ([kernel.kallsyms])
+	ffffffff8c200bc7 asm_exc_page_fault+0x27 ([kernel.kallsyms])
+	    71bf49c6f24b [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.191271:     233026 cycles:P: 
+	ffffffff8bf8fe88 mas_wr_node_store+0x168 ([kernel.kallsyms])
+	ffffffff8bf9875a mas_wr_modify+0x9a ([kernel.kallsyms])
+	ffffffff8bf98dd5 mas_wr_store_entry.isra.0+0xa5 ([kernel.kallsyms])
+	ffffffff8bf9aa14 mas_store_gfp+0x54 ([kernel.kallsyms])
+	ffffffff8b234513 do_vmi_align_munmap+0x303 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.191371:     233055 cycles:P: 
+	ffffffff8b19bc8a perf_iterate_ctx+0x4a ([kernel.kallsyms])
+	ffffffff8b19c817 perf_iterate_sb+0x167 ([kernel.kallsyms])
+	ffffffff8b19cae7 perf_event_mmap_event+0x1d7 ([kernel.kallsyms])
+	ffffffff8b1adc1b perf_event_mmap+0xdb ([kernel.kallsyms])
+	ffffffff8b237a9f do_brk_flags+0x1df ([kernel.kallsyms])
+	ffffffff8b2382e2 __do_sys_brk+0x322 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.191471:     233109 cycles:P: 
+	ffffffff8bf8cf22 mas_walk+0x92 ([kernel.kallsyms])
+	ffffffff8b234667 do_vmi_align_munmap+0x457 ([kernel.kallsyms])
+	ffffffff8b238391 __do_sys_brk+0x3d1 ([kernel.kallsyms])
+	ffffffff8b238422 __x64_sys_brk+0x12 ([kernel.kallsyms])
+	ffffffff8ae072fb x64_sys_call+0x19cb ([kernel.kallsyms])
+	ffffffff8c0270c1 do_syscall_64+0x81 ([kernel.kallsyms])
+	ffffffff8c200130 entry_SYSCALL_64_after_hwframe+0x78 ([kernel.kallsyms])
+	    71bf49ce689b brk+0xb (/usr/lib/x86_64-linux-gnu/libc.so.6)
+	               0 [unknown] ([unknown])
+
+dtvm  305541 1043342.191570:     233159 cycles:P: 
+	    5b984d6a2471 std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)+0x21 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+	               1 [unknown] ([unknown])
+
+dtvm  305541 1043342.191669:     233316 cycles:P: 
+	    71bf49c6d815 [unknown] (/usr/lib/x86_64-linux-gnu/libc.so.6)
+
+dtvm  305541 1043342.191769:     233479 cycles:P: 
+	    5b984e7edc62 keccakf1600_bmi+0x1a2 (/root/DTVM_zr/DTVM/build_perf/dtvm)
+

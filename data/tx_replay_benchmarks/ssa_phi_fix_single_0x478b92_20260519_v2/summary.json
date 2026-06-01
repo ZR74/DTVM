@@ -1,0 +1,102 @@
+{
+  "filters": {
+    "datasets": [
+      "cow_settlement"
+    ],
+    "limit": null,
+    "tx_hashes": [
+      "0x478b92c274aa6b0657d0d4d918a792a85ea8310867f76653608bc9321ea22deb"
+    ]
+  },
+  "mode_override": null,
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_benchmarks/ssa_phi_fix_single_0x478b92_20260519_v2",
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa",
+  "repetitions": 1,
+  "summary": {
+    "datasets": {
+      "cow_settlement": {
+        "exit_codes": {
+          "2": 1
+        },
+        "instantiation_ms": {
+          "count": 1,
+          "max": 0.09,
+          "mean": 0.09,
+          "median": 0.09,
+          "min": 0.09,
+          "p95": 0.09,
+          "sum": 0.09
+        },
+        "jit_compilation_ms": {
+          "count": 1,
+          "max": 7419.476,
+          "mean": 7419.476,
+          "median": 7419.476,
+          "min": 7419.476,
+          "p95": 7419.476,
+          "sum": 7419.476
+        },
+        "runs": 1,
+        "statistics_total_ms": {
+          "count": 1,
+          "max": 7419.574,
+          "mean": 7419.574,
+          "median": 7419.574,
+          "min": 7419.574,
+          "p95": 7419.574,
+          "sum": 7419.574
+        },
+        "wall_time_ms": {
+          "count": 1,
+          "max": 7666.442561894655,
+          "mean": 7666.442561894655,
+          "median": 7666.442561894655,
+          "min": 7666.442561894655,
+          "p95": 7666.442561894655,
+          "sum": 7666.442561894655
+        }
+      }
+    },
+    "exit_codes": {
+      "2": 1
+    },
+    "runs": 1,
+    "slowest_runs": [
+      {
+        "dataset": "cow_settlement",
+        "jit_compilation_ms": 7419.476,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/cow_settlement/0x478b92c274aa6b0657d0d4d918a792a85ea8310867f76653608bc9321ea22deb/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x478b92c274aa6b0657d0d4d918a792a85ea8310867f76653608bc9321ea22deb",
+        "wall_time_ms": 7666.442561894655
+      }
+    ],
+    "system_cpu_ms": {
+      "count": 1,
+      "max": 230.012,
+      "mean": 230.012,
+      "median": 230.012,
+      "min": 230.012,
+      "p95": 230.012,
+      "sum": 230.012
+    },
+    "user_cpu_ms": {
+      "count": 1,
+      "max": 7431.395,
+      "mean": 7431.395,
+      "median": 7431.395,
+      "min": 7431.395,
+      "p95": 7431.395,
+      "sum": 7431.395
+    },
+    "wall_time_ms": {
+      "count": 1,
+      "max": 7666.442561894655,
+      "mean": 7666.442561894655,
+      "median": 7666.442561894655,
+      "min": 7666.442561894655,
+      "p95": 7666.442561894655,
+      "sum": 7666.442561894655
+    }
+  }
+}

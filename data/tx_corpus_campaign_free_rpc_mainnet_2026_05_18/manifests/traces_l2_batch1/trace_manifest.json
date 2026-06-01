@@ -1,0 +1,3575 @@
+{
+  "generated_at": "2026-05-08T13:23:48.727807+00:00",
+  "manifest": [
+    {
+      "tx_hash": "0x7f5de80536e867be31a3a2c5f555a55f8560c4380f711b2596e3ca5e482dcd59",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932140,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x7f5de80536e867be31a3a2c5f555a55f8560c4380f711b2596e3ca5e482dcd59.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x120a35de5c4e8f5baf1e6833fd512e4f99af27790118b57eb17793d747f82cff",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932146,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x120a35de5c4e8f5baf1e6833fd512e4f99af27790118b57eb17793d747f82cff.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0c8c773ee1e09bd48af18b969f8001e7c7186382c71bf271817f29eea0dbcdb4",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932148,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x0c8c773ee1e09bd48af18b969f8001e7c7186382c71bf271817f29eea0dbcdb4.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x23401b1af58e4739f198694a53e7a4420812e2be94e1a9ad0ae376586a7caf5f",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932148,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x23401b1af58e4739f198694a53e7a4420812e2be94e1a9ad0ae376586a7caf5f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf56d1930f3cce5dac5d913858e967dd7d547a568d7879aea7a6a827d768045fa",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932153,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xf56d1930f3cce5dac5d913858e967dd7d547a568d7879aea7a6a827d768045fa.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x1a3752924ac09ab30c1a6b78587c7deeb596d80522427a8ec18554da9a4fb91e",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932154,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x1a3752924ac09ab30c1a6b78587c7deeb596d80522427a8ec18554da9a4fb91e.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x98c4608190325f3debebd7a098ff604677f82c1ceed2e8029c001a2f678d32b9",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932158,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x98c4608190325f3debebd7a098ff604677f82c1ceed2e8029c001a2f678d32b9.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xfeae87add8582a2d5b6212f5586278f8f3f571a8891d3a5e375c76f1ef4d27af",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932165,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xfeae87add8582a2d5b6212f5586278f8f3f571a8891d3a5e375c76f1ef4d27af.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xed656bfce58d01f1436a2a89d6dd34102679b1e598ee39e2c6d1765c249fe3e8",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932172,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xed656bfce58d01f1436a2a89d6dd34102679b1e598ee39e2c6d1765c249fe3e8.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x2bcd683fe6c1aa31a9850cea9e713481cb160cd42edba34e46c33e0e06b5d2b5",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932174,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x2bcd683fe6c1aa31a9850cea9e713481cb160cd42edba34e46c33e0e06b5d2b5.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe525190bf12f200f658a08b20daadf6afbb9dbae06ba4ec8e6f8b01c9259fa68",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932177,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xe525190bf12f200f658a08b20daadf6afbb9dbae06ba4ec8e6f8b01c9259fa68.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3e011f18e34750ba169cb544e5d38f79f97bfc401ad6828e2e462f355972fe1a",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932178,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x3e011f18e34750ba169cb544e5d38f79f97bfc401ad6828e2e462f355972fe1a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf6e662e0a265bb05346821b21b0f6fdc23ebd33acec011b742e813ffe367b128",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932187,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xf6e662e0a265bb05346821b21b0f6fdc23ebd33acec011b742e813ffe367b128.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x2e5db15dd67e8adc0cbcae8d302a13610751bcea9debe97ae6171b0766034696",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932190,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x2e5db15dd67e8adc0cbcae8d302a13610751bcea9debe97ae6171b0766034696.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x084982fab6952bde04b9be2c9a772b54fabc970aea8d4e3f6fab04f96d4fb34e",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932216,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x084982fab6952bde04b9be2c9a772b54fabc970aea8d4e3f6fab04f96d4fb34e.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xefa25779028c08ea3fd3bef22db5f608456fe6a9d00d2adc2068a8450ad0db8f",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932224,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xefa25779028c08ea3fd3bef22db5f608456fe6a9d00d2adc2068a8450ad0db8f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa4eb9361ea7c1d9d143e5393c7a7d7a824cc49a881a04e674e280a7381556683",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932227,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xa4eb9361ea7c1d9d143e5393c7a7d7a824cc49a881a04e674e280a7381556683.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x915bf79f1b5524a67c10309e6917d7517f6cb5b042fa04da5854503f8662c226",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932242,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x915bf79f1b5524a67c10309e6917d7517f6cb5b042fa04da5854503f8662c226.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb31e4139710c650abf492e81081b1055a51a3e5cce2263df53a9244dac279b42",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932254,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xb31e4139710c650abf492e81081b1055a51a3e5cce2263df53a9244dac279b42.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x354609977c12048c988a2f34e354a39eadf0426edc3dade9fc7d9684d094f55a",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932255,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x354609977c12048c988a2f34e354a39eadf0426edc3dade9fc7d9684d094f55a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x6bcf9c023090888482c016ba0f420dca2ca138908197205549af6bd53e902c61",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932261,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x6bcf9c023090888482c016ba0f420dca2ca138908197205549af6bd53e902c61.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0a7b3c898a4af330225d8dca48b2f261c7d4d06b03b8c964d6e28fbd4f445837",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932262,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x0a7b3c898a4af330225d8dca48b2f261c7d4d06b03b8c964d6e28fbd4f445837.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9458a827debb3f8b0800f4b850fd08c09cbbc53a33dc40ea6e4c9e71c99edad7",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932264,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x9458a827debb3f8b0800f4b850fd08c09cbbc53a33dc40ea6e4c9e71c99edad7.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa963a09d737c284e73678745cfa5c547e84ae8d734adf60bc894e5d936b2fb23",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932265,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xa963a09d737c284e73678745cfa5c547e84ae8d734adf60bc894e5d936b2fb23.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x852866b0f00c0eeba256c49ddddc48a3fb6933ae075f1eea57c95bcf48775e94",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932267,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x852866b0f00c0eeba256c49ddddc48a3fb6933ae075f1eea57c95bcf48775e94.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x549e34338fecdadd507327796bdcffbaa4d0dc93ecfa2e815869a6586c80274b",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932285,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x549e34338fecdadd507327796bdcffbaa4d0dc93ecfa2e815869a6586c80274b.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3b5417a620a24e4c0b9b655c984cfde30d8240a6a3b8cd4dd6a7dc1e968acb18",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932288,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x3b5417a620a24e4c0b9b655c984cfde30d8240a6a3b8cd4dd6a7dc1e968acb18.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x2765c27bb279d588a6f29d1bb1723587d645d1b3bc14c7a9fa3d38a58d431ae0",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932297,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x2765c27bb279d588a6f29d1bb1723587d645d1b3bc14c7a9fa3d38a58d431ae0.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x4b5451876f69a02fca6d6cd9948cfc34d145fc5a8962e777e55982bb83173698",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932303,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x4b5451876f69a02fca6d6cd9948cfc34d145fc5a8962e777e55982bb83173698.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe5fea86b08dd7c6d2176733b7e994207b1027dc184353d44abae045323a234ca",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932304,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xe5fea86b08dd7c6d2176733b7e994207b1027dc184353d44abae045323a234ca.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x51d1892b9b2b25f5daab26222227c5dd9f04ec2b2459142b867849c5c97ad1fb",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932307,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x51d1892b9b2b25f5daab26222227c5dd9f04ec2b2459142b867849c5c97ad1fb.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x63afe0296e5b70571ed5d03c28b2186a632cd04a427f5366d21f8e116f7442e0",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932319,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x63afe0296e5b70571ed5d03c28b2186a632cd04a427f5366d21f8e116f7442e0.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x18494c4d40af671eeb8823072a57d02f3033cd4c1dc6b79174e0ecaee72ac509",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932322,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x18494c4d40af671eeb8823072a57d02f3033cd4c1dc6b79174e0ecaee72ac509.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x775ee9204bfd90361aa391d05b5ac42bd07b0525ab023836516b53bb2935abaa",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932327,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x775ee9204bfd90361aa391d05b5ac42bd07b0525ab023836516b53bb2935abaa.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xfb207edc6ebe4fb1b02ddcab6880baeb416b5f7d7f0b5ded965f66089ae6a15e",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932335,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xfb207edc6ebe4fb1b02ddcab6880baeb416b5f7d7f0b5ded965f66089ae6a15e.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb50d4273c3c51791907da0d51ac48f57e753079f73e84e9c17d53c44c0f317e2",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932337,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xb50d4273c3c51791907da0d51ac48f57e753079f73e84e9c17d53c44c0f317e2.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe09e15e88aa1b892210084b6116af5d3158a9be7377bda133b18528726e6639a",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932345,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xe09e15e88aa1b892210084b6116af5d3158a9be7377bda133b18528726e6639a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0a00abe9843b14d32f2c96ac6407754111f4f4e5f31c07da363233624250594f",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932346,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x0a00abe9843b14d32f2c96ac6407754111f4f4e5f31c07da363233624250594f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7311696aa32e51bf4001af13903a44660b0ef8593e1fa10452b7f75129358698",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932346,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x7311696aa32e51bf4001af13903a44660b0ef8593e1fa10452b7f75129358698.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc6e74e583e6614d5a6d0782b6426e554ef348ffb67ebfcfd5fd6f43057340135",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932347,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xc6e74e583e6614d5a6d0782b6426e554ef348ffb67ebfcfd5fd6f43057340135.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xdd38f0c111a3459a7db8d68913b48cc1a24ef043d369808138e7e7f9e688f1a9",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932348,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xdd38f0c111a3459a7db8d68913b48cc1a24ef043d369808138e7e7f9e688f1a9.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb90adad529ade41c9968da488a3c5721f6fb4fc0366f79f305097fecd1073431",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932354,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xb90adad529ade41c9968da488a3c5721f6fb4fc0366f79f305097fecd1073431.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xabadf84a91b81e8ac520673d183bbfc74ff0e471ed21090987b1f078c9c6e28c",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932355,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xabadf84a91b81e8ac520673d183bbfc74ff0e471ed21090987b1f078c9c6e28c.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3bfdae0713d7a6544f257ad973d04136bfbfc740c68452dd93ebb84e14e9f915",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932362,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x3bfdae0713d7a6544f257ad973d04136bfbfc740c68452dd93ebb84e14e9f915.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xbc0aea5de2225d6046d22a79dcbdd028489c9768e929ef2b58279bd110d9a284",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932364,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xbc0aea5de2225d6046d22a79dcbdd028489c9768e929ef2b58279bd110d9a284.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xbf24a09be15bc9c0e131239dfd804453dfbc73c3f4170702788c120a7a0a61b4",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932396,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xbf24a09be15bc9c0e131239dfd804453dfbc73c3f4170702788c120a7a0a61b4.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9a1dfc501c04780fe82acf0041ae2f941c3ef2dc2f4cfb5e330217dc5b49bdcd",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932401,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x9a1dfc501c04780fe82acf0041ae2f941c3ef2dc2f4cfb5e330217dc5b49bdcd.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf997e7fc318c88049ab21173c76ccafaa1f9b9a1201277d597241f7dd0728deb",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932404,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xf997e7fc318c88049ab21173c76ccafaa1f9b9a1201277d597241f7dd0728deb.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x6c3a7c0fe665629964954209d7228d85110ba539ae0fd0bb0968997817685ba3",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932405,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x6c3a7c0fe665629964954209d7228d85110ba539ae0fd0bb0968997817685ba3.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x8b1b7de207fb2297ca78253527cc9047d85aa484b6aa90d49fe0c64b11fc9da3",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932429,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x8b1b7de207fb2297ca78253527cc9047d85aa484b6aa90d49fe0c64b11fc9da3.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd08aa1764be68234016cb5a66f9729289de9df5eccc34698a3711a51ed3a3635",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932447,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xd08aa1764be68234016cb5a66f9729289de9df5eccc34698a3711a51ed3a3635.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x065700ccbda68af50206ab95422bdc9e5c75d0ab4b2b5026282b48ccd902e991",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932481,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x065700ccbda68af50206ab95422bdc9e5c75d0ab4b2b5026282b48ccd902e991.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf9fd08c927d54c742c239186da5b3c9b4260a686f0524f22a77574b5f93f7503",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932489,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xf9fd08c927d54c742c239186da5b3c9b4260a686f0524f22a77574b5f93f7503.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf599fe451be11f99ed67aad81a2e31ba8194add29d41d19165e4eb0bad1d381f",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932492,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xf599fe451be11f99ed67aad81a2e31ba8194add29d41d19165e4eb0bad1d381f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xbf250826d02bed7e4e7c865be2029465fde6ab166a1edfd279bd19da0dae6cc3",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932497,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xbf250826d02bed7e4e7c865be2029465fde6ab166a1edfd279bd19da0dae6cc3.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb980cce24a4a7e171ea648ceabad1002b8f28a9d1dc8459488ae53e3261d450a",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932502,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xb980cce24a4a7e171ea648ceabad1002b8f28a9d1dc8459488ae53e3261d450a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3e1c3a30b1a696487f3eeab8fb35852ae057cc3d73425327b61028256f507c68",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932506,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x3e1c3a30b1a696487f3eeab8fb35852ae057cc3d73425327b61028256f507c68.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc3dc686fb65a53ea14eaa63d038c2797285eabe3e403650b7e55d2f4e7ec4a0d",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932517,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xc3dc686fb65a53ea14eaa63d038c2797285eabe3e403650b7e55d2f4e7ec4a0d.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x5d925cd3bce16c9378e7764cb0c81bb8506e48f01b4b5edeb4c837fe55c19f84",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932530,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x5d925cd3bce16c9378e7764cb0c81bb8506e48f01b4b5edeb4c837fe55c19f84.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x082c78cbf6d376d958f4ee2df8ae2b8a968f32f52b2d112bd84a91c40b67814a",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932552,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x082c78cbf6d376d958f4ee2df8ae2b8a968f32f52b2d112bd84a91c40b67814a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe75eacba80178f68ed91299cc905be720f2671fff2cc27b6e5823d6685fe1bd9",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932553,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xe75eacba80178f68ed91299cc905be720f2671fff2cc27b6e5823d6685fe1bd9.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf5d97c8f13990e4c160cc7c74920b6810f856e0bd1bb8548707a74b0da151cb2",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932556,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xf5d97c8f13990e4c160cc7c74920b6810f856e0bd1bb8548707a74b0da151cb2.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc3ffa86b006a16b510194bec35f1804efe0658f53da695a32492112846f83d8a",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932576,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xc3ffa86b006a16b510194bec35f1804efe0658f53da695a32492112846f83d8a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe7074bc858d1e980eb797187674c792648ac64b05fca1346f838aa4415e15455",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932579,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xe7074bc858d1e980eb797187674c792648ac64b05fca1346f838aa4415e15455.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x746584a3c6eb156b3ac3a569abaedf5d9cb884100b7d4e37037b2c463d21de40",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932591,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x746584a3c6eb156b3ac3a569abaedf5d9cb884100b7d4e37037b2c463d21de40.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa23dbaa0fa3be1dc9c780c670dcde4ef396c25094084488914bc522598af07b3",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932605,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xa23dbaa0fa3be1dc9c780c670dcde4ef396c25094084488914bc522598af07b3.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x750fcb897154876590266e896cfae7219c83b35ba98b9f91022a81fc7ffe0031",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932609,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x750fcb897154876590266e896cfae7219c83b35ba98b9f91022a81fc7ffe0031.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb815070c3868d85d32f2d422facb6b84381fb43eb4c21883961ccfb6453c286b",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932609,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xb815070c3868d85d32f2d422facb6b84381fb43eb4c21883961ccfb6453c286b.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0dd33761e1c30ab855b2e4c9736400fc9502d2764ba7fcbe4d2e4602b545f1c3",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932611,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x0dd33761e1c30ab855b2e4c9736400fc9502d2764ba7fcbe4d2e4602b545f1c3.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xbe3de35e96f4038205eb30efef79f667338f89383660bac91f335c65891c3c97",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932625,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xbe3de35e96f4038205eb30efef79f667338f89383660bac91f335c65891c3c97.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xcfc90a22dec3569269ed88e448e45a53ed0b7cdc937281700fc018ba80edb040",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932626,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xcfc90a22dec3569269ed88e448e45a53ed0b7cdc937281700fc018ba80edb040.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x5e57f13f609cf2fef3336612365a757128b1f10b688119e4026955b13f7f5819",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932627,
+      "path": "data/traces_l2_batch1/erc20_transfer/0x5e57f13f609cf2fef3336612365a757128b1f10b688119e4026955b13f7f5819.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd65e6e3be04890f7a304ebb02145d7735943b52feb63c13360ac6b894cd84598",
+      "replay_tx_hash": null,
+      "dataset": "erc20_transfer",
+      "block_number": 24932631,
+      "path": "data/traces_l2_batch1/erc20_transfer/0xd65e6e3be04890f7a304ebb02145d7735943b52feb63c13360ac6b894cd84598.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x87e99bd2ae37489342c0794cd2cc66e8a103449424686cd37095522ff0fa1199",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932143,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x87e99bd2ae37489342c0794cd2cc66e8a103449424686cd37095522ff0fa1199.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x39fa5f925b78cf42c20834beb40fbf6db271c3024673eb2d529cee5c17bb20d2",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932144,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x39fa5f925b78cf42c20834beb40fbf6db271c3024673eb2d529cee5c17bb20d2.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc1d78a2e49ca361df3041e3437a17aeb12dd2e2168de6a7641f7f7100d6153b1",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932146,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xc1d78a2e49ca361df3041e3437a17aeb12dd2e2168de6a7641f7f7100d6153b1.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x6fdea7a9006ad9728f93088b0c49d6c18cfef5bf05a654cbe421fcbde2f5eba2",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932164,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x6fdea7a9006ad9728f93088b0c49d6c18cfef5bf05a654cbe421fcbde2f5eba2.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x0df5054da906ffe46065f9e4497e4e2c9399cf597c56363afdf023c352e80442",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932176,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x0df5054da906ffe46065f9e4497e4e2c9399cf597c56363afdf023c352e80442.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x58e5a1608d13b98082dca31384e092bb00e1dd61c051baf2b15c9c195a7a7254",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932180,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x58e5a1608d13b98082dca31384e092bb00e1dd61c051baf2b15c9c195a7a7254.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x92b3e6a844d21e521e28efe775b56e229edfd8aed92922cfb7689232d780591e",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932181,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x92b3e6a844d21e521e28efe775b56e229edfd8aed92922cfb7689232d780591e.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x17fbf5c44d2734848f95bdb22cb789e137986e819632b9e55d52a6260c8609c6",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932219,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x17fbf5c44d2734848f95bdb22cb789e137986e819632b9e55d52a6260c8609c6.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x16ea0cb2548c16abb2c0c4cf98e881a255f423a7747407d617fe6eeda7affcf2",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932224,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x16ea0cb2548c16abb2c0c4cf98e881a255f423a7747407d617fe6eeda7affcf2.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x90b7c7a485b80dd3cc83af85c40005b9907aa4ec2b66a6e9dd6ab2f9b6593d3d",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932226,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x90b7c7a485b80dd3cc83af85c40005b9907aa4ec2b66a6e9dd6ab2f9b6593d3d.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x93dced99e601de2eab44813ae89ba5e52c9af080a30ebc3fb94e37375ea06dce",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932227,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x93dced99e601de2eab44813ae89ba5e52c9af080a30ebc3fb94e37375ea06dce.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3b0525cd91814172669af88ccc83c7792b4781ff534d87a5c8bb27bbe919e9bd",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932230,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x3b0525cd91814172669af88ccc83c7792b4781ff534d87a5c8bb27bbe919e9bd.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3a1e9d2b71bd77cce6f9be32a59e92f6498a00679bde859eb7b53f648e36c3a5",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932231,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x3a1e9d2b71bd77cce6f9be32a59e92f6498a00679bde859eb7b53f648e36c3a5.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x137220d5c6c961769eb37293f16a0a826cd053a2a91d2e03f0112f81c7e66427",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932249,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x137220d5c6c961769eb37293f16a0a826cd053a2a91d2e03f0112f81c7e66427.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb34de6fd3806c9af79ba976e2f2246edd59a9817953f3c2c8b10f4834fb53c51",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932257,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xb34de6fd3806c9af79ba976e2f2246edd59a9817953f3c2c8b10f4834fb53c51.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x8c5cc7f362e5a35971b5f14fcdc8898d61d901cddf35d74f1ddc1decf63ffe3a",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932263,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x8c5cc7f362e5a35971b5f14fcdc8898d61d901cddf35d74f1ddc1decf63ffe3a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb30559b3f9c4feb54a4f0e4d99650196e779e36e8d5264477327af6caab6f32c",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932280,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xb30559b3f9c4feb54a4f0e4d99650196e779e36e8d5264477327af6caab6f32c.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x628bea12adb208f6fe13cd3c98c9848e0a76f75625589cdb56adcbe97d33497f",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932283,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x628bea12adb208f6fe13cd3c98c9848e0a76f75625589cdb56adcbe97d33497f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x263b269d37894a2911243bae8be275535f4743b291261fcf561ec07330e54b45",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932289,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x263b269d37894a2911243bae8be275535f4743b291261fcf561ec07330e54b45.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x904fa6a3ab75ad41953999dd249b8a79ebacd90faefe4f0851f42770c7c3953a",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932293,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x904fa6a3ab75ad41953999dd249b8a79ebacd90faefe4f0851f42770c7c3953a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf1a46c96f4e33b2de1b266070b1eb75a5bc20830028b2b3c45dec26f817fffe8",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932294,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xf1a46c96f4e33b2de1b266070b1eb75a5bc20830028b2b3c45dec26f817fffe8.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd0c12880f9055745349407a5b06e6827c2dfc925ecdc9aee78ee6d7f2f18b885",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932312,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xd0c12880f9055745349407a5b06e6827c2dfc925ecdc9aee78ee6d7f2f18b885.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x092f12fdd189ec9dca42054aacd8e8e9ce8c2d024a2a15361c46fc6d784751f0",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932313,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x092f12fdd189ec9dca42054aacd8e8e9ce8c2d024a2a15361c46fc6d784751f0.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xcdef5fd4c21da22d253cf4643dcc463ecdcdd57f0dd67a802241c6f11dd3a05d",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932315,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xcdef5fd4c21da22d253cf4643dcc463ecdcdd57f0dd67a802241c6f11dd3a05d.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x2ffaf3dbcc4bac3e89f7bd91701bb75b89368cdc9cb7aeb39241d120a3e03ecd",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932325,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x2ffaf3dbcc4bac3e89f7bd91701bb75b89368cdc9cb7aeb39241d120a3e03ecd.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x84e63038c1e7f0594e9fa69c17593231fed33d2603f851ff8c91a22c2d6822fe",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932347,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x84e63038c1e7f0594e9fa69c17593231fed33d2603f851ff8c91a22c2d6822fe.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x2d2ddc44f45d47a89630182efcc6a40fdcc511bba0d44a373a5d1441b568809f",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932351,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x2d2ddc44f45d47a89630182efcc6a40fdcc511bba0d44a373a5d1441b568809f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xa3344aaf0ae0d69a8f8f35f43468687ac4f3b231e370ebd5d3e648401056c85f",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932353,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xa3344aaf0ae0d69a8f8f35f43468687ac4f3b231e370ebd5d3e648401056c85f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x631c69e2f209acbbabbf18707bdc05d778b2be383d0feec74a2f2061e8f5c007",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932357,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x631c69e2f209acbbabbf18707bdc05d778b2be383d0feec74a2f2061e8f5c007.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x806baeddfd12ab9694099c18989e7c775b8ca6db26318e8ab75fea412fbc55f8",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932362,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x806baeddfd12ab9694099c18989e7c775b8ca6db26318e8ab75fea412fbc55f8.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7fec6d3a30372871eed969781a0a5f66c221138dc50eebe29e03ae907df52b2f",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932374,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x7fec6d3a30372871eed969781a0a5f66c221138dc50eebe29e03ae907df52b2f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe859a97ed78182baefb5e37b73e7d2b5b9a1bf23d2e6a2b22fefbce046426be0",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932388,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xe859a97ed78182baefb5e37b73e7d2b5b9a1bf23d2e6a2b22fefbce046426be0.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x1e74ec0ceda0570217c261db0290d685f21f09d39e1b70ce429d481aabc39238",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932394,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x1e74ec0ceda0570217c261db0290d685f21f09d39e1b70ce429d481aabc39238.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x6146a407ec1d30a0b38f25d84ef7cd6cf7ee184648d73c55e75c3fc3b482eaee",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932394,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x6146a407ec1d30a0b38f25d84ef7cd6cf7ee184648d73c55e75c3fc3b482eaee.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x886d25e1bd727365e822eead65ed895abf93333a4389097c2b1c2a5bf0676226",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932400,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x886d25e1bd727365e822eead65ed895abf93333a4389097c2b1c2a5bf0676226.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7cfe909a7b9ee9bacff7ea5e4cb3dbee2a3ef9f04c0a543afb7d8c73a1fdbf52",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932408,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x7cfe909a7b9ee9bacff7ea5e4cb3dbee2a3ef9f04c0a543afb7d8c73a1fdbf52.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x6cf0fbdb41f4d19e34a77f9d783451c1be309d870079981ba507f150eac05d42",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932409,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x6cf0fbdb41f4d19e34a77f9d783451c1be309d870079981ba507f150eac05d42.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x8d032267a9a5fdb79ce851d15e8787fa46a5ff051f65a135fb789372400b68c4",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932412,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x8d032267a9a5fdb79ce851d15e8787fa46a5ff051f65a135fb789372400b68c4.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xb31d9cd2bfa95feed326dfd1d86adabd3bf2feff51cc35170170147f74f08df4",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932415,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xb31d9cd2bfa95feed326dfd1d86adabd3bf2feff51cc35170170147f74f08df4.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x016b7e40594a8bb58aa0a0ba4671141fafa5651219c1682532624650a4d4fd13",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932429,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x016b7e40594a8bb58aa0a0ba4671141fafa5651219c1682532624650a4d4fd13.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x9f521e20599416b42b96b2abbf8156cd1f149eeeef3936bbb10c3466b791a3a5",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932447,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x9f521e20599416b42b96b2abbf8156cd1f149eeeef3936bbb10c3466b791a3a5.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7946d1d733f0ebea105c31a5567daac774dcaa52ff022178c297881b3d88ab71",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932456,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x7946d1d733f0ebea105c31a5567daac774dcaa52ff022178c297881b3d88ab71.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x772e0f25cabda6ba93f5cce3308a63fff8390acf91a5bb44815ef3b9b3df9a9b",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932466,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x772e0f25cabda6ba93f5cce3308a63fff8390acf91a5bb44815ef3b9b3df9a9b.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc4ce31746b3effcb81eeb9ac2e991d9b0a12d5d3d7ccbaa15a44052bbf9514a4",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932473,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xc4ce31746b3effcb81eeb9ac2e991d9b0a12d5d3d7ccbaa15a44052bbf9514a4.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xebcf34f74b6089a6d6828b8e126dd382775d90b16201c4ba3b3e3d64df90c743",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932482,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xebcf34f74b6089a6d6828b8e126dd382775d90b16201c4ba3b3e3d64df90c743.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd3854ba9114aa6137b9a780db1ded47094458296ce257e75b6fc858a21041d95",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932489,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xd3854ba9114aa6137b9a780db1ded47094458296ce257e75b6fc858a21041d95.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7da51f8d4e15fc324cd24fdcdf08d4a9413e5e88b2dffd38ce4727a641efc70d",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932490,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x7da51f8d4e15fc324cd24fdcdf08d4a9413e5e88b2dffd38ce4727a641efc70d.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe915aee25ec88794a22b03e7e65e5069d8f92483156c896afc62690a30a6a959",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932497,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xe915aee25ec88794a22b03e7e65e5069d8f92483156c896afc62690a30a6a959.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x38c9303fa15448a1ccd3447013831ea3cf65712f8bbc7da0da1d6ed07143734f",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932498,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x38c9303fa15448a1ccd3447013831ea3cf65712f8bbc7da0da1d6ed07143734f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xe3c32b52cd31541b3d6f15c8a89303856286d467685d9db9f2dabca50b57b8e5",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932513,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xe3c32b52cd31541b3d6f15c8a89303856286d467685d9db9f2dabca50b57b8e5.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x7ff18580667f8b42280b1c595a27abc878502b18f8529da2d399cb7603c59e3a",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932518,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x7ff18580667f8b42280b1c595a27abc878502b18f8529da2d399cb7603c59e3a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf6db0d2c5e227bb9529dec8e8a0523370340e0fec6e7c2ab67fbe3bbea1e456c",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932529,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xf6db0d2c5e227bb9529dec8e8a0523370340e0fec6e7c2ab67fbe3bbea1e456c.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x32d7597bbf4a4ab8cc90dce0c33c85fd05df476fe5e019fc2cd571ebc6ace5a0",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932543,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x32d7597bbf4a4ab8cc90dce0c33c85fd05df476fe5e019fc2cd571ebc6ace5a0.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xaefbbb236315231bb5a462d2cb1e4a11512f2d5ea65ab28eca404f79f8ebe13a",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932545,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xaefbbb236315231bb5a462d2cb1e4a11512f2d5ea65ab28eca404f79f8ebe13a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x8ee3e832c1d5f44449abd5c63ea325006111053de803bcfbf1b488c57456b520",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932567,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x8ee3e832c1d5f44449abd5c63ea325006111053de803bcfbf1b488c57456b520.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x3cc8f152f988fa1bed06a4dc94dc7c74e2ce4cddf76535711157d5a9eb91a5e7",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932568,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x3cc8f152f988fa1bed06a4dc94dc7c74e2ce4cddf76535711157d5a9eb91a5e7.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x918115c88583670f34ba460afe05ac86eb1a14598a2989619c1c4c43ec90d9e7",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932570,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x918115c88583670f34ba460afe05ac86eb1a14598a2989619c1c4c43ec90d9e7.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xeb5ab4cb007bf3444aba96893ee486c6d3976567b1f7a8075bc96a657cad6327",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932576,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xeb5ab4cb007bf3444aba96893ee486c6d3976567b1f7a8075bc96a657cad6327.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x02373ec765d3567628bd94c3dd65c5d3ecb63540bb1b0af81cf2855569a3d55a",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932580,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x02373ec765d3567628bd94c3dd65c5d3ecb63540bb1b0af81cf2855569a3d55a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x2484dfc5212477d49f04e3e77b58ed77c0278af0238dc39906e1738c1101ede1",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932581,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x2484dfc5212477d49f04e3e77b58ed77c0278af0238dc39906e1738c1101ede1.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x35d1fdbc1213142dac7e42a86939b5f4fab1099918a0aa4303548f4e6f9d2d25",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932594,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x35d1fdbc1213142dac7e42a86939b5f4fab1099918a0aa4303548f4e6f9d2d25.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xf6317a4a278713ff821fbe721f33cf4e7f5801ba064f086940445219eb907e19",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932598,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xf6317a4a278713ff821fbe721f33cf4e7f5801ba064f086940445219eb907e19.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x51a9323fa91ae495c0f9e10d9263b33c90bd809cf668e2092966063d5575d4d8",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932603,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x51a9323fa91ae495c0f9e10d9263b33c90bd809cf668e2092966063d5575d4d8.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xd06dbae3d5c0c2421ef492ab37a75b68f79b316606fbf40c8ef8cea66dae3a84",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932607,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xd06dbae3d5c0c2421ef492ab37a75b68f79b316606fbf40c8ef8cea66dae3a84.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xcfbdb9994515a623ae20ba88642824ad25301c7e62b4297b6afbd74bdeb729d1",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932609,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xcfbdb9994515a623ae20ba88642824ad25301c7e62b4297b6afbd74bdeb729d1.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc09a997d39bc78d4611b104f195cc6f578662e3385a3d45c1ec37db3705488a7",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932618,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xc09a997d39bc78d4611b104f195cc6f578662e3385a3d45c1ec37db3705488a7.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xc3793dbb0e4cba9fdd0c6abfeaa833fbb0dc6e017bd7382337b9747f30b9eb6a",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932625,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0xc3793dbb0e4cba9fdd0c6abfeaa833fbb0dc6e017bd7382337b9747f30b9eb6a.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x5480a31cb957b144958ba7a7c95334351f705247a2f5f8147477b6ce4f67a159",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932629,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x5480a31cb957b144958ba7a7c95334351f705247a2f5f8147477b6ce4f67a159.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0x400afa8613f189185c3cf8c72626866a0695aff377deb1ed77678863ede578e0",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932632,
+      "path": "data/traces_l2_batch1/uniswap_v3_swap/0x400afa8613f189185c3cf8c72626866a0695aff377deb1ed77678863ede578e0.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    }
+  ],
+  "errors": [
+    {
+      "tx_hash": "0xeeb42c980c1b5ac28a664ead02082b910e5a71e0d7c5ae2fde18996d825b694d",
+      "block_number": 24932278,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbabcb5ceb53e8ab2fbb2f472d6625f780ded883632b196e411dd8f7a6593a75a",
+      "block_number": 24932519,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6ff05ee64eeaa68b4018d447c1bf1458822b3f740ec15e45810bd931219e272c",
+      "block_number": 24932524,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe2f9e3b63a0036598b9acee056bab562d6e5f38192db66ecea49c6f70162562d",
+      "block_number": 24932524,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4bfe7117d51b8f3eee226fabb2f8deb21f3e34658ee6eda624b2899b60034f50",
+      "block_number": 24932534,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb6eafa25c656be155b8f06d6c056db77d5b3f6d230d96c1aecfb4cea67341bef",
+      "block_number": 24932534,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x57979f9fe3aee13f6831c193fa2e9e53043f05ccb833b92e6bf83d020f90efc1",
+      "block_number": 24932639,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc38b62650d04d2b03f70fade821ea20ca9acbc4c1c42506d736a0de30258b46f",
+      "block_number": 24932639,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x288c93e9dccd1446e4798212128e62531c9ced0225a5bfa95d5a63b161ec448a",
+      "block_number": 24932641,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7384f6cd33f88f4460b143cf8bb76fc5828109851bfafd3e5a6052fac0d985c4",
+      "block_number": 24932643,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbf0ade886958cf1d86ac65849b5912626b2aa9bb85ef9c0862f7a60f24a309d0",
+      "block_number": 24932643,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe7a6d588970179b7934968fd3ad311ec163c34ca88e04d8781be747bb09d8c71",
+      "block_number": 24932643,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1ad1510c9b8d2b80f08afc911535b9c4286f01107fc7a84c93415eef39dd25ed",
+      "block_number": 24932644,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x98a813c840b9114dcec25cc280fc57cb614f6de4feb97750c1e2d4c922d85065",
+      "block_number": 24932651,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa01b80c0ac806c9409ea0c10bf8a88da548f8e4df383876280224c0828502546",
+      "block_number": 24932653,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd0786868acb81191e80e46ea75f4bd8f7587f3bfe82ef60a6a8e41ce3afe6bcb",
+      "block_number": 24932654,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xac976f216cc32261f1229dc3c3e8c3a0ac900a42fd1daf653b0a3af0670b2fad",
+      "block_number": 24932656,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc8537f5ed87b7c4357218fd42e31e02cee0e768b3cb1ba96129416e64fb51571",
+      "block_number": 24932657,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcac6be03b2feaff2a594e95004d3e139effeaa35cf7f434900296b95576fcb12",
+      "block_number": 24932660,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc081a4128d0b7e2e127c6f532cd996394dfffc0a78a5238b95d9ce45d751d9fe",
+      "block_number": 24932662,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x71fddf99512a7c194a2d861a03d6900027ec136aa974d90ffbc8729fe6a0bebe",
+      "block_number": 24932663,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8acbe0ab4bbab29036f7195cb780714ac0a56a772eb344c7e6815105b31d0951",
+      "block_number": 24932663,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1f94502677970de29cc833181bd8446be5a410b57b4a1725dbef7c5f10228e7b",
+      "block_number": 24932666,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x68558c807a648a080bc1a92f17e288adfea7868cc498f69849b9e33cb6a0ca6d",
+      "block_number": 24932671,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3bcd015a726b48f3607b3b5ed2fed581ec4844a656209b917b132f3e49f97db4",
+      "block_number": 24932679,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5d44f5e8581f459eb789a00dcc6be45eb682de820cbb32c74b3f62c96ecf5146",
+      "block_number": 24932686,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x072efb1d9fe3ed2737fc559eacbc1d8b391e67775abdd6deab2a5b323cee3e7e",
+      "block_number": 24932687,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc4a367ed268b38ae69a2741b327d710267e50fca5f4fced9e7d0b3838a61b6f7",
+      "block_number": 24932695,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1d83ab9652f2cdd38dae0d2d95554e3d53837243dd6fe3e77342612811449ef5",
+      "block_number": 24932697,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xfcfea4b91b37d564ea14c10ed8eb3bc0fddd5bdb3119940a697b8f5c3032160e",
+      "block_number": 24932697,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x61ca2da8202363c354a236068eb1b0d3ec7005fa68521c68468cb31911dd4b9a",
+      "block_number": 24932698,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x03b5aa5e1957ca8af27766b0ea63e30c7f397f71cccf47da2f4003ce90a6ecb3",
+      "block_number": 24932704,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb3dbcd89af91d9cb3cce0ab4281caeb26646d8c2503c395035164e92ddd201e6",
+      "block_number": 24932705,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8472eb1b040fdf5cff6e7a46f0f6f1813261dcb11ce052c0a910d9aa351eebef",
+      "block_number": 24932706,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x07d91dff073965c41074932729508b74b8d263cb8910158c8ef4ec556af60dbd",
+      "block_number": 24932715,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6d47f2b3c92b9eb326d99c096b73f53d71d243a7330852282cbb94d0bb74b0c9",
+      "block_number": 24932716,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x04585387cdc3acdc99166bdcbc9b7c4d76491bcfc423f91fb274d6353f8e3fb8",
+      "block_number": 24932717,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5465842cb645149e95328a40599cbcf9651ed2abdf16315dcdd3a8f99c073d15",
+      "block_number": 24932717,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x705a8dd1f5bafb6fa2d833c96dbe0fa7108e4de7d7cc97ef417cf3ac81c3cd22",
+      "block_number": 24932723,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x35cc13d66a167e9496d0f4b52f97cf23e8842176a8294610762a3957fb4b9063",
+      "block_number": 24932726,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x833b17c903b00a122d2866eb36352e5a0f3d92878653464bdb781fcf32a241d5",
+      "block_number": 24932731,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1eb9d2555d84de087d54ecae17626156ea86497c1fbd45ea44f1307ba5b8c346",
+      "block_number": 24932734,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x52b9874e7da258a1cfd05e0a4e68ec8137db6bab6e14c44772c6fd4d464d3647",
+      "block_number": 24932736,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1a7fd62d0451e5d902755990ad4d6096f74b4b06cf2692ca6ae19eced2712865",
+      "block_number": 24932739,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9f755786965903b2570fb485890913de6e0140b1e1df6b9dc6a5059d9570bacf",
+      "block_number": 24932739,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8092d1e29a600e1a2ef064d2d094e5d3b2cbb87d0a8afa0decce7310bcc3cd81",
+      "block_number": 24932741,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x482d4d00a35f37415e3519fd7ddc534d479f40526882c27f0b6ceb37122a6c93",
+      "block_number": 24932745,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcfd52dd0c6bc116b0a8d182ed967eefe9880b1396bda009481fe07893b4d932f",
+      "block_number": 24932751,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa6731a8e3ccc89117f99c86a2010dbbc8896d4a73ecdd3104f1cce43c885dbe3",
+      "block_number": 24932752,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8ac4dcda06e97c2047265f89445cb0ac46377c84f49aeda1a3f0fab208357d7b",
+      "block_number": 24932753,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x88975ed6b2b580a5e28b3672cadf2fae61e0d84d85568c2ffaabf3f4dce15f4e",
+      "block_number": 24932757,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xac3701db725bf9176ee90a3df96f3e6cb0c093137f2d49a9a9d02c46e0618569",
+      "block_number": 24932767,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe155621648eab777f7d277c9ace74ea5ae132b11e0fef386a48d9964fee6ea89",
+      "block_number": 24932768,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x41bb9769afa552501d9d998ac302a20d6fd779c098787dc9db3eb97ce9f1a98b",
+      "block_number": 24932769,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x65dc104193d22f6d2937a1dbfa57cf9db8dc05c6a8162a926207afe45ae8eb74",
+      "block_number": 24932769,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x337be9c3689a567b88bbcfcdbde22edf695294c945554e4d9206f27587117101",
+      "block_number": 24932771,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb57b47d20cc5367a4e8ed095231570a860655bb6c9aa3a7a6084af31ad45a043",
+      "block_number": 24932778,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4609f4d671c89be5f5b032083d93e219a0af2613926e02fc1d1cc08e69e169e6",
+      "block_number": 24932781,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6ab834bf52961a0ca4c5497a6d87fdc84d5b6c119743e00fc473f750f9882b04",
+      "block_number": 24932783,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x143ad388cf00fec265e913b9e12b53611eb0122a75f984d6139d4972517fc348",
+      "block_number": 24932784,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4a37dc2128f2b60e88172e3ecc814fd1f6c6df359f48e586d53d7caeb26d326d",
+      "block_number": 24932787,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc830437b38614d811c82a341ce664621fde4fd59243e0c46ea0cb6ff23ab5f2a",
+      "block_number": 24932792,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x493504a1e3aae794c5be4ffd37dd2acfc5b15753a0364d46b4dccbf8cb191c40",
+      "block_number": 24932797,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1900ba3ad94d15ca0f879ddf7dce58691673890828272e45e167e6b91e1e4bf0",
+      "block_number": 24932802,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x30be0c305eb6fe05dfc2a83c9e5e982691f5991e578958513c8798163981c1bf",
+      "block_number": 24932807,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x30a0607bcea6089d0cbd16e6662f04b212ec9e41f1e249f989bfe01b78067f47",
+      "block_number": 24932808,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x10584e50f27fc129e2f86dbe9bc7151398c43f14aa6b91ad8ca0b6ce12508fe7",
+      "block_number": 24932809,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1e04301f0756f52bc55fe18f7e9072d065b6b62d97aebbb36f8d8d362196eca3",
+      "block_number": 24932810,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x574f28954583852fe770c18a88305302b420a36e46d4f9bbcadf3498af475899",
+      "block_number": 24932810,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x31947f9550fb993eb4b0b5c7122f4bd90442492a926f89db5325ed688bfb6e3e",
+      "block_number": 24932811,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x460aab527d0431b6497d8d55c702280958c39bec97db7521d6e1ab770df85f44",
+      "block_number": 24932812,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xefa2f4e0fc79e29dd063c1839d930efa2f22a8d01e7e0c9aa8ce96514e4bbce7",
+      "block_number": 24932815,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdb39165af5abe83f8b00d0165749671c92bc10d2f215574146dce4fae93c15fe",
+      "block_number": 24932820,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x68c6a85889bd3d97ef430a816e0ed28165b3ad7561b145e61fee798f10927dcd",
+      "block_number": 24932821,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x21497dad7d02dc83a5c41182a6edbfcafaf671ecd8aff79b0da1b2fe6438db82",
+      "block_number": 24932828,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x452e76e93dfaaf5999c0287f9e8ca2e7caa1b3e56ab8da72e6bda64b2dc29663",
+      "block_number": 24932829,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7ed5f9624750fdb37a3b00bf65b2760abfb447a1277e46c85aa5eb78292264d6",
+      "block_number": 24932829,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x96f35479f2566f860498107bba4bee0e1fb15ae85736dae2c5ae71b0d7ee5ea1",
+      "block_number": 24932833,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf392b5159644a1d815f2b75c65b947b55987bbedc1083fe276476a2517ba1c92",
+      "block_number": 24932837,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x223cd73f8806675144a609939b3cfbbd78b91ab78cd5eb37afd460d122fab95a",
+      "block_number": 24932839,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf6a4de709d1a61cde51bb35d27ba46a9f6d8552e12340774cba1b581aa6bc862",
+      "block_number": 24932841,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4eefc94950f923b796fffadd24c1f5a77e4826a4cabaab62d1d6402d94f68681",
+      "block_number": 24932843,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xebca617bdbc2d97b3b70f3cea8e07ceb29fca486b823a2e7f116b23bf137078a",
+      "block_number": 24932854,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5b5ea4f2ba96865192246868157edf70c4d46771cf3764ae403a553aa0615848",
+      "block_number": 24932856,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2f42a772602787c335c0827e9f4ac1577b963f2b0a6c21e13e113b9f05d0760d",
+      "block_number": 24932860,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2c0040567b898f24afd00da46c6442b639ff65eb935022ab024ce562f9d8812a",
+      "block_number": 24932867,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x31272106322e3576269aa53c89e699b32f260ba254775fda1e571da1630e5cc5",
+      "block_number": 24932867,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x792f6a1810b5b082d63a78275efca3ee81d2ed5a82afe46776384b7633e09549",
+      "block_number": 24932868,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb6afc4c648892ee306c991dcbb9af6c1df64db61dea4f26eca32af3766ceced3",
+      "block_number": 24932869,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcf83020b795e0b7b5cb155fb5dff8e6e053ddd806cb1e64c0a5385e8d0917d75",
+      "block_number": 24932872,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x84c8f7976453a4efa4b0792f2dbb2f0cc04d7478310cdf431a81a968b9ab706d",
+      "block_number": 24932873,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9b125d42d3e8e6f2544371bde54e1e0be181203c419b70e5b411216a8c83fc81",
+      "block_number": 24932873,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x12f52df3db8322f2aae1a4b7c573e64861c8e244f91c7698c6b1e95ba1b08e8d",
+      "block_number": 24932875,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1a8069017d685dff6129275e16eb390d16661c01a29ae50a7ad01668a4fd6a82",
+      "block_number": 24932877,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9863cef6b140b8b2d7128394bb7d781dbad7d6585b1a34db8ebfd8e4d8ebaaf0",
+      "block_number": 24932880,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x499bdb3e7ba406985ea58f0eb546b71b7873eca7f1e216e0fe7b73271d588f2e",
+      "block_number": 24932881,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5182e49941b1da13c647b0693237214dbebf7265a17fdcb48dd7b7c7532ddf40",
+      "block_number": 24932889,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x58d193f82e871156ef45532e80d489af1d2eee8164c9b8917ba871e45602ce1d",
+      "block_number": 24932890,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe2f0f5eaea55ed924e12da387189673ceaaaea432d3f7b0f30d290330d93bd9f",
+      "block_number": 24932891,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf527f8ec884eeb7d749030b51561b2455093d43f8dd648f6d62b12c3d3561319",
+      "block_number": 24932892,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xeac6ffac99d88a58e21d04b1f7cde8be5cc783f5bb5f0f711baa449e01d9420c",
+      "block_number": 24932901,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1911ccf6839a11735714585cb65f4e5c5134181d15b2aff5e4fa14e7191215ad",
+      "block_number": 24932904,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x46744d4e1f3b8f9978a11d22cef164df935c1e35de3822c3523a21445a2cfaf3",
+      "block_number": 24932905,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x33bbb8015fa14e19b0cb4dc345077d077648d6c859eefc554b37753e24c009a5",
+      "block_number": 24932908,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x808fc270d02a83bd5fd6def4e177595d61c9cad3cc57975fded5c1c2d242bea1",
+      "block_number": 24932908,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa4130e11440d1ef6c952ec0a146c89fcb19d6dbd17e73a99dab4f869029a3f18",
+      "block_number": 24932910,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1b35c2f62e88f4739b6d821ac6fd2612d1b58ae5f4df7f4e6a4d708f7b48c590",
+      "block_number": 24932916,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa3a896a7ba41f076fda0f548191e086305b19308ec5e4e84f9bdfaedb1ef7998",
+      "block_number": 24932916,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3480c33ebd5f6674bb1e2381d27d7f1d946bc573dee313d2ccbf2562dc37c333",
+      "block_number": 24932918,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3c9e7ffed778333e9f10c92a638e695d9b2e734c147e1b0665f1355060f90c4e",
+      "block_number": 24932919,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xfde1aff7a4638e33037de13b2c090677f56ea856af9a003d1209e77a92b0b3c4",
+      "block_number": 24932921,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd8279c6df50e87a60906e3e9b3c31be98d79a889f593adfd950b2b28fc986fee",
+      "block_number": 24932932,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0302da22d1e99c137cecfbc816620ee7a048ded29745b3cc62eb10dce30d2894",
+      "block_number": 24932934,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x24daf512c1f832d67c175af5beb86330efe2fb859db727fc305c91383b07d341",
+      "block_number": 24932935,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe2e8a2f1f8487094d76c2779b444c857451e49e4e9767e04e6e890c0f141af84",
+      "block_number": 24932939,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1d3621791715a1a464b669bfbedc4fc043949e0c2c07b800fd2f2ada5be97bc1",
+      "block_number": 24932940,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcb74367c16bd0e9e00d31ce43a772b3714579c00e66eda6d48c19b0e8373dac3",
+      "block_number": 24932942,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xee04741edf56a033d5cb805d9f0a98cfff51458bd629a4eb28f0d0a751046460",
+      "block_number": 24932942,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa666569adc4e659e9db15c18f9228ea5169c06dbb7f86e5502921fc47cbd2e5a",
+      "block_number": 24932944,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xfee89bfd82162aa73dfa35ec9154e6bd4b4c9677b69c3abaf26bf28ec5710f77",
+      "block_number": 24932962,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xacd240cbbbc07b7e5926e0795b07d74d71c1ef7872393118e7a576950b703d5c",
+      "block_number": 24932963,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb5c9ab9cf5b31c8db540fee22abec4eb0f86bce8f7241d4552b1848c57945b0c",
+      "block_number": 24932968,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xad4029e840e68ce78cc0a3182bcd51f86b7c35e37a1bf44c6d80061851016f18",
+      "block_number": 24932969,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc8f959841cbb6fd189e05fe1c3d83430e6c0188c2b0ba46bec9fd71faea007ab",
+      "block_number": 24932969,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9fab36af3bb2a386c06accf848a4e60b49ca581e855304b14bf985b0c14eea4f",
+      "block_number": 24932971,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xceca423ed3de2c3a2574f6eb7809a6233a9dd99a4690eccdb14a6d5c34048a97",
+      "block_number": 24932976,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9444e63f9fe640eec90da1ba11a775bd9800c5f3d750027931b1e2e6b4eb1fd3",
+      "block_number": 24932977,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3f62aa9f54b93526ec7ec189cf813503ea3f19eb9d3e2dd77d1130090fc9511e",
+      "block_number": 24932979,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5b7a7926b5e4690ee4df24282d3586ce720684e0e990421bfa38bacb620f2a5a",
+      "block_number": 24932981,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc262026d8b59b2a42b350c0ddbb3723b45fe4170d2970fd28abd6b0b50d3ef52",
+      "block_number": 24932984,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x60bc60716e9deb8858b7068990b3a13bdb881ff7f58a9203cec3072b83038ac2",
+      "block_number": 24932986,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x97af518d76ea84b8040879330c2f563e59c722364c1265507331b4b3e26861ab",
+      "block_number": 24932986,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdacaab5f6b02b65ce3efb26a3b03922bccd71b2cd3b171da88d09e28e1478c79",
+      "block_number": 24932991,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xacf5e8b5fdc43cd6656aeb171fa3ca9bb3a0cacb5da8769cdd75a01fa0ce9dc5",
+      "block_number": 24932998,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4b6bebd191d7b5c3eb49a9e36e3844814ccc0c4c4ec30c53eabfab57ff7bc403",
+      "block_number": 24932999,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb75f7a26a8b591cceb76ec0797fa64783cf0f38e3e910c9f2331e9ce09ca078b",
+      "block_number": 24933001,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb4aa286c42ff43b4eeb646e48bc0b7866eb9135973dc53439c0f2a4f6f193e18",
+      "block_number": 24933003,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdd4048bc08da6e99d1fe7ea14ba8f3152500018b8216f920482bd3621f887936",
+      "block_number": 24933005,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb2bf67385d1f48ab487928b32643909728d73a7b1b19c0bb7a2ca4e060e60466",
+      "block_number": 24933007,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcd4a8f1b334d5aa1378d811edc33fe5ae62f0b5b4a018ca46421c4bd350b2c85",
+      "block_number": 24933011,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9dedffa974a607c8137760b9220867a3942958112ffc2f0d4f014b425cf85136",
+      "block_number": 24933016,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb2498141457a3b2c1a96fd960c32556e21c4f6a97c3d2d56e38ba50a06945d8b",
+      "block_number": 24933018,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1019734b36900e8d8f730860c44fab48143de4ec434f0dcd014a6e0f796e53b8",
+      "block_number": 24933021,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x74968d1c6605ac1398d685c957132d7db54bd0ad1c727cca1e6c89adff78b213",
+      "block_number": 24933023,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x95892623f2a52514cd40d327e9ef7c0b92df17b661153ee0ce617e8e5a651633",
+      "block_number": 24933031,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa9f0a21150ea4895082a6b950f549148ea3660e97738b099e707c5d8a63b2b30",
+      "block_number": 24933032,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa8a249c8f9dee3c81159f2bbd56e18d24e1bcb16009be1f8b2f310a1701b3dea",
+      "block_number": 24933036,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5393cae40fec46721437cb102d92cda3116946f350a57c9b110df44f55a93a8d",
+      "block_number": 24933041,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb64d48a60c59760f309b467837a69457866909cea7867a09574dc1de1f4f5fc2",
+      "block_number": 24933041,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x57bd5fd2b7fb64842d13946279e59696f7be6847fde2c77538e95542b46db547",
+      "block_number": 24933042,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x42acadc2e66986b6fd582bbb87a2819a492c35e7f4a62a07b655b1f7a9e98851",
+      "block_number": 24933044,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc8eb0f3b8d51545e431b5105fe0f2f0b59c4bd0d61a685382c56d33c223d01e1",
+      "block_number": 24933044,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x34928c8e586fbee4be3d58efc1395a19162874f21f336cd82d7055ee487bfec8",
+      "block_number": 24933050,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x967e5160ebd3bccda216215a68f6674e8bb801c2e88f434916eccea3a07b9b12",
+      "block_number": 24933050,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1289419f9eb9eba112eb3370b1c062d8c56a200074bf398af0a72f062870aacc",
+      "block_number": 24933051,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc1cb6795d677aad2c7388866b0e737fbc0a6fa991a96be369eb43006b28d8a5b",
+      "block_number": 24933051,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcf0771a12049b40aaa6a2f594d04f086fa39ed2a4ee59b4ba09c172d7a9d58ce",
+      "block_number": 24933057,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x45f411000428c3b3d2edd750788c63018a5ba373837264c51e876df7449f60c1",
+      "block_number": 24933064,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x08146796899c42d27d552eea9d59f78a3e8812c71b8a9a7e263cddac4ad773f5",
+      "block_number": 24933067,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe1aa2799994c6e5622f8173efb590c4e237e493a24acc744478d2918025fce91",
+      "block_number": 24933067,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x10b82d16ba072e5e94d8a59de010512f532238662e5342a1adc5882ca5675145",
+      "block_number": 24933069,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd6fec49ee312c8bfe54ad352fe00f2354b3551f86865c3db48459e92d69f76f7",
+      "block_number": 24933070,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x14a3270e8fe38e9c6dfacb8f84bb580b6a9604f965c932e2cc52d3cd3608cfce",
+      "block_number": 24933076,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9387d485ac27fd4870f79ac4dec89debd951ec44a4aa29d97d5509e1a49df8a3",
+      "block_number": 24933078,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe6a2c05711a036060b8b982d6553ffff209da99266d22dd5db86e30db356fcd8",
+      "block_number": 24933085,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcb5a62064f6bf122ed3fa2da4de1090a53157296264e1e2629b4921b9541189a",
+      "block_number": 24933089,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7dc2fea8097930db84d3c23a75cf26cceee84d75abfa337ed39dc0b063dc6c84",
+      "block_number": 24933098,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x60940becb51b6ae5436a10ec1a759a6ff7bec32dc6787122c810e6e5bc630bde",
+      "block_number": 24933100,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4f373291c84c90a3f57fb32708fe301e31677e77f7f20578ba43d8532f33e58c",
+      "block_number": 24933115,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcd7e47231c948aad90da16be61124b5132018381964f1e6605031bca0e06f48d",
+      "block_number": 24933115,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf59eced61da9b4f64d05dd35f544a8c8c532bbd7680f17b27b11f44f61d68141",
+      "block_number": 24933115,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9dccb0fcfccecce5ad85a81688dcfaa108d6c02d20c30933a38033cfc4988100",
+      "block_number": 24933119,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1ef0ccbdb6b309bf79f93c659be1d7adfc7db4cc32dffc12d189c080c1b6ef8d",
+      "block_number": 24933130,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x44427fc0645b77fae6cb382b407cd596d688a1874b57a48a8a40debce317fb20",
+      "block_number": 24933130,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x314a6bf349946d0a7dbd6b74a72fa5a78d66abb9c978b5ab4df91385d34c7211",
+      "block_number": 24933132,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb31d3ad3d6fc4594919cebea6639fcd169e041e69945c1e2be363dea5ff7e936",
+      "block_number": 24933135,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xfdf34d6450346324f89d68c5182ca46cb57f16b3ce45a0e420860504b178157b",
+      "block_number": 24933135,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa1225acddf335ff778269ca5d042c4f5b6f70dacd3669c6968871a9d59f0edb2",
+      "block_number": 24933138,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0db3f51a804582eadd6bccfed13ab05474a6d1b4111a107d38097d2182d4c5b9",
+      "block_number": 24933142,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x215e0dd9de87972c6bd81d27b246d5375674ad32080d1570e121bc0743a56eba",
+      "block_number": 24933142,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbf81102a13f5202958550ac252cd8d67a24d540adac89ee3b138c69c53bbbccb",
+      "block_number": 24933142,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcc3c1d3e023eec55e1bcfe5f42cb54ceb8d20643b6f604c8f770438852d86f9b",
+      "block_number": 24933142,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xafdc690afb6e6edfb83211604052279510bcf8188a1ee39dfc0471a70275acc1",
+      "block_number": 24933143,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1bf5a905b6bcf4b1fe09738bfd89ef1058af8c6feafceecd6599de357b4cd3f1",
+      "block_number": 24933147,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x53ffe863b053e677e1c74f78189749f720eca2e1beea802e02d81d6adeb95a0d",
+      "block_number": 24933151,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc4226fcd29b6c52c5aeb9529bd4dd54a3b8596d2d9cd2a1f8991212b0d698424",
+      "block_number": 24933151,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb48e1883123179918a64720a1b6ce63cc525f17f8ae402a4438dd7b45d950de9",
+      "block_number": 24933158,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9483b0ee82a8fb45ae8eef209a0af50eb4e1fa5e7f1bd7b123bdcef69cc0c22e",
+      "block_number": 24933159,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x982f3b26ed38318245c01033518b45358b681e180ad4c8db8d413072e5aeb0a4",
+      "block_number": 24933164,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6735fcf94f9a5f8c5acaa2ee314fd4a7149d3e6376c89165c28e5bb0d36d3ab5",
+      "block_number": 24933166,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc7c14d8bc4ee75c0f9cdf3605cb1e8f809e1cbe7efddc94150a774e48c9b7f68",
+      "block_number": 24933169,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe31c3b86446b3d6c2bbb3b51c36902aaac557f33f99d5370d559b39c74c4f26d",
+      "block_number": 24933169,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x65b6978ad0c3d9c892d2f6436063b642226ec343bdd9a96a95260821ff2108a1",
+      "block_number": 24933170,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x76e45d1d93c9a48b0538242ce6087d2dd7da5c9bb76134e7c625c4de3f7f2605",
+      "block_number": 24933173,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x697f09644859780765d122c49ff02942bdfb46135cfeb1a4b97e34e5c43b102f",
+      "block_number": 24933178,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe77c325d570dd13ec1c302a181e10f0f7fdfad4f5344bb31abf5522583d9b52e",
+      "block_number": 24933179,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x50bfa8b587855f08f0056a1a0bcce61f4d435e082da2ab34ee3084c2b962f445",
+      "block_number": 24933181,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdd4c5aaaef78569fce6db4a71902ba9856b9cf43013ea0a43df7a55feea95d0c",
+      "block_number": 24933181,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2b2d36314a532275df4dcb87c18dc274b2190aa20a57c1d4f1adb7418d3af875",
+      "block_number": 24933183,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xabdaa4bfe66372b836d685d934a631ccbaa644b375527753460e2658cb4d6dd8",
+      "block_number": 24933188,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2b4f3205099a03fbd663667ee54a845e651b7c296a46289a6ed65f42d78b8662",
+      "block_number": 24933192,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1ea6f51bd703be04fabc8848ca02aa38b2f364f59a3b6b0caf37ce0f604af0e4",
+      "block_number": 24933194,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x478399d44292db648a66991acb5eaa66df4e9cad7ef271d237073f674a5fcbfa",
+      "block_number": 24933195,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x10c424b92b6e27269622a781c5286aa393817272d7dc5483b79f95d697680c37",
+      "block_number": 24933201,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1ecddfe3ba0e07fbb337c3d608a3f16d196591c70e677d0b936c1c3aaf8ce14e",
+      "block_number": 24933207,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x42eddd234f5253f823d40777fe01474e571c5ff0809dab334f54d0431f4cd5e8",
+      "block_number": 24933207,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x24cda41fbe15b10414215e45c4b07aa479bb179946e991567f1f02e4b615a08e",
+      "block_number": 24933211,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9a76668105e885d0083708dc7b3cb6d0d973e004e41b30922da73678d15f2629",
+      "block_number": 24933216,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0c28b1063c062663210203ab8d9316c2e931d7cf8807d7ae21e49a33b0af011b",
+      "block_number": 24933219,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb9eccca8fd1cf568bcfacad68614f6623682268333c06855b884a34d713e69ec",
+      "block_number": 24933220,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x694d0734dc5de1365918dfb7533a0ca8c6f3f7ba56a76ecdd6a272dba56fdd54",
+      "block_number": 24933225,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x43b5c5d1cdb08afc0e3051522e957228748203f33005e0369493609e3ad1e0c6",
+      "block_number": 24933227,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x405ac928bfee7993f1491c7e1e9c699ffcebcecfee687e32d25d8eafbb9cc8e8",
+      "block_number": 24933232,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb0a2786e42234644607884e6b40e8aa071f3f4fa740a8a9db9e32595b294bd7f",
+      "block_number": 24933234,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x56b73b613168493c0a8ef7d64ca93fc3133e0f1f2b43b520e3de43933618a60b",
+      "block_number": 24933236,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe8a688d9f17e88c6f6600bf8914b048c828ba78a6f4bac09811997eff425d701",
+      "block_number": 24933236,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x039898d498c7f8ed86bfebd8bbee1725c872a5a3066d6ef04d435ca79245e909",
+      "block_number": 24933247,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x57abd31c6ae0fb4ffe9fc6feab1ad4722818ab51fc1cf7f503d3c38801e4f54f",
+      "block_number": 24933252,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6d91a986628d29b6a74c6ce4a5c963d36299aa18be93291b08a07338d9217346",
+      "block_number": 24933258,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8f0c0d8038a0ac3ae840fb6eca920818b3104d15cce8366fc8c59a80ee6dd805",
+      "block_number": 24933264,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd1b5c1955aee7b55ef4e4a0e8bb7eab46b44b5a5a6897f9b32541ae684efb299",
+      "block_number": 24933264,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x605ff0637b7916204a1bc65a0404583a1dbe156121a9ca98af16fb42777c378d",
+      "block_number": 24933265,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x49c3b10bee803d6c8f52b9d99e6c575a9a0d03e3d52bce3c480deb37d373f45b",
+      "block_number": 24933266,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc815e2b20acfbae7553b762e8a1848afa4b1f7d0ac3c14e45a2a9b9b3f27c9dd",
+      "block_number": 24933266,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x42122969362acfb949ead1e27ad20b50539f2f5308a4232ab8016abe541762fa",
+      "block_number": 24933268,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xfbb1ac88346ae58c66c6feb1f382aedfd33838db1aeb1cefdf694dc6d1268229",
+      "block_number": 24933270,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5ce0d171e3f6958bfe1119d5f22f22999f08b2981fca13d9e2c564b6e9a1e50a",
+      "block_number": 24933272,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x922480546579ab9b0e842f35146d8c40303ab27fef6737f16660e24b496ae17b",
+      "block_number": 24933276,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xfb0fb82bac7fe99c9bae0d843828c2e605dbd31040703c0c913d3222ea85a1df",
+      "block_number": 24933276,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x86e476968c11da03826a6a260b49a65a84c69ac1a971b72c5b263ea08d7a980e",
+      "block_number": 24933280,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x416d45554158205bbad0358164b875e4a849cd0859a36f3ad5c9beff166009cf",
+      "block_number": 24933294,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbc654ddb9b01ab9ca8f348ee48021d04f1156243fcb70e3c5e8e4da36966f749",
+      "block_number": 24933306,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x04bb1b6b36c727843b292fb4cf96425678b0f67847817b8292e80ca5b494048f",
+      "block_number": 24933307,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdb025952571ec31f5882632af648192c056887720bfab070d9b6000251d679c8",
+      "block_number": 24933307,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x11107ad8c1d9af2e9a4afe2fa5f28bce72a467baadf0462f572fdebf593f8ccb",
+      "block_number": 24933316,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbc410eefbf7f23291fa8723fc305218b483346ada044ed06d621e29a4b51849c",
+      "block_number": 24933317,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc2f4507d6b61ca7263633f04945e14b858a51c4e112c2e44a4f9e52e7b8b724c",
+      "block_number": 24933318,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x07e4fd8829f2b9fc23101c9d0029cb231739037d49792726154924f46e67027e",
+      "block_number": 24933319,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x819775c02d6639e7bbcd461493ac62fa134baaba9fc819926fe7911c0d13c4c1",
+      "block_number": 24933321,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0bc71d279d0602e29061b46500faba1d4bd2009e4f9f05f3092ebcfbe8c87a92",
+      "block_number": 24933322,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5a4395eb9a88f1813f018a3745b66514e14ca97b42a47eba7567537cce30fc81",
+      "block_number": 24933323,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe8242755783864d8ac17613abbf6413cc641594a3f778b53752a82f29050f9a7",
+      "block_number": 24933323,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x915e36ea09fbb4e4ea34bf5c96bf937dd39717e474c44c5362873a20b3cca8d5",
+      "block_number": 24933328,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x51b2851b4c43c94857f83c1bbb8e91a84ff4c8db751e9a2e23b85fedbff776b6",
+      "block_number": 24933329,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc4c449b77b21ed3da956440f970c3e55200812db4273f141f376083746018e76",
+      "block_number": 24933333,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcb95fd717dfd5ccc3715243f57939a8fe70d97352a712f9992b84335c3ddc1ef",
+      "block_number": 24933349,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0f9271be44b1ab838d314bef610911e6101c5fa90ff260c0b811e1a8c4275111",
+      "block_number": 24933350,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcf1e6515f715cc07b83cf59fc090339f46c64b0d6be549599e6117cbb7a49c34",
+      "block_number": 24933351,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x19c6d290f58f647c3e3e5b03b6f1626b341cfc5928f80f9af48a8a7a16443911",
+      "block_number": 24933353,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3d1250ea53d6e27026084eb1e13d3a144f5390c01428b0b2d7670c0b4e39c94b",
+      "block_number": 24933356,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5774b0f2db31af57456cb846caf13466a592fd1b981faed043e9d2d81546fe13",
+      "block_number": 24933358,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xaee6ae64cf2f51f4d6ebb565eabe2f02c460e0e3c1cf91f48d89265be4930086",
+      "block_number": 24933361,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8569955a2f34ff04a282c7e956c77898af7a3abf109693dc97164a5d61d50d4d",
+      "block_number": 24933366,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf9f66e10d0ae9024e256b26da055cf85c3ce576ac8302b46ec74bfdd5633af70",
+      "block_number": 24933368,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6fa36fc07f3578c4596a60e89e50a5c0795be61dc16649a6a734047103170997",
+      "block_number": 24933373,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcf29f24baf8c71fc2210e5db84907c55075e08a019c29ef7e4c94938511b3551",
+      "block_number": 24933374,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x74215d97e4d941a13e4a77e17a7dc8e820797439759dd18b7157b9ed44574793",
+      "block_number": 24933375,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbdf1a17cb6f1a99a78faaf27883d593fe0e0e082aedaff9a131d61dedcfe3f42",
+      "block_number": 24933377,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc5835094b5c623e59dbad7064f935517c5cbf48d65213a8a5d53c34614dc1dc4",
+      "block_number": 24933380,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8000736b06b2280d4b8831b38f0a9a01454183b2ebc432e8d7fd7979fe81414f",
+      "block_number": 24933382,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x98ebc3c9f900022a6aff15752b7578cee5241f1f809a47e17eff74fc88a4b354",
+      "block_number": 24933387,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa0fcb6b8b7d553380553cde445c4a320e6305ed1c9ca0767fec3cbacc58cc6d8",
+      "block_number": 24933403,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x022b6d451ec07720ad9b2df95b2ec73599e7ae3f95cc8b3e967debb62afbbd29",
+      "block_number": 24933405,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x98eeb04b361c5eedd1c6eae9e099bc17b50c14ec744d030ab057f5f9dd6f51d4",
+      "block_number": 24933407,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdec99074abcdc03e6be61b1a0a8a8d5680c83b83148ce595c6a43526dac77d45",
+      "block_number": 24933411,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa832dc17e405a7d4582d205b8cbba7bb37ffc1e6c72cd2809079790d8ae92257",
+      "block_number": 24933412,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3c68239ef26d2a173826b738975e2f349ead75a056ac1bd02e3c6e03dae33644",
+      "block_number": 24933413,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2ae6948d5a3b23d3b7210362b35a5148d09a25edc549082a0ad99cb3621bc3e7",
+      "block_number": 24933417,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7cb9e18c952f7d4579a60ae3cf72cfac055cf4891692b5526f5db17d83c555dc",
+      "block_number": 24933418,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbfd1af10f1f1658fe52fe6a98cb1267d9cf29592d8b4c687e6364f464654e2b3",
+      "block_number": 24933426,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x72672a2175740265f1f9b1732272927f571eec16c89586ad4d156305d49df202",
+      "block_number": 24933437,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe3fd3dbca695f8a4b46a919ee7dd02dd22a47d08f2ad649a9cdda648c0d91bef",
+      "block_number": 24933439,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0a55249122a5b90b64eda1d3ca2c52d308463150b1e2882811841ac4c800457c",
+      "block_number": 24933441,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8e22e98439b8ffeee1f302a02891b7d1e045de5b28f015ecd9e0a8a548d95b5f",
+      "block_number": 24933441,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe255c62dfceac6b6308811d499b54ba7e18f7b14fd3fe733e09f41b783c26bfb",
+      "block_number": 24933441,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x872ab63d239d0575057b0375ebd65081bd838c743b2af3d66f687b43298236a0",
+      "block_number": 24933443,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcf060748c4f6167496312c5460f7b7e19f91cf8f8638691e6dd72cf3cec54ce3",
+      "block_number": 24933443,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x25ea534f265142bb69688a79ac9a83ee3026875e906b1eb7f894a0279f06cfd1",
+      "block_number": 24933444,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x33612abc9155e79e5d2cb64dfbd62cd6e3dd1d670b0ed01ebd2e9b17cc02de25",
+      "block_number": 24933445,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x81f212581ded976e9e69e89daa599d6fdeadcb2f34fe9bb2c29fc2bab7f938b1",
+      "block_number": 24933457,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6ef727be36cc5009d0359db17f17fc8c4e9180f038fb58d2b8ac01b839206cbc",
+      "block_number": 24933458,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x852381e4b0df635b8f910eccbd6c2dc714ecfe43479eb7de42311063d3699b90",
+      "block_number": 24933464,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x67c9cd84b1a15d77b49204aaa1962cfcbb7f541280687f8eb3b39545f1e1b637",
+      "block_number": 24933469,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2ee72152e7b43e47c118c2ee11c4e436cd45803d274da79c7947c74e2d012b84",
+      "block_number": 24933472,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1389f1885fdbcd80e7c0d306089af8efe5480033fb4df009467eb6f8336a42bb",
+      "block_number": 24933478,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6c7a91ee6f81d2d76f6b0afeece8be946d9b24dce30e67726884a0cc9e227f95",
+      "block_number": 24933481,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd9d300192d995611848c3314e5caf2758209e89c8159b6b1688ed48a0aba8e3e",
+      "block_number": 24933483,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x22994d58e91d2f9f633ebde34fe2727a99ad7aa10f093859447f42b5ab67555a",
+      "block_number": 24933485,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0345ff57f2b8f163ef304c69033f071f57cef05acaeb0fe757cf59e650802e50",
+      "block_number": 24933486,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4118a23fc6c17166eb2190ffe5670aab18228ccb09c9b6aae0fe03bcfd1872ab",
+      "block_number": 24933494,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x09aaa6b4300d2c86920cd30a0dd8faba36ffe89e06579aaeee0bf9206c62f2fe",
+      "block_number": 24933496,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa1afe747110cd59c39a9f4637121452afe3cb8c24ef9ffa32114994d924b3c31",
+      "block_number": 24933501,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x49ca6f75ed2859c521823df5eeb2cfe862468df50711f24b89aff2fe491a0f45",
+      "block_number": 24933502,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8e99f34d016a7a7346a4c29c93619218f7d3513c5f40263be11afc74700493f7",
+      "block_number": 24933502,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe60fc5d111b587d26e0323db17456d41464e7f58e275e89ccda2c63489c0496b",
+      "block_number": 24933502,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x048868d0c6be2187411f68f9b671b587d99ce6911bdcd577a98900bc9716cf2c",
+      "block_number": 24933503,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa3714c6c70f395607184fdf847ee70ebb0ccf811ebfd62ba64c4d1b68a1795cf",
+      "block_number": 24933503,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x29d9b671f68f33c3bff2e3379588e33653a08c710d2e7536fa19aa228d1fcda9",
+      "block_number": 24933505,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x58a33c3c5e1079d736f73e6ca8aab0d78dcf67a2168605fe881ca3824386879d",
+      "block_number": 24933509,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x42c8e553791bacc54fff802b069a5595ac506aaa91c91a9270e6f79971d79d83",
+      "block_number": 24933520,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8feac819fefb98469fb805ed7e2791133923209a77cf7fb2a2404491eef24b52",
+      "block_number": 24933521,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf8ca1292030c95d25d7ea2b674be7ae80fc2bf2b2ecbd5e747eb33ad77b2d8cd",
+      "block_number": 24933524,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa720c20e4ffb127f0a4803330584777cc00eada2e5efab5759378b7d5d7378ef",
+      "block_number": 24933537,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb9875a0a993fa9940bd508013d65efd0660a04732f30b1c6b626893d6a400cb3",
+      "block_number": 24933540,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x19aec1e19d52cefd4bc1f58c4da838d4d1e70df3dd6626d83a91854c9b78c583",
+      "block_number": 24933556,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x66b4bc8db685ca5d8f462872483752471927f8a2193f788dead9dd3d275a68ed",
+      "block_number": 24933563,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0243bb7243251cd1f1e5c63d05799357fc211aa178f3f50872223b328d423693",
+      "block_number": 24933564,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x81381724bcab87ba9e526a78a294fe9e14e83a5496f6ba2fe96b9fb30cd560a4",
+      "block_number": 24933564,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc8cee6d023d409e9214c91e9288a9c300cfa3c5c4a6471c6f785995961d807c5",
+      "block_number": 24933564,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5530d864cee2a461394942082f203c0a91cbc89fb19f986b16f50f43ff63085b",
+      "block_number": 24933569,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdc090b715ee184bc228c7af294a1e2e9b7fdd15c29b22880fb4ae2c6df3989dd",
+      "block_number": 24933575,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdeca274509be6bb755c78e2952452db48217b3eb02de48c79de27a249874411c",
+      "block_number": 24933576,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xada08ea852356351feecbb83855b57fd0cd40ff3df75562c8674933718717985",
+      "block_number": 24933577,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6b3cdd6838ca166e40445e0e1551209b9c1c8278d1de4127baad1fade61f68de",
+      "block_number": 24933578,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x839ec5266a7e3adad4d1a80fa79fe3bb204802298265671bf446e00e418f1a9d",
+      "block_number": 24933580,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xea9679f72edf96ccc8bc1e771d7cd044f3b0b18588486be49e9d02c9eef26fa7",
+      "block_number": 24933581,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3c8f68d362f9c760372ed311286c0f1ea607e47e5f5e4a4cceb88642e71ac705",
+      "block_number": 24933586,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8c2cf02fcd47ae9fb23dd1faff2ab0d76dc4eb546eb95b0e0b2eedf39b78dabd",
+      "block_number": 24933589,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb92fccd0e46962dceba4defcbf835636f8fff01491717f7528ecb999fd716588",
+      "block_number": 24933591,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe94bf4168387dd1233fbb04bed7ed6afd5da1df7a040537529ed2001fbaf6c94",
+      "block_number": 24933592,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3f30233812bba30c0d58c3ca1a59209ad8b4e51d7f7b2fecb7cd0b6c0620dc93",
+      "block_number": 24933595,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x260dfc174edf609948799fd00fb0d87455d756df8379993dc586b49a07d3f7f5",
+      "block_number": 24933596,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0d443539367dce2e98e62d6d852e959f2681a2b797d5a62438e1d1af6791385e",
+      "block_number": 24933603,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xaf28647a4ed695acca983dc6018bdbe396d2482b3b4a17eeef2b992584f9c667",
+      "block_number": 24933604,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbbc4076a01dc68aabd975f777629da1eac040316106e96cb97402822350d6503",
+      "block_number": 24933605,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb54794c2a802a2a7e5f1fdd5cef92eb7c7d05959557235a1c5182472a97f541a",
+      "block_number": 24933606,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x18b4653ce13fd6c4298ff58328ee4ccb8d3920d4c39cb1714ca65010f7f8c684",
+      "block_number": 24933607,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe3b21129a2482241c420839cf17d15a2372ae65ffb2a67260d2a09abe8d036e0",
+      "block_number": 24933617,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0dc19c41f8be86b30f78c28b9c718fabd09aa5b25c77a701a42902fcb8ec32ae",
+      "block_number": 24933620,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb2d98e184a1c32f78e771321f427ff26839455b25379fd1dc3dc0a8afd1c0fc8",
+      "block_number": 24933628,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcdb27946d0ec968bbdcbb3e6366fb364d43f4541ee37bd5accd41ae46d27a23f",
+      "block_number": 24933628,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x62128646ecd8bc92799520105f7c732733b039943212309ebcdfba99d3a90cb9",
+      "block_number": 24933630,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb579e076ed97e5bf4f2dcd9e2f33033380cb69780e86b579b7274fde848aa8fb",
+      "block_number": 24933630,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbc4f5a5bd57f294c158230cd1fb97e78f5f97703e5bcd33f0de2804b467290d6",
+      "block_number": 24933630,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x358c45b6df6d28a7b1e0d3e15345ce23bb4b16418e1eec1d38863c69ecc61bf5",
+      "block_number": 24933634,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe4efd777594aeec0c31756616d8f07867976f15aff22abfb3e1d6b10f73d064a",
+      "block_number": 24933638,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x86e5ca27ff1d92da198fb7626277557b79bb171c93e31d022745f5c1d28f50f0",
+      "block_number": 24933641,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x74c2d1ac9760ea6e732a2459cb22eb13762107df12d61cedded35bfb84069695",
+      "block_number": 24933644,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x555153b640beba4b48b7f0c869f9b6dec03baa4650bfb2e50dfb3d1f40cf4fb6",
+      "block_number": 24933645,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7cebfd0d4d21b6ce866458de5b97ab0ad5819d5ca92bf31fd932f34957b0318b",
+      "block_number": 24933647,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x264e3ee1380f63fd084c77f02541a2f7646bbfaf1686f1789919e58f0d06f8dd",
+      "block_number": 24933648,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd6303dd0b1442241b4deb07c435822e7c3bf0c602bd054c09095324a3ced1409",
+      "block_number": 24933657,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x11919652f2353fb6eea604a6ffa9f4f3f4781c3c27853683deca7822f44a94f2",
+      "block_number": 24933658,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc034a367219e2c6868d84c27d4730fcf33d7463b67d5fc2f31d7ec3aacd73c8a",
+      "block_number": 24933661,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb4448ac91b06e600835504defef33efaf4aec7ee5b404f8c6e45468f8aeaed05",
+      "block_number": 24933665,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3d8f9dc6a290ebf1ba9a33f3bbe4b047656db1f3af4b9d771f9fe748ab3b578d",
+      "block_number": 24933668,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6327a849fd4c2885d0a2149165d6c1b80f56b1b1add5494474e87b3dce7fbfa2",
+      "block_number": 24933670,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc698dc73c71fa2acf26cff9225015b9b82b1bad8342259c3c669a0b0c5bf4d09",
+      "block_number": 24933670,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf538cdb39d79c3a63aa828d440946b748ca03511b001043f98b5a2fc0feaec90",
+      "block_number": 24933673,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5dc245e95b3743c6ba47cc4b128f32fc8dde2a00b978a7b13765f405d3d4a4be",
+      "block_number": 24933675,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9369d971f9e211e763efa1854763930360cdb73af0c4b3c4ec678ff3f7995b5f",
+      "block_number": 24933677,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xcf9448232531a85d38f6be977112f311558a1ab4f4eb5718791f1c28b39926d4",
+      "block_number": 24933688,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe91d3705bc4cfa25ede1d6c4d96f92283763b88aada57d4016593b0b6597e13b",
+      "block_number": 24933689,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x076e512e7ce71de7eede1d556a2061d7d9c8827d71659dc022ad6a41ced5b818",
+      "block_number": 24933694,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xedaaf66a199d2ead99d7cd9d951d8b5fd132ab6bad59a2431f954bff7469c8f8",
+      "block_number": 24933695,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x332ce76a750399ff45da105d43e97fe3e2b5e5e5090505e93f246492fdb586c9",
+      "block_number": 24933698,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x55202ace3184dcd85ac072a300c98117f41912d921bc6b5389dace788bd1c67c",
+      "block_number": 24933702,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xed9834439e4d301d7cfd4fc3af09f5ad0e247b351355e77dba5f5b616f1c3725",
+      "block_number": 24933704,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x549082745ad61fc684ae64bf587d0f466a86e90ab7bd795e25895bed813e50a1",
+      "block_number": 24933705,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe4dc1f4d158e63cc7764e5cbf6ef9d6277d014a15839de34e33b1706f2600b39",
+      "block_number": 24933710,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3a550b6d4931ad6fc03902b83c81df37eb0788f6ae05597a34dcf12d4b433fa4",
+      "block_number": 24933713,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6810389cc8ab4e797e4432fbb0cf8e81a78127e08c4d61edaf14716c9b41a054",
+      "block_number": 24933714,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbf6160b63b7bb80153f57bf46b5053d3ec8547f0c6757582d8f07fa04678ade0",
+      "block_number": 24933727,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb87fe30788db402a0804556116493475ccc8d6bb71b440128fd9c04a6a415019",
+      "block_number": 24933734,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x09ea40decfbbca898d55707bb97092e2e35a2d96eb68bc7b51ddabadf8372597",
+      "block_number": 24933736,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd829c21d9dc0c631c791660b8ffc9fc2b39ac37b0b22635d9f61ae1b5b934485",
+      "block_number": 24933736,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3e983423652d97178ec01038c9ef207390221926656453f329a5b7deb4a6c060",
+      "block_number": 24933744,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x67c055f46460b449029182f4721a7a03689b8c2c7b5b704cddf9c8283a88101b",
+      "block_number": 24933745,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7aa6b5199acc0a2382d77b10f960e6843aa0fbdc5db2dbac5b5b605022886ad5",
+      "block_number": 24933747,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x29a79fa0b96b6637638c07ce39b8b30f5f284ad93749a0c82e83c57844bb7130",
+      "block_number": 24933748,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x95c6e1da0bc4b2877e53625c36a833447c5d899501896cea5912ec3382e3127d",
+      "block_number": 24933758,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x325071192e8717916eb39771b6d2a9d4bdd12f0a01b6683833bc8b417f28b758",
+      "block_number": 24933770,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf72ecca2e09083dcb87b70a9f7d77ff9a4d0f56088202189b5a01dd8d5ef3bae",
+      "block_number": 24933770,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x35143e35e9a5679772a88e57d6ed87d013e3196c5ec72191d9d9642b09314f2c",
+      "block_number": 24933773,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0b103a30b526d326e5f05cef8666fce4395a88f7d85113f6f39f0b5bf8335200",
+      "block_number": 24933774,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x21f82d533e0d501ebc7aa1b618b6e5b2ac9a0aec16cf5eefffc1fd390578ba9f",
+      "block_number": 24933774,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2ab7f670e8d12f13b91026da34c64a245e0acdf744ea648a0219bffffdd3df6f",
+      "block_number": 24933775,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xca7bc4e2f34d264e73c1fc1f995857f23b03bbed9cfae3c8c5569cc76cd5738a",
+      "block_number": 24933775,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5244d9a88319fda9b5d8b8ed79661a6bc37998dce5d5f117b46e43a83dab7b5e",
+      "block_number": 24933778,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf539b8957b1f010895958a58559d6692b148f2e73824d5b824388287feb98421",
+      "block_number": 24933778,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc734ebf857ce76867763436f1913d335f418eb9063d8c90b7930027e35c1ae82",
+      "block_number": 24933779,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7ef52d6e084022596178ac7a3c8cf73693522fe8e19eef2cafe2d03c976aebef",
+      "block_number": 24933780,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd959cd2839c214d588dd6368deba3054888d88f5dd5a26aad0608d910a5d7642",
+      "block_number": 24933783,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa04a750191e2351e01c44ca78c08f6bb456a25f7236b2e5f26f5d7853e5f9c6a",
+      "block_number": 24933787,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc0bff8d48abf4b4002b22c8bc733e62e69093f65875e7060711a1172b6448a96",
+      "block_number": 24933790,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3fdd1ac22bd78267a23c259f6259ea8e6c491c63f02f8ad3e5a996c8bd87a67f",
+      "block_number": 24933797,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x48212cee281330563bce734b2380498bf47f261e1d8e115a037e4d0233c7d90b",
+      "block_number": 24933801,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x77436361b2814c27b598212d116719e449045d48e942c9f2f66163affef1ad36",
+      "block_number": 24933808,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x241df36ebdf7e7e1697ea7c23a2271ff588ad770cf953ee5fdea9945c1322e56",
+      "block_number": 24933822,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x374f6ca221c55bede0a4af1b0f226009362b864c8b4143d5f83a58624484e790",
+      "block_number": 24933825,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb70d153c59704f32b9955998128ed2866d6ac3b917e1609c1c1647d636d9b8a8",
+      "block_number": 24933825,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x684a51815ce657f1de73d87e4910d30b8e61507d4a8fc840e45cfbcbb8c97af5",
+      "block_number": 24933829,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc0e7131ce1055f220f3248721b0d1f239472c2c06b2fd01a378c798444e1ad42",
+      "block_number": 24933830,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5aae36b8308c346c853a899cb5a17cd66d64073434e0d9326032b340da351997",
+      "block_number": 24933845,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbdcd5e87778146cf4fb1f96780656eba58af927daa96dbc9ae74907a6eb6d4e0",
+      "block_number": 24933855,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd4f7b55807d3fbca5f592b938498f29c4ef0b47741335c6761e352b167d476d9",
+      "block_number": 24933855,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x83fb8e4ace4bfe676d4cd92773539ba725e87bed549a924c3b145540c4f81fc4",
+      "block_number": 24933882,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x9ab56d8d6c23f6dafbd4618b7709c5ace112eaf6fa496893d171217991a5c92e",
+      "block_number": 24933885,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd227233f45d7dcd8a4b32aa670252030c0cfbd2c85335d5b0d2e354fa6fc9204",
+      "block_number": 24933888,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4324e005cd31080cb9c23cede81c267598487b02ebfed82eca006827ee18473e",
+      "block_number": 24933889,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7ce27bbbe27e9c153d8fa9b1d3696052f4808df90e2c9ae0b1e329cd65044181",
+      "block_number": 24933890,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd976f825494ae2218b46d6e0143ee7d92c2e14014070ebd68effcd4bdf518f0f",
+      "block_number": 24933892,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x41f9d70e31e3e5d37cf0b9a1a2911bb7df110604fc0256d9002be95352f589c2",
+      "block_number": 24933894,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x62abcf3b974796b7dcd6fc6cf076c543cbb06073af80e422d5eea92d48af70e5",
+      "block_number": 24933902,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x1cfe45eb16c2ee2201627feb20c22af7f2968d373e70f9d0f6a8740677e7e7fa",
+      "block_number": 24933921,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x17a96e1673b760985cea731bd37785e068da8bbfe4be91ae1c0c11013e5983fc",
+      "block_number": 24933922,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2b3a58d903b70f87de1999e31334e01141082935c89a505589db5edbc9c0e83c",
+      "block_number": 24933923,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xf018501efd79f31fd17033ab679888515d6226d4e57ecc3f05bc811914462004",
+      "block_number": 24933930,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x165360ffff0166ce7acbd904747c851dd94c29a12130ef021ef333fa69e405db",
+      "block_number": 24933932,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x25c5a9beb9dc7cf05ad06435eede60be7a638c53ff42ab8462964a83a26eac01",
+      "block_number": 24933932,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x125bbedc64e943f13a9b76fccc943463653932571c71f9fda4a6942778c807dd",
+      "block_number": 24933936,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x2dc75b8d9882395871828d5d2ae6708ada2ebb28915812d2b023be17a4d6f765",
+      "block_number": 24933940,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe6f327b7b831e380ab68c2425b1eaf3ab0d39d56a26522788c7d92a9526f4118",
+      "block_number": 24933941,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xd33c32a4db345e483cd439981db16c7d57338ae58d548b07ac39994638bd7967",
+      "block_number": 24933948,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xe500fc69564496407d91a84d55cdf00e6e5209ec5acdb0622f31f6df55a51c45",
+      "block_number": 24933948,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5f260c19834175167b857e74b21f26c3ab8a8647aa95c85d7ad4127cc2c6bd7b",
+      "block_number": 24933951,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x860a5642ba0d308fe9413de75338b8d22e105e353575441f21c65ed4967ba602",
+      "block_number": 24933953,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x86bae43ffc9f7fcc8305cd0d2205aec48d219fe71e9e16795d621dce9c25ab4f",
+      "block_number": 24933953,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x02b7939bce9bd940e11cfe02c5ef9261807bedb2f33d97c0af143bb895105030",
+      "block_number": 24933958,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb8a2113994fa9cb0bcd9ea39c19e156a9d9d707504107eb43a0315ec3e977003",
+      "block_number": 24933968,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5d641bea62f5f500b4d5ddf6e5eef9558897aff62119c8859947bd5298f2647f",
+      "block_number": 24933973,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xebcdd2b66112d4eb522ac17e4a3213bcc11ab607f1bec6a87abd553d777c3379",
+      "block_number": 24933983,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x122e557371ba772d8fec6be114e158159beb4f9b591a7576601563c9398fd5b7",
+      "block_number": 24933988,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0d7869ab71f242fc6bef629ad439a9d7adb16729cac503b7f479953f4d786558",
+      "block_number": 24933995,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xda4fca93a41016c99b551dd1a11f8a830626104930c90bd8c8899273077274d1",
+      "block_number": 24933995,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0741d9ea90434f7b0f61983c78a375ad6fc2e011029d21d519a0e9c89f6777d7",
+      "block_number": 24934012,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x54355fcc7ca87497d3093fcd908898f218548fadbe6e0afb291dd70467b5ed34",
+      "block_number": 24934012,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8b4fee5e9bc0b9117a1f7cafddb8c2d89899c0f88d6a7e7f016fe4da632f6b8a",
+      "block_number": 24934012,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbf988f1e7d4d7271a563d2073c9f41c6115da2bbce1da9694eeadd22cb11837d",
+      "block_number": 24934017,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x03df330b72e5380da34a0818bcea15ba69ca4e97c9bcd089af3e182a981f629b",
+      "block_number": 24934024,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5f4d62049b538487df08f61dcb57245ec76fa43c611ff7d122d514e7a93434d0",
+      "block_number": 24934072,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x07fd0d07168fb05a02a2591275ca52dc3916cd14cd52e1cd32b6094ec6a65d3d",
+      "block_number": 24934075,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb8e7c4b1d8ed3f5c67719a1ed01876a8a771d49756cd076287de9f13b187c71d",
+      "block_number": 24934078,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc35f288da04b31dc67ec754c547fbb059ffade3c70c1efb65004d84d6ee4dd99",
+      "block_number": 24934080,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb6aee452ba2303eab70fe34322e4c9aa9f45752b9648e50b8efaebf3f5b93b63",
+      "block_number": 24934081,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xa8866693e67c9dfc38630fe658fb5faa7f51f2a599c5c58d83284ac785ac043b",
+      "block_number": 24934083,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc9530fe5028e415c6b0ff81001b1364e4a289087aa9de09f5336f18117d8d2a5",
+      "block_number": 24934083,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4ba2feac672e16d38b7fb236a8b3ea5a4b7555649e36dfd9be69e88e3f71ab94",
+      "block_number": 24934085,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xfb363185aba8cd19d9bcac32ce3641d154aa4633e5a874e4925fb9dbca8d9c71",
+      "block_number": 24934095,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x8eb7194675844cb32c431fb6c0e801612130baa917b63a5e8307fdecc5f58af1",
+      "block_number": 24934102,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xdb1db15f6c5f1a50e4d8db777bac8a89b4a6e172a132735219983816bea100a1",
+      "block_number": 24934104,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x13a7bb188b51986c6bb30f7ddab65962cb2ab3649aaa8c681fcfc353441ecec6",
+      "block_number": 24934106,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x42de32b88d3205dbe244eaacf80fb33bd4790731bb364bcf9cc258e63c171135",
+      "block_number": 24934112,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x5a65f8a1a101776e0c9e44eb1dd5f8a49e3f982adfdbfe3bee28f2584df3b07b",
+      "block_number": 24934123,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0eefa75c3258c0dbb63355d1d9d1f7e5a51cfd3cb65badfe3ee3ae44ff74ce19",
+      "block_number": 24934147,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7477d7f51693c870ac7541be556a94ceaa3186ac2b8911cb1197e482ba361a6f",
+      "block_number": 24934161,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x3135c23f3cf0de226ca5231da19daae54bec36a53f8630be7cddfec7ffeb3270",
+      "block_number": 24934164,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x7f0dda11e3bb552c594541d72f186c7f5b2b4a5a4f6b99eda9a5c33dfe8dfff0",
+      "block_number": 24934164,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x0df805471f7724a3d2e009d60d37bc491f086695939e3ceceaa6c7e7b975a6da",
+      "block_number": 24934166,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x6b30540ead552322eb449057e3834072c9d3ca9859ee8c195ed2f114d4d9f1fd",
+      "block_number": 24934175,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xc9541c882cc407d4c50ab206e67d6ed78b7bd6558cbdae0adc8dfb6b0429418c",
+      "block_number": 24934194,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x59ed12e54dfdb2426f4165ba1d2e46de513a5668a27d82bbadda40b4dc583052",
+      "block_number": 24934198,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xb6d30cde20409cd4780ffeb1efafb453d8ce7fdcc36e0b4494cbe80abff818a9",
+      "block_number": 24934198,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x78fcc42bc2989f48b125df3760e6bb796805dea9948ebec552599c94c823280f",
+      "block_number": 24934199,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x611d36e10229f85abd9321951cfdac90c0d914459454fd3bb07ebee3fd9cf097",
+      "block_number": 24934214,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x4d8104ba24120eda60a71ea4294bc30fe6e2a47c70a272e114a97d1d5cc6ac78",
+      "block_number": 24934218,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0x83781e6088dbe5548932010a653f8d30cef1290cd282053254813ba01e019c9c",
+      "block_number": 24934233,
+      "error": "HTTP Error 502: Bad Gateway"
+    },
+    {
+      "tx_hash": "0xbeb8ad7f09642cc04f29eab635fbe82228200e77d593e9a55c869edfbaa7dc10",
+      "block_number": 24934249,
+      "error": "HTTP Error 502: Bad Gateway"
+    }
+  ]
+}

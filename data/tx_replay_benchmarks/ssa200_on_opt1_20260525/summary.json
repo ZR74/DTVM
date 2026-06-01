@@ -1,0 +1,352 @@
+{
+  "dtvm_path": "./build-ssa175-on/dtvm",
+  "filters": {
+    "datasets": [],
+    "limit": null,
+    "tx_hashes": []
+  },
+  "mode_override": null,
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_benchmarks/ssa200_on_opt1_20260525",
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200",
+  "repetitions": 1,
+  "summary": {
+    "datasets": {
+      "cow_settlement": {
+        "exit_codes": {
+          "0": 1,
+          "2": 14,
+          "5": 10
+        },
+        "instantiation_ms": {
+          "count": 25,
+          "max": 0.544,
+          "mean": 0.08268,
+          "median": 0.055,
+          "min": 0.004,
+          "p95": 0.44399999999999895,
+          "sum": 2.067
+        },
+        "jit_compilation_ms": {
+          "count": 16,
+          "max": 17.587,
+          "mean": 5.1659375,
+          "median": 1.9615,
+          "min": 0.983,
+          "p95": 16.6645,
+          "sum": 82.655
+        },
+        "runs": 25,
+        "statistics_total_ms": {
+          "count": 25,
+          "max": 18.165,
+          "mean": 3.39488,
+          "median": 1.39,
+          "min": 0.057,
+          "p95": 16.4182,
+          "sum": 84.872
+        },
+        "wall_time_ms": {
+          "count": 25,
+          "max": 132.713554892689,
+          "mean": 40.72114505805075,
+          "median": 34.93136493489146,
+          "min": 13.935769908130169,
+          "p95": 98.04968824610097,
+          "sum": 1018.0286264512688
+        }
+      },
+      "erc20_transfer": {
+        "exit_codes": {
+          "-6": 3,
+          "0": 30,
+          "1": 1,
+          "2": 16
+        },
+        "instantiation_ms": {
+          "count": 49,
+          "max": 2.386,
+          "mean": 0.30308163265306126,
+          "median": 0.117,
+          "min": 0.004,
+          "p95": 1.3669999999999989,
+          "sum": 14.851
+        },
+        "jit_compilation_ms": {
+          "count": 17,
+          "max": 20.968,
+          "mean": 8.04370588235294,
+          "median": 5.561,
+          "min": 1.125,
+          "p95": 18.656799999999997,
+          "sum": 136.743
+        },
+        "runs": 50,
+        "statistics_total_ms": {
+          "count": 49,
+          "max": 21.602,
+          "mean": 3.1171020408163264,
+          "median": 0.35,
+          "min": 0.007,
+          "p95": 15.602999999999962,
+          "sum": 152.738
+        },
+        "wall_time_ms": {
+          "count": 50,
+          "max": 487.3412949964404,
+          "mean": 83.93635582178831,
+          "median": 47.40756249520928,
+          "min": 5.5989709217101336,
+          "p95": 264.10911865532387,
+          "sum": 4196.817791089416
+        }
+      },
+      "erc4337_bundle": {
+        "exit_codes": {
+          "-6": 1,
+          "2": 49
+        },
+        "instantiation_ms": {
+          "count": 50,
+          "max": 0.131,
+          "mean": 0.05372,
+          "median": 0.059,
+          "min": 0.005,
+          "p95": 0.10654999999999999,
+          "sum": 2.686
+        },
+        "jit_compilation_ms": {
+          "count": 47,
+          "max": 3.351,
+          "mean": 1.6241914893617022,
+          "median": 1.662,
+          "min": 1.012,
+          "p95": 2.2879,
+          "sum": 76.337
+        },
+        "runs": 50,
+        "statistics_total_ms": {
+          "count": 50,
+          "max": 3.463,
+          "mean": 1.5855000000000001,
+          "median": 1.6469999999999998,
+          "min": 0.079,
+          "p95": 2.36355,
+          "sum": 79.275
+        },
+        "wall_time_ms": {
+          "count": 50,
+          "max": 172.2676830831915,
+          "mean": 32.83281534444541,
+          "median": 30.296841985546052,
+          "min": 11.87454117462039,
+          "p95": 47.761975729372345,
+          "sum": 1641.6407672222704
+        }
+      },
+      "uniswap_v3_swap": {
+        "exit_codes": {
+          "0": 15,
+          "1": 11,
+          "2": 22,
+          "5": 2
+        },
+        "instantiation_ms": {
+          "count": 50,
+          "max": 2.649,
+          "mean": 0.30756,
+          "median": 0.062,
+          "min": 0.003,
+          "p95": 1.1087999999999993,
+          "sum": 15.378
+        },
+        "jit_compilation_ms": {
+          "count": 20,
+          "max": 35.066,
+          "mean": 3.8714,
+          "median": 2.0525,
+          "min": 1.0,
+          "p95": 7.205350000000021,
+          "sum": 77.428
+        },
+        "runs": 50,
+        "statistics_total_ms": {
+          "count": 50,
+          "max": 36.303,
+          "mean": 1.8791200000000001,
+          "median": 0.9625,
+          "min": 0.005,
+          "p95": 4.6350499999999935,
+          "sum": 93.956
+        },
+        "wall_time_ms": {
+          "count": 50,
+          "max": 559.8420680034906,
+          "mean": 88.09989588335156,
+          "median": 42.36649058293551,
+          "min": 8.405797882005572,
+          "p95": 310.88458155281825,
+          "sum": 4404.994794167578
+        }
+      },
+      "uniswapx_reactor": {
+        "exit_codes": {
+          "2": 25
+        },
+        "instantiation_ms": {
+          "count": 25,
+          "max": 0.105,
+          "mean": 0.06376,
+          "median": 0.065,
+          "min": 0.034,
+          "p95": 0.07519999999999999,
+          "sum": 1.594
+        },
+        "jit_compilation_ms": {
+          "count": 0,
+          "max": null,
+          "mean": null,
+          "median": null,
+          "min": null,
+          "p95": null,
+          "sum": null
+        },
+        "runs": 25,
+        "statistics_total_ms": {
+          "count": 25,
+          "max": 0.11,
+          "mean": 0.06716,
+          "median": 0.069,
+          "min": 0.035,
+          "p95": 0.07839999999999998,
+          "sum": 1.679
+        },
+        "wall_time_ms": {
+          "count": 25,
+          "max": 29.72157602198422,
+          "mean": 25.890490664169192,
+          "median": 26.337462943047285,
+          "min": 13.301263097673655,
+          "p95": 28.119334671646357,
+          "sum": 647.2622666042298
+        }
+      }
+    },
+    "exit_codes": {
+      "-6": 4,
+      "0": 46,
+      "1": 12,
+      "2": 126,
+      "5": 12
+    },
+    "runs": 200,
+    "slowest_runs": [
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/uniswap_v3_swap/0x9cdeddad0f8196ced4a33b011df15750af84cbc206d59ec06728aa52e1ddc772/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0x9cdeddad0f8196ced4a33b011df15750af84cbc206d59ec06728aa52e1ddc772",
+        "wall_time_ms": 559.8420680034906
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": 15.691,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/erc20_transfer/0x7ed5f9624750fdb37a3b00bf65b2760abfb447a1277e46c85aa5eb78292264d6/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0x7ed5f9624750fdb37a3b00bf65b2760abfb447a1277e46c85aa5eb78292264d6",
+        "wall_time_ms": 487.3412949964404
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/uniswap_v3_swap/0x5393cae40fec46721437cb102d92cda3116946f350a57c9b110df44f55a93a8d/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0x5393cae40fec46721437cb102d92cda3116946f350a57c9b110df44f55a93a8d",
+        "wall_time_ms": 475.3733021207154
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": 35.066,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/uniswap_v3_swap/0x9c132f5a1480482f4b0b10000c27cbb1a0dd2f4a8b622db570cc82d082ac48c2/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0x9c132f5a1480482f4b0b10000c27cbb1a0dd2f4a8b622db570cc82d082ac48c2",
+        "wall_time_ms": 335.4383581317961
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": 7.023,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/erc20_transfer/0x6260aabe44d9b2ea963abb1c73be84350359df701b8c4565ed0c0b7fa1681210/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0x6260aabe44d9b2ea963abb1c73be84350359df701b8c4565ed0c0b7fa1681210",
+        "wall_time_ms": 317.1614739112556
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/uniswap_v3_swap/0x4203ce0f5e05cc662e46d1e08bc1dd6997ce8730f97b08c1864f4661da9b12a4/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x4203ce0f5e05cc662e46d1e08bc1dd6997ce8730f97b08c1864f4661da9b12a4",
+        "wall_time_ms": 280.87441017851233
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/erc20_transfer/0x0c8c773ee1e09bd48af18b969f8001e7c7186382c71bf271817f29eea0dbcdb4/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x0c8c773ee1e09bd48af18b969f8001e7c7186382c71bf271817f29eea0dbcdb4",
+        "wall_time_ms": 276.8418251071125
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": 1.972,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/erc20_transfer/0x455dcc898219669211b7f2ca6c3c4a6345a9765496702782add46ae5250c2f60/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x455dcc898219669211b7f2ca6c3c4a6345a9765496702782add46ae5250c2f60",
+        "wall_time_ms": 248.54692188091576
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/erc20_transfer/0x1ed052ea2a90e4d71b6af68913f29276349da7413e32ba8f6e84e8df175297a4/prepared.json",
+        "returncode": -6,
+        "tx_hash": "0x1ed052ea2a90e4d71b6af68913f29276349da7413e32ba8f6e84e8df175297a4",
+        "wall_time_ms": 217.1767510008067
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200/uniswap_v3_swap/0x9444e63f9fe640eec90da1ba11a775bd9800c5f3d750027931b1e2e6b4eb1fd3/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0x9444e63f9fe640eec90da1ba11a775bd9800c5f3d750027931b1e2e6b4eb1fd3",
+        "wall_time_ms": 206.53273910284042
+      }
+    ],
+    "system_cpu_ms": {
+      "count": 200,
+      "max": 35.995,
+      "mean": 7.251915,
+      "median": 6.879500000000038,
+      "min": 0.9989999999999721,
+      "p95": 14.670999999999964,
+      "sum": 1450.383
+    },
+    "user_cpu_ms": {
+      "count": 200,
+      "max": 530.3019999999998,
+      "mean": 49.628185,
+      "median": 27.08800000000003,
+      "min": 4.196999999999562,
+      "p95": 186.89280000000008,
+      "sum": 9925.637
+    },
+    "wall_time_ms": {
+      "count": 200,
+      "max": 559.8420680034906,
+      "mean": 59.543721227673814,
+      "median": 33.766499953344464,
+      "min": 5.5989709217101336,
+      "p95": 201.29152442095793,
+      "sum": 11908.744245534763
+    }
+  }
+}

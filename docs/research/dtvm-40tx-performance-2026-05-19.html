@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DTVM 40 Real-Transaction Performance Review</title>
+    <style>
+      :root {
+        --bg: #f4efe7;
+        --panel: rgba(255, 255, 255, 0.86);
+        --panel-strong: #fffdf8;
+        --ink: #1e2936;
+        --muted: #586579;
+        --line: rgba(30, 41, 54, 0.12);
+        --teal: #0e7490;
+        --cyan: #0891b2;
+        --orange: #dd6b20;
+        --gold: #c58c17;
+        --red: #c2410c;
+        --olive: #5b6b2d;
+        --sand: #efe3d2;
+        --shadow: 0 18px 40px rgba(29, 41, 55, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "IBM Plex Sans", "Source Sans 3", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, rgba(8, 145, 178, 0.1), transparent 28%),
+          radial-gradient(circle at top right, rgba(221, 107, 32, 0.1), transparent 24%),
+          linear-gradient(180deg, #fbf8f1 0%, var(--bg) 52%, #efe7da 100%);
+      }
+
+      .page {
+        width: min(1240px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 36px 0 64px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        background:
+          linear-gradient(135deg, rgba(14, 116, 144, 0.93), rgba(30, 41, 54, 0.95)),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+        color: #fff;
+        border-radius: 28px;
+        padding: 32px 34px 34px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        right: -80px;
+        top: -80px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.18), transparent 68%);
+      }
+
+      .eyebrow {
+        letter-spacing: 0.14em;
+        font-size: 12px;
+        text-transform: uppercase;
+        opacity: 0.82;
+      }
+
+      h1 {
+        margin: 10px 0 10px;
+        font-family: "Space Grotesk", "Avenir Next", "IBM Plex Sans", sans-serif;
+        font-size: clamp(34px, 4.3vw, 56px);
+        line-height: 0.96;
+      }
+
+      .hero p {
+        margin: 0;
+        width: min(860px, 100%);
+        color: rgba(255, 255, 255, 0.86);
+        font-size: 16px;
+        line-height: 1.65;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.11);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #fff;
+        font-size: 13px;
+      }
+
+      .meta-grid,
+      .card-grid,
+      .duo-grid,
+      .tri-grid {
+        display: grid;
+        gap: 16px;
+        margin-top: 18px;
+      }
+
+      .meta-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .card-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .duo-grid {
+        grid-template-columns: 1.15fr 0.85fr;
+      }
+
+      .tri-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card,
+      .panel {
+        background: var(--panel);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        box-shadow: var(--shadow);
+        border-radius: 22px;
+      }
+
+      .card {
+        padding: 20px 20px 18px;
+      }
+
+      .panel {
+        padding: 22px 22px 20px;
+        margin-top: 16px;
+      }
+
+      .metric {
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 18px;
+        padding: 16px 16px 14px;
+      }
+
+      .metric .label {
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 13px;
+      }
+
+      .metric .value {
+        margin-top: 8px;
+        font-size: 30px;
+        font-weight: 700;
+      }
+
+      .metric .sub {
+        margin-top: 4px;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 13px;
+      }
+
+      .section-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 18px;
+        margin-top: 34px;
+      }
+
+      .section-head h2 {
+        margin: 0;
+        font-family: "Space Grotesk", "Avenir Next", "IBM Plex Sans", sans-serif;
+        font-size: 26px;
+      }
+
+      .section-head p {
+        margin: 6px 0 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--sand);
+        color: var(--ink);
+        font-size: 12px;
+        border: 1px solid rgba(30, 41, 54, 0.08);
+      }
+
+      .icon-line {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(14, 116, 144, 0.11), rgba(14, 116, 144, 0.05));
+        color: var(--teal);
+        margin-bottom: 14px;
+      }
+
+      .icon-line.warn {
+        background: linear-gradient(180deg, rgba(221, 107, 32, 0.12), rgba(221, 107, 32, 0.05));
+        color: var(--orange);
+      }
+
+      .icon-line.red {
+        background: linear-gradient(180deg, rgba(194, 65, 12, 0.13), rgba(194, 65, 12, 0.05));
+        color: var(--red);
+      }
+
+      .card h3,
+      .panel h3 {
+        margin: 0 0 8px;
+        font-size: 20px;
+      }
+
+      .card p,
+      .panel p,
+      .panel li {
+        color: var(--muted);
+        line-height: 1.64;
+      }
+
+      .compact-list {
+        margin: 12px 0 0;
+        padding-left: 18px;
+      }
+
+      .compact-list li + li {
+        margin-top: 6px;
+      }
+
+      .stat-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .stat-chip {
+        padding: 8px 10px;
+        border-radius: 12px;
+        background: rgba(14, 116, 144, 0.07);
+        border: 1px solid rgba(14, 116, 144, 0.12);
+        font-size: 12px;
+        color: var(--ink);
+      }
+
+      .bar-group {
+        display: grid;
+        gap: 12px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: 160px 1fr 84px;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .bar-row.tight {
+        grid-template-columns: 180px 1fr 88px;
+      }
+
+      .bar-label {
+        font-size: 14px;
+        color: var(--ink);
+      }
+
+      .bar-track {
+        position: relative;
+        height: 13px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(30, 41, 54, 0.08), rgba(30, 41, 54, 0.12));
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        position: absolute;
+        inset: 0 auto 0 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, var(--teal), var(--cyan));
+      }
+
+      .bar-fill.orange {
+        background: linear-gradient(90deg, #d97706, #f59e0b);
+      }
+
+      .bar-fill.red {
+        background: linear-gradient(90deg, #c2410c, #ea580c);
+      }
+
+      .bar-fill.olive {
+        background: linear-gradient(90deg, #6b7f2b, #91a93a);
+      }
+
+      .bar-value {
+        text-align: right;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .stack {
+        display: flex;
+        width: 100%;
+        height: 18px;
+        border-radius: 999px;
+        overflow: hidden;
+        background: rgba(30, 41, 54, 0.08);
+        border: 1px solid rgba(30, 41, 54, 0.08);
+      }
+
+      .seg-keccak { background: #0f766e; }
+      .seg-unknown { background: #d97706; }
+      .seg-other { background: #94a3b8; }
+      .seg-memory { background: #ca8a04; }
+      .seg-host { background: #0284c7; }
+      .seg-evm { background: #7c3aed; }
+      .seg-kernel { background: #334155; }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-top: 14px;
+      }
+
+      .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+
+      .mini-note {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-left: 4px solid var(--orange);
+        background: rgba(221, 107, 32, 0.07);
+        border-radius: 14px;
+        color: var(--ink);
+        font-size: 14px;
+        line-height: 1.62;
+      }
+
+      .warning-box {
+        margin-top: 14px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(221, 107, 32, 0.08), rgba(221, 107, 32, 0.04));
+        border: 1px solid rgba(221, 107, 32, 0.14);
+      }
+
+      .warning-box strong {
+        color: var(--ink);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+      }
+
+      th,
+      td {
+        padding: 13px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 14px;
+        line-height: 1.54;
+      }
+
+      th {
+        color: var(--ink);
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      td {
+        color: var(--muted);
+      }
+
+      td strong {
+        color: var(--ink);
+      }
+
+      .status {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid transparent;
+      }
+
+      .status.done {
+        color: #115e59;
+        background: rgba(15, 118, 110, 0.1);
+        border-color: rgba(15, 118, 110, 0.16);
+      }
+
+      .status.next {
+        color: #9a3412;
+        background: rgba(217, 119, 6, 0.1);
+        border-color: rgba(217, 119, 6, 0.16);
+      }
+
+      .status.observe {
+        color: #334155;
+        background: rgba(148, 163, 184, 0.16);
+        border-color: rgba(148, 163, 184, 0.24);
+      }
+
+      .foot {
+        margin-top: 28px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      code {
+        font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+        font-size: 0.95em;
+        color: var(--ink);
+      }
+
+      @media (max-width: 980px) {
+        .meta-grid,
+        .card-grid,
+        .duo-grid,
+        .tri-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .bar-row,
+        .bar-row.tight {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+
+        .bar-value {
+          text-align: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="eyebrow">DTVM Performance Review / 2026-05-19</div>
+        <h1>40 条真实交易回放<br />性能瓶颈与优化路线图</h1>
+        <p>
+          本报告汇总 DTVM 在 40 条 Ethereum Mainnet 真实交易上的冷启动 benchmark、
+          execution-only perf profiling，以及两轮已经落地的内部调用优化。目标是回答三件事：
+          当前瓶颈在哪里、已经改了什么、下一步最值得优化什么。
+        </p>
+        <div class="pill-row">
+          <span class="pill">40 条 prepared replays</span>
+          <span class="pill">Multipass cold benchmark</span>
+          <span class="pill">Execution perf x5000</span>
+          <span class="pill">4 / 5 workload classes covered</span>
+        </div>
+        <div class="meta-grid">
+          <div class="metric">
+            <div class="label">当前 hotset 覆盖</div>
+            <div class="value">4 类</div>
+            <div class="sub">ERC20 / Uniswap V3 / ERC-4337 / CoW</div>
+          </div>
+          <div class="metric">
+            <div class="label">当前可比 cold mean</div>
+            <div class="value">13.07 s</div>
+            <div class="sub">40 条，multipass，current comparable baseline</div>
+          </div>
+          <div class="metric">
+            <div class="label">execution top-frame samples</div>
+            <div class="value">840k</div>
+            <div class="sub">40 条 x 5000 次 extra executions</div>
+          </div>
+          <div class="metric">
+            <div class="label">最大单项热点</div>
+            <div class="value">Keccak 55%</div>
+            <div class="sub">Top-frame category share, overall</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>执行摘要</h2>
+          <p>先看结论，再看细节。下面四点是当前 40 条真实交易 replay 的主结论。</p>
+        </div>
+        <span class="tag">重点结论</span>
+      </div>
+
+      <section class="card-grid">
+        <article class="card">
+          <div class="icon-line">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M5 19h14M7 16V8m5 8V5m5 11v-6" />
+            </svg>
+          </div>
+          <h3>冷启动总耗时仍然由 JIT compilation 主导</h3>
+          <p>
+            当前可比 cold benchmark 中，40 条交易的整体 wall mean 为 <strong>13.07 s</strong>。
+            按数据集拆开看，<code>jit_compilation_ms</code> 与 <code>statistics_total_ms</code>
+            几乎重合，说明冷路径主要不是 host rollback，而是编译本身。
+          </p>
+          <div class="stat-strip">
+            <span class="stat-chip">CoW mean 4.27 s</span>
+            <span class="stat-chip">ERC20 mean 16.55 s</span>
+            <span class="stat-chip">ERC-4337 mean 4.88 s</span>
+            <span class="stat-chip">UniV3 mean 26.58 s</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-line warn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 3 4 7v5c0 5.5 3.7 8.9 8 10 4.3-1.1 8-4.5 8-10V7l-8-4Z" />
+              <path d="M12 8v5M12 16h.01" />
+            </svg>
+          </div>
+          <h3>execution-only 的最大热点是哈希，不是 EVM BB</h3>
+          <p>
+            在 40 条交易的 execution perf 中，<strong>Keccak 占 top-frame 54.98%</strong>，
+            远高于 EVM BB 自身的 0.32%。Uniswap V3 Swap 数据集里这个占比更高，达到
+            <strong>64.70%</strong>。
+          </p>
+          <div class="stat-strip">
+            <span class="stat-chip">overall keccak 54.98%</span>
+            <span class="stat-chip">UniV3 keccak 64.70%</span>
+            <span class="stat-chip">CoW keccak 43.72%</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-line red">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 7h6l2 3h8v7H4z" />
+              <path d="M8 14h8M12 10v8" />
+            </svg>
+          </div>
+          <h3>内部调用路径确实有 host 侧浪费，而且已经修掉两块</h3>
+          <p>
+            历史 perf 里，<code>evmHandleCallInternal</code> 是高频 host symbol，
+            代表性交易还明显打在模块名重建和整表状态复制上。已经落地的两次优化分别解决了
+            “相同 bytecode 的重复模块装载”和“嵌套调用的全量 snapshot/restore”。
+          </p>
+          <div class="stat-strip">
+            <span class="stat-chip">top host: CallDataLoad 1613</span>
+            <span class="stat-chip">internal call 1340</span>
+            <span class="stat-chip">SLoad 697</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-line">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 5h16v14H4z" />
+              <path d="M8 9h8M8 13h5" />
+            </svg>
+          </div>
+          <h3>现有 perf 还存在可观测性盲区</h3>
+          <p>
+            overall <strong>unknown 28.55%</strong>，ERC-4337 Bundle 甚至达到
+            <strong>42.40%</strong>。这不是运行时性能本身，但它会直接降低后续热点归因的精度，
+            应该作为“性能分析基础设施”问题尽快补齐。
+          </p>
+          <div class="stat-strip">
+            <span class="stat-chip">overall unknown 28.55%</span>
+            <span class="stat-chip">ERC-4337 unknown 42.40%</span>
+          </div>
+        </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>样本覆盖与边界</h2>
+          <p>当前 40 条 prepared replay 不是完整五类全覆盖，它是当前可直接运行的 hotset partial。</p>
+        </div>
+        <span class="tag">工作负载范围</span>
+      </div>
+
+      <section class="duo-grid">
+        <article class="panel">
+          <h3>当前 40 条 replay 分布</h3>
+          <div class="bar-group">
+            <div class="bar-row">
+              <div class="bar-label">CoW Settlement</div>
+              <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+              <div class="bar-value">10 / 10</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">ERC-4337 Bundle</div>
+              <div class="bar-track"><div class="bar-fill orange" style="width:100%"></div></div>
+              <div class="bar-value">10 / 10</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">Uniswap V3 Swap</div>
+              <div class="bar-track"><div class="bar-fill red" style="width:100%"></div></div>
+              <div class="bar-value">10 / 10</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">ERC20 Transfer</div>
+              <div class="bar-track"><div class="bar-fill olive" style="width:100%"></div></div>
+              <div class="bar-value">10 / 10</div>
+            </div>
+          </div>
+          <div class="mini-note">
+            目前 <strong>UniswapX Reactor</strong> 还没有进入这份 40 条 hotset partial。
+            如果后续要把“真实交易五类分析”交付完整，建议补一组同规模 prepared replay。
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>结果解读时要注意的边界</h3>
+          <ul class="compact-list">
+            <li>这 40 条更适合当作 workload corpus，而不是 pass-only correctness suite。</li>
+            <li>当前 cold benchmark 的 CLI return code 是混合的：0 / 1 / 2 / 3 / 5 都存在。</li>
+            <li>因此本报告优先看“路径成本”和“热点签名”，而不是把它当作单纯成功率报表。</li>
+            <li>所有结论都基于本地 prepared replay、multipass 模式和当前 2026-05-19 代码。</li>
+          </ul>
+        </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>冷启动基准现状</h2>
+          <p>先看用户最容易感知的 cold path。结论是：现在的总时间主要等于 JIT 编译时间。</p>
+        </div>
+        <span class="tag">Cold Benchmark</span>
+      </div>
+
+      <section class="duo-grid">
+        <article class="panel">
+          <h3>按数据集的当前 wall mean</h3>
+          <div class="bar-group">
+            <div class="bar-row tight">
+              <div class="bar-label">Uniswap V3 Swap</div>
+              <div class="bar-track"><div class="bar-fill red" style="width:100%"></div></div>
+              <div class="bar-value">26.58 s</div>
+            </div>
+            <div class="bar-row tight">
+              <div class="bar-label">ERC20 Transfer</div>
+              <div class="bar-track"><div class="bar-fill orange" style="width:62.3%"></div></div>
+              <div class="bar-value">16.55 s</div>
+            </div>
+            <div class="bar-row tight">
+              <div class="bar-label">ERC-4337 Bundle</div>
+              <div class="bar-track"><div class="bar-fill" style="width:18.3%"></div></div>
+              <div class="bar-value">4.88 s</div>
+            </div>
+            <div class="bar-row tight">
+              <div class="bar-label">CoW Settlement</div>
+              <div class="bar-track"><div class="bar-fill olive" style="width:16%"></div></div>
+              <div class="bar-value">4.27 s</div>
+            </div>
+          </div>
+          <div class="mini-note">
+            在四个数据集里，<code>jit_compilation_ms</code> 与 <code>statistics_total_ms</code>
+            都近乎重合。例如 Uniswap V3 是 <strong>26493.98 ms</strong> vs
+            <strong>26494.15 ms</strong>，说明 cold path 的主问题仍在编译，不在执行期 host helper。
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>本轮 journal rollback 对 cold total 的影响</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>对比项</th>
+                <th>After Host Cache</th>
+                <th>After Journal</th>
+                <th>变化</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Overall wall mean</strong></td>
+                <td>13068.54 ms</td>
+                <td>13068.43 ms</td>
+                <td>-0.001%</td>
+              </tr>
+              <tr>
+                <td><strong>Overall wall p95</strong></td>
+                <td>43759.10 ms</td>
+                <td>44180.58 ms</td>
+                <td>+0.96%</td>
+              </tr>
+              <tr>
+                <td><strong>CoW mean</strong></td>
+                <td>4309.73 ms</td>
+                <td>4265.19 ms</td>
+                <td>-1.03%</td>
+              </tr>
+              <tr>
+                <td><strong>UniV3 mean</strong></td>
+                <td>26833.97 ms</td>
+                <td>26582.52 ms</td>
+                <td>-0.94%</td>
+              </tr>
+              <tr>
+                <td><strong>ERC20 mean</strong></td>
+                <td>16308.93 ms</td>
+                <td>16549.39 ms</td>
+                <td>+1.47%</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="warning-box">
+            <strong>解释：</strong>
+            这不代表 journal rollback 没价值，而是说明在 cold benchmark 里它被更大的 JIT compile 成本淹没了。
+            想看这类优化的真实收益，要看 execution-only profile。
+          </div>
+        </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>Execution 热点分布</h2>
+          <p>把编译因素拿掉后，热点画像就完全不同了：哈希、内部调用和 calldata/storage helper 更显著。</p>
+        </div>
+        <span class="tag">Perf x5000</span>
+      </div>
+
+      <section class="duo-grid">
+        <article class="panel">
+          <h3>Overall top-frame category share</h3>
+          <div class="stack" aria-label="overall execution category shares">
+            <div class="seg-keccak" style="width:54.9759%"></div>
+            <div class="seg-unknown" style="width:28.5465%"></div>
+            <div class="seg-other" style="width:10.9907%"></div>
+            <div class="seg-memory" style="width:2.8373%"></div>
+            <div class="seg-host" style="width:0.7755%"></div>
+            <div class="seg-evm" style="width:0.3162%"></div>
+            <div class="seg-kernel" style="width:1.558%"></div>
+          </div>
+          <div class="legend">
+            <span class="legend-item"><span class="legend-dot seg-keccak"></span>Keccak 54.98%</span>
+            <span class="legend-item"><span class="legend-dot seg-unknown"></span>Unknown 28.55%</span>
+            <span class="legend-item"><span class="legend-dot seg-other"></span>Other 10.99%</span>
+            <span class="legend-item"><span class="legend-dot seg-memory"></span>Memory 2.84%</span>
+            <span class="legend-item"><span class="legend-dot seg-host"></span>EVM Host 0.78%</span>
+            <span class="legend-item"><span class="legend-dot seg-evm"></span>EVM BB 0.32%</span>
+            <span class="legend-item"><span class="legend-dot seg-kernel"></span>Kernel 1.56%</span>
+          </div>
+          <div class="mini-note">
+            当前 execution-only 最值得优先优化的不是 EVM 基本块本身，而是
+            <strong>Keccak + host helper + 观测盲区</strong>。
+          </div>
+        </article>
+
+        <article class="panel">
+          <h3>按数据集的热点偏向</h3>
+          <div class="bar-group">
+            <div class="bar-row tight">
+              <div class="bar-label">UniV3: Keccak</div>
+              <div class="bar-track"><div class="bar-fill red" style="width:64.7002%"></div></div>
+              <div class="bar-value">64.70%</div>
+            </div>
+            <div class="bar-row tight">
+              <div class="bar-label">ERC20: Keccak</div>
+              <div class="bar-track"><div class="bar-fill orange" style="width:53.5555%"></div></div>
+              <div class="bar-value">53.56%</div>
+            </div>
+            <div class="bar-row tight">
+              <div class="bar-label">CoW: Keccak</div>
+              <div class="bar-track"><div class="bar-fill olive" style="width:43.7182%"></div></div>
+              <div class="bar-value">43.72%</div>
+            </div>
+            <div class="bar-row tight">
+              <div class="bar-label">ERC-4337: Unknown</div>
+              <div class="bar-track"><div class="bar-fill" style="width:42.3983%"></div></div>
+              <div class="bar-value">42.40%</div>
+            </div>
+          </div>
+          <p>
+            UniV3 明显是 keccak-heavy；CoW 除了哈希，还更容易出现 allocator / host bookkeeping；
+            ERC-4337 则首先需要把 unknown 区域压下去，否则进一步调优会缺少足够分辨率。
+          </p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h3>Top host hotspots</h3>
+        <div class="bar-group">
+          <div class="bar-row">
+            <div class="bar-label"><code>evmGetCallDataLoad</code></div>
+            <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+            <div class="bar-value">1613</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><code>evmHandleCallInternal</code></div>
+            <div class="bar-track"><div class="bar-fill red" style="width:83.1%"></div></div>
+            <div class="bar-value">1340</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><code>evmGetSLoad</code></div>
+            <div class="bar-track"><div class="bar-fill orange" style="width:43.2%"></div></div>
+            <div class="bar-value">697</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><code>evmGetMulMod</code></div>
+            <div class="bar-track"><div class="bar-fill olive" style="width:27.8%"></div></div>
+            <div class="bar-value">449</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><code>evmSetReturn</code></div>
+            <div class="bar-track"><div class="bar-fill" style="width:24.7%"></div></div>
+            <div class="bar-value">398</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><code>evmEmitLog3</code></div>
+            <div class="bar-track"><div class="bar-fill red" style="width:24.5%"></div></div>
+            <div class="bar-value">395</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><code>evmSetSStore</code></div>
+            <div class="bar-track"><div class="bar-fill orange" style="width:15.4%"></div></div>
+            <div class="bar-value">249</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>现有改动</h2>
+          <p>这两项已经落地，属于当前分支上“已经完成”的优化，不是纸面建议。</p>
+        </div>
+        <span class="tag">Already Implemented</span>
+      </div>
+
+      <section class="card-grid">
+        <article class="card">
+          <div class="icon-line">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M7 8h10M7 12h10M7 16h6" />
+              <path d="M5 5h14v14H5z" />
+            </svg>
+          </div>
+          <h3>内部调用模块键缓存复用</h3>
+          <p>
+            现在内部调用模块按 <code>codehash + revision + memory profile</code> 复用，
+            不再为“相同 runtime bytecode，但地址不同”的调用反复做 <code>toHex</code>、
+            <code>newSymbol</code> 和新的模块键构造。
+          </p>
+          <ul class="compact-list">
+            <li>新增 <code>Runtime::findEVMModule(EVMSymbol)</code> 做符号级回查。</li>
+            <li>内部调用模块名从“地址导向”改为“代码身份导向”。</li>
+            <li>已有回归测试覆盖“同代码跨地址复用”。</li>
+          </ul>
+          <div class="mini-note">
+            在旧的代表性交易 perf 里，<code>ConstStringPool::newSymbol</code> 有
+            <strong>360</strong> samples，<code>toHex</code> 有 <strong>224</strong> samples；
+            这类信号在新结果里已经不再出现在前列。
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="icon-line warn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M6 12h12M12 6v12" />
+              <path d="M4 4h16v16H4z" />
+            </svg>
+          </div>
+          <h3>内部调用 journal rollback</h3>
+          <p>
+            嵌套 <code>CALL</code> 现在不再每层整份复制 <code>accounts / logs / selfdestructs</code>，
+            而是按 frame 记录增量修改，失败时只回滚当前调用真正改过的状态。
+          </p>
+          <ul class="compact-list">
+            <li>覆盖 <code>SSTORE</code>、<code>TSTORE</code>、<code>SELFDESTRUCT</code>、余额转移、codehash lazy materialization。</li>
+            <li>增加“内层 <code>SSTORE</code> 后 <code>REVERT</code> 不泄漏状态”的回归测试。</li>
+            <li>对 cold total 几乎无感，但对 execution-only 的内部调用路径明显减负。</li>
+          </ul>
+          <div class="mini-note">
+            代表性 CoW 交易 <code>0x478b92...</code> 的同配置 execution perf：
+            <strong>profile window 10895 ms -&gt; 2569 ms</strong>（-76.4%），
+            <strong>copy-assign share 3.76% -&gt; 1.87%</strong>。
+          </div>
+        </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>代表性交易前后对比</h2>
+          <p>这部分最能说明内部调用优化到底修掉了什么，因为 cold total 已经被 JIT 编译淹没。</p>
+        </div>
+        <span class="tag">Single-Tx Validation</span>
+      </div>
+
+      <section class="duo-grid">
+        <article class="panel">
+          <h3>旧画像：典型浪费在“整表复制 + 符号重建”</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>指标</th>
+                <th>旧值</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Profile window</strong></td>
+                <td>10895.35 ms</td>
+              </tr>
+              <tr>
+                <td><strong>Total wall</strong></td>
+                <td>32631.63 ms</td>
+              </tr>
+              <tr>
+                <td><strong>_M_assign copy share</strong></td>
+                <td>3.76%</td>
+              </tr>
+              <tr>
+                <td><strong>MockedHost::access_account</strong></td>
+                <td>515 samples</td>
+              </tr>
+              <tr>
+                <td><strong>newSymbol</strong></td>
+                <td>360 samples</td>
+              </tr>
+              <tr>
+                <td><strong>toHex</strong></td>
+                <td>224 samples</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="panel">
+          <h3>新画像：复制热点显著收缩，留下更轻的增量记账</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>指标</th>
+                <th>新值</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Profile window</strong></td>
+                <td>2569.11 ms</td>
+              </tr>
+              <tr>
+                <td><strong>Total wall</strong></td>
+                <td>24258.60 ms</td>
+              </tr>
+              <tr>
+                <td><strong>_M_assign copy share</strong></td>
+                <td>1.87%</td>
+              </tr>
+              <tr>
+                <td><strong>MockedHost::access_account</strong></td>
+                <td>403 samples</td>
+              </tr>
+              <tr>
+                <td><strong>journalAccountState</strong></td>
+                <td>219 samples</td>
+              </tr>
+              <tr>
+                <td><strong>evmHandleCallInternal</strong></td>
+                <td>121 samples</td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>按瓶颈分类的改动清单 + 预期收益</h2>
+          <p>下面这张表把当前 40 条交易真正暴露出来的问题拆开，分别给出证据、方案和收益预估。</p>
+        </div>
+        <span class="tag">Backlog by Bottleneck</span>
+      </div>
+
+      <section class="panel">
+        <table>
+          <thead>
+            <tr>
+              <th>瓶颈类别</th>
+              <th>证据</th>
+              <th>改动清单 / 优化方案</th>
+              <th>预期收益</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>A. 冷启动 JIT 主导</strong></td>
+              <td>
+                四个数据集里 <code>jit_compilation_ms ~= statistics_total_ms</code>；
+                最慢样本 wall time 基本等于 JIT time。
+              </td>
+              <td>
+                1. 做跨交易持久化编译缓存，键用 <code>codehash + revision + memory profile</code>。<br />
+                2. 给大路由合约加 tiering：巨型一次性交易优先 singlepass / interpreter，热点字节码再升 multipass。<br />
+                3. 针对大 router bytecode 做更激进的 compile shortcut / peephole。
+              </td>
+              <td><strong>Cold total 20% - 45%</strong>；重复路由字节码上可更高。</td>
+              <td><span class="status next">下一优先级 1</span></td>
+            </tr>
+            <tr>
+              <td><strong>B. Keccak / 哈希路径</strong></td>
+              <td>
+                overall keccak <strong>54.98%</strong>；UniV3 <strong>64.70%</strong>；
+                <code>keccakf1600_bmi</code> 是整体最大单符号。
+              </td>
+              <td>
+                1. 为 tx 内重复 memory span 做 keccak memoization。<br />
+                2. 去掉 host keccak 临时 vector 复制，改成更直接的 buffer API。<br />
+                3. 给常见固定长度切片加 JIT fast path。
+              </td>
+              <td><strong>Execution-only 8% - 20%</strong>；Swap / Settlement 类最高。</td>
+              <td><span class="status next">下一优先级 2</span></td>
+            </tr>
+            <tr>
+              <td><strong>C. 内部调用 host 控制路径</strong></td>
+              <td>
+                <code>evmHandleCallInternal</code> 1340；历史上还伴随 snapshot copy、<code>newSymbol</code>、<code>toHex</code>。
+              </td>
+              <td>
+                1. 已完成：模块键缓存复用。<br />
+                2. 已完成：journal rollback 替代全量 snapshot。<br />
+                3. 下一步：把 account warming 从线性 <code>recorded_account_accesses</code> 改成 O(1) 结构；进一步压缩 no-value internal call fast path。
+              </td>
+              <td>
+                已落地部分在代表性交易上已经显著见效；剩余 host-call 优化预计再给
+                <strong>5% - 15%</strong> execution-only 收益。
+              </td>
+              <td><span class="status done">已做 + 继续做</span></td>
+            </tr>
+            <tr>
+              <td><strong>D. Calldata / ABI helper</strong></td>
+              <td>
+                <code>evmGetCallDataLoad</code> 是 top host symbol 第 1 名；
+                <code>evmSetCallDataCopy</code> / <code>evmSetReturnDataCopy</code> 也在榜单里。
+              </td>
+              <td>
+                1. 对常量 offset 的 <code>CALLDATALOAD</code> 直接下沉到更便宜的 lowering。<br />
+                2. 批量 copy 时做边界检查 hoist。<br />
+                3. 减少重复 helper call 和小块 copy。
+              </td>
+              <td><strong>Execution-only 5% - 12%</strong>；router-heavy tx 受益更明显。</td>
+              <td><span class="status next">下一优先级 3</span></td>
+            </tr>
+            <tr>
+              <td><strong>E. Storage / Log host path</strong></td>
+              <td>
+                <code>evmGetSLoad</code> 697，<code>evmSetSStore</code> 249，
+                <code>evmEmitLog3</code> 395。
+              </td>
+              <td>
+                1. 给热点账户的 storage slot 加局部 cache / flat hash。<br />
+                2. 日志 topics / data 走更轻的预留和写入路径。<br />
+                3. 降低 <code>unordered_map</code> 抖动和 rehash 频率。
+              </td>
+              <td><strong>Execution-only 3% - 10%</strong>；依赖交易类型。</td>
+              <td><span class="status next">中优先级</span></td>
+            </tr>
+            <tr>
+              <td><strong>F. Profiling 可观测性盲区</strong></td>
+              <td>
+                overall unknown <strong>28.55%</strong>；ERC-4337 unknown <strong>42.40%</strong>。
+              </td>
+              <td>
+                1. 改进 perf map / jitdump 保留和符号命名。<br />
+                2. 拆出 JIT BB、host dispatch、runtime bridge 的更细分类。<br />
+                3. 把 profiling pipeline 产出稳定化，方便前后对比。
+              </td>
+              <td>
+                <strong>不直接提速</strong>，但会显著提高下一轮调优命中率，避免把时间浪费在误判上。
+              </td>
+              <td><span class="status observe">分析基础设施</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <div class="section-head">
+        <div>
+          <h2>建议的下一轮推进顺序</h2>
+          <p>如果目标是“先把用户感知延迟打下来”，顺序不能反。</p>
+        </div>
+        <span class="tag">Recommended Order</span>
+      </div>
+
+      <section class="tri-grid">
+        <article class="card">
+          <div class="icon-line red">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 17 10 7l4 6 2-3 4 7H4Z" />
+            </svg>
+          </div>
+          <h3>1. 先打编译冷路径</h3>
+          <p>
+            当前 cold total 几乎就是 compile total。持久化模块缓存、tiered policy、
+            大字节码 compile shortcut 是最先该做的。
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="icon-line warn">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="m12 2 2.4 6.6H21l-5.3 3.8 2 6.6L12 15.2 6.3 19l2-6.6L3 8.6h6.6L12 2Z" />
+            </svg>
+          </div>
+          <h3>2. 再打 Keccak + calldata helper</h3>
+          <p>
+            execution-only 的最大块在这里。尤其 UniV3 / CoW 这类路由交易，不先碰哈希和 calldata，
+            只抠 EVM BB 的收益会很有限。
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="icon-line">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M5 5h5v5H5zM14 5h5v5h-5zM5 14h5v5H5zM14 14h5v5h-5z" />
+              <path d="M10 7.5h4M7.5 10v4M16.5 10v4M10 16.5h4" />
+            </svg>
+          </div>
+          <h3>3. 最后继续收内部调用尾部成本</h3>
+          <p>
+            两轮内部调用优化已经把最大的伪热点拿掉了。后续继续做 O(1) warming、
+            no-value fast path、instance / isolation reuse，属于顺势收尾。
+          </p>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h3>报告使用的数据来源</h3>
+        <ul class="compact-list">
+          <li><code>data/tx_replay_prepare_hotset_partial</code>：40 条 prepared replay（当前 4 类，各 10 条）。</li>
+          <li><code>data/tx_replay_benchmarks/hotset_multipass_cold_after_host_cache_20260518/summary.json</code>：journal 之前的可比 cold benchmark。</li>
+          <li><code>data/tx_replay_benchmarks/hotset_multipass_cold_after_internal_call_journal_20260519/summary.json</code>：本轮代码后的 cold benchmark。</li>
+          <li><code>data/tx_replay_perf_profiles/hotset_execution_x5000_20260518/summary.json</code>：40 条 execution-only perf 总览。</li>
+          <li><code>data/tx_replay_perf_profiles/internal_call_journal_single_0x478b92_buildperf_20260519/summary.json</code>：代表性单笔交易优化后验证。</li>
+        </ul>
+        <div class="foot">
+          如果后续要把这份报告扩展成“五类完整主网交易性能报告”，下一步最自然的补充是：
+          1. 把 UniswapX Reactor prepared replay 纳入 hotset；2. 把 compiler-tiering / persistent cache 的实验结果接入同一版 HTML。
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

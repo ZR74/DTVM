@@ -1,0 +1,312 @@
+{
+  "filters": {
+    "datasets": [],
+    "limit": null,
+    "tx_hashes": []
+  },
+  "mode_override": null,
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_benchmarks/hotset_ssa_phi_fix_fullscan_20260519",
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa",
+  "repetitions": 1,
+  "summary": {
+    "datasets": {
+      "cow_settlement": {
+        "exit_codes": {
+          "2": 3,
+          "3": 1,
+          "5": 4,
+          "7": 2
+        },
+        "instantiation_ms": {
+          "count": 10,
+          "max": 0.342,
+          "mean": 0.0507,
+          "median": 0.0185,
+          "min": 0.004,
+          "p95": 0.2123999999999997,
+          "sum": 0.507
+        },
+        "jit_compilation_ms": {
+          "count": 10,
+          "max": 22472.902,
+          "mean": 3328.0317999999997,
+          "median": 856.9459999999999,
+          "min": 1.017,
+          "p95": 14370.89724999998,
+          "sum": 33280.318
+        },
+        "runs": 10,
+        "statistics_total_ms": {
+          "count": 10,
+          "max": 22473.266,
+          "mean": 3328.0872000000004,
+          "median": 856.967,
+          "min": 1.022,
+          "p95": 14371.123549999982,
+          "sum": 33280.872
+        },
+        "wall_time_ms": {
+          "count": 10,
+          "max": 22571.414881851524,
+          "mean": 3363.25831245631,
+          "median": 875.7246584864333,
+          "min": 10.430078022181988,
+          "p95": 14454.7786176903,
+          "sum": 33632.5831245631
+        }
+      },
+      "erc20_transfer": {
+        "exit_codes": {
+          "-6": 2,
+          "0": 5,
+          "2": 3
+        },
+        "instantiation_ms": {
+          "count": 8,
+          "max": 0.205,
+          "mean": 0.053625,
+          "median": 0.031,
+          "min": 0.011,
+          "p95": 0.15704999999999994,
+          "sum": 0.429
+        },
+        "jit_compilation_ms": {
+          "count": 8,
+          "max": 25429.738,
+          "mean": 11292.09,
+          "median": 9579.4055,
+          "min": 45.338,
+          "p95": 24308.777599999998,
+          "sum": 90336.72
+        },
+        "runs": 10,
+        "statistics_total_ms": {
+          "count": 8,
+          "max": 25429.768,
+          "mean": 11292.1495,
+          "median": 9579.463,
+          "min": 45.351,
+          "p95": 24308.87375,
+          "sum": 90337.196
+        },
+        "wall_time_ms": {
+          "count": 10,
+          "max": 37579.27479199134,
+          "mean": 13973.485918156803,
+          "median": 11387.754865456372,
+          "min": 51.921040983870625,
+          "p95": 32157.233024225556,
+          "sum": 139734.85918156803
+        }
+      },
+      "erc4337_bundle": {
+        "exit_codes": {
+          "3": 2,
+          "8": 8
+        },
+        "instantiation_ms": {
+          "count": 10,
+          "max": 0.021,
+          "mean": 0.0171,
+          "median": 0.0175,
+          "min": 0.008,
+          "p95": 0.02055,
+          "sum": 0.171
+        },
+        "jit_compilation_ms": {
+          "count": 10,
+          "max": 11429.894,
+          "mean": 4762.4573,
+          "median": 3222.0195,
+          "min": 2740.589,
+          "p95": 11380.62125,
+          "sum": 47624.573
+        },
+        "runs": 10,
+        "statistics_total_ms": {
+          "count": 10,
+          "max": 11429.919,
+          "mean": 4762.4785,
+          "median": 3222.036,
+          "min": 2740.609,
+          "p95": 11380.6458,
+          "sum": 47624.785
+        },
+        "wall_time_ms": {
+          "count": 10,
+          "max": 11510.355228092521,
+          "mean": 4806.253064214252,
+          "median": 3263.423599069938,
+          "min": 2775.29307291843,
+          "p95": 11454.147102823481,
+          "sum": 48062.53064214252
+        }
+      },
+      "uniswap_v3_swap": {
+        "exit_codes": {
+          "-6": 4,
+          "1": 2,
+          "2": 3,
+          "7": 1
+        },
+        "instantiation_ms": {
+          "count": 6,
+          "max": 0.103,
+          "mean": 0.035833333333333335,
+          "median": 0.026500000000000003,
+          "min": 0.005,
+          "p95": 0.08625,
+          "sum": 0.215
+        },
+        "jit_compilation_ms": {
+          "count": 6,
+          "max": 38709.258,
+          "mean": 14157.061000000002,
+          "median": 13607.673999999999,
+          "min": 1.177,
+          "p95": 33383.55625,
+          "sum": 84942.36600000001
+        },
+        "runs": 10,
+        "statistics_total_ms": {
+          "count": 6,
+          "max": 38709.297,
+          "mean": 14157.099999999999,
+          "median": 13607.74,
+          "min": 1.182,
+          "p95": 33383.592000000004,
+          "sum": 84942.59999999999
+        },
+        "wall_time_ms": {
+          "count": 10,
+          "max": 52104.592739837244,
+          "mean": 17085.81516898703,
+          "median": 13672.965977457352,
+          "min": 7.19043193385005,
+          "p95": 46131.861458055195,
+          "sum": 170858.15168987028
+        }
+      }
+    },
+    "exit_codes": {
+      "-6": 6,
+      "0": 5,
+      "1": 2,
+      "2": 9,
+      "3": 3,
+      "5": 4,
+      "7": 3,
+      "8": 8
+    },
+    "runs": 40,
+    "slowest_runs": [
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/uniswap_v3_swap/0x5393cae40fec46721437cb102d92cda3116946f350a57c9b110df44f55a93a8d/prepared.json",
+        "returncode": -6,
+        "tx_hash": "0x5393cae40fec46721437cb102d92cda3116946f350a57c9b110df44f55a93a8d",
+        "wall_time_ms": 52104.592739837244
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": 38709.258,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/uniswap_v3_swap/0x16ea0cb2548c16abb2c0c4cf98e881a255f423a7747407d617fe6eeda7affcf2/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x16ea0cb2548c16abb2c0c4cf98e881a255f423a7747407d617fe6eeda7affcf2",
+        "wall_time_ms": 38831.85655809939
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/erc20_transfer/0xffca4cf617890a299fcbf771ed656413df3d44921c2822773fd5a43fa1e835f1/prepared.json",
+        "returncode": -6,
+        "tx_hash": "0xffca4cf617890a299fcbf771ed656413df3d44921c2822773fd5a43fa1e835f1",
+        "wall_time_ms": 37579.27479199134
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": 25429.738,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/erc20_transfer/0x223cd73f8806675144a609939b3cfbbd78b91ab78cd5eb37afd460d122fab95a/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x223cd73f8806675144a609939b3cfbbd78b91ab78cd5eb37afd460d122fab95a",
+        "wall_time_ms": 25530.293085845187
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": null,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/uniswap_v3_swap/0xada08ea852356351feecbb83855b57fd0cd40ff3df75562c8674933718717985/prepared.json",
+        "returncode": -6,
+        "tx_hash": "0xada08ea852356351feecbb83855b57fd0cd40ff3df75562c8674933718717985",
+        "wall_time_ms": 24019.36858193949
+      },
+      {
+        "dataset": "cow_settlement",
+        "jit_compilation_ms": 22472.902,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/cow_settlement/0x478b92c274aa6b0657d0d4d918a792a85ea8310867f76653608bc9321ea22deb/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x478b92c274aa6b0657d0d4d918a792a85ea8310867f76653608bc9321ea22deb",
+        "wall_time_ms": 22571.414881851524
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": 22226.994,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/erc20_transfer/0x254e78ebed832672136350271e5b494906716bc13199b2af2f1f2efc62d2d937/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0x254e78ebed832672136350271e5b494906716bc13199b2af2f1f2efc62d2d937",
+        "wall_time_ms": 22313.705443870276
+      },
+      {
+        "dataset": "erc20_transfer",
+        "jit_compilation_ms": 20285.182,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/erc20_transfer/0xbf988f1e7d4d7271a563d2073c9f41c6115da2bbce1da9694eeadd22cb11837d/prepared.json",
+        "returncode": 0,
+        "tx_hash": "0xbf988f1e7d4d7271a563d2073c9f41c6115da2bbce1da9694eeadd22cb11837d",
+        "wall_time_ms": 20398.979508085176
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": 17406.451,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/uniswap_v3_swap/0x19aec1e19d52cefd4bc1f58c4da838d4d1e70df3dd6626d83a91854c9b78c583/prepared.json",
+        "returncode": 7,
+        "tx_hash": "0x19aec1e19d52cefd4bc1f58c4da838d4d1e70df3dd6626d83a91854c9b78c583",
+        "wall_time_ms": 17458.084651036188
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "jit_compilation_ms": 14786.236,
+        "prepared_path": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial_build_ssa/uniswap_v3_swap/0x499bdb3e7ba406985ea58f0eb546b71b7873eca7f1e216e0fe7b73271d588f2e/prepared.json",
+        "returncode": 2,
+        "tx_hash": "0x499bdb3e7ba406985ea58f0eb546b71b7873eca7f1e216e0fe7b73271d588f2e",
+        "wall_time_ms": 14879.325452959165
+      }
+    ],
+    "system_cpu_ms": {
+      "count": 40,
+      "max": 561.9449999999997,
+      "mean": 160.88125,
+      "median": 117.98850000000004,
+      "min": 0.0,
+      "p95": 428.7207999999998,
+      "sum": 6435.25
+    },
+    "user_cpu_ms": {
+      "count": 40,
+      "max": 51716.004,
+      "mean": 9627.58675,
+      "median": 3581.478000000004,
+      "min": 6.683000000009542,
+      "p95": 37199.0638,
+      "sum": 385103.47000000003
+    },
+    "wall_time_ms": {
+      "count": 40,
+      "max": 52104.592739837244,
+      "mean": 9807.203115953598,
+      "median": 3710.1821625838056,
+      "min": 7.19043193385005,
+      "p95": 37641.90388029674,
+      "sum": 392288.1246381439
+    }
+  }
+}

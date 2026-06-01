@@ -1,0 +1,173 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 46  of event 'cycles:P'
+# Event count (approx.): 3265752
+#
+# Overhead  Symbol                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               IPC   [IPC Coverage]
+# ........  ...................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................  ....................
+#
+    18.75%  [.] evmc::MockedHost::access_account(evmc::address const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |          
+             --10.70%--0x576ba6f75290
+                       zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()
+                       0x495441019a4cfb05
+
+     6.76%  [.] COMPILER::evmEmitLog3(zen::runtime::EVMInstance*, unsigned long, unsigned long, unsigned char const*, unsigned char const*, unsigned char const*)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---0x576ba6f62d00
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     4.60%  [.] 0x00000000000a4790                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+     3.95%  [.] zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)::{lambda()#2}::operator()() const                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              -      -            
+            |
+            ---zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0x1
+
+     2.63%  [.] 0x00000000000a1817                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+     2.48%  [.] 0x00000000001aface                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0xd1e41ebf45bb9282
+
+     2.34%  [.] 0x00000000001af18c                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+     2.31%  [k] fpregs_assert_state_consistent                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---syscall_exit_to_user_mode
+               do_syscall_64
+               entry_SYSCALL_64_after_hwframe
+               pthread_sigmask
+               zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0x1
+
+     2.31%  [.] zen::evm::ZenMockedEVMHost::access_storage(evmc::address const&, evmc::bytes32 const&)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+            |
+            ---0x576ba6f62d00
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+     2.31%  [.] 0x00000000000a3f09                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+     2.31%  [k] do_syscall_64                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---entry_SYSCALL_64_after_hwframe
+               pthread_sigmask
+               zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0
+
+     2.31%  [.] std::__detail::_Map_base<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true>, true>::operator[](evmc::bytes32 const&)                                                                                                                                                                   -      -            
+            |
+            ---0xf2e7c7549701240
+
+     2.31%  [.] std::vector<evmc::address, std::allocator<evmc::address> >::reserve(unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0x576ba6f75290
+               zen::evm::ZenMockedEVMHost::~ZenMockedEVMHost()
+               0x495441019a4cfb05
+
+     2.31%  [.] EVMBB0_JUMPDEST_18                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     2.31%  [.] 0x00000000000a45c2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0x87ee1
+
+     2.30%  [.] operator new(unsigned long)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      -      -            
+            |
+            ---0x1
+
+     2.29%  [.] malloc                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           -      -            
+     2.28%  [k] its_return_thunk                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 -      -            
+            |
+            ---do_syscall_64
+               entry_SYSCALL_64_after_hwframe
+               pthread_sigmask
+               zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0x1
+
+     2.27%  [k] arch_exit_to_user_mode_prepare.constprop.0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       -      -            
+            |
+            ---syscall_exit_to_user_mode
+               do_syscall_64
+               entry_SYSCALL_64_after_hwframe
+               pthread_sigmask
+               zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0
+
+     2.27%  [.] 0x00000000000a1829                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+     2.27%  [.] 0x00000000000a3fab                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0x8c61
+               0x576baf636208
+
+     2.25%  [.] operator new(unsigned long)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  -      -            
+            |
+            ---0
+
+     2.23%  [.] std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]                                                                                                                  -      -            
+     2.21%  [.] 0x00000000000a2712                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+            |
+            ---0x21
+               0x2d6
+               0x9231
+
+     2.15%  [.] EVMBB0_JUMPDEST_10688                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            -      -            
+            |
+            ---call_function
+               zen::entrypoint::callNativeGeneral(zen::runtime::EVMInstance*, void (*)(), zen::common::MemPool<(zen::common::MemPoolKind)0>*, bool)
+
+     2.12%  [.] 0x00000000000a181b                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+     2.11%  [.] std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)  -      -            
+            |
+            ---0x1
+
+     2.09%  [k] syscall_exit_to_user_mode_prepare                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                -      -            
+            |
+            ---do_syscall_64
+               entry_SYSCALL_64_after_hwframe
+               pthread_sigmask
+               zen::runtime::Runtime::callEVMInJITMode(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)
+               0x1
+
+     2.06%  [.] 0x00000000000a3f7d                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               -      -            
+     2.02%  [.] std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::bytes32 const&, unsigned long) const [clone .isra.0]                                                                                                                    -      -            
+            |
+            ---0x2a66eef428ae6d3a
+               0x5648b8546633d720
+
+     1.91%  [.] operator delete(void*, unsigned long)@plt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        -      -            
+            |
+            ---0xd1e41ebf45bb9282
+
+     1.85%  [.] zen::common::getError(zen::common::ErrorCode)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    -      -            
+            |
+            ---0
+               zen::common::Error::~Error()
+               0x48fd894855019af9
+
+     1.79%  [.] std::__detail::_Map_base<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true>, true>::operator[](evmc::address const&)                                                                                                                                                                 -      -            
+            |
+            ---0xd
+               0
+
+     1.53%  [.] zen::evm::ZenMockedEVMHost::resolveInternalCallModule(evmc::address const&, evmc::MockedAccount&, evmc_revision, zen::runtime::EVMMemorySpecializationProfile)                                                                                                                                                                                                                                                                                                                                                                                                                                                                   -      -            
+            |
+            ---COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)
+               0x576ba6f62d00
+               zen::runtime::EVMInstance::~EVMInstance()
+               0x834855544101971f
+
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#

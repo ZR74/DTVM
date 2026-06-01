@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-23T14:56:55.970943+00:00",
+  "manifest": [
+    {
+      "tx_hash": "0xc4c113a17a42bc631c1980879759f54498d995b6326b54ceb9f79bd52a999aa5",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24932411,
+      "path": "data/traces_parallel/uniswap_v3_swap/0xc4c113a17a42bc631c1980879759f54498d995b6326b54ceb9f79bd52a999aa5.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    },
+    {
+      "tx_hash": "0xfee2faa232c1c4b7e7686aea2f0ccc6d29e1334a26879c7eff5ab3cc762fe67f",
+      "replay_tx_hash": null,
+      "dataset": "uniswap_v3_swap",
+      "block_number": 24934569,
+      "path": "data/traces_parallel/uniswap_v3_swap/0xfee2faa232c1c4b7e7686aea2f0ccc6d29e1334a26879c7eff5ab3cc762fe67f.json.gz",
+      "source": "anvil-trace-call",
+      "trace_source": "debug_traceCall"
+    }
+  ],
+  "errors": []
+}

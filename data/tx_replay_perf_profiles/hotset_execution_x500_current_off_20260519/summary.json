@@ -1,0 +1,345 @@
+{
+  "dtvm_path": "./build_perf/dtvm",
+  "extra_executions": 500,
+  "filters": {
+    "datasets": [],
+    "limit": null,
+    "tx_hashes": []
+  },
+  "mode_override": "multipass",
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_perf_profiles/hotset_execution_x500_current_off_20260519",
+  "perf_frequency": 9999,
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial",
+  "summary": {
+    "category_counts": {
+      "evm_bb": 340,
+      "evm_host": 692,
+      "keccak": 1850,
+      "kernel": 1418,
+      "memory": 1148,
+      "other": 6993,
+      "unknown": 10942
+    },
+    "category_pct": {
+      "evm_bb": 1.454,
+      "evm_host": 2.9594,
+      "keccak": 7.9117,
+      "kernel": 6.0642,
+      "memory": 4.9095,
+      "other": 29.9063,
+      "unknown": 46.7947
+    },
+    "datasets": {
+      "cow_settlement": {
+        "category_counts": {
+          "evm_bb": 59,
+          "evm_host": 152,
+          "keccak": 376,
+          "kernel": 242,
+          "memory": 309,
+          "other": 1646,
+          "unknown": 2766
+        },
+        "category_pct": {
+          "evm_bb": 1.0631,
+          "evm_host": 2.7387,
+          "keccak": 6.7748,
+          "kernel": 4.3604,
+          "memory": 5.5676,
+          "other": 29.6577,
+          "unknown": 49.8378
+        },
+        "runs": 10,
+        "top_evm_bbs": {
+          "EVMBB0_JUMPDEST_14524": 2,
+          "EVMBB0_JUMPDEST_18336": 6,
+          "EVMBB0_JUMPDEST_18481": 4,
+          "EVMBB0_JUMPDEST_18621": 4,
+          "EVMBB0_JUMPDEST_2587": 3,
+          "EVMBB0_JUMPDEST_7020": 3,
+          "EVMBB0_JUMPDEST_7641": 3,
+          "EVMBB0_JUMPDEST_8671": 4,
+          "EVMBB0_JUMPDEST_9586": 2,
+          "EVMBB0_SWITCH0_11246": 2
+        },
+        "top_frame_samples": 5550,
+        "top_host_symbols": {
+          "evmEmitLog2": 15,
+          "evmEmitLog3": 7,
+          "evmExpandMemoryNoGas": 5,
+          "evmGetCallDataLoad": 45,
+          "evmGetSLoad": 10,
+          "evmHandleCallInternal": 34,
+          "evmHandleStaticCall": 3,
+          "evmSetReturn": 6,
+          "evmSetRevert": 4,
+          "evmSetSStore": 7
+        }
+      },
+      "erc20_transfer": {
+        "category_counts": {
+          "evm_bb": 129,
+          "evm_host": 175,
+          "keccak": 265,
+          "kernel": 407,
+          "memory": 355,
+          "other": 2105,
+          "unknown": 2982
+        },
+        "category_pct": {
+          "evm_bb": 2.01,
+          "evm_host": 2.7267,
+          "keccak": 4.129,
+          "kernel": 6.3415,
+          "memory": 5.5313,
+          "other": 32.7984,
+          "unknown": 46.4631
+        },
+        "runs": 10,
+        "top_evm_bbs": {
+          "EVMBB0_JUMPDEST_10277": 4,
+          "EVMBB0_JUMPDEST_10347": 7,
+          "EVMBB0_JUMPDEST_10361": 4,
+          "EVMBB0_JUMPDEST_10422": 6,
+          "EVMBB0_JUMPDEST_10438": 4,
+          "EVMBB0_JUMPDEST_2692": 4,
+          "EVMBB0_JUMPDEST_4814": 3,
+          "EVMBB0_JUMPDEST_4932": 4,
+          "EVMBB0_JUMPDEST_5225": 5,
+          "EVMBB0_MAIN_ENTRY_1": 8
+        },
+        "top_frame_samples": 6418,
+        "top_host_symbols": {
+          "evmEmitLog2": 3,
+          "evmEmitLog3": 15,
+          "evmGetCallDataLoad": 49,
+          "evmGetSLoad": 18,
+          "evmHandleCall": 4,
+          "evmHandleCallInternal": 49,
+          "evmSetCallDataCopy": 7,
+          "evmSetReturn": 7,
+          "evmSetRevert": 4,
+          "evmSetSStore": 4
+        }
+      },
+      "erc4337_bundle": {
+        "category_counts": {
+          "evm_bb": 57,
+          "evm_host": 56,
+          "keccak": 912,
+          "kernel": 182,
+          "memory": 97,
+          "other": 898,
+          "unknown": 907
+        },
+        "category_pct": {
+          "evm_bb": 1.8334,
+          "evm_host": 1.8012,
+          "keccak": 29.3342,
+          "kernel": 5.854,
+          "memory": 3.12,
+          "other": 28.8839,
+          "unknown": 29.1734
+        },
+        "runs": 10,
+        "top_evm_bbs": {
+          "EVMBB0_JUMPDEST_10764": 2,
+          "EVMBB0_JUMPDEST_10824": 2,
+          "EVMBB0_JUMPDEST_1333": 2,
+          "EVMBB0_JUMPDEST_14045": 2,
+          "EVMBB0_JUMPDEST_1451": 3,
+          "EVMBB0_JUMPDEST_2114": 3,
+          "EVMBB0_JUMPDEST_3620": 2,
+          "EVMBB0_JUMPDEST_4427": 2,
+          "EVMBB0_JUMPDEST_7670": 2,
+          "EVMBB0_JUMPDEST_8136": 10
+        },
+        "top_frame_samples": 3109,
+        "top_host_symbols": {
+          "evmGetCallDataLoad": 30,
+          "evmGetChainId": 2,
+          "evmGetSLoad": 2,
+          "evmHandleCallInternal": 7,
+          "evmHandleUndefined": 4,
+          "evmSetCallDataCopy": 5,
+          "evmSetReturnDataCopy": 1,
+          "evmSetRevert": 3,
+          "evmSetSStore": 2
+        }
+      },
+      "uniswap_v3_swap": {
+        "category_counts": {
+          "evm_bb": 95,
+          "evm_host": 309,
+          "keccak": 297,
+          "kernel": 587,
+          "memory": 387,
+          "other": 2344,
+          "unknown": 4287
+        },
+        "category_pct": {
+          "evm_bb": 1.1438,
+          "evm_host": 3.7202,
+          "keccak": 3.5757,
+          "kernel": 7.0672,
+          "memory": 4.6593,
+          "other": 28.2206,
+          "unknown": 51.6133
+        },
+        "runs": 10,
+        "top_evm_bbs": {
+          "EVMBB0_JUMPDEST_11676": 2,
+          "EVMBB0_JUMPDEST_16633": 5,
+          "EVMBB0_JUMPDEST_16858": 3,
+          "EVMBB0_JUMPDEST_2146": 3,
+          "EVMBB0_JUMPDEST_34": 2,
+          "EVMBB0_JUMPDEST_4404": 2,
+          "EVMBB0_JUMPDEST_5475": 2,
+          "EVMBB0_JUMPDEST_8450": 2,
+          "EVMBB0_JUMPDEST_9944": 3,
+          "EVMBB0_MAIN_ENTRY_1": 4
+        },
+        "top_frame_samples": 8306,
+        "top_host_symbols": {
+          "evmEmitLog3": 23,
+          "evmGetCallDataLoad": 66,
+          "evmGetDiv": 5,
+          "evmGetMulMod": 44,
+          "evmGetSLoad": 37,
+          "evmHandleCall": 10,
+          "evmHandleCallInternal": 60,
+          "evmSetCallDataCopy": 6,
+          "evmSetReturn": 18,
+          "evmSetReturnDataCopy": 6
+        }
+      }
+    },
+    "runs": 40,
+    "top_dsos": {
+      "/root/DTVM_zr/DTVM/build_perf/dtvm": 8869,
+      "/tmp/perf-305382.map": 228,
+      "/tmp/perf-305435.map": 452,
+      "/tmp/perf-305764.map": 131,
+      "/tmp/perf-306026.map": 154,
+      "/tmp/perf-306294.map": 153,
+      "/tmp/perf-306395.map": 284,
+      "/tmp/perf-306994.map": 133,
+      "/tmp/perf-307354.map": 230,
+      "/tmp/perf-307449.map": 727,
+      "/tmp/perf-307867.map": 300,
+      "/tmp/perf-308063.map": 110,
+      "/usr/lib/x86_64-linux-gnu/libc.so.6": 8896,
+      "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30": 633,
+      "[kernel.kallsyms]": 1418
+    },
+    "top_evm_bbs": {
+      "EVMBB0_JUMPDEST_10277": 4,
+      "EVMBB0_JUMPDEST_10347": 7,
+      "EVMBB0_JUMPDEST_10361": 4,
+      "EVMBB0_JUMPDEST_10422": 6,
+      "EVMBB0_JUMPDEST_10438": 4,
+      "EVMBB0_JUMPDEST_16": 3,
+      "EVMBB0_JUMPDEST_16633": 5,
+      "EVMBB0_JUMPDEST_18336": 6,
+      "EVMBB0_JUMPDEST_18481": 4,
+      "EVMBB0_JUMPDEST_18621": 4,
+      "EVMBB0_JUMPDEST_2587": 3,
+      "EVMBB0_JUMPDEST_2692": 4,
+      "EVMBB0_JUMPDEST_4814": 3,
+      "EVMBB0_JUMPDEST_4932": 4,
+      "EVMBB0_JUMPDEST_5225": 5,
+      "EVMBB0_JUMPDEST_7020": 3,
+      "EVMBB0_JUMPDEST_7641": 3,
+      "EVMBB0_JUMPDEST_8136": 10,
+      "EVMBB0_JUMPDEST_8671": 4,
+      "EVMBB0_MAIN_ENTRY_1": 15
+    },
+    "top_frame_samples": 23383,
+    "top_host_symbols": {
+      "evmEmitLog2": 21,
+      "evmEmitLog3": 45,
+      "evmExpandMemoryNoGas": 9,
+      "evmGetCallDataLoad": 190,
+      "evmGetDiv": 7,
+      "evmGetExtCodeSize": 4,
+      "evmGetMod": 4,
+      "evmGetMulMod": 47,
+      "evmGetSLoad": 67,
+      "evmGetTLoad": 5,
+      "evmHandleCall": 16,
+      "evmHandleCallInternal": 150,
+      "evmHandleDelegateCall": 4,
+      "evmHandleStaticCall": 8,
+      "evmHandleUndefined": 5,
+      "evmSetCallDataCopy": 19,
+      "evmSetReturn": 31,
+      "evmSetReturnDataCopy": 11,
+      "evmSetRevert": 12,
+      "evmSetSStore": 18
+    },
+    "top_keccak_symbols": {
+      "ethash_keccak256": 77,
+      "evmGetKeccak256": 98,
+      "keccakf1600_bmi": 1648,
+      "zen::host::evm::crypto::keccak256": 27
+    },
+    "top_symbols": {
+      "COMPILER::evmGetCallDataLoad(zen::runtime::EVMInstance*, unsigned long)": 184,
+      "COMPILER::evmGetKeccak256(zen::runtime::EVMInstance*, unsigned long, unsigned long)": 72,
+      "COMPILER::evmHandleCallInternal(zen::runtime::EVMInstance*, evmc_call_kind, unsigned long, unsigned char const*, intx::uint<256u> const&, unsigned long, unsigned long, unsigned long, unsigned long, bool)": 138,
+      "[unknown]": 10943,
+      "cfree": 353,
+      "entry_SYSCALL_64": 52,
+      "ethash_keccak256": 48,
+      "evmc::MockedAccount::MockedAccount(evmc::MockedAccount const&)": 160,
+      "evmc::MockedHost::access_account(evmc::address const&)": 881,
+      "evmc::from_hex[abi:cxx11](std::basic_string_view<char, std::char_traits<char> >)": 52,
+      "keccakf1600_bmi": 1648,
+      "malloc": 714,
+      "operator new(unsigned long)": 129,
+      "perf_iterate_ctx": 122,
+      "std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]": 152,
+      "std::_Hashtable<evmc::address, std::pair<evmc::address const, zen::evm::ZenMockedEVMHost::JournaledAccountSnapshot>, std::allocator<std::pair<evmc::address const, zen::evm::ZenMockedEVMHost::JournaledAccountSnapshot> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::address const&, unsigned long) const [clone .isra.0]": 107,
+      "std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_find_before_node(unsigned long, evmc::bytes32 const&, unsigned long) const [clone .isra.0]": 95,
+      "std::_Hashtable<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true> >::_M_find_before_node(unsigned long, std::pair<evmc_message const*, unsigned long> const&, unsigned long) const": 142,
+      "std::__detail::_Map_base<std::pair<evmc_message const*, unsigned long>, std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32>, std::allocator<std::pair<std::pair<evmc_message const*, unsigned long> const, evmc::bytes32> >, std::__detail::_Select1st, std::equal_to<std::pair<evmc_message const*, unsigned long> >, zen::runtime::EVMInstance::PairHash, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<true, false, true>, true>::operator[](std::pair<evmc_message const*, unsigned long> const&)": 267,
+      "std::__detail::_Prime_rehash_policy::_M_need_rehash(unsigned long, unsigned long, unsigned long) const": 55,
+      "std::__detail::_Prime_rehash_policy::_M_next_bkt(unsigned long) const": 114,
+      "void std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > >(std::_Hashtable<evmc::address, std::pair<evmc::address const, evmc::MockedAccount>, std::allocator<std::pair<evmc::address const, evmc::MockedAccount> >, std::__detail::_Select1st, std::equal_to<evmc::address>, std::hash<evmc::address>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::address const, evmc::MockedAccount>, false> > > const&)": 89,
+      "void std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> >::_M_assign<std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > >(std::_Hashtable<evmc::bytes32, std::pair<evmc::bytes32 const, evmc::StorageValue>, std::allocator<std::pair<evmc::bytes32 const, evmc::StorageValue> >, std::__detail::_Select1st, std::equal_to<evmc::bytes32>, std::hash<evmc::bytes32>, std::__detail::_Mod_range_hashing, std::__detail::_Default_ranged_hash, std::__detail::_Prime_rehash_policy, std::__detail::_Hashtable_traits<false, false, true> > const&, std::__detail::_ReuseOrAllocNode<std::allocator<std::__detail::_Hash_node<std::pair<evmc::bytes32 const, evmc::StorageValue>, false> > > const&)": 282,
+      "zap_pte_range": 61,
+      "zen::common::getError(zen::common::ErrorCode)": 122,
+      "zen::evm::ZenMockedEVMHost::call(evmc_message const&)": 110,
+      "zen::evm::ZenMockedEVMHost::journalAccountState(evmc::address const&)": 269,
+      "zen::evm::ZenMockedEVMHost::resolveInternalCallModule(evmc::address const&, evmc::MockedAccount&, evmc_revision, zen::runtime::EVMMemorySpecializationProfile)": 46,
+      "zen::runtime::Runtime::callEVMMainOnPhysStack(zen::runtime::EVMInstance&, evmc_message&, evmc::Result&)": 120,
+      "zen::utils::computeIntrinsicGas(evmc_revision, evmc_call_kind, unsigned char const*, unsigned long)": 806
+    },
+    "zero_execution_runs": [
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0x19c2155bd12ad1928036cd0c3132cf1487334f1e8b25a07b1896681f72ff4142"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0x778f736ad2f4bb1209e357aa784e333d349433036fdf21bde86112ea653db693"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0xc48c7636bbfe34784a90e0fc04fd37c851c24d72dc693e4b2669a0ae9d40c296"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0xc97f657493e6afce9ba5a7c1110c7dd8a2419bd1479adf7ddf6dcd50a11e7865"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0x922480546579ab9b0e842f35146d8c40303ab27fef6737f16660e24b496ae17b"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0x9b571c654646d3668675a1792df716c86b94bcfd620d1f49483ed9ba4851b9fd"
+      }
+    ]
+  }
+}

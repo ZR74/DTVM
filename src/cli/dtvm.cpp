@@ -65,6 +65,40 @@ struct EVMMessageConfig {
   std::string ContractAddress;
 };
 
+class ScopedStatRecord {
+public:
+  ScopedStatRecord(Statistics &Stats, StatisticPhase Phase)
+      : Stats(Stats), Timer(Stats.startRecord(Phase)) {}
+
+  ~ScopedStatRecord() {
+    if (Active) {
+      Stats.stopRecord(Timer);
+    }
+  }
+
+  ScopedStatRecord(const ScopedStatRecord &) = delete;
+  ScopedStatRecord &operator=(const ScopedStatRecord &) = delete;
+
+  void stop() {
+    if (Active) {
+      Stats.stopRecord(Timer);
+      Active = false;
+    }
+  }
+
+  void revert() {
+    if (Active) {
+      Stats.revertRecord(Timer);
+      Active = false;
+    }
+  }
+
+private:
+  Statistics &Stats;
+  uint32_t Timer;
+  bool Active = true;
+};
+
 static evmc_message createEvmMessage(evmc::MockedHost &Host,
                                      const EVMMessageConfig &Config,
                                      const std::vector<uint8_t> &Bytecode) {
@@ -318,13 +352,6 @@ int main(int argc, char *argv[]) {
     // so loadState() can override it if tx_origin is present in state.json
     MockedEVMHost->tx_context.tx_origin =
         zen::utils::parseAddress(SenderAddress);
-    // Load state if specified
-    if (!LoadStateFile.empty() &&
-        !zen::utils::loadState(*MockedEVMHost, LoadStateFile)) {
-      ZEN_LOG_ERROR("failed to load state from file: %s",
-                    LoadStateFile.c_str());
-      return exitMain(EXIT_FAILURE);
-    }
 
     // std::unique_ptr<evmc::Host> Host = std::move(MockedEVMHost);
     auto &MockedHost = *MockedEVMHost;
@@ -335,15 +362,30 @@ int main(int argc, char *argv[]) {
       return exitMain(EXIT_FAILURE);
     }
 
-    // Set runtime for ZenMockedEVMHost
-    MockedHost.setRuntime(RT.get());
+    auto &Stats = RT->getStatistics();
+
+    {
+      ScopedStatRecord Timer(Stats, StatisticPhase::RuntimeSetup);
+      MockedHost.setRuntime(RT.get());
+    }
+
+    if (!LoadStateFile.empty()) {
+      if (!zen::utils::loadState(MockedHost, LoadStateFile, &Stats)) {
+        ZEN_LOG_ERROR("failed to load state from file: %s",
+                      LoadStateFile.c_str());
+        return exitMain(EXIT_FAILURE, RT.get());
+      }
+    }
 
     static thread_local std::vector<uint8_t> CalldataBytes;
-    CalldataBytes.clear();
-    if (!Calldata.empty()) {
-      auto Bytes = zen::utils::fromHex(Calldata);
-      if (Bytes.has_value()) {
-        CalldataBytes = std::move(*Bytes);
+    {
+      ScopedStatRecord Timer(Stats, StatisticPhase::InputDecode);
+      CalldataBytes.clear();
+      if (!Calldata.empty()) {
+        auto Bytes = zen::utils::fromHex(Calldata);
+        if (Bytes.has_value()) {
+          CalldataBytes = std::move(*Bytes);
+        }
       }
     }
 
@@ -380,15 +422,18 @@ int main(int argc, char *argv[]) {
     evmc_call_kind MsgKind = DeployMode ? EVMC_CREATE : EVMC_CALL;
     evmc::Result ExeResult;
     std::vector<uint8_t> Bytecode;
-    if (EVMC_CREATE == MsgKind) {
-      std::ifstream File(Filename, std::ios::binary);
-      if (!File) {
-        ZEN_LOG_ERROR("failed to open contract file: %s", Filename.c_str());
-        return exitMain(EXIT_FAILURE, RT.get());
-      }
+    {
+      ScopedStatRecord Timer(Stats, StatisticPhase::MessageSetup);
+      if (EVMC_CREATE == MsgKind) {
+        std::ifstream File(Filename, std::ios::binary);
+        if (!File) {
+          ZEN_LOG_ERROR("failed to open contract file: %s", Filename.c_str());
+          return exitMain(EXIT_FAILURE, RT.get());
+        }
 
-      Bytecode.assign((std::istreambuf_iterator<char>(File)),
-                      std::istreambuf_iterator<char>());
+        Bytecode.assign((std::istreambuf_iterator<char>(File)),
+                        std::istreambuf_iterator<char>());
+      }
     }
 
     EVMMessageConfig MsgConfig{.Kind = MsgKind,
@@ -398,45 +443,50 @@ int main(int argc, char *argv[]) {
                                .ContractAddress = ContractAddress};
     evmc_message Msg = createEvmMessage(MockedHost, MsgConfig, Bytecode);
 
-    // EIP-3607 (London+): Reject transactions from senders with deployed code.
-    // A sender with non-empty code is a contract, not an EOA, unless the code
-    // is an EIP-7702 delegation designator (0xef0100...) on Prague+.
-    if (EvmRevision >= EVMC_LONDON) {
-      auto SenderIt = MockedHost.accounts.find(Msg.sender);
-      if (SenderIt != MockedHost.accounts.end() &&
-          !SenderIt->second.code.empty()) {
-        // EIP-7702 delegation designator exemption is only valid on Prague+,
-        // where delegation is actually supported.
-        bool IsDelegated = false;
-        if (EvmRevision >= EVMC_PRAGUE) {
-          const auto &SenderCode = SenderIt->second.code;
-          constexpr uint8_t DELEGATION_MAGIC[] = {0xef, 0x01, 0x00};
-          IsDelegated = SenderCode.size() >= sizeof(DELEGATION_MAGIC) &&
-                        std::memcmp(SenderCode.data(), DELEGATION_MAGIC,
-                                    sizeof(DELEGATION_MAGIC)) == 0;
-        }
-        if (!IsDelegated) {
-          ZEN_LOG_ERROR("sender not an EOA: sender account has deployed code "
-                        "(EIP-3607)");
-          return exitMain(EXIT_FAILURE, RT.get());
+    {
+      ScopedStatRecord Timer(Stats, StatisticPhase::PreExecutionChecks);
+
+      // EIP-3607 (London+): Reject transactions from senders with deployed
+      // code. A sender with non-empty code is a contract, not an EOA, unless
+      // the code is an EIP-7702 delegation designator (0xef0100...) on
+      // Prague+.
+      if (EvmRevision >= EVMC_LONDON) {
+        auto SenderIt = MockedHost.accounts.find(Msg.sender);
+        if (SenderIt != MockedHost.accounts.end() &&
+            !SenderIt->second.code.empty()) {
+          // EIP-7702 delegation designator exemption is only valid on Prague+,
+          // where delegation is actually supported.
+          bool IsDelegated = false;
+          if (EvmRevision >= EVMC_PRAGUE) {
+            const auto &SenderCode = SenderIt->second.code;
+            constexpr uint8_t DELEGATION_MAGIC[] = {0xef, 0x01, 0x00};
+            IsDelegated = SenderCode.size() >= sizeof(DELEGATION_MAGIC) &&
+                          std::memcmp(SenderCode.data(), DELEGATION_MAGIC,
+                                      sizeof(DELEGATION_MAGIC)) == 0;
+          }
+          if (!IsDelegated) {
+            ZEN_LOG_ERROR("sender not an EOA: sender account has deployed code "
+                          "(EIP-3607)");
+            return exitMain(EXIT_FAILURE, RT.get());
+          }
         }
       }
-    }
 
-    // Deduct intrinsic gas before EVM execution.
-    const int64_t IntrinsicGas = zen::utils::computeIntrinsicGas(
-        EvmRevision, MsgKind, Msg.input_data, Msg.input_size);
-    if (Msg.gas < IntrinsicGas) {
-      ZEN_LOG_ERROR("intrinsic gas (%ld) exceeds gas limit (%ld)",
-                    (long)IntrinsicGas, (long)Msg.gas);
-      return exitMain(EVMC_OUT_OF_GAS, RT.get());
-    }
-    Msg.gas -= IntrinsicGas;
+      // Deduct intrinsic gas before EVM execution.
+      const int64_t IntrinsicGas = zen::utils::computeIntrinsicGas(
+          EvmRevision, MsgKind, Msg.input_data, Msg.input_size);
+      if (Msg.gas < IntrinsicGas) {
+        ZEN_LOG_ERROR("intrinsic gas (%ld) exceeds gas limit (%ld)",
+                      (long)IntrinsicGas, (long)Msg.gas);
+        return exitMain(EVMC_OUT_OF_GAS, RT.get());
+      }
+      Msg.gas -= IntrinsicGas;
 
-    // EIP-2929/EIP-3651: Pre-warm transaction-level accounts.
-    zen::utils::prewarmTransactionAccounts(
-        MockedHost, EvmRevision, Msg.sender, Msg.recipient,
-        MockedHost.tx_context.block_coinbase);
+      // EIP-2929/EIP-3651: Pre-warm transaction-level accounts.
+      zen::utils::prewarmTransactionAccounts(
+          MockedHost, EvmRevision, Msg.sender, Msg.recipient,
+          MockedHost.tx_context.block_coinbase);
+    }
 
     RT->callEVMMain(*Inst, Msg, ExeResult);
 
@@ -448,22 +498,6 @@ int main(int argc, char *argv[]) {
 
     // Use EVM status code directly as process exit code
     int ExitCode = static_cast<int>(ExeResult.status_code);
-    if (ExeResult.output_data && ExeResult.output_size > 0) {
-      std::string output =
-          zen::utils::toHex(ExeResult.output_data, ExeResult.output_size);
-      printf("output: 0x%s\n", output.c_str());
-    }
-
-    if (!SaveStateFile.empty()) {
-      auto *MockedHostPtr = static_cast<evmc::MockedHost *>(Host.get());
-      if (MockedHostPtr) {
-        if (!zen::utils::saveState(*MockedHostPtr, SaveStateFile)) {
-          ZEN_LOG_ERROR("failed to save state to file: %s",
-                        SaveStateFile.c_str());
-          return exitMain(EXIT_FAILURE, RT.get());
-        }
-      }
-    }
 
     /// ======= EVM Extra compilations and executions for benchmarking =======
     if (!runEVMBenchmark(Filename, NumExtraCompilations, NumExtraExecutions,
@@ -478,14 +512,34 @@ int main(int argc, char *argv[]) {
     }
 #endif
 
-    if (!RT->unloadEVMModule(Mod)) {
-      ZEN_LOG_ERROR("failed to unload EVM module");
-      return exitMain(EXIT_FAILURE, RT.get());
-    }
+    {
+      ScopedStatRecord Timer(Stats, StatisticPhase::PostExecutionCleanup);
+      if (ExeResult.output_data && ExeResult.output_size > 0) {
+        std::string output =
+            zen::utils::toHex(ExeResult.output_data, ExeResult.output_size);
+        printf("output: 0x%s\n", output.c_str());
+      }
 
-    if (!Iso->deleteEVMInstance(Inst)) {
-      ZEN_LOG_ERROR("failed to delete instance");
-      return exitMain(EXIT_FAILURE, RT.get());
+      if (!SaveStateFile.empty()) {
+        auto *MockedHostPtr = static_cast<evmc::MockedHost *>(Host.get());
+        if (MockedHostPtr) {
+          if (!zen::utils::saveState(*MockedHostPtr, SaveStateFile)) {
+            ZEN_LOG_ERROR("failed to save state to file: %s",
+                          SaveStateFile.c_str());
+            return exitMain(EXIT_FAILURE, RT.get());
+          }
+        }
+      }
+
+      if (!RT->unloadEVMModule(Mod)) {
+        ZEN_LOG_ERROR("failed to unload EVM module");
+        return exitMain(EXIT_FAILURE, RT.get());
+      }
+
+      if (!Iso->deleteEVMInstance(Inst)) {
+        ZEN_LOG_ERROR("failed to delete instance");
+        return exitMain(EXIT_FAILURE, RT.get());
+      }
     }
 
     return exitMain(ExitCode, RT.get());

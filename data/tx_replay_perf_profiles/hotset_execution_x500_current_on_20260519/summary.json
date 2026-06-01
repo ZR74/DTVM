@@ -1,0 +1,387 @@
+{
+  "dtvm_path": "./build_perf_ssa/dtvm",
+  "extra_executions": 500,
+  "filters": {
+    "datasets": [],
+    "limit": null,
+    "tx_hashes": []
+  },
+  "mode_override": "multipass",
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_perf_profiles/hotset_execution_x500_current_on_20260519",
+  "perf_frequency": 9999,
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_hotset_partial",
+  "summary": {
+    "category_counts": {
+      "compiler": 225338,
+      "evm_bb": 221,
+      "evm_host": 2374827,
+      "keccak": 1126,
+      "kernel": 45588,
+      "memory": 9472,
+      "other": 57859,
+      "profiling_overhead": 14,
+      "unknown": 34852
+    },
+    "category_pct": {
+      "compiler": 8.1962,
+      "evm_bb": 0.008,
+      "evm_host": 86.3794,
+      "keccak": 0.041,
+      "kernel": 1.6582,
+      "memory": 0.3445,
+      "other": 2.1045,
+      "profiling_overhead": 0.0005,
+      "unknown": 1.2677
+    },
+    "datasets": {
+      "cow_settlement": {
+        "category_counts": {
+          "compiler": 117071,
+          "evm_host": 1847425,
+          "kernel": 38285,
+          "memory": 4362,
+          "other": 25072,
+          "profiling_overhead": 7,
+          "unknown": 17253
+        },
+        "category_pct": {
+          "compiler": 5.7122,
+          "evm_host": 90.1414,
+          "kernel": 1.868,
+          "memory": 0.2128,
+          "other": 1.2233,
+          "profiling_overhead": 0.0003,
+          "unknown": 0.8418
+        },
+        "runs": 10,
+        "top_evm_bbs": {},
+        "top_frame_samples": 2049475,
+        "top_host_symbols": {
+          "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::decode": 1580,
+          "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::handleBeginBlock": 1576,
+          "EVMMirBuilder::addUniqueSuccessor": 783,
+          "EVMMirBuilder::createIntConstInstruction": 3349,
+          "EVMMirBuilder::getOrCreateIndirectJumpBB": 52812,
+          "EVMMirBuilder::registerPhiIncomingBlock": 69527,
+          "EVMMirBuilder::resolvePhiIncomingPredecessorBB": 48508,
+          "EVMMirBuilder::setInsertBlock": 1649674,
+          "EVMMirBuilder::stackPop": 933,
+          "SwitchInstruction* COMPILER::MFunction::createInstruction<COMPILER::SwitchInstruction, COMPILER::EVMFrontendContext&, COMPILER::MInstruction*&, COMPILER::MBasicBlock*&, std::vector<std::pair<COMPILER::ConstantInstruction*, COMPILER::MBasicBlock*>, zen::common::MemPoolAllocator<std::pair<COMPILER::ConstantInstruction*, COMPILER::MBasicBlock*>, COMPILER::MonotonicMemPool> >&>": 1910
+        }
+      },
+      "erc20_transfer": {
+        "category_counts": {
+          "compiler": 71921,
+          "evm_bb": 26,
+          "evm_host": 350919,
+          "keccak": 2,
+          "kernel": 4627,
+          "memory": 3330,
+          "other": 21210,
+          "profiling_overhead": 7,
+          "unknown": 11238
+        },
+        "category_pct": {
+          "compiler": 15.5243,
+          "evm_bb": 0.0056,
+          "evm_host": 75.7466,
+          "keccak": 0.0004,
+          "kernel": 0.9987,
+          "memory": 0.7188,
+          "other": 4.5782,
+          "profiling_overhead": 0.0015,
+          "unknown": 2.4257
+        },
+        "runs": 10,
+        "top_evm_bbs": {
+          "EVMBB0_JUMPDEST_11756": 1,
+          "EVMBB0_JUMPDEST_12366": 1,
+          "EVMBB0_JUMPDEST_3671": 1,
+          "EVMBB0_JUMPDEST_5656": 1,
+          "EVMBB0_JUMPDEST_6270": 1,
+          "EVMBB0_JUMPDEST_698": 1,
+          "EVMBB0_JUMPDEST_7500": 2,
+          "EVMBB0_JUMPDEST_798": 1,
+          "EVMBB0_MAIN_ENTRY_1": 3,
+          "EVMBB0_SWITCH0_10648": 2
+        },
+        "top_frame_samples": 463280,
+        "top_host_symbols": {
+          "EVMAnalyzer::collectDynamicJumpSourceBlocksForInfo": 1239,
+          "EVMAnalyzer::finalizeEntryShapeMetadata": 999,
+          "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::decode": 1520,
+          "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::handleBeginBlock": 1223,
+          "EVMLiftedStackLifter<COMPILER::EVMMirBuilder>::makeVirtualStackState": 733,
+          "EVMMirBuilder::createIntConstInstruction": 1585,
+          "EVMMirBuilder::getOrCreateIndirectJumpBB": 18063,
+          "EVMMirBuilder::registerPhiIncomingBlock": 21210,
+          "EVMMirBuilder::resolvePhiIncomingPredecessorBB": 16598,
+          "EVMMirBuilder::setInsertBlock": 269955
+        }
+      },
+      "erc4337_bundle": {
+        "category_counts": {
+          "evm_bb": 170,
+          "evm_host": 27,
+          "keccak": 1060,
+          "kernel": 221,
+          "memory": 105,
+          "other": 867,
+          "unknown": 652
+        },
+        "category_pct": {
+          "evm_bb": 5.4803,
+          "evm_host": 0.8704,
+          "keccak": 34.1715,
+          "kernel": 7.1244,
+          "memory": 3.3849,
+          "other": 27.9497,
+          "unknown": 21.0187
+        },
+        "runs": 10,
+        "top_evm_bbs": {
+          "EVMBB0_JUMPDEST_10315": 15,
+          "EVMBB0_JUMPDEST_10742": 7,
+          "EVMBB0_JUMPDEST_12458": 8,
+          "EVMBB0_JUMPDEST_13084": 8,
+          "EVMBB0_JUMPDEST_1451": 7,
+          "EVMBB0_JUMPDEST_7382": 5,
+          "EVMBB0_JUMPDEST_8983": 5,
+          "EVMBB0_JUMPDEST_9403": 9,
+          "EVMBB0_JUMPDEST_9723": 7,
+          "EVMBB0_MAIN_ENTRY_1": 5
+        },
+        "top_frame_samples": 3102,
+        "top_host_symbols": {
+          "evmGetCallDataLoad": 23,
+          "evmSetCallDataCopy": 1,
+          "evmSetSStore": 2,
+          "evmSetTStore": 1
+        }
+      },
+      "uniswap_v3_swap": {
+        "category_counts": {
+          "compiler": 36346,
+          "evm_bb": 25,
+          "evm_host": 176456,
+          "keccak": 64,
+          "kernel": 2455,
+          "memory": 1675,
+          "other": 10710,
+          "unknown": 5709
+        },
+        "category_pct": {
+          "compiler": 15.5697,
+          "evm_bb": 0.0107,
+          "evm_host": 75.5894,
+          "keccak": 0.0274,
+          "kernel": 1.0517,
+          "memory": 0.7175,
+          "other": 4.5879,
+          "unknown": 2.4456
+        },
+        "runs": 10,
+        "top_evm_bbs": {
+          "EVMBB0_JUMPDEST_11708": 1,
+          "EVMBB0_JUMPDEST_11731": 1,
+          "EVMBB0_JUMPDEST_12000": 1,
+          "EVMBB0_JUMPDEST_18394": 1,
+          "EVMBB0_JUMPDEST_18512": 1,
+          "EVMBB0_JUMPDEST_2146": 3,
+          "EVMBB0_JUMPDEST_34": 1,
+          "EVMBB0_JUMPDEST_3882": 2,
+          "EVMBB0_JUMPDEST_4108": 3,
+          "EVMBB0_SWITCH0_5853": 1
+        },
+        "top_frame_samples": 233440,
+        "top_host_symbols": {
+          "EVMAnalyzer::collectDynamicJumpSourceBlocksForInfo": 643,
+          "EVMAnalyzer::finalizeEntryShapeMetadata": 527,
+          "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::decode": 804,
+          "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::handleBeginBlock": 643,
+          "EVMLiftedStackLifter<COMPILER::EVMMirBuilder>::makeVirtualStackState": 389,
+          "EVMMirBuilder::createIntConstInstruction": 798,
+          "EVMMirBuilder::getOrCreateIndirectJumpBB": 9276,
+          "EVMMirBuilder::registerPhiIncomingBlock": 10822,
+          "EVMMirBuilder::resolvePhiIncomingPredecessorBB": 8314,
+          "EVMMirBuilder::setInsertBlock": 135227
+        }
+      }
+    },
+    "runs": 40,
+    "top_dsos": {
+      "/root/DTVM_zr/DTVM/build_perf_ssa/dtvm": 2633912,
+      "/tmp/perf-308252.map": 32,
+      "/tmp/perf-309563.map": 63,
+      "/tmp/perf-309839.map": 31,
+      "/tmp/perf-309942.map": 37,
+      "/tmp/perf-310064.map": 22,
+      "/tmp/perf-310125.map": 18,
+      "/tmp/perf-310154.map": 26,
+      "/tmp/perf-310222.map": 20,
+      "/tmp/perf-311188.map": 27,
+      "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2": 32,
+      "/usr/lib/x86_64-linux-gnu/libc.so.6": 43477,
+      "/usr/lib/x86_64-linux-gnu/libgcc_s.so.1": 454,
+      "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30": 25411,
+      "[kernel.kallsyms]": 45588
+    },
+    "top_evm_bbs": {
+      "EVMBB0_JUMPDEST_10315": 15,
+      "EVMBB0_JUMPDEST_10742": 7,
+      "EVMBB0_JUMPDEST_10824": 5,
+      "EVMBB0_JUMPDEST_11309": 3,
+      "EVMBB0_JUMPDEST_12086": 3,
+      "EVMBB0_JUMPDEST_12458": 8,
+      "EVMBB0_JUMPDEST_12662": 4,
+      "EVMBB0_JUMPDEST_13084": 8,
+      "EVMBB0_JUMPDEST_1451": 7,
+      "EVMBB0_JUMPDEST_36": 3,
+      "EVMBB0_JUMPDEST_4108": 3,
+      "EVMBB0_JUMPDEST_7382": 5,
+      "EVMBB0_JUMPDEST_8136": 3,
+      "EVMBB0_JUMPDEST_8983": 5,
+      "EVMBB0_JUMPDEST_9379": 3,
+      "EVMBB0_JUMPDEST_9403": 9,
+      "EVMBB0_JUMPDEST_9685": 3,
+      "EVMBB0_JUMPDEST_9698": 3,
+      "EVMBB0_JUMPDEST_9723": 7,
+      "EVMBB0_MAIN_ENTRY_1": 8
+    },
+    "top_frame_samples": 2749297,
+    "top_host_symbols": {
+      "EVMAnalyzer::analyzeBlockBody": 1755,
+      "EVMAnalyzer::buildBlocks": 1223,
+      "EVMAnalyzer::collectDynamicJumpSourceBlocksForInfo": 2582,
+      "EVMAnalyzer::finalizeDynamicJumpRegionMetadata": 840,
+      "EVMAnalyzer::finalizeEntryShapeMetadata": 2269,
+      "EVMAnalyzer::resolveDynamicJumpTargetEntryDepths": 865,
+      "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::decode": 3904,
+      "EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::handleBeginBlock": 3442,
+      "EVMLiftedStackLifter<COMPILER::EVMMirBuilder>::makeVirtualStackState": 1122,
+      "EVMMirBuilder::createIntConstInstruction": 5732,
+      "EVMMirBuilder::createJumpTable": 1525,
+      "EVMMirBuilder::extractU256Operand": 917,
+      "EVMMirBuilder::getOrCreateIndirectJumpBB": 80151,
+      "EVMMirBuilder::loadVariable": 1358,
+      "EVMMirBuilder::protectUnsafeValue": 1267,
+      "EVMMirBuilder::registerPhiIncomingBlock": 101559,
+      "EVMMirBuilder::resolvePhiIncomingPredecessorBB": 73420,
+      "EVMMirBuilder::setInsertBlock": 2054856,
+      "EVMMirBuilder::stackPop": 933,
+      "SwitchInstruction* COMPILER::MFunction::createInstruction<COMPILER::SwitchInstruction, COMPILER::EVMFrontendContext&, COMPILER::MInstruction*&, COMPILER::MBasicBlock*&, std::vector<std::pair<COMPILER::ConstantInstruction*, COMPILER::MBasicBlock*>, zen::common::MemPoolAllocator<std::pair<COMPILER::ConstantInstruction*, COMPILER::MBasicBlock*>, COMPILER::MonotonicMemPool> >&>": 3019
+    },
+    "top_keccak_symbols": {
+      "ethash_keccak256": 33,
+      "evmGetKeccak256": 8,
+      "keccakf1600_bmi": 1079,
+      "zen::host::evm::crypto::keccak256": 6
+    },
+    "top_symbols": {
+      "COMPILER::EVMAnalyzer::collectDynamicJumpSourceBlocksForInfo(COMPILER::EVMAnalyzer::BlockInfo const&) const": 1882,
+      "COMPILER::EVMByteCodeVisitor<COMPILER::EVMMirBuilder>::decode()": 2324,
+      "COMPILER::EVMMirBuilder::createIntConstInstruction(COMPILER::MType*, unsigned long)": 5732,
+      "COMPILER::EVMMirBuilder::getOrCreateIndirectJumpBB(unsigned long)": 80151,
+      "COMPILER::EVMMirBuilder::registerPhiIncomingBlock(unsigned long, unsigned long, COMPILER::MBasicBlock*)": 101559,
+      "COMPILER::EVMMirBuilder::resolvePhiIncomingPredecessorBB(unsigned long, COMPILER::MBasicBlock*) const": 73420,
+      "COMPILER::EVMMirBuilder::setInsertBlock(COMPILER::MBasicBlock*)": 2054856,
+      "COMPILER::MBasicBlock::addSuccessor(COMPILER::MBasicBlock*)": 9742,
+      "COMPILER::MConstantInt::get(COMPILER::CompileContext&, COMPILER::MType&, llvm::APInt)": 21281,
+      "COMPILER::MConstantInt::get(COMPILER::CompileContext&, COMPILER::MType&, unsigned long)": 5896,
+      "COMPILER::MFunction::~MFunction()": 16873,
+      "COMPILER::MInstruction*& std::vector<COMPILER::MInstruction*, zen::common::MemPoolAllocator<COMPILER::MInstruction*, COMPILER::MonotonicMemPool> >::emplace_back<COMPILER::ConstantInstruction*&>(COMPILER::ConstantInstruction*&) [clone .isra.0]": 4896,
+      "COMPILER::MVerifier::visitBasicBlock(COMPILER::MBasicBlock&)": 15427,
+      "COMPILER::MVerifier::visitBinaryInstruction(COMPILER::BinaryInstruction&)": 10259,
+      "COMPILER::MVerifier::visitConstantInstruction(COMPILER::ConstantInstruction&)": 2604,
+      "COMPILER::MVerifier::visitSwitchInstruction(COMPILER::SwitchInstruction&)": 3666,
+      "COMPILER::MVisitor::visitInstruction(COMPILER::MInstruction&)": 23270,
+      "[unknown]": 34866,
+      "asm_exc_page_fault": 4464,
+      "keccakf1600_bmi": 1079,
+      "llvm::BumpPtrAllocatorImpl<llvm::MallocAllocator, 4096ul, 4096ul, 128ul>::Allocate(unsigned long, llvm::Align)": 4691,
+      "llvm::BumpPtrAllocatorImpl<llvm::MallocAllocator, 4096ul, 4096ul, 128ul>::Allocate(unsigned long, unsigned long)": 24819,
+      "llvm::hash_value(llvm::APInt const&)": 5104,
+      "llvm::hashing::detail::hash_short(char const*, unsigned long, unsigned long)": 15271,
+      "malloc": 3160,
+      "std::_Rb_tree<unsigned long, std::pair<unsigned long const, COMPILER::MBasicBlock*>, std::_Select1st<std::pair<unsigned long const, COMPILER::MBasicBlock*> >, std::less<unsigned long>, std::allocator<std::pair<unsigned long const, COMPILER::MBasicBlock*> > >::_M_erase(std::_Rb_tree_node<std::pair<unsigned long const, COMPILER::MBasicBlock*> >*) [clone .isra.0]": 3446,
+      "std::_Rb_tree_increment(std::_Rb_tree_node_base const*)": 12049,
+      "std::_Rb_tree_insert_and_rebalance(bool, std::_Rb_tree_node_base*, std::_Rb_tree_node_base*, std::_Rb_tree_node_base&)": 5773,
+      "sync_regs": 2666,
+      "void std::vector<COMPILER::MBasicBlock*, zen::common::MemPoolAllocator<COMPILER::MBasicBlock*, COMPILER::MonotonicMemPool> >::_M_realloc_insert<COMPILER::MBasicBlock* const&>(__gnu_cxx::__normal_iterator<COMPILER::MBasicBlock**, std::vector<COMPILER::MBasicBlock*, zen::common::MemPoolAllocator<COMPILER::MBasicBlock*, COMPILER::MonotonicMemPool> > >, COMPILER::MBasicBlock* const&)": 10352
+    },
+    "zero_execution_runs": [
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0x52e4c5e5c3937842618866172712dc6ff29779e620494da688ea093f35b495fa"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0x778f736ad2f4bb1209e357aa784e333d349433036fdf21bde86112ea653db693"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0xb7e4be10e0b47bcef9a8576033366cd78e0c8653f404a2155b577021a4ee19c8"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0xc48c7636bbfe34784a90e0fc04fd37c851c24d72dc693e4b2669a0ae9d40c296"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0xc97f657493e6afce9ba5a7c1110c7dd8a2419bd1479adf7ddf6dcd50a11e7865"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0xe1a74c8c4da4dc46cc1df7d0820dd5a11351cad0a2d5e7496436c9818c1fea38"
+      },
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0xe371e7ff2845d7b386736b74121d152aa1bbea532dd391c4eb8d00a3a2bf5420"
+      },
+      {
+        "dataset": "erc20_transfer",
+        "tx_hash": "0x223cd73f8806675144a609939b3cfbbd78b91ab78cd5eb37afd460d122fab95a"
+      },
+      {
+        "dataset": "erc20_transfer",
+        "tx_hash": "0x254e78ebed832672136350271e5b494906716bc13199b2af2f1f2efc62d2d937"
+      },
+      {
+        "dataset": "erc20_transfer",
+        "tx_hash": "0x5aae36b8308c346c853a899cb5a17cd66d64073434e0d9326032b340da351997"
+      },
+      {
+        "dataset": "erc20_transfer",
+        "tx_hash": "0xbf988f1e7d4d7271a563d2073c9f41c6115da2bbce1da9694eeadd22cb11837d"
+      },
+      {
+        "dataset": "erc20_transfer",
+        "tx_hash": "0xffca4cf617890a299fcbf771ed656413df3d44921c2822773fd5a43fa1e835f1"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0x0dd1095728006af0fa2be94a45b3b5183dc5bec5edee8c79c1982aa5504ca798"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0x5393cae40fec46721437cb102d92cda3116946f350a57c9b110df44f55a93a8d"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0x922480546579ab9b0e842f35146d8c40303ab27fef6737f16660e24b496ae17b"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0x9b571c654646d3668675a1792df716c86b94bcfd620d1f49483ed9ba4851b9fd"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0xada08ea852356351feecbb83855b57fd0cd40ff3df75562c8674933718717985"
+      },
+      {
+        "dataset": "uniswap_v3_swap",
+        "tx_hash": "0xe90e22c4edb14ef07879b1772afdd5dd34771c34a0b90e1b6d50c0295f6cda36"
+      }
+    ]
+  }
+}

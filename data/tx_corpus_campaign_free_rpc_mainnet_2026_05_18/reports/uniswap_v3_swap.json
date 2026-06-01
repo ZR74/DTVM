@@ -1,0 +1,23 @@
+{
+  "candidate_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/candidates/uniswap_v3_swap.jsonl",
+  "dataset": "uniswap_v3_swap",
+  "enriched_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/uniswap_v3_swap.jsonl",
+  "input_path": "/root/DTVM_zr/DTVM/tests/fulltrace_transactions/uniswap_v3_swap_transactions.jsonl",
+  "perf_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/uniswap_v3_swap.jsonl",
+  "pre_enrich_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/working/uniswap_v3_swap_pre_enrich.jsonl",
+  "steps": [
+    {
+      "input": "/root/DTVM_zr/DTVM/tests/fulltrace_transactions/uniswap_v3_swap_transactions.jsonl",
+      "name": "sample",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/uniswap_v3_swap.jsonl",
+      "result": {
+        "eligible_rows": 270,
+        "input_rows": 492,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/uniswap_v3_swap.jsonl",
+        "sampled_rows": 50,
+        "unique_template_keys": 50
+      },
+      "target_count": 50
+    }
+  ]
+}

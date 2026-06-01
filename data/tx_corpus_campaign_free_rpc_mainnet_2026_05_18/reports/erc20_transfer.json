@@ -1,0 +1,23 @@
+{
+  "candidate_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/candidates/erc20_transfer.jsonl",
+  "dataset": "erc20_transfer",
+  "enriched_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/enriched/erc20_transfer.jsonl",
+  "input_path": "/root/DTVM_zr/DTVM/tests/fulltrace_transactions/erc20_transfer_transactions.jsonl",
+  "perf_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/erc20_transfer.jsonl",
+  "pre_enrich_path": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/working/erc20_transfer_pre_enrich.jsonl",
+  "steps": [
+    {
+      "input": "/root/DTVM_zr/DTVM/tests/fulltrace_transactions/erc20_transfer_transactions.jsonl",
+      "name": "sample",
+      "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/erc20_transfer.jsonl",
+      "result": {
+        "eligible_rows": 373,
+        "input_rows": 499,
+        "output": "/root/DTVM_zr/DTVM/data/tx_corpus_campaign_free_rpc_mainnet_2026_05_18/perf/erc20_transfer.jsonl",
+        "sampled_rows": 50,
+        "unique_template_keys": 50
+      },
+      "target_count": 50
+    }
+  ]
+}

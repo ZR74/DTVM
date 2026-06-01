@@ -1,0 +1,55 @@
+{
+  "dtvm_path": "./build-ssa175-on/dtvm",
+  "extra_executions": 800,
+  "filters": {
+    "datasets": [],
+    "limit": null,
+    "tx_hashes": [
+      "0x02b7939bce9bd940e11cfe02c5ef9261807bedb2f33d97c0af143bb895105030",
+      "0x15c1e519f682cce39a8d35b939745f3905c205a921f3a171ea5558b0746b4f0d"
+    ]
+  },
+  "mode_override": "multipass",
+  "output_dir": "/root/DTVM_zr/DTVM/data/tx_replay_perf_profiles/ssa200_rep_on_20260525",
+  "perf_frequency": 199,
+  "prepared_root": "/root/DTVM_zr/DTVM/data/tx_replay_prepare_200",
+  "summary": {
+    "category_counts": {},
+    "category_pct": {},
+    "datasets": {
+      "cow_settlement": {
+        "category_counts": {},
+        "category_pct": {},
+        "runs": 1,
+        "top_evm_bbs": {},
+        "top_frame_samples": 0,
+        "top_host_symbols": {}
+      },
+      "erc20_transfer": {
+        "category_counts": {},
+        "category_pct": {},
+        "runs": 1,
+        "top_evm_bbs": {},
+        "top_frame_samples": 0,
+        "top_host_symbols": {}
+      }
+    },
+    "runs": 2,
+    "top_dsos": {},
+    "top_evm_bbs": {},
+    "top_frame_samples": 0,
+    "top_host_symbols": {},
+    "top_keccak_symbols": {},
+    "top_symbols": {},
+    "zero_execution_runs": [
+      {
+        "dataset": "cow_settlement",
+        "tx_hash": "0x15c1e519f682cce39a8d35b939745f3905c205a921f3a171ea5558b0746b4f0d"
+      },
+      {
+        "dataset": "erc20_transfer",
+        "tx_hash": "0x02b7939bce9bd940e11cfe02c5ef9261807bedb2f33d97c0af143bb895105030"
+      }
+    ]
+  }
+}

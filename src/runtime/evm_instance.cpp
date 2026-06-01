@@ -94,6 +94,7 @@ void EVMInstance::resetForNewCall(evmc_revision NewRev) {
   InstanceExecutionCache.BlockHashes.clear();
   InstanceExecutionCache.BlobHashes.clear();
   InstanceExecutionCache.CalldataLoads.clear();
+  InstanceExecutionCache.StorageLoads.clear();
   InstanceExecutionCache.ExtcodeHashes.clear();
   InstanceExecutionCache.Keccak256Results.clear();
   InstanceExecutionCache.TxContextCached = false;

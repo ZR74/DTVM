@@ -1,0 +1,137 @@
+{
+  "output_dir": "data/dynamic_layers/classified_fulltrace_transactions",
+  "datasets": {
+    "erc20_transfer": {
+      "row_count": 499,
+      "output_file": "data/dynamic_layers/classified_fulltrace_transactions/erc20_transfer_transactions.jsonl",
+      "with_candidate_enrichment": 499,
+      "trace_failed_true": 103,
+      "top_emitters": [
+        [
+          "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+          147
+        ],
+        [
+          "0xdac17f958d2ee523a2206206994597c13d831ec7",
+          128
+        ],
+        [
+          "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+          66
+        ],
+        [
+          "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
+          7
+        ],
+        [
+          "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b",
+          7
+        ],
+        [
+          "0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0",
+          5
+        ],
+        [
+          "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+          5
+        ],
+        [
+          "0x4c9edd5852cd905f086c759e8383e09bff1e68b3",
+          4
+        ],
+        [
+          "0x8292bb45bf1ee4d140127049757c2e0ff06317ed",
+          4
+        ],
+        [
+          "0xb62132e35a6c13ee1ee0f84dc5d40bad8d815206",
+          4
+        ]
+      ]
+    },
+    "uniswap_v3_swap": {
+      "row_count": 492,
+      "output_file": "data/dynamic_layers/classified_fulltrace_transactions/uniswap_v3_swap_transactions.jsonl",
+      "with_candidate_enrichment": 492,
+      "trace_failed_true": 200,
+      "top_emitters": [
+        [
+          "0xe0554a476a092703abdb3ef35c80e0d76d32939f",
+          72
+        ],
+        [
+          "0xc7bbec68d12a0d1830360f8ec58fa599ba1b0e9b",
+          45
+        ],
+        [
+          "0x88e6a0c2ddd26feeb64f039a2c41296fcb3f5640",
+          30
+        ],
+        [
+          "0x62caefdb263f3e36450154b9d2cdac0c808f4bcd",
+          23
+        ],
+        [
+          "0x0e55db2d5e07cc6b067f352ba35a6beafb33c282",
+          20
+        ],
+        [
+          "0x168e9b3c9ddfb013a4130276f9c500a3ce50fde7",
+          20
+        ],
+        [
+          "0x155738f4da7d7b55876f5398bb0195d027400127",
+          15
+        ],
+        [
+          "0x1e1dfff79d95725aaafd6b47af4fbc28d859ce28",
+          15
+        ],
+        [
+          "0x4e68ccd3e89f51c3074ca5072bbac773960dfa36",
+          14
+        ],
+        [
+          "0xbd7fdcc5bce26b1d99f2ba4e7d6a9f490832502c",
+          11
+        ]
+      ]
+    },
+    "erc4337_bundle": {
+      "row_count": 500,
+      "output_file": "data/dynamic_layers/classified_fulltrace_transactions/erc4337_bundle_transactions.jsonl",
+      "with_candidate_enrichment": 0,
+      "trace_failed_true": 119,
+      "top_emitters": [
+        [
+          "0x0000000071727de22e5e9d8baf0edac6f37da032",
+          308
+        ],
+        [
+          "0x5ff137d4b0fdcd49dca30c7cf57e578a026d2789",
+          129
+        ],
+        [
+          "0x4337084d9e255ff0702461cf8895ce9e3b5ff108",
+          63
+        ]
+      ]
+    },
+    "cow_settlement": {
+      "row_count": 120,
+      "output_file": "data/dynamic_layers/classified_fulltrace_transactions/cow_settlement_transactions.jsonl",
+      "with_candidate_enrichment": 0,
+      "trace_failed_true": 4,
+      "top_emitters": [
+        [
+          "0x9008d19f58aabd9ed0d60971565aa8510560ab41",
+          120
+        ]
+      ]
+    }
+  },
+  "bad_files": [
+    "data/traces_l2_topup500/erc20_transfer/0x8092d1e29a600e1a2ef064d2d094e5d3b2cbb87d0a8afa0decce7310bcc3cd81.json.gz"
+  ],
+  "bad_file_count": 1
+}

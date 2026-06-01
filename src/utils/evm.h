@@ -4,6 +4,7 @@
 #define ZEN_UTILS_EVM_H
 
 #include "utils/others.h"
+#include "utils/statistics.h"
 #include <evmc/evmc.hpp>
 #include <evmc/mocked_host.hpp>
 #include <optional>
@@ -31,7 +32,8 @@ std::vector<uint8_t> uint256beToBytes(const evmc::uint256be &Value);
 evmc::address computeCreateAddress(const evmc::address &Sender,
                                    uint64_t SenderNonce);
 bool saveState(const evmc::MockedHost &Host, const std::string &FilePath);
-bool loadState(evmc::MockedHost &Host, const std::string &FilePath);
+bool loadState(evmc::MockedHost &Host, const std::string &FilePath,
+               Statistics *Stats = nullptr);
 
 /// Compute the intrinsic gas cost of a transaction (EIP-2028, EIP-3860).
 /// Includes: 21000 base + calldata cost + CREATE cost + initcode cost.

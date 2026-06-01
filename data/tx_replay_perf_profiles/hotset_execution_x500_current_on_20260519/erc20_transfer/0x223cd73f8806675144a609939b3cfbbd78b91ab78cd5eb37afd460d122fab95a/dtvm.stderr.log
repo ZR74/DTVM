@@ -1,0 +1,2 @@
+[Verifying Error:0] phi instructions in BB @71588 must be contiguous at block start
+[Verifying Error:1] phi instructions in BB @72248 must be contiguous at block start
