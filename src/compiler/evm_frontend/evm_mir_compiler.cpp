@@ -78,6 +78,7 @@ EVMFrontendContext::EVMFrontendContext(const EVMFrontendContext &OtherCtx)
       BytecodeSize(OtherCtx.BytecodeSize),
       GasMeteringEnabled(OtherCtx.GasMeteringEnabled),
       GasChunkEnd(OtherCtx.GasChunkEnd), GasChunkCost(OtherCtx.GasChunkCost),
+      GasChunkCostSPP(OtherCtx.GasChunkCostSPP),
       GasChunkSize(OtherCtx.GasChunkSize), Revision(OtherCtx.Revision),
       MemoryLinearStrideSkipLeadingZeroLimbStores(
           OtherCtx.MemoryLinearStrideSkipLeadingZeroLimbStores)
@@ -391,8 +392,11 @@ void EVMMirBuilder::initEVM(CompilerContext *Context) {
   ReturnBB = createBasicBlock();
   loadEVMInstanceAttr();
 
+  // Normal execution continues from here (bytecode at PC=0)
+
   GasChunkEnd = EvmCtx->getGasChunkEnd();
   GasChunkCost = EvmCtx->getGasChunkCost();
+  GasChunkCostSPP = EvmCtx->getGasChunkCostSPP();
   GasChunkSize = EvmCtx->getGasChunkSize();
 
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -527,7 +531,12 @@ void EVMMirBuilder::meterOpcode(evmc_opcode Opcode, uint64_t PC) {
   }
   if (GasChunkEnd && GasChunkCost && PC < GasChunkSize) {
     if (GasChunkEnd[PC] > PC) {
-      meterGas(GasChunkCost[PC]);
+      // Prefer SPP-shifted cost when available — it preserves per-path totals
+      // while reducing the number of non-zero entries the JIT must emit a
+      // gas check for.
+      const uint64_t Cost =
+          GasChunkCostSPP ? GasChunkCostSPP[PC] : GasChunkCost[PC];
+      meterGas(Cost);
     }
     return;
   }
@@ -567,13 +576,19 @@ void EVMMirBuilder::meterOpcodeRange(uint64_t StartPC,
 
   uint64_t TotalCost = 0;
   for (uint64_t PC = StartPC; PC < EndPCExclusive;) {
-    const uint8_t Opcode = static_cast<uint8_t>(Bytecode[PC]);
-    uint64_t Cost = static_cast<uint64_t>(InstructionMetrics[Opcode].gas_cost);
     uint64_t NextPC = PC + 1;
-    if (Opcode >= static_cast<uint8_t>(OP_PUSH0) &&
-        Opcode <= static_cast<uint8_t>(OP_PUSH32)) {
-      NextPC += static_cast<uint8_t>(Opcode) -
-                static_cast<uint8_t>(OP_PUSH0);
+    uint64_t Cost = 0;
+    if (GasChunkEnd && GasChunkCost && PC < GasChunkSize &&
+        GasChunkEnd[PC] > PC) {
+      Cost = GasChunkCostSPP ? GasChunkCostSPP[PC] : GasChunkCost[PC];
+      NextPC = GasChunkEnd[PC];
+    } else {
+      const uint8_t Opcode = static_cast<uint8_t>(Bytecode[PC]);
+      Cost = static_cast<uint64_t>(InstructionMetrics[Opcode].gas_cost);
+      if (Opcode >= static_cast<uint8_t>(OP_PUSH0) &&
+          Opcode <= static_cast<uint8_t>(OP_PUSH32)) {
+        NextPC += static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+      }
     }
 
     if (UINT64_MAX - TotalCost < Cost) {
@@ -1007,12 +1022,15 @@ void EVMMirBuilder::setTrackedStackDepth(uint32_t Depth) {
                                         StackTopVar->getVarIdx());
 }
 
-typename EVMMirBuilder::Operand EVMMirBuilder::createStackEntryOperand() {
+typename EVMMirBuilder::Operand
+EVMMirBuilder::createStackEntryOperand(ValueRange Range) {
   U256Var Vars = {};
   for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
     Vars[I] = CurFunc->createVariable(&Ctx.I64Type);
   }
-  return Operand(Vars, EVMType::UINT256);
+  Operand Op(Vars, EVMType::UINT256);
+  Op.setRange(Range);
+  return Op;
 }
 
 void EVMMirBuilder::assignStackEntryOperand(const Operand &Dest,
@@ -1308,7 +1326,7 @@ void EVMMirBuilder::createJumpTable() {
             uint64_t Cost = 0;
             if (GasChunkEnd && GasChunkCost && Pc < GasChunkSize &&
                 GasChunkEnd[Pc] > Pc) {
-              Cost = GasChunkCost[Pc];
+              Cost = GasChunkCostSPP ? GasChunkCostSPP[Pc] : GasChunkCost[Pc];
             } else {
               // All bytes in the run are JUMPDEST opcode bytes (PUSH payload is
               // skipped in the scan above), so the fallback is a constant.
@@ -3928,8 +3946,9 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleBalance(Operand Address) {
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const intx::uint256 *, const uint8_t *>(
-      RuntimeFunctions.GetBalance, Address);
+  auto Result =
+      callRuntimeForWithErrorCheck<const intx::uint256 *, const uint8_t *>(
+          RuntimeFunctions.GetBalance, Address);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -3995,7 +4014,7 @@ void EVMMirBuilder::handleCodeCopy(Operand DestOffsetComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  callRuntimeFor<void, uint64_t, uint64_t, uint64_t>(
+  callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, uint64_t>(
       RuntimeFunctions.SetCodeCopy, DestOffsetComponents, OffsetComponents,
       SizeComponents);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -4010,7 +4029,7 @@ EVMMirBuilder::handleExtCodeSize(Operand Address) {
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<uint64_t, const uint8_t *>(
+  auto Result = callRuntimeForWithErrorCheck<uint64_t, const uint8_t *>(
       RuntimeFunctions.GetExtCodeSize, Address);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
@@ -4024,8 +4043,9 @@ EVMMirBuilder::handleExtCodeHash(Operand Address) {
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const intx::uint256 *, const uint8_t *>(
-      RuntimeFunctions.GetExtCodeHash, Address);
+  auto Result =
+      callRuntimeForWithErrorCheck<const intx::uint256 *, const uint8_t *>(
+          RuntimeFunctions.GetExtCodeHash, Address);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -4150,10 +4170,13 @@ EVMMirBuilder::handleMLoad(Operand AddrComponents) {
 #endif
   MType *I64Type = &Ctx.I64Type;
   uint64_t ConstAddr = 0;
+  const bool OffsetWasConst = AddrComponents.isConstU64();
+  const uint64_t OriginalConstOffset =
+      OffsetWasConst ? AddrComponents.getConstValue()[0] : 0;
+  bool OffsetKnownU64 = OffsetWasConst;
   const bool CanUseConstBaseDispPath =
-      AddrComponents.isConstU64() &&
-      (ConstAddr = AddrComponents.getConstValue()[0]) <=
-          static_cast<uint64_t>(INT32_MAX - 24);
+      OffsetWasConst && (ConstAddr = OriginalConstOffset) <=
+                            static_cast<uint64_t>(INT32_MAX - 24);
 
   const bool CanUseLinearU64AddrFastPath =
       CurBlockLinearPrecheckPlan.Active &&
@@ -4163,6 +4186,7 @@ EVMMirBuilder::handleMLoad(Operand AddrComponents) {
   if (CanUseLinearU64AddrFastPath) {
     Offset = extractKnownU64LowOperand(AddrComponents);
     UsedLinearPrecheck = tryConsumeLinearBlockMemoryPrecheck(Offset, nullptr);
+    OffsetKnownU64 = OffsetKnownU64 || UsedLinearPrecheck;
   }
   if (!UsedLinearPrecheck) {
     normalizeOperandU64(AddrComponents);
@@ -4170,6 +4194,9 @@ EVMMirBuilder::handleMLoad(Operand AddrComponents) {
   }
   bool UsedSharedPrecheck =
       UsedLinearPrecheck || tryConsumeConstBlockMemoryPrecheck();
+  noteSmallFrameMemoryOp(SmallFrameMemoryOp::MLoad, OffsetWasConst,
+                         OriginalConstOffset, OffsetKnownU64, 32,
+                         UsedSharedPrecheck);
   if (!UsedSharedPrecheck) {
     MInstruction *SizeConst = createIntConstInstruction(I64Type, 32);
     MInstruction *RequiredSize = createInstruction<BinaryInstruction>(
@@ -4251,10 +4278,13 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
 #endif
   MType *I64Type = &Ctx.I64Type;
   uint64_t ConstAddr = 0;
+  const bool OffsetWasConst = AddrComponents.isConstU64();
+  const uint64_t OriginalConstOffset =
+      OffsetWasConst ? AddrComponents.getConstValue()[0] : 0;
+  bool OffsetKnownU64 = OffsetWasConst;
   const bool CanUseConstBaseDispPath =
-      AddrComponents.isConstU64() &&
-      (ConstAddr = AddrComponents.getConstValue()[0]) <=
-          static_cast<uint64_t>(INT32_MAX - 24);
+      OffsetWasConst && (ConstAddr = OriginalConstOffset) <=
+                            static_cast<uint64_t>(INT32_MAX - 24);
 
   U256Inst ValueParts = {};
   bool HasValueParts = false;
@@ -4270,6 +4300,7 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
   if (CanUseLinearU64AddrFastPath) {
     Offset = extractKnownU64LowOperand(AddrComponents);
     UsedLinearPrecheck = tryConsumeLinearBlockMemoryPrecheck(Offset, nullptr);
+    OffsetKnownU64 = OffsetKnownU64 || UsedLinearPrecheck;
   }
   if (!UsedLinearPrecheck) {
     normalizeOperandU64(AddrComponents);
@@ -4277,6 +4308,9 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
   }
   bool UsedSharedPrecheck =
       UsedLinearPrecheck || tryConsumeConstBlockMemoryPrecheck();
+  noteSmallFrameMemoryOp(SmallFrameMemoryOp::MStore, OffsetWasConst,
+                         OriginalConstOffset, OffsetKnownU64, 32,
+                         UsedSharedPrecheck);
   if (!UsedSharedPrecheck) {
     ValueParts = extractU256Operand(ValueComponents);
     HasValueParts = true;
@@ -4385,10 +4419,13 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
 void EVMMirBuilder::handleMStore8(Operand AddrComponents,
                                   Operand ValueComponents) {
   uint64_t ConstAddr = 0;
+  const bool OffsetWasConst = AddrComponents.isConstU64();
+  const uint64_t OriginalConstOffset =
+      OffsetWasConst ? AddrComponents.getConstValue()[0] : 0;
+  const bool OffsetKnownU64 = OffsetWasConst;
   const bool CanUseConstBaseDispPath =
-      AddrComponents.isConstU64() &&
-      (ConstAddr = AddrComponents.getConstValue()[0]) <=
-          static_cast<uint64_t>(INT32_MAX);
+      OffsetWasConst &&
+      (ConstAddr = OriginalConstOffset) <= static_cast<uint64_t>(INT32_MAX);
   normalizeOperandU64(AddrComponents);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
@@ -4412,6 +4449,9 @@ void EVMMirBuilder::handleMStore8(Operand AddrComponents,
       false, CmpInstruction::Predicate::ICMP_ULT, I64Type, RequiredSize,
       Offset);
   bool UsedSharedPrecheck = tryConsumeConstBlockMemoryPrecheck();
+  noteSmallFrameMemoryOp(SmallFrameMemoryOp::MStore8, OffsetWasConst,
+                         OriginalConstOffset, OffsetKnownU64, 1,
+                         UsedSharedPrecheck);
   if (!UsedSharedPrecheck) {
 #ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
     ++MemStats.MStore8ExpandCount;
@@ -4560,22 +4600,24 @@ void EVMMirBuilder::handleLogWithTopics(Operand OffsetOp, Operand SizeOp,
   syncGasToMemory();
 #endif
   if constexpr (NumTopics == 0) {
-    callRuntimeFor<void, uint64_t, uint64_t>(RuntimeFunctions.EmitLog0,
-                                             OffsetOp, SizeOp);
+    callRuntimeForWithErrorCheck<void, uint64_t, uint64_t>(
+        RuntimeFunctions.EmitLog0, OffsetOp, SizeOp);
   } else if constexpr (NumTopics == 1) {
-    callRuntimeFor<void, uint64_t, uint64_t, const uint8_t *>(
+    callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *>(
         RuntimeFunctions.EmitLog1, OffsetOp, SizeOp, Topics...);
   } else if constexpr (NumTopics == 2) {
-    callRuntimeFor<void, uint64_t, uint64_t, const uint8_t *, const uint8_t *>(
-        RuntimeFunctions.EmitLog2, OffsetOp, SizeOp, Topics...);
+    callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *,
+                                 const uint8_t *>(RuntimeFunctions.EmitLog2,
+                                                  OffsetOp, SizeOp, Topics...);
   } else if constexpr (NumTopics == 3) {
-    callRuntimeFor<void, uint64_t, uint64_t, const uint8_t *, const uint8_t *,
-                   const uint8_t *>(RuntimeFunctions.EmitLog3, OffsetOp, SizeOp,
-                                    Topics...);
+    callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *,
+                                 const uint8_t *, const uint8_t *>(
+        RuntimeFunctions.EmitLog3, OffsetOp, SizeOp, Topics...);
   } else { // NumTopics == 4
-    callRuntimeFor<void, uint64_t, uint64_t, const uint8_t *, const uint8_t *,
-                   const uint8_t *, const uint8_t *>(
-        RuntimeFunctions.EmitLog4, OffsetOp, SizeOp, Topics...);
+    callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *,
+                                 const uint8_t *, const uint8_t *,
+                                 const uint8_t *>(RuntimeFunctions.EmitLog4,
+                                                  OffsetOp, SizeOp, Topics...);
   }
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
@@ -4590,9 +4632,10 @@ EVMMirBuilder::handleCreate(Operand ValueOp, Operand OffsetOp, Operand SizeOp) {
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
-  auto Result = callRuntimeFor<const uint8_t *, const intx::uint256 &, uint64_t,
-                               uint64_t>(RuntimeFunctions.HandleCreate, ValueOp,
-                                         OffsetOp, SizeOp);
+  auto Result =
+      callRuntimeForWithErrorCheck<const uint8_t *, const intx::uint256 &,
+                                   uint64_t, uint64_t>(
+          RuntimeFunctions.HandleCreate, ValueOp, OffsetOp, SizeOp);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -4609,9 +4652,10 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleCreate2(Operand ValueOp,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
-  auto Result = callRuntimeFor<const uint8_t *, const intx::uint256 &, uint64_t,
-                               uint64_t, const uint8_t *>(
-      RuntimeFunctions.HandleCreate2, ValueOp, OffsetOp, SizeOp, SaltOp);
+  auto Result =
+      callRuntimeForWithErrorCheck<const uint8_t *, const intx::uint256 &,
+                                   uint64_t, uint64_t, const uint8_t *>(
+          RuntimeFunctions.HandleCreate2, ValueOp, OffsetOp, SizeOp, SaltOp);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -4635,8 +4679,9 @@ EVMMirBuilder::handleCall(Operand GasOp, Operand ToAddrOp, Operand ValueOp,
   syncGasToMemoryFull();
 #endif
   auto Result =
-      callRuntimeFor<uint64_t, uint64_t, const uint8_t *, const intx::uint256 &,
-                     uint64_t, uint64_t, uint64_t, uint64_t>(
+      callRuntimeForWithErrorCheck<uint64_t, uint64_t, const uint8_t *,
+                                   const intx::uint256 &, uint64_t, uint64_t,
+                                   uint64_t, uint64_t>(
           RuntimeFunctions.HandleCall, GasOp, ToAddrOp, ValueOp, ArgsOffsetOp,
           ArgsSizeOp, RetOffsetOp, RetSizeOp);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -4662,8 +4707,9 @@ EVMMirBuilder::handleCallCode(Operand GasOp, Operand ToAddrOp, Operand ValueOp,
   syncGasToMemoryFull();
 #endif
   auto Result =
-      callRuntimeFor<uint64_t, uint64_t, const uint8_t *, const intx::uint256 &,
-                     uint64_t, uint64_t, uint64_t, uint64_t>(
+      callRuntimeForWithErrorCheck<uint64_t, uint64_t, const uint8_t *,
+                                   const intx::uint256 &, uint64_t, uint64_t,
+                                   uint64_t, uint64_t>(
           RuntimeFunctions.HandleCallCode, GasOp, ToAddrOp, ValueOp,
           ArgsOffsetOp, ArgsSizeOp, RetOffsetOp, RetSizeOp);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -4682,7 +4728,7 @@ void EVMMirBuilder::handleReturn(Operand MemOffsetComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
-  callRuntimeFor<void, uint64_t, uint64_t>(
+  callRuntimeForWithErrorCheck<void, uint64_t, uint64_t>(
       RuntimeFunctions.SetReturn, MemOffsetComponents, LengthComponents);
 
   // The runtime SetReturn may charge memory expansion gas via chargeGas(),
@@ -4714,10 +4760,11 @@ EVMMirBuilder::handleDelegateCall(Operand GasOp, Operand ToAddrOp,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
-  auto Result = callRuntimeFor<uint64_t, uint64_t, const uint8_t *, uint64_t,
-                               uint64_t, uint64_t, uint64_t>(
-      RuntimeFunctions.HandleDelegateCall, GasOp, ToAddrOp, ArgsOffsetOp,
-      ArgsSizeOp, RetOffsetOp, RetSizeOp);
+  auto Result =
+      callRuntimeForWithErrorCheck<uint64_t, uint64_t, const uint8_t *,
+                                   uint64_t, uint64_t, uint64_t, uint64_t>(
+          RuntimeFunctions.HandleDelegateCall, GasOp, ToAddrOp, ArgsOffsetOp,
+          ArgsSizeOp, RetOffsetOp, RetSizeOp);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -4740,10 +4787,11 @@ EVMMirBuilder::handleStaticCall(Operand GasOp, Operand ToAddrOp,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
-  auto Result = callRuntimeFor<uint64_t, uint64_t, const uint8_t *, uint64_t,
-                               uint64_t, uint64_t, uint64_t>(
-      RuntimeFunctions.HandleStaticCall, GasOp, ToAddrOp, ArgsOffsetOp,
-      ArgsSizeOp, RetOffsetOp, RetSizeOp);
+  auto Result =
+      callRuntimeForWithErrorCheck<uint64_t, uint64_t, const uint8_t *,
+                                   uint64_t, uint64_t, uint64_t, uint64_t>(
+          RuntimeFunctions.HandleStaticCall, GasOp, ToAddrOp, ArgsOffsetOp,
+          ArgsSizeOp, RetOffsetOp, RetSizeOp);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -4759,8 +4807,8 @@ void EVMMirBuilder::handleRevert(Operand OffsetOp, Operand SizeOp) {
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
-  callRuntimeFor<void, uint64_t, uint64_t>(RuntimeFunctions.SetRevert, OffsetOp,
-                                           SizeOp);
+  callRuntimeForWithErrorCheck<void, uint64_t, uint64_t>(
+      RuntimeFunctions.SetRevert, OffsetOp, SizeOp);
 
   // The runtime SetRevert may charge memory expansion gas via chargeGas(),
   // which updates Instance->Gas directly. We must NOT branch to the shared
@@ -4815,7 +4863,8 @@ EVMMirBuilder::handleSLoad(Operand KeyComponents) {
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const intx::uint256 *, const intx::uint256 &>(
+  auto Result = callRuntimeForWithErrorCheck<const intx::uint256 *,
+                                             const intx::uint256 &>(
       RuntimeFunctions.GetSLoad, KeyComponents);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
@@ -4828,7 +4877,8 @@ void EVMMirBuilder::handleSStore(Operand KeyComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  callRuntimeFor<void, const intx::uint256 &, const intx::uint256 &>(
+  callRuntimeForWithErrorCheck<void, const intx::uint256 &,
+                               const intx::uint256 &>(
       RuntimeFunctions.SetSStore, KeyComponents, ValueComponents);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
@@ -4841,7 +4891,8 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleTLoad(Operand Index) {
 }
 void EVMMirBuilder::handleTStore(Operand Index, Operand ValueComponents) {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
-  callRuntimeFor<void, const intx::uint256 &, const intx::uint256 &>(
+  callRuntimeForWithErrorCheck<void, const intx::uint256 &,
+                               const intx::uint256 &>(
       RuntimeFunctions.SetTStore, Index, ValueComponents);
 }
 void EVMMirBuilder::handleSelfDestruct(Operand Beneficiary) {
@@ -4852,8 +4903,8 @@ void EVMMirBuilder::handleSelfDestruct(Operand Beneficiary) {
   // leftover amount to the caller.
   syncGasToMemoryFull();
 #endif
-  callRuntimeFor<void, const uint8_t *>(RuntimeFunctions.HandleSelfDestruct,
-                                        Beneficiary);
+  callRuntimeForWithErrorCheck<void, const uint8_t *>(
+      RuntimeFunctions.HandleSelfDestruct, Beneficiary);
 
   // The runtime function (evmHandleSelfDestruct) calls popMessage() which may
   // set CurrentMessage to nullptr when there is no parent frame. The shared
@@ -4874,12 +4925,21 @@ typename EVMMirBuilder::Operand
 EVMMirBuilder::handleKeccak256(Operand OffsetComponents,
                                Operand LengthComponents) {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
+  const bool OffsetWasConstU64 = OffsetComponents.isConstU64();
+  const uint64_t ConstOffset =
+      OffsetWasConstU64 ? OffsetComponents.getConstValue()[0] : 0;
+  const bool LengthWasConstU64 = LengthComponents.isConstU64();
+  const uint64_t ConstLength =
+      LengthWasConstU64 ? LengthComponents.getConstValue()[0] : 0;
   normalizeOffsetWithSize(OffsetComponents, LengthComponents);
+  noteKeccak256MemoryAccess(OffsetWasConstU64, ConstOffset, LengthWasConstU64,
+                            ConstLength);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const uint8_t *, uint64_t, uint64_t>(
-      RuntimeFunctions.GetKeccak256, OffsetComponents, LengthComponents);
+  auto Result =
+      callRuntimeForWithErrorCheck<const uint8_t *, uint64_t, uint64_t>(
+          RuntimeFunctions.GetKeccak256, OffsetComponents, LengthComponents);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -4896,8 +4956,8 @@ EVMMirBuilder::handleKeccak256TwoWord(Operand OffsetComponents, Operand Word0,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const uint8_t *, uint64_t,
-                               const intx::uint256 &, const intx::uint256 &>(
+  auto Result = callRuntimeFor<const uint8_t *, uint64_t, const intx::uint256 &,
+                               const intx::uint256 &>(
       RuntimeFunctions.GetKeccak256TwoWord, OffsetComponents, Word0, Word1);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
@@ -4916,11 +4976,10 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleKeccak256CallDataConstSlot(
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result =
-      callRuntimeFor<const uint8_t *, uint64_t, uint64_t,
-                     const intx::uint256 &>(
-          RuntimeFunctions.GetKeccak256CallDataSlot, OffsetComponents,
-          CallDataOffset, SlotWord);
+  auto Result = callRuntimeFor<const uint8_t *, uint64_t, uint64_t,
+                               const intx::uint256 &>(
+      RuntimeFunctions.GetKeccak256CallDataSlot, OffsetComponents,
+      CallDataOffset, SlotWord);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -4937,9 +4996,9 @@ EVMMirBuilder::handleKeccak256CallerConstSlot(Operand OffsetComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const uint8_t *, uint64_t,
-                               const intx::uint256 &>(
-      RuntimeFunctions.GetKeccak256CallerSlot, OffsetComponents, SlotWord);
+  auto Result =
+      callRuntimeFor<const uint8_t *, uint64_t, const intx::uint256 &>(
+          RuntimeFunctions.GetKeccak256CallerSlot, OffsetComponents, SlotWord);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -5719,6 +5778,23 @@ EVMMirBuilder::callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *)) {
   return convertCallResult<RetType>(CallInstr);
 }
 
+template <typename RetType>
+typename EVMMirBuilder::Operand EVMMirBuilder::callRuntimeForWithErrorCheck(
+    RetType (*RuntimeFunc)(runtime::EVMInstance *)) {
+  MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  uint64_t FuncAddr = getFunctionAddress(RuntimeFunc);
+  MInstruction *FuncAddrInst = createIntConstInstruction(I64Type, FuncAddr);
+  MInstruction *InstancePtr = getCurrentInstancePointer();
+
+  MType *ReturnType = getMIRReturnType<RetType>();
+  const bool IsStmt = std::is_same_v<RetType, void>;
+  MInstruction *CallInstr = createInstruction<ICallInstruction>(
+      IsStmt, ReturnType, FuncAddrInst,
+      llvm::ArrayRef<MInstruction *>(InstancePtr));
+  emitRuntimeSoftErrorCheck(InstancePtr);
+  return convertCallResult<RetType>(CallInstr);
+}
+
 // Template helper function to handle uintN_t type conversion (N*64 bits)
 // example: Support multiple sources for U256 argument:
 // - BYTES32 pointer -> load 32 bytes and split into 4xI64
@@ -5942,6 +6018,97 @@ EVMMirBuilder::Operand EVMMirBuilder::callRuntimeFor(
   return convertCallResult<RetType>(CallInstr);
 }
 
+template <typename RetType, typename... ArgTypes, typename... ParamTypes>
+EVMMirBuilder::Operand EVMMirBuilder::callRuntimeForWithErrorCheck(
+    RetType (*RuntimeFunc)(runtime::EVMInstance *, ArgTypes...),
+    const ParamTypes &...Params) {
+  MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  uint64_t FuncAddr = getFunctionAddress(RuntimeFunc);
+  MInstruction *FuncAddrInst = createIntConstInstruction(I64Type, FuncAddr);
+  MInstruction *InstancePtr = getCurrentInstancePointer();
+
+  std::vector<MInstruction *> Args = {InstancePtr};
+  auto ParamsTuple = std::forward_as_tuple(Params...);
+  std::size_t ScratchCursor = 0;
+  auto PushOne = [this, &Args, &ParamsTuple, &ScratchCursor](auto IndexTag) {
+    constexpr std::size_t I = decltype(IndexTag)::value;
+    using ArgT = typename std::tuple_element<I, std::tuple<ArgTypes...>>::type;
+    this->appendRuntimeArg<ArgT>(Args, std::get<I>(ParamsTuple), ScratchCursor);
+  };
+  auto PushAll = [&](auto Self, auto IndexTag) -> void {
+    constexpr std::size_t I = decltype(IndexTag)::value;
+    if constexpr (I < sizeof...(ArgTypes)) {
+      PushOne(IndexTag);
+      Self(Self, std::integral_constant<std::size_t, I + 1>{});
+    }
+  };
+  PushAll(PushAll, std::integral_constant<std::size_t, 0>{});
+
+  MType *ReturnType = getMIRReturnType<RetType>();
+  const bool IsStmt = std::is_same_v<RetType, void>;
+  MInstruction *CallInstr = createInstruction<ICallInstruction>(
+      IsStmt, ReturnType, FuncAddrInst, llvm::ArrayRef<MInstruction *>{Args});
+  emitRuntimeSoftErrorCheck(InstancePtr);
+  return convertCallResult<RetType>(CallInstr);
+}
+
+void EVMMirBuilder::emitRuntimeSoftErrorCheck(MInstruction *InstancePtr) {
+#if !defined(ZEN_ENABLE_CPU_EXCEPTION)
+  MType *U64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  MInstruction *GetErrAddr = createIntConstInstruction(
+      &Ctx.I64Type, getFunctionAddress(evmGetErrorCode));
+  MInstruction *ErrCodeInstr = createInstruction<ICallInstruction>(
+      false, U64Type, GetErrAddr, llvm::ArrayRef<MInstruction *>(InstancePtr));
+  Variable *ErrCodeVar =
+      storeInstructionInTemp(ErrCodeInstr, ErrCodeInstr->getType());
+  MInstruction *ErrCodeValue = loadVariable(ErrCodeVar);
+  MInstruction *NoErrorCode = createIntConstInstruction(
+      U64Type, common::to_underlying(ErrorCode::NoError));
+  MInstruction *HasNoError = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ, U64Type, ErrCodeValue,
+      NoErrorCode);
+  MBasicBlock *ContinueBB = createBasicBlock();
+  MBasicBlock *CheckKnownSoftErrBB = createBasicBlock();
+  createInstruction<BrIfInstruction>(true, Ctx, HasNoError, ContinueBB,
+                                     CheckKnownSoftErrBB);
+  addSuccessor(ContinueBB);
+  addSuccessor(CheckKnownSoftErrBB);
+  setInsertBlock(CheckKnownSoftErrBB);
+
+  // We intentionally do NOT trap on every non-zero code:
+  // InstanceExit and some control-flow codes are expected runtime states.
+  // Only trap the two hostapi soft-failure codes that must stop JIT execution.
+  MInstruction *StaticViolationCode = createIntConstInstruction(
+      U64Type, common::to_underlying(ErrorCode::EVMStaticModeViolation));
+  MInstruction *GasExceededCode = createIntConstInstruction(
+      U64Type, common::to_underlying(ErrorCode::GasLimitExceeded));
+  MInstruction *HasGasExceeded = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ, U64Type, ErrCodeValue,
+      GasExceededCode);
+  MBasicBlock *CheckStaticBB = createBasicBlock();
+  MBasicBlock *GasTrapBB =
+      getOrCreateExceptionSetBB(ErrorCode::GasLimitExceeded);
+  createInstruction<BrIfInstruction>(true, Ctx, HasGasExceeded, GasTrapBB,
+                                     CheckStaticBB);
+  addUniqueSuccessor(GasTrapBB);
+  addSuccessor(CheckStaticBB);
+  setInsertBlock(CheckStaticBB);
+  MInstruction *HasStaticViolation = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ,
+      EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64), ErrCodeValue,
+      StaticViolationCode);
+  MBasicBlock *StaticTrapBB =
+      getOrCreateExceptionSetBB(ErrorCode::EVMStaticModeViolation);
+  createInstruction<BrIfInstruction>(true, Ctx, HasStaticViolation,
+                                     StaticTrapBB, ContinueBB);
+  addUniqueSuccessor(StaticTrapBB);
+  addUniqueSuccessor(ContinueBB);
+  setInsertBlock(ContinueBB);
+#else
+  (void)InstancePtr;
+#endif
+}
+
 MInstruction *EVMMirBuilder::getCurrentInstancePointer() {
   ZEN_ASSERT(InstanceAddr);
   // Convert instance address back to pointer type
@@ -5960,7 +6127,7 @@ void EVMMirBuilder::handleCallDataCopy(Operand DestOffsetComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  callRuntimeFor<void, uint64_t, uint64_t, uint64_t>(
+  callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, uint64_t>(
       RuntimeFunctions.SetCallDataCopy, DestOffsetComponents, OffsetComponents,
       SizeComponents);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -5984,7 +6151,8 @@ void EVMMirBuilder::handleExtCodeCopy(Operand AddressComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  callRuntimeFor<void, const uint8_t *, uint64_t, uint64_t, uint64_t>(
+  callRuntimeForWithErrorCheck<void, const uint8_t *, uint64_t, uint64_t,
+                               uint64_t>(
       RuntimeFunctions.SetExtCodeCopy, AddressComponents, DestOffsetComponents,
       OffsetComponents, SizeComponents);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -6007,9 +6175,10 @@ void EVMMirBuilder::handleReturnDataCopy(Operand DestOffsetComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  Operand StatusOp = callRuntimeFor<uint64_t, uint64_t, uint64_t, uint64_t>(
-      RuntimeFunctions.SetReturnDataCopy, DestOffsetComponents,
-      OffsetComponents, SizeComponents);
+  Operand StatusOp =
+      callRuntimeForWithErrorCheck<uint64_t, uint64_t, uint64_t, uint64_t>(
+          RuntimeFunctions.SetReturnDataCopy, DestOffsetComponents,
+          OffsetComponents, SizeComponents);
 
   MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
   U256Inst StatusParts = extractU256Operand(StatusOp);
@@ -6056,7 +6225,23 @@ bool EVMMirBuilder::hasMemoryCompileStats() const {
          MemStats.MStoreOverlapElidedLimbCount != 0 ||
          MemStats.ReloadMemorySizeCount != 0 ||
          MemStats.GetMemoryDataPointerCount != 0 ||
-         MemStats.ExpandNeedExpandCFGCount != 0;
+         MemStats.ExpandNeedExpandCFGCount != 0 ||
+         MemStats.SmallFrameCandidateTotal != 0 ||
+         MemStats.SmallFramePrecheckedTotal != 0 ||
+         MemStats.SmallFrameOffsetConstTotal != 0 ||
+         MemStats.SmallFrameOffsetKnownU64Total != 0 ||
+         MemStats.SmallFrameFallbackUnknownOffset != 0 ||
+         MemStats.SmallFrameFallbackOver128 != 0 ||
+         MemStats.SmallFrameFallbackNoPrecheck != 0 ||
+         MemStats.SmallFrameFallbackOverflow != 0 ||
+         MemStats.SmallFrameFallbackDynamicSize != 0 ||
+         MemStats.HashPrepRegionCandidateCount != 0 ||
+         MemStats.HashPrepRegionVerifiedCount != 0 ||
+         MemStats.HashPrepKeccakRange0_64Count != 0 ||
+         MemStats.HashPrepLiftSimCandidateRegionCount != 0 ||
+         MemStats.HashPrepMarkerCandidateRegionCount != 0 ||
+         MemStats.HashPrepMarkerMarkedRegionCount != 0 ||
+         MemStats.HashPrepMarkerRejectedRegionCount != 0;
 }
 
 void EVMMirBuilder::noteBlockMemoryEventPC(uint64_t PC) {
@@ -6079,6 +6264,210 @@ bool EVMMirBuilder::hasCurrentMemoryBlockStats() const {
   return CurBlockMemStats.Active && CurBlockMemStats.HasMemoryEvent;
 #else
   return false;
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+}
+
+void EVMMirBuilder::noteSmallFrameMemoryOp(
+    SmallFrameMemoryOp Op, bool OffsetWasConst, uint64_t ConstOffset,
+    bool OffsetKnownU64, uint64_t AccessSize, bool UsedSharedPrecheck) {
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  constexpr uint64_t SmallFrameLimit = 128;
+
+  auto IsStore = [&]() {
+    return Op == SmallFrameMemoryOp::MStore ||
+           Op == SmallFrameMemoryOp::MStore8;
+  };
+  auto NoteHashPrepUnknownWriteRisk = [&]() {
+    if (CurBlockMemStats.Active && IsStore()) {
+      CurBlockMemStats.HashPrepPendingUnsupportedWrite = true;
+      CurBlockMemStats.HashPrepPendingAliasRisk = true;
+    }
+  };
+  auto NoteHashPrepConstWrite = [&](uint64_t Offset, uint64_t Size) {
+    if (!CurBlockMemStats.Active || !IsStore()) {
+      return;
+    }
+    const bool Overflows = Offset > (~uint64_t(0) - Size);
+    const uint64_t End = Overflows ? ~uint64_t(0) : Offset + Size;
+    const bool OverlapsTwoWordPreimage = !Overflows && Offset < 64 && End > 0;
+    if (Op == SmallFrameMemoryOp::MStore && Size == 32) {
+      if (Offset == 0) {
+        CurBlockMemStats.HashPrepPendingMStore0 = true;
+        return;
+      }
+      if (Offset == 32) {
+        CurBlockMemStats.HashPrepPendingMStore32 = true;
+        return;
+      }
+    }
+    if (OverlapsTwoWordPreimage) {
+      CurBlockMemStats.HashPrepPendingUnsupportedWrite = true;
+      CurBlockMemStats.HashPrepPendingInterveningWrite = true;
+    }
+  };
+
+  if (OffsetWasConst) {
+    ++MemStats.SmallFrameOffsetConstTotal;
+  } else if (OffsetKnownU64) {
+    ++MemStats.SmallFrameOffsetKnownU64Total;
+  }
+
+  if (AccessSize == 0 || AccessSize > SmallFrameLimit) {
+    NoteHashPrepUnknownWriteRisk();
+    ++MemStats.SmallFrameFallbackDynamicSize;
+    if (CurBlockMemStats.Active) {
+      ++CurBlockMemStats.SmallFrameFallbackDynamicSizeCount;
+    }
+    return;
+  }
+
+  if (!OffsetWasConst) {
+    NoteHashPrepUnknownWriteRisk();
+    if (OffsetKnownU64) {
+      ++MemStats.SmallFrameFallbackDynamicSize;
+      if (CurBlockMemStats.Active) {
+        ++CurBlockMemStats.SmallFrameFallbackDynamicSizeCount;
+      }
+    } else {
+      ++MemStats.SmallFrameFallbackUnknownOffset;
+    }
+    return;
+  }
+
+  if (ConstOffset > (~uint64_t(0) - AccessSize)) {
+    NoteHashPrepUnknownWriteRisk();
+    ++MemStats.SmallFrameFallbackOverflow;
+    return;
+  }
+
+  const uint64_t AccessEnd = ConstOffset + AccessSize;
+  NoteHashPrepConstWrite(ConstOffset, AccessSize);
+  if (AccessEnd > SmallFrameLimit) {
+    ++MemStats.SmallFrameFallbackOver128;
+    if (CurBlockMemStats.Active) {
+      ++CurBlockMemStats.SmallFrameFallbackOver128Count;
+    }
+    return;
+  }
+
+  ++MemStats.SmallFrameCandidateTotal;
+  if (CurBlockMemStats.Active) {
+    ++CurBlockMemStats.SmallFrameCandidateCount;
+  }
+
+  switch (Op) {
+  case SmallFrameMemoryOp::MLoad:
+    ++MemStats.SmallFrameMLoadCandidate;
+    break;
+  case SmallFrameMemoryOp::MStore:
+    ++MemStats.SmallFrameMStoreCandidate;
+    break;
+  case SmallFrameMemoryOp::MStore8:
+    ++MemStats.SmallFrameMStore8Candidate;
+    break;
+  }
+
+  if (UsedSharedPrecheck) {
+    ++MemStats.SmallFramePrecheckedTotal;
+    if (CurBlockMemStats.Active) {
+      ++CurBlockMemStats.SmallFramePrecheckedCount;
+    }
+    return;
+  }
+
+  ++MemStats.SmallFrameFallbackNoPrecheck;
+  if (CurBlockMemStats.Active) {
+    ++CurBlockMemStats.SmallFrameFallbackNoPrecheckCount;
+    switch (Op) {
+    case SmallFrameMemoryOp::MLoad:
+      ++CurBlockMemStats.SmallFrameNoPrecheckMLoadCount;
+      break;
+    case SmallFrameMemoryOp::MStore:
+      ++CurBlockMemStats.SmallFrameNoPrecheckMStoreCount;
+      break;
+    case SmallFrameMemoryOp::MStore8:
+      ++CurBlockMemStats.SmallFrameNoPrecheckMStore8Count;
+      break;
+    }
+  }
+#else
+  (void)Op;
+  (void)OffsetWasConst;
+  (void)ConstOffset;
+  (void)OffsetKnownU64;
+  (void)AccessSize;
+  (void)UsedSharedPrecheck;
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+}
+
+void EVMMirBuilder::noteKeccak256MemoryAccess(bool OffsetWasConstU64,
+                                              uint64_t ConstOffset,
+                                              bool LengthWasConstU64,
+                                              uint64_t ConstLength) {
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  auto ResetPendingHashPrep = [&]() {
+    CurBlockMemStats.HashPrepPendingMStore0 = false;
+    CurBlockMemStats.HashPrepPendingMStore32 = false;
+    CurBlockMemStats.HashPrepPendingUnsupportedWrite = false;
+    CurBlockMemStats.HashPrepPendingAliasRisk = false;
+    CurBlockMemStats.HashPrepPendingInterveningWrite = false;
+  };
+
+  if (!CurBlockMemStats.Active) {
+    return;
+  }
+
+  if (!OffsetWasConstU64 || !LengthWasConstU64) {
+    ++CurBlockMemStats.HashPrepKeccakDynamicRangeCount;
+    ++CurBlockMemStats.HashPrepRejectedByteExactRiskCount;
+    ResetPendingHashPrep();
+    return;
+  }
+
+  ++CurBlockMemStats.HashPrepKeccakConstRangeCount;
+  if (ConstOffset > (~uint64_t(0) - ConstLength)) {
+    ++CurBlockMemStats.HashPrepKeccakOver128Count;
+    ResetPendingHashPrep();
+    return;
+  }
+
+  const uint64_t End = ConstOffset + ConstLength;
+  if (End > 128) {
+    ++CurBlockMemStats.HashPrepKeccakOver128Count;
+    ResetPendingHashPrep();
+    return;
+  }
+
+  if (ConstOffset != 0 || ConstLength != 64) {
+    ++CurBlockMemStats.HashPrepKeccakNonTwoWordRangeCount;
+    ResetPendingHashPrep();
+    return;
+  }
+
+  ++CurBlockMemStats.HashPrepKeccakRange0_64Count;
+  if (CurBlockMemStats.HashPrepPendingAliasRisk) {
+    ++CurBlockMemStats.HashPrepRejectedAliasRiskCount;
+    ++CurBlockMemStats.HashPrepRejectedAliasOrInterveningWriteCount;
+  } else if (CurBlockMemStats.HashPrepPendingInterveningWrite) {
+    ++CurBlockMemStats.HashPrepRejectedInterveningWriteCount;
+    ++CurBlockMemStats.HashPrepRejectedAliasOrInterveningWriteCount;
+  } else if (CurBlockMemStats.HashPrepPendingUnsupportedWrite) {
+    ++CurBlockMemStats.HashPrepRejectedByteExactRiskCount;
+    ++CurBlockMemStats.HashPrepRejectedAliasOrInterveningWriteCount;
+  } else if (CurBlockMemStats.HashPrepPendingMStore0 &&
+             CurBlockMemStats.HashPrepPendingMStore32) {
+    ++CurBlockMemStats.HashPrepVerifiedKeccakCount;
+  } else {
+    ++CurBlockMemStats.HashPrepRejectedOrderingRiskCount;
+    ++CurBlockMemStats.HashPrepRejectedByteExactRiskCount;
+    ++CurBlockMemStats.HashPrepRejectedMissingTwoWordStoresCount;
+  }
+  ResetPendingHashPrep();
+#else
+  (void)OffsetWasConstU64;
+  (void)ConstOffset;
+  (void)LengthWasConstU64;
+  (void)ConstLength;
 #endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
 }
 
@@ -6127,6 +6516,153 @@ void EVMMirBuilder::dumpMemoryCompileStats() const {
       static_cast<unsigned long long>(MemStats.MStoreOverlapElidedLimbCount),
       static_cast<unsigned long long>(MemStats.MStoreAddrValueAliasReuseCount),
       static_cast<unsigned long long>(MemStats.ExpandNeedExpandCFGCount));
+
+  ZEN_LOG_DEBUG(
+      "[EVM-MEM-SUMMARY] small_frame_candidate_total=%llu "
+      "small_frame_prechecked_total=%llu "
+      "small_frame_offset_const_total=%llu "
+      "small_frame_offset_known_u64_total=%llu "
+      "small_frame_mload_candidate=%llu "
+      "small_frame_mstore_candidate=%llu "
+      "small_frame_mstore8_candidate=%llu "
+      "small_frame_fallback_unknown_offset=%llu "
+      "small_frame_fallback_over_128=%llu "
+      "small_frame_fallback_no_precheck=%llu "
+      "small_frame_fallback_overflow=%llu "
+      "small_frame_fallback_dynamic_size=%llu "
+      "small_frame_fallback_gas_or_memory_semantics_uncertain=%llu "
+      "hash_prep_region_candidates=%llu "
+      "hash_prep_region_candidate_ops=%llu "
+      "hash_prep_region_verified=%llu "
+      "hash_prep_region_verified_ops=%llu "
+      "hash_prep_keccak_const_range=%llu "
+      "hash_prep_keccak_range_0_64=%llu "
+      "hash_prep_keccak_dynamic_range=%llu "
+      "hash_prep_keccak_over_128=%llu "
+      "hash_prep_verified_two_word_preimage=%llu "
+      "hash_prep_verified_multi_hash=%llu "
+      "hash_prep_rejected_dynamic_offset=%llu "
+      "hash_prep_rejected_range_over_128=%llu "
+      "hash_prep_rejected_non_two_word_range=%llu "
+      "hash_prep_rejected_ordering_risk=%llu "
+      "hash_prep_rejected_alias_risk=%llu "
+      "hash_prep_rejected_intervening_write=%llu "
+      "hash_prep_rejected_byte_exact_risk=%llu "
+      "hash_prep_rejected_missing_two_word_stores=%llu "
+      "hash_prep_rejected_alias_or_intervening_write=%llu "
+      "hash_prep_lift_sim_candidate_regions=%llu "
+      "hash_prep_lift_sim_candidate_ops=%llu "
+      "hash_prep_lift_sim_covered_regions=%llu "
+      "hash_prep_lift_sim_covered_ops=%llu "
+      "hash_prep_lift_sim_safe_to_lift_regions=%llu "
+      "hash_prep_lift_sim_safe_to_lift_ops=%llu "
+      "hash_prep_lift_sim_rejected_regions=%llu "
+      "hash_prep_lift_sim_rejected_ops=%llu",
+      static_cast<unsigned long long>(MemStats.SmallFrameCandidateTotal),
+      static_cast<unsigned long long>(MemStats.SmallFramePrecheckedTotal),
+      static_cast<unsigned long long>(MemStats.SmallFrameOffsetConstTotal),
+      static_cast<unsigned long long>(MemStats.SmallFrameOffsetKnownU64Total),
+      static_cast<unsigned long long>(MemStats.SmallFrameMLoadCandidate),
+      static_cast<unsigned long long>(MemStats.SmallFrameMStoreCandidate),
+      static_cast<unsigned long long>(MemStats.SmallFrameMStore8Candidate),
+      static_cast<unsigned long long>(MemStats.SmallFrameFallbackUnknownOffset),
+      static_cast<unsigned long long>(MemStats.SmallFrameFallbackOver128),
+      static_cast<unsigned long long>(MemStats.SmallFrameFallbackNoPrecheck),
+      static_cast<unsigned long long>(MemStats.SmallFrameFallbackOverflow),
+      static_cast<unsigned long long>(MemStats.SmallFrameFallbackDynamicSize),
+      static_cast<unsigned long long>(
+          MemStats.SmallFrameFallbackGasOrMemorySemanticsUncertain),
+      static_cast<unsigned long long>(MemStats.HashPrepRegionCandidateCount),
+      static_cast<unsigned long long>(MemStats.HashPrepRegionCandidateOpCount),
+      static_cast<unsigned long long>(MemStats.HashPrepRegionVerifiedCount),
+      static_cast<unsigned long long>(MemStats.HashPrepRegionVerifiedOpCount),
+      static_cast<unsigned long long>(MemStats.HashPrepKeccakConstRangeCount),
+      static_cast<unsigned long long>(MemStats.HashPrepKeccakRange0_64Count),
+      static_cast<unsigned long long>(MemStats.HashPrepKeccakDynamicRangeCount),
+      static_cast<unsigned long long>(MemStats.HashPrepKeccakOver128Count),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionVerifiedTwoWordPreimageCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionVerifiedMultiHashCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedDynamicOffset),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedRangeOver128),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedNonTwoWordRange),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedOrderingRisk),
+      static_cast<unsigned long long>(MemStats.HashPrepRegionRejectedAliasRisk),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedInterveningWrite),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedByteExactRisk),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedMissingTwoWordStores),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepRegionRejectedAliasOrInterveningWrite),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepLiftSimCandidateRegionCount),
+      static_cast<unsigned long long>(MemStats.HashPrepLiftSimCandidateOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepLiftSimCoveredRegionCount),
+      static_cast<unsigned long long>(MemStats.HashPrepLiftSimCoveredOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepLiftSimSafeToLiftRegionCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepLiftSimSafeToLiftOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepLiftSimRejectedRegionCount),
+      static_cast<unsigned long long>(MemStats.HashPrepLiftSimRejectedOpCount));
+
+  ZEN_LOG_DEBUG(
+      "[EVM-MEM-SUMMARY] hash_prep_marker_candidate_regions=%llu "
+      "hash_prep_marker_candidate_ops=%llu "
+      "hash_prep_marker_marked_regions=%llu "
+      "hash_prep_marker_covered_ops=%llu "
+      "hash_prep_marker_covered_mstore_ops=%llu "
+      "hash_prep_marker_covered_mload_ops=%llu "
+      "hash_prep_marker_covered_keccak_ops=%llu "
+      "hash_prep_marker_rejected_regions=%llu "
+      "hash_prep_marker_rejected_ops=%llu "
+      "hash_prep_marker_rejected_non_0_64_range=%llu "
+      "hash_prep_marker_rejected_dynamic_offset=%llu "
+      "hash_prep_marker_rejected_alias_or_intervening_write=%llu "
+      "hash_prep_marker_rejected_mixed_predecessor=%llu "
+      "hash_prep_marker_rejected_byte_exact_risk=%llu "
+      "hash_prep_marker_rejected_gas_memory_semantics=%llu "
+      "hash_prep_marker_rejected_pointer_instability=%llu "
+      "hash_prep_marker_rejected_unknown_helper=%llu",
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerCandidateRegionCount),
+      static_cast<unsigned long long>(MemStats.HashPrepMarkerCandidateOpCount),
+      static_cast<unsigned long long>(MemStats.HashPrepMarkerMarkedRegionCount),
+      static_cast<unsigned long long>(MemStats.HashPrepMarkerCoveredOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerCoveredMStoreOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerCoveredMLoadOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerCoveredKeccakOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedRegionCount),
+      static_cast<unsigned long long>(MemStats.HashPrepMarkerRejectedOpCount),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedNon0_64Range),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedDynamicOffset),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedAliasOrInterveningWrite),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedMixedPredecessor),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedByteExactRisk),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedGasMemorySemantics),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedPointerInstability),
+      static_cast<unsigned long long>(
+          MemStats.HashPrepMarkerRejectedUnknownHelper));
 #endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
 }
 
@@ -6266,6 +6802,108 @@ void EVMMirBuilder::endMemoryCompileBlock() {
     return;
   }
 
+  MemStats.HashPrepKeccakConstRangeCount +=
+      CurBlockMemStats.HashPrepKeccakConstRangeCount;
+  MemStats.HashPrepKeccakRange0_64Count +=
+      CurBlockMemStats.HashPrepKeccakRange0_64Count;
+  MemStats.HashPrepKeccakDynamicRangeCount +=
+      CurBlockMemStats.HashPrepKeccakDynamicRangeCount;
+  MemStats.HashPrepKeccakOver128Count +=
+      CurBlockMemStats.HashPrepKeccakOver128Count;
+  MemStats.HashPrepRegionRejectedDynamicOffset +=
+      CurBlockMemStats.HashPrepKeccakDynamicRangeCount;
+  MemStats.HashPrepRegionRejectedRangeOver128 +=
+      CurBlockMemStats.HashPrepKeccakOver128Count;
+  MemStats.HashPrepRegionRejectedNonTwoWordRange +=
+      CurBlockMemStats.HashPrepKeccakNonTwoWordRangeCount;
+  MemStats.HashPrepRegionRejectedOrderingRisk +=
+      CurBlockMemStats.HashPrepRejectedOrderingRiskCount;
+  MemStats.HashPrepRegionRejectedAliasRisk +=
+      CurBlockMemStats.HashPrepRejectedAliasRiskCount;
+  MemStats.HashPrepRegionRejectedInterveningWrite +=
+      CurBlockMemStats.HashPrepRejectedInterveningWriteCount;
+  MemStats.HashPrepRegionRejectedByteExactRisk +=
+      CurBlockMemStats.HashPrepRejectedByteExactRiskCount;
+  MemStats.HashPrepRegionRejectedMissingTwoWordStores +=
+      CurBlockMemStats.HashPrepRejectedMissingTwoWordStoresCount;
+  MemStats.HashPrepRegionRejectedAliasOrInterveningWrite +=
+      CurBlockMemStats.HashPrepRejectedAliasOrInterveningWriteCount;
+
+  if (CurBlockMemStats.SmallFrameFallbackNoPrecheckCount != 0 &&
+      CurBlockMemStats.KeccakCount != 0) {
+    const uint64_t MissingOps =
+        CurBlockMemStats.SmallFrameFallbackNoPrecheckCount;
+    ++MemStats.HashPrepRegionCandidateCount;
+    MemStats.HashPrepRegionCandidateOpCount += MissingOps;
+    ++MemStats.HashPrepLiftSimCandidateRegionCount;
+    MemStats.HashPrepLiftSimCandidateOpCount += MissingOps;
+    CurBlockMemStats.HashPrepMarkerCandidate = true;
+    ++MemStats.HashPrepMarkerCandidateRegionCount;
+    MemStats.HashPrepMarkerCandidateOpCount += MissingOps;
+
+    if (CurBlockMemStats.HashPrepVerifiedKeccakCount != 0) {
+      ++MemStats.HashPrepRegionVerifiedCount;
+      MemStats.HashPrepRegionVerifiedOpCount += MissingOps;
+      if (CurBlockMemStats.HashPrepVerifiedKeccakCount == 1) {
+        ++MemStats.HashPrepRegionVerifiedTwoWordPreimageCount;
+      } else {
+        ++MemStats.HashPrepRegionVerifiedMultiHashCount;
+      }
+      ++MemStats.HashPrepLiftSimCoveredRegionCount;
+      MemStats.HashPrepLiftSimCoveredOpCount += MissingOps;
+      ++MemStats.HashPrepLiftSimSafeToLiftRegionCount;
+      MemStats.HashPrepLiftSimSafeToLiftOpCount += MissingOps;
+
+      CurBlockMemStats.HashPrepMarkerMarked = true;
+      CurBlockMemStats.HashPrepMarkerId = ++NextHashPrepMarkerId;
+      CurBlockMemStats.HashPrepMarkerRangeBegin = 0;
+      CurBlockMemStats.HashPrepMarkerRangeEnd = 64;
+      CurBlockMemStats.HashPrepMarkerCoveredOpCount = MissingOps;
+      CurBlockMemStats.HashPrepMarkerCoveredMStoreOpCount =
+          CurBlockMemStats.SmallFrameNoPrecheckMStoreCount;
+      CurBlockMemStats.HashPrepMarkerCoveredMLoadOpCount =
+          CurBlockMemStats.SmallFrameNoPrecheckMLoadCount;
+      CurBlockMemStats.HashPrepMarkerCoveredKeccakOpCount =
+          CurBlockMemStats.HashPrepVerifiedKeccakCount;
+
+      ++MemStats.HashPrepMarkerMarkedRegionCount;
+      MemStats.HashPrepMarkerCoveredOpCount += MissingOps;
+      MemStats.HashPrepMarkerCoveredMStoreOpCount +=
+          CurBlockMemStats.HashPrepMarkerCoveredMStoreOpCount;
+      MemStats.HashPrepMarkerCoveredMLoadOpCount +=
+          CurBlockMemStats.HashPrepMarkerCoveredMLoadOpCount;
+      MemStats.HashPrepMarkerCoveredKeccakOpCount +=
+          CurBlockMemStats.HashPrepMarkerCoveredKeccakOpCount;
+    } else {
+      ++MemStats.HashPrepLiftSimRejectedRegionCount;
+      MemStats.HashPrepLiftSimRejectedOpCount += MissingOps;
+
+      ++MemStats.HashPrepMarkerRejectedRegionCount;
+      MemStats.HashPrepMarkerRejectedOpCount += MissingOps;
+      if (CurBlockMemStats.HashPrepKeccakDynamicRangeCount != 0) {
+        CurBlockMemStats.HashPrepMarkerRejectedReason = 1;
+        ++MemStats.HashPrepMarkerRejectedDynamicOffset;
+      } else if (CurBlockMemStats.HashPrepKeccakNonTwoWordRangeCount != 0 ||
+                 CurBlockMemStats.HashPrepKeccakOver128Count != 0) {
+        CurBlockMemStats.HashPrepMarkerRejectedReason = 2;
+        ++MemStats.HashPrepMarkerRejectedNon0_64Range;
+      } else if (CurBlockMemStats
+                     .HashPrepRejectedAliasOrInterveningWriteCount != 0) {
+        CurBlockMemStats.HashPrepMarkerRejectedReason = 3;
+        ++MemStats.HashPrepMarkerRejectedAliasOrInterveningWrite;
+      } else if (CurBlockMemStats.HashPrepRejectedByteExactRiskCount != 0 ||
+                 CurBlockMemStats.HashPrepRejectedOrderingRiskCount != 0 ||
+                 CurBlockMemStats.HashPrepRejectedMissingTwoWordStoresCount !=
+                     0) {
+        CurBlockMemStats.HashPrepMarkerRejectedReason = 4;
+        ++MemStats.HashPrepMarkerRejectedByteExactRisk;
+      } else {
+        CurBlockMemStats.HashPrepMarkerRejectedReason = 5;
+        ++MemStats.HashPrepMarkerRejectedUnknownHelper;
+      }
+    }
+  }
+
   ZEN_LOG_DEBUG(
       "[EVM-MEM-BLOCK] seq=%llu entry_pc=%llu first_mem_pc=%llu "
       "last_mem_pc=%llu direct_ops=%llu mload=%llu mstore=%llu "
@@ -6283,7 +6921,14 @@ void EVMMirBuilder::endMemoryCompileBlock() {
       "disp_bytes32_mload_ops=%llu disp_bytes32_mstore_ops=%llu "
       "mstore_zero_limb_stores=%llu mstore_overlap_elided_limbs=%llu "
       "mstore_addr_value_alias_reuse=%llu "
-      "direct_only_candidate=%d",
+      "direct_only_candidate=%d "
+      "hash_prep_marker_candidate=%d hash_prep_marker_marked=%d "
+      "hash_prep_marker_id=%llu hash_prep_marker_range_begin=%llu "
+      "hash_prep_marker_range_end=%llu hash_prep_marker_covered_ops=%llu "
+      "hash_prep_marker_covered_mstore_ops=%llu "
+      "hash_prep_marker_covered_mload_ops=%llu "
+      "hash_prep_marker_covered_keccak_ops=%llu "
+      "hash_prep_marker_rejected_reason=%llu",
       static_cast<unsigned long long>(CurBlockMemStats.BlockSeqId),
       static_cast<unsigned long long>(CurBlockMemStats.BlockEntryPC),
       static_cast<unsigned long long>(CurBlockMemStats.FirstMemoryEventPC),
@@ -6334,7 +6979,23 @@ void EVMMirBuilder::endMemoryCompileBlock() {
           CurBlockMemStats.MStoreOverlapElidedLimbCount),
       static_cast<unsigned long long>(
           CurBlockMemStats.MStoreAddrValueAliasReuseCount),
-      CurBlockMemStats.DirectMemoryOnlyCandidate ? 1 : 0);
+      CurBlockMemStats.DirectMemoryOnlyCandidate ? 1 : 0,
+      CurBlockMemStats.HashPrepMarkerCandidate ? 1 : 0,
+      CurBlockMemStats.HashPrepMarkerMarked ? 1 : 0,
+      static_cast<unsigned long long>(CurBlockMemStats.HashPrepMarkerId),
+      static_cast<unsigned long long>(
+          CurBlockMemStats.HashPrepMarkerRangeBegin),
+      static_cast<unsigned long long>(CurBlockMemStats.HashPrepMarkerRangeEnd),
+      static_cast<unsigned long long>(
+          CurBlockMemStats.HashPrepMarkerCoveredOpCount),
+      static_cast<unsigned long long>(
+          CurBlockMemStats.HashPrepMarkerCoveredMStoreOpCount),
+      static_cast<unsigned long long>(
+          CurBlockMemStats.HashPrepMarkerCoveredMLoadOpCount),
+      static_cast<unsigned long long>(
+          CurBlockMemStats.HashPrepMarkerCoveredKeccakOpCount),
+      static_cast<unsigned long long>(
+          CurBlockMemStats.HashPrepMarkerRejectedReason));
 #endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
 
   CurBlockMemStats.Active = false;

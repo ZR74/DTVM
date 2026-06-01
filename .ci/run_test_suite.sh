@@ -21,6 +21,19 @@
 
 set -e
 
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+print_sccache_stats() {
+    if [ "${DTVM_CI_USE_SCCACHE:-0}" = "1" ] && command -v sccache >/dev/null 2>&1; then
+        if [ -n "${1:-}" ]; then
+            echo "sccache stats checkpoint: $1"
+        fi
+        python3 "$SCRIPT_DIR/print_sccache_stats.py" || true
+    fi
+}
+
+trap print_sccache_stats EXIT
+
 # Convert INPUT_FORMAT to lowercase for case-insensitive comparison
 INPUT_FORMAT=${INPUT_FORMAT,,}
 
@@ -57,6 +70,9 @@ case $RUN_MODE in
         else
             EXTRA_EXE_OPTIONS="$EXTRA_EXE_OPTIONS --disable-multipass-multithread"
         fi
+        if [ "${ENABLE_PROFILE_GUIDED_JIT:-false}" = true ]; then
+            EXTRA_EXE_OPTIONS="$EXTRA_EXE_OPTIONS --enable-profile-guided-jit"
+        fi
         ;;
 esac
 
@@ -70,17 +86,17 @@ case $TestSuite in
     "evmrealsuite")
         CMAKE_OPTIONS="$CMAKE_OPTIONS -DZEN_ENABLE_SPEC_TEST=ON -DZEN_ENABLE_CHECKED_ARITHMETIC=ON -DZEN_ENABLE_EVM=ON"
         ;;
-    "evmonetestsuite")
-        CMAKE_OPTIONS="$CMAKE_OPTIONS -DZEN_ENABLE_EVM=ON -DZEN_ENABLE_LIBEVM=ON -DZEN_ENABLE_JIT_PRECOMPILE_FALLBACK=ON"
-        ;;
     "evmonestatetestsuite")
         CMAKE_OPTIONS="$CMAKE_OPTIONS -DZEN_ENABLE_EVM=ON -DZEN_ENABLE_LIBEVM=ON"
+        ;;
+    "evmpgjsuite")
+        CMAKE_OPTIONS="$CMAKE_OPTIONS -DZEN_ENABLE_SPEC_TEST=ON -DZEN_ENABLE_EVM=ON -DZEN_ENABLE_LIBEVM=ON -DZEN_ENABLE_JIT_PRECOMPILE_FALLBACK=ON"
         ;;
     "evmfallbacksuite")
         CMAKE_OPTIONS="$CMAKE_OPTIONS -DZEN_ENABLE_SPEC_TEST=ON -DZEN_ENABLE_EVM=ON -DZEN_ENABLE_LIBEVM=ON -DZEN_ENABLE_JIT_FALLBACK_TEST=ON"
         ;;
     "benchmarksuite")
-        CMAKE_OPTIONS="$CMAKE_OPTIONS -DZEN_ENABLE_EVM=ON -DZEN_ENABLE_LIBEVM=ON -DZEN_ENABLE_JIT_PRECOMPILE_FALLBACK=ON"
+        CMAKE_OPTIONS="$CMAKE_OPTIONS -DZEN_ENABLE_EVM=ON -DZEN_ENABLE_LIBEVM=ON"
         ;;
 esac
 
@@ -98,13 +114,13 @@ if [[ $RUN_MODE == "interpreter" ]]; then
     STACK_TYPES=("-DZEN_ENABLE_VIRTUAL_STACK=OFF")
 fi
 
-if [[ $TestSuite == "evmonetestsuite" ]]; then
-    STACK_TYPES=("-DZEN_ENABLE_VIRTUAL_STACK=ON")
-fi
-
 if [[ $TestSuite == "evmonestatetestsuite" ]]; then
     STACK_TYPES=("-DZEN_ENABLE_VIRTUAL_STACK=ON")
 fi
+if [[ $TestSuite == "evmpgjsuite" ]]; then
+    STACK_TYPES=("-DZEN_ENABLE_VIRTUAL_STACK=ON")
+fi
+
 
 if [[ $TestSuite == "benchmarksuite" ]]; then
     STACK_TYPES=("-DZEN_ENABLE_VIRTUAL_STACK=ON")
@@ -114,14 +130,28 @@ export PATH=$PATH:$PWD/build
 CMAKE_OPTIONS_ORIGIN="$CMAKE_OPTIONS"
 
 if [[ ${INPUT_FORMAT} == "evm" ]]; then
-    ./tools/easm2bytecode.sh ./tests/evm_asm ./tests/evm_asm
-    ./tools/solc_batch_compile.sh
+    if [ "${DTVM_CI_DRY_RUN:-0}" = "1" ]; then
+        echo "+ ./tools/easm2bytecode.sh ./tests/evm_asm ./tests/evm_asm"
+        echo "+ ./tools/solc_batch_compile.sh"
+    else
+        ./tools/easm2bytecode.sh ./tests/evm_asm ./tests/evm_asm
+        ./tools/solc_batch_compile.sh
+    fi
 fi
 
 for STACK_TYPE in ${STACK_TYPES[@]}; do
-    rm -rf build
-    cmake -S . -B build $CMAKE_OPTIONS_ORIGIN $STACK_TYPE
-    cmake --build build -j 16
+    if [ "${DTVM_CI_DRY_RUN:-0}" = "1" ]; then
+        echo "+ rm -rf build"
+    else
+        rm -rf build
+    fi
+    "$SCRIPT_DIR/cmake_ci_build.sh" build -- $CMAKE_OPTIONS_ORIGIN $STACK_TYPE
+    if [[ $TestSuite == "benchmarksuite" ]]; then
+        print_sccache_stats "after DTVM build"
+    fi
+    if [ "${DTVM_CI_DRY_RUN:-0}" = "1" ]; then
+        continue
+    fi
 
     case $TestSuite in
         "microsuite")
@@ -156,20 +186,13 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
                     SKIP_LIST="-*test_blob_gas_subtraction*"
                     GTEST_FILTER=$SKIP_LIST SPEC_TESTS_ARGS=$EXTRA_EXE_OPTIONS ctest --verbose
                 else # evm multipass
-                    SPEC_TESTS_ARGS=$EXTRA_EXE_OPTIONS ctest --verbose
+                    SPEC_TESTS_ARGS="$EXTRA_EXE_OPTIONS --enable-profile-guided-jit --jit-trigger-calls 1 --jit-trigger-gas 1 --ring-buffer-capacity 1" ctest --verbose
                 fi
             done
             cd ..
             ;;
         "evmrealsuite")
             python3 tools/run_evm_tests.py -r build/dtvm $EXTRA_EXE_OPTIONS
-            ;;
-        "evmonetestsuite")
-            git clone --depth 1 --recurse-submodules -b for_test https://github.com/DTVMStack/evmone.git
-            mv build/lib/* evmone
-            cd evmone
-            ./run_unittests.sh ../tests/evmone_unittests/EVMOneMultipassUnitTestsRunList.txt "./libdtvmapi.so,mode=multipass"
-            ./run_unittests.sh ../tests/evmone_unittests/EVMOneInterpreterUnitTestsRunList.txt "./libdtvmapi.so,mode=interpreter"
             ;;
         "evmonestatetestsuite")
             EVMONE_REPO=${EVMONE_REPO:-https://github.com/DTVMStack/evmone.git}
@@ -203,8 +226,7 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
                 fi
             fi
             cd "$EVMONE_DIR"
-            cmake -S . -B build -DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TARGET"
-            cmake --build build --parallel 16
+            "$SCRIPT_DIR/cmake_ci_build.sh" build -- -DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE="$CMAKE_BUILD_TARGET"
             EVMONE_STATETEST_BIN="$PWD/build/bin/evmone-statetest"
             cd "$WORKSPACE_ROOT"
 
@@ -252,8 +274,12 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             fi
 
             export LD_LIBRARY_PATH="$WORKSPACE_ROOT/build/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+            PGJ_OPTS=",profile_guided_jit=true,jit_trigger_calls=1,jit_trigger_gas=1,ring_buffer_capacity=1"
             for EVMONE_MODE in multipass interpreter; do
                 VM_ARG="${DTVM_VM_SO},mode=${EVMONE_MODE},enable_gas_metering=true"
+                if [[ "$EVMONE_MODE" == "multipass" ]]; then
+                    VM_ARG="${VM_ARG}${PGJ_OPTS}"
+                fi
                 echo "Running evmone-statetest mode=${EVMONE_MODE}, filter=${EVMONE_STATETEST_FILTER}"
                 if [ -n "$EVMONE_MODE_TIMEOUT_SECONDS" ]; then
                     timeout --foreground "$EVMONE_MODE_TIMEOUT_SECONDS" env \
@@ -273,15 +299,46 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
                 fi
             done
             ;;
+        "evmpgjsuite")
+            ./build/evmProfileGuidedJITTests
+            ;;
         "evmfallbacksuite")
             python3 tools/run_evm_tests.py -r build/dtvm $EXTRA_EXE_OPTIONS
             ./build/evmFallbackExecutionTests
             ;;
         "benchmarksuite")
             # Clone evmone and run performance regression check
-            EVMONE_DIR="evmone"
-            if [ ! -d "$EVMONE_DIR" ]; then
-                git clone --depth 1 --recurse-submodules -b for_test https://github.com/DTVMStack/evmone.git $EVMONE_DIR
+            EVMONE_DIR=${EVMONE_DIR:-evmone}
+            EVMONE_REPO=${EVMONE_REPO:-https://github.com/DTVMStack/evmone.git}
+            EVMONE_REF=${EVMONE_REF:-for_test}
+            EVMONE_COMMIT=${EVMONE_COMMIT:-}
+
+            if [ -z "$EVMONE_COMMIT" ]; then
+                EVMONE_COMMIT=$(git ls-remote "$EVMONE_REPO" "refs/heads/$EVMONE_REF" | awk '{print $1}')
+            fi
+            if [ -z "$EVMONE_COMMIT" ]; then
+                echo "Unable to resolve $EVMONE_REPO refs/heads/$EVMONE_REF"
+                exit 1
+            fi
+
+            if [ ! -d "$EVMONE_DIR/.git" ]; then
+                rm -rf "$EVMONE_DIR"
+                git clone --depth 1 --recurse-submodules -b "$EVMONE_REF" "$EVMONE_REPO" "$EVMONE_DIR"
+            fi
+
+            EVMONE_HEAD=$(git -C "$EVMONE_DIR" rev-parse HEAD 2>/dev/null || true)
+            EVMONE_SUBMODULES_READY=1
+            if git -C "$EVMONE_DIR" submodule status --recursive | grep -q '^-'; then
+                EVMONE_SUBMODULES_READY=0
+            fi
+
+            if [ "$EVMONE_HEAD" = "$EVMONE_COMMIT" ] && [ "$EVMONE_SUBMODULES_READY" = 1 ]; then
+                echo "Using cached evmone at $EVMONE_COMMIT"
+            else
+                git -C "$EVMONE_DIR" remote set-url origin "$EVMONE_REPO"
+                git -C "$EVMONE_DIR" fetch --depth 1 origin "$EVMONE_REF"
+                git -C "$EVMONE_DIR" checkout --detach "$EVMONE_COMMIT"
+                git -C "$EVMONE_DIR" submodule update --init --recursive
             fi
 
             BENCHMARK_THRESHOLD=${BENCHMARK_THRESHOLD:-0.15}
@@ -289,6 +346,7 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             BENCHMARK_SUMMARY_FILE=${BENCHMARK_SUMMARY_FILE:-/tmp/perf_summary.md}
             BENCHMARK_REPETITIONS=${BENCHMARK_REPETITIONS:-3}
             BENCHMARK_MIN_TIME=${BENCHMARK_MIN_TIME:-""}
+            BENCHMARK_JOBS=${BENCHMARK_JOBS:-1}
 
             PERF_ARGS=""
             if [ -n "$BENCHMARK_REPETITIONS" ]; then
@@ -296,6 +354,9 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             fi
             if [ -n "$BENCHMARK_MIN_TIME" ]; then
                 PERF_ARGS="$PERF_ARGS --benchmark-min-time $BENCHMARK_MIN_TIME"
+            fi
+            if [ -n "$BENCHMARK_JOBS" ]; then
+                PERF_ARGS="$PERF_ARGS --benchmark-jobs $BENCHMARK_JOBS"
             fi
 
             cp build/lib/* $EVMONE_DIR/
@@ -305,9 +366,20 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
             cp ../tools/check_performance_regression.py ./
 
             if [ ! -f "build/bin/evmone-bench" ]; then
-                cmake -S . -B build -DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE=Release
-                cmake --build build --parallel -j 16
+                EVMONE_CMAKE_ARGS=(-DEVMONE_TESTING=ON -DCMAKE_BUILD_TYPE=Release)
+                if [ "${DTVM_CI_USE_NINJA:-0}" = "1" ]; then
+                    EVMONE_CMAKE_ARGS=(-G Ninja "${EVMONE_CMAKE_ARGS[@]}")
+                fi
+                if [ "${DTVM_CI_USE_SCCACHE:-0}" = "1" ]; then
+                    EVMONE_CMAKE_ARGS+=(
+                        -DCMAKE_C_COMPILER_LAUNCHER=sccache
+                        -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+                    )
+                fi
+                cmake -S . -B build "${EVMONE_CMAKE_ARGS[@]}"
+                cmake --build build --target evmone-bench --parallel "${DTVM_CI_BUILD_JOBS:-16}"
             fi
+            print_sccache_stats "before benchmarks"
 
             BASELINE_CACHE=${BENCHMARK_BASELINE_CACHE:-}
 

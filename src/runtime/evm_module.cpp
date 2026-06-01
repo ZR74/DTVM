@@ -15,21 +15,13 @@
 #include <memory>
 #include <string>
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
-#include "compiler/evm_frontend/evm_analyzer.h"
-#endif
-
 #ifdef ZEN_ENABLE_MULTIPASS_JIT
 #include "compiler/evm_compiler.h"
 #endif
-
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
 #include "compiler/evm_frontend/evm_analyzer.h"
-#endif
 
 namespace zen::runtime {
 
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
 namespace {
 
 bool hasUnresolvedCompatibleDynamicReturnTrampoline(
@@ -52,7 +44,6 @@ bool hasUnresolvedCompatibleDynamicReturnTrampoline(
 }
 
 } // namespace
-#endif
 
 EVMModule::EVMModule(Runtime *RT)
     : BaseModule(RT, ModuleType::EVM), Code(nullptr), CodeSize(0) {
@@ -60,6 +51,14 @@ EVMModule::EVMModule(Runtime *RT)
 }
 
 EVMModule::~EVMModule() {
+#ifdef ZEN_ENABLE_JIT
+  if (JITCompileFuture.valid()) {
+    // The JIT task dereferences this EVMModule. Destruction must not
+    // continue until the background compilation has fully finished.
+    JITCompileFuture.get();
+  }
+#endif
+
   if (Name) {
     this->freeSymbol(Name);
     Name = common::WASM_SYMBOL_NULL;
@@ -101,7 +100,6 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
   Mod->Host = RT.getEVMHost();
 
   if (RT.getConfig().Mode != common::RunMode::InterpMode) {
-#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
     // Run the EVMAnalyzer once at module creation to determine if this
     // contract should fall back to interpreter. This avoids per-call O(n)
     // bytecode scans in the execute() hot path.
@@ -112,10 +110,22 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
         Analyzer.getJITSuitability().ShouldFallback ||
         hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer) ||
         Analyzer.hasUnresolvedNonLiftedDeepEntryRisk();
-    if (!Mod->ShouldFallbackToInterp)
-#endif // ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
+
+#ifdef ZEN_ENABLE_MULTIPASS_JIT
+    if (RT.getConfig().EnableProfileGuidedJIT) {
+      // Profile-guided JIT: skip JIT compilation at load time.
+      // JIT will be triggered later by the profiling logic in execute().
+      // Eagerly init bytecode cache for interpreter use.
+      (void)Mod->getBytecodeCache();
+    } else
+#endif
     {
-      action::performEVMJITCompile(*Mod);
+      if (!Mod->ShouldFallbackToInterp) {
+        // JIT is about to compile this module -- mark the bytecode cache so the
+        // SPP metering pipeline runs on first access.
+        Mod->CacheNeedsSPP = true;
+        action::performEVMJITCompile(*Mod);
+      }
     }
   }
 
@@ -131,7 +141,8 @@ const evm::EVMBytecodeCache &EVMModule::getBytecodeCache() const {
 }
 
 void EVMModule::initBytecodeCache() const {
-  evm::buildBytecodeCache(BytecodeCache, Code, CodeSize, Revision);
+  evm::buildBytecodeCache(BytecodeCache, Code, CodeSize, Revision,
+                          CacheNeedsSPP);
 }
 
 } // namespace zen::runtime

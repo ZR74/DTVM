@@ -1,9 +1,9 @@
 // Copyright (C) 2025 the DTVM authors. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <gtest/gtest.h>
-#include <cstring>
 #include <string_view>
 #include <yaml-cpp/yaml.h>
 
@@ -579,9 +579,8 @@ TEST(EVMMultipassKeccakHelperTest,
       zen::utils::fromHex("336000526005602052604060002060005260206000f3");
   ASSERT_TRUE(BytecodeBuf) << "Failed to parse caller-slot helper bytecode";
 
-  const std::string ExpectedDigest =
-      computeTwoWordKeccakHex(makePaddedAddressWord(DEFAULT_DEPLOYER_ADDRESS),
-                              makeUint256Calldata(5));
+  const std::string ExpectedDigest = computeTwoWordKeccakHex(
+      makePaddedAddressWord(DEFAULT_DEPLOYER_ADDRESS), makeUint256Calldata(5));
 
   expectInterpMatchesMultipass("keccak_caller_const_slot", *BytecodeBuf, {},
                                EVMC_SUCCESS, ExpectedDigest);
@@ -612,8 +611,7 @@ TEST(EVMMultipassKeccakHelperTest,
                                {}, EVMC_OUT_OF_GAS);
 }
 
-TEST(EVMMultipassJumpRegressionTest,
-     InvalidJumpDestStillMatchesInterpreter) {
+TEST(EVMMultipassJumpRegressionTest, InvalidJumpDestStillMatchesInterpreter) {
   const std::vector<uint8_t> Bytecode = {0x60, 0x04, 0x56, 0x00, 0x00};
 
   expectInterpMatchesMultipass("invalid_jumpdest_regression", Bytecode, {},
@@ -629,8 +627,8 @@ TEST(EVMMultipassJumpRegressionTest,
   Bytecode.push_back(0x5b);
   Bytecode.push_back(0x00);
 
-  expectInterpMatchesMultipass("high_limb_jump_target_regression", Bytecode,
-                               {}, EVMC_BAD_JUMP_DESTINATION);
+  expectInterpMatchesMultipass("high_limb_jump_target_regression", Bytecode, {},
+                               EVMC_BAD_JUMP_DESTINATION);
 }
 
 // Regression test for issue #487: multipass JIT corrupted high limbs of U256

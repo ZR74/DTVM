@@ -609,7 +609,7 @@ void BaseInterpreter::interpret() {
       // Pc is only advanced on success so that on error the recorded
       // Frame->Pc points at the faulting opcode, consistent with the
       // non-computed-goto interpreter loops.
-      TARGET_POP : {
+      TARGET_POP: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         executePopOpcodeNoGas(Frame, Context);
@@ -619,7 +619,7 @@ void BaseInterpreter::interpret() {
         ++Pc;
         DISPATCH_NEXT;
       }
-      TARGET_PUSH0 : {
+      TARGET_PUSH0: {
         if (INTX_UNLIKELY(Revision < EVMC_SHANGHAI)) {
           Context.setStatus(EVMC_UNDEFINED_INSTRUCTION);
           goto cgoto_error;
@@ -633,7 +633,7 @@ void BaseInterpreter::interpret() {
         ++Pc;
         DISPATCH_NEXT;
       }
-      TARGET_PUSHX : {
+      TARGET_PUSHX: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         const uint8_t OpcodeU8 = static_cast<uint8_t>(Code[Pc]);
@@ -644,7 +644,7 @@ void BaseInterpreter::interpret() {
         Pc = Frame->Pc + 1;
         DISPATCH_NEXT;
       }
-      TARGET_DUPX : {
+      TARGET_DUPX: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         const uint8_t OpcodeU8 = static_cast<uint8_t>(Code[Pc]);
@@ -655,7 +655,7 @@ void BaseInterpreter::interpret() {
         ++Pc;
         DISPATCH_NEXT;
       }
-      TARGET_SWAPX : {
+      TARGET_SWAPX: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         const uint8_t OpcodeU8 = static_cast<uint8_t>(Code[Pc]);
@@ -667,7 +667,7 @@ void BaseInterpreter::interpret() {
         DISPATCH_NEXT;
       }
       // ---- Inline control flow ops ----
-      TARGET_JUMP : {
+      TARGET_JUMP: {
         if (INTX_UNLIKELY(sp < 1)) {
           Context.setStatus(EVMC_STACK_UNDERFLOW);
           goto cgoto_error;
@@ -687,7 +687,7 @@ void BaseInterpreter::interpret() {
         Frame->Pc = Pc;
         goto cgoto_restart;
       }
-      TARGET_JUMPI : {
+      TARGET_JUMPI: {
         if (INTX_UNLIKELY(sp < 2)) {
           Context.setStatus(EVMC_STACK_UNDERFLOW);
           goto cgoto_error;
@@ -713,11 +713,11 @@ void BaseInterpreter::interpret() {
         Frame->Pc = Pc;
         goto cgoto_restart;
       }
-      TARGET_JUMPDEST : {
+      TARGET_JUMPDEST: {
         ++Pc;
         DISPATCH_NEXT;
       }
-      TARGET_STOP : {
+      TARGET_STOP: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         const uint64_t RemainingGas = Frame->Msg.gas;
@@ -736,11 +736,11 @@ void BaseInterpreter::interpret() {
         Frame->Msg.gas += RemainingGas;
         goto cgoto_restart;
       }
-      TARGET_INVALID : {
+      TARGET_INVALID: {
         Context.setStatus(EVMC_INVALID_INSTRUCTION);
         goto cgoto_error;
       }
-      TARGET_UNDEFINED : {
+      TARGET_UNDEFINED: {
         Context.setStatus(EVMC_UNDEFINED_INSTRUCTION);
         goto cgoto_error;
       }
@@ -842,7 +842,7 @@ void BaseInterpreter::interpret() {
         HANDLER_CALL(MCopyHandler::doExecute());
 
       // Multi-opcode handlers: LOG, CALL, CREATE
-      TARGET_LOGX : {
+      TARGET_LOGX: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         EVMResource::setExecutionContext(Frame, &Context);
@@ -855,7 +855,7 @@ void BaseInterpreter::interpret() {
           goto cgoto_error;
         DISPATCH_NEXT;
       }
-      TARGET_CALLX : {
+      TARGET_CALLX: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         EVMResource::setExecutionContext(Frame, &Context);
@@ -868,7 +868,7 @@ void BaseInterpreter::interpret() {
           goto cgoto_error;
         DISPATCH_NEXT;
       }
-      TARGET_CREATEX : {
+      TARGET_CREATEX: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         EVMResource::setExecutionContext(Frame, &Context);
@@ -883,7 +883,7 @@ void BaseInterpreter::interpret() {
       }
 
       // ---- Special termination handlers (may change Frame) ----
-      TARGET_RETURN : {
+      TARGET_RETURN: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         EVMResource::setExecutionContext(Frame, &Context);
@@ -906,7 +906,7 @@ void BaseInterpreter::interpret() {
         }
         goto cgoto_restart;
       }
-      TARGET_REVERT : {
+      TARGET_REVERT: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         EVMResource::setExecutionContext(Frame, &Context);
@@ -929,7 +929,7 @@ void BaseInterpreter::interpret() {
         }
         goto cgoto_restart;
       }
-      TARGET_SELFDESTRUCT : {
+      TARGET_SELFDESTRUCT: {
         Frame->Sp = sp;
         Frame->Pc = Pc;
         EVMResource::setExecutionContext(Frame, &Context);

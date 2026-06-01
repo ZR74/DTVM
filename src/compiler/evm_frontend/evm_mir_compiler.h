@@ -6,12 +6,14 @@
 
 #include "action/vm_eval_stack.h"
 #include "compiler/context.h"
+#include "compiler/evm_frontend/evm_value_range.h"
 #include "compiler/mir/function.h"
 #include "compiler/mir/instructions.h"
 #include "compiler/mir/pointer.h"
 #include "evm/evm.h"
 #include "evmc/instructions.h"
 #include "intx/intx.hpp"
+#include <unordered_map>
 #include <vector>
 
 // Forward declaration to avoid circular dependency
@@ -66,16 +68,26 @@ public:
   bool isGasMeteringEnabled() const { return GasMeteringEnabled; }
 
   void setGasChunkInfo(const uint32_t *ChunkEnd, const uint64_t *ChunkCost,
-                       size_t Size) {
+                       const uint64_t *ChunkCostSPP, size_t Size) {
     GasChunkEnd = ChunkEnd;
     GasChunkCost = ChunkCost;
+    GasChunkCostSPP = ChunkCostSPP;
     GasChunkSize = Size;
   }
   const uint32_t *getGasChunkEnd() const { return GasChunkEnd; }
   const uint64_t *getGasChunkCost() const { return GasChunkCost; }
+  const uint64_t *getGasChunkCostSPP() const { return GasChunkCostSPP; }
   size_t getGasChunkSize() const { return GasChunkSize; }
   bool hasGasChunks() const {
     return GasChunkEnd && GasChunkCost && GasChunkSize > 0;
+  }
+
+  void setResolvedJumpTargets(
+      const std::unordered_map<uint32_t, uint32_t> *Targets) {
+    ResolvedJumpTargets = Targets;
+  }
+  const std::unordered_map<uint32_t, uint32_t> *getResolvedJumpTargets() const {
+    return ResolvedJumpTargets;
   }
 
   void setRevision(evmc_revision Rev) { Revision = Rev; }
@@ -98,7 +110,9 @@ private:
   bool GasMeteringEnabled = false;
   const uint32_t *GasChunkEnd = nullptr;
   const uint64_t *GasChunkCost = nullptr;
+  const uint64_t *GasChunkCostSPP = nullptr;
   size_t GasChunkSize = 0;
+  const std::unordered_map<uint32_t, uint32_t> *ResolvedJumpTargets = nullptr;
   evmc_revision Revision = zen::evm::DEFAULT_REVISION;
   uint8_t MemoryLinearStrideSkipLeadingZeroLimbStores = 0;
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -124,11 +138,7 @@ public:
 
   // Range classification for u256 operands.  Narrower ranges enable
   // single-instruction fast paths instead of expensive multi-limb arithmetic.
-  enum class ValueRange : uint8_t {
-    U64,  // Fits in 64 bits  (limbs [1..3] == 0)
-    U128, // Fits in 128 bits (limbs [2..3] == 0)
-    U256, // Full 256 bits — conservative default
-  };
+  using ValueRange = EVMValueRange;
 
   EVMMirBuilder(CompilerContext &Context, MFunction &MFunc);
 
@@ -257,6 +267,7 @@ public:
 
     // Provable value range — narrower ranges enable fast arithmetic paths
     ValueRange getRange() const { return Range; }
+    void setRange(ValueRange NewRange) { Range = NewRange; }
 
     // Check whether both operands provably fit in u64
     static bool bothFitU64(const Operand &A, const Operand &B) {
@@ -310,7 +321,7 @@ public:
   void stackSet(int32_t IndexFromTop, Operand SetValue);
   Operand stackGet(int32_t IndexFromTop);
   void setTrackedStackDepth(uint32_t Depth);
-  Operand createStackEntryOperand();
+  Operand createStackEntryOperand(ValueRange Range = ValueRange::U256);
   void assignStackEntryOperand(const Operand &Dest, const Operand &Value);
   Operand prepareStackPhiIncoming(const Operand &Value);
   void registerCurrentBlockPC(uint64_t BlockPC);
@@ -1042,6 +1053,10 @@ private:
   // Template versions of runtime calls
   template <typename RetType>
   Operand callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *));
+  // Emits host soft-error checks in check mode after runtime call.
+  template <typename RetType>
+  Operand callRuntimeForWithErrorCheck(
+      RetType (*RuntimeFunc)(runtime::EVMInstance *));
 
   template <typename ArgType>
   U256Inst convertOperandToInstruction(const Operand &Param);
@@ -1056,6 +1071,12 @@ private:
   Operand callRuntimeFor(RetType (*RuntimeFunc)(runtime::EVMInstance *,
                                                 ArgTypes...),
                          const ParamTypes &...Params);
+  // Emits host soft-error checks in check mode after runtime call.
+  template <typename RetType, typename... ArgTypes, typename... ParamTypes>
+  Operand callRuntimeForWithErrorCheck(
+      RetType (*RuntimeFunc)(runtime::EVMInstance *, ArgTypes...),
+      const ParamTypes &...Params);
+  void emitRuntimeSoftErrorCheck(MInstruction *InstancePtr);
 
   // Helper template functions for runtime call type mapping
   template <typename RetType> MType *getMIRReturnType();
@@ -1186,6 +1207,67 @@ private:
     uint64_t MemoryBaseCacheUseCount = 0;
 
     uint64_t ExpandNeedExpandCFGCount = 0;
+
+    uint64_t SmallFrameCandidateTotal = 0;
+    uint64_t SmallFramePrecheckedTotal = 0;
+    uint64_t SmallFrameOffsetConstTotal = 0;
+    uint64_t SmallFrameOffsetKnownU64Total = 0;
+    uint64_t SmallFrameMLoadCandidate = 0;
+    uint64_t SmallFrameMStoreCandidate = 0;
+    uint64_t SmallFrameMStore8Candidate = 0;
+    uint64_t SmallFrameFallbackUnknownOffset = 0;
+    uint64_t SmallFrameFallbackOver128 = 0;
+    uint64_t SmallFrameFallbackNoPrecheck = 0;
+    uint64_t SmallFrameFallbackOverflow = 0;
+    uint64_t SmallFrameFallbackDynamicSize = 0;
+    uint64_t SmallFrameFallbackGasOrMemorySemanticsUncertain = 0;
+
+    uint64_t HashPrepRegionCandidateCount = 0;
+    uint64_t HashPrepRegionCandidateOpCount = 0;
+    uint64_t HashPrepRegionVerifiedCount = 0;
+    uint64_t HashPrepRegionVerifiedOpCount = 0;
+    uint64_t HashPrepKeccakConstRangeCount = 0;
+    uint64_t HashPrepKeccakRange0_64Count = 0;
+    uint64_t HashPrepKeccakDynamicRangeCount = 0;
+    uint64_t HashPrepKeccakOver128Count = 0;
+    uint64_t HashPrepRegionVerifiedTwoWordPreimageCount = 0;
+    uint64_t HashPrepRegionVerifiedMultiHashCount = 0;
+    uint64_t HashPrepRegionRejectedDynamicOffset = 0;
+    uint64_t HashPrepRegionRejectedRangeOver128 = 0;
+    uint64_t HashPrepRegionRejectedNonTwoWordRange = 0;
+    uint64_t HashPrepRegionRejectedOrderingRisk = 0;
+    uint64_t HashPrepRegionRejectedAliasRisk = 0;
+    uint64_t HashPrepRegionRejectedInterveningWrite = 0;
+    uint64_t HashPrepRegionRejectedByteExactRisk = 0;
+    uint64_t HashPrepRegionRejectedMissingTwoWordStores = 0;
+    uint64_t HashPrepRegionRejectedAliasOrInterveningWrite = 0;
+
+    uint64_t HashPrepLiftSimCandidateRegionCount = 0;
+    uint64_t HashPrepLiftSimCandidateOpCount = 0;
+    uint64_t HashPrepLiftSimCoveredRegionCount = 0;
+    uint64_t HashPrepLiftSimCoveredOpCount = 0;
+    uint64_t HashPrepLiftSimSafeToLiftRegionCount = 0;
+    uint64_t HashPrepLiftSimSafeToLiftOpCount = 0;
+    uint64_t HashPrepLiftSimRejectedRegionCount = 0;
+    uint64_t HashPrepLiftSimRejectedOpCount = 0;
+
+    uint64_t HashPrepMarkerCandidateRegionCount = 0;
+    uint64_t HashPrepMarkerCandidateOpCount = 0;
+    uint64_t HashPrepMarkerMarkedRegionCount = 0;
+    uint64_t HashPrepMarkerCoveredOpCount = 0;
+    uint64_t HashPrepMarkerCoveredMStoreOpCount = 0;
+    uint64_t HashPrepMarkerCoveredMLoadOpCount = 0;
+    uint64_t HashPrepMarkerCoveredKeccakOpCount = 0;
+    uint64_t HashPrepMarkerRejectedRegionCount = 0;
+    uint64_t HashPrepMarkerRejectedOpCount = 0;
+    uint64_t HashPrepMarkerRejectedNon0_64Range = 0;
+    uint64_t HashPrepMarkerRejectedDynamicOffset = 0;
+    uint64_t HashPrepMarkerRejectedAliasOrInterveningWrite = 0;
+    uint64_t HashPrepMarkerRejectedMixedPredecessor = 0;
+    uint64_t HashPrepMarkerRejectedByteExactRisk = 0;
+    uint64_t HashPrepMarkerRejectedGasMemorySemantics = 0;
+    uint64_t HashPrepMarkerRejectedPointerInstability = 0;
+    uint64_t HashPrepMarkerRejectedUnknownHelper = 0;
   };
   bool hasMemoryCompileStats() const;
   MemoryCompileStats MemStats;
@@ -1238,6 +1320,44 @@ private:
     uint64_t DispBytes32MStoreCount = 0;
     uint64_t MStoreZeroLimbStoreCount = 0;
     uint64_t MStoreOverlapElidedLimbCount = 0;
+
+    uint64_t SmallFrameCandidateCount = 0;
+    uint64_t SmallFramePrecheckedCount = 0;
+    uint64_t SmallFrameFallbackNoPrecheckCount = 0;
+    uint64_t SmallFrameFallbackDynamicSizeCount = 0;
+    uint64_t SmallFrameFallbackOver128Count = 0;
+    uint64_t SmallFrameNoPrecheckMLoadCount = 0;
+    uint64_t SmallFrameNoPrecheckMStoreCount = 0;
+    uint64_t SmallFrameNoPrecheckMStore8Count = 0;
+
+    bool HashPrepPendingMStore0 = false;
+    bool HashPrepPendingMStore32 = false;
+    bool HashPrepPendingUnsupportedWrite = false;
+    bool HashPrepPendingAliasRisk = false;
+    bool HashPrepPendingInterveningWrite = false;
+    uint64_t HashPrepKeccakConstRangeCount = 0;
+    uint64_t HashPrepKeccakRange0_64Count = 0;
+    uint64_t HashPrepKeccakDynamicRangeCount = 0;
+    uint64_t HashPrepKeccakOver128Count = 0;
+    uint64_t HashPrepKeccakNonTwoWordRangeCount = 0;
+    uint64_t HashPrepVerifiedKeccakCount = 0;
+    uint64_t HashPrepRejectedOrderingRiskCount = 0;
+    uint64_t HashPrepRejectedAliasRiskCount = 0;
+    uint64_t HashPrepRejectedInterveningWriteCount = 0;
+    uint64_t HashPrepRejectedByteExactRiskCount = 0;
+    uint64_t HashPrepRejectedMissingTwoWordStoresCount = 0;
+    uint64_t HashPrepRejectedAliasOrInterveningWriteCount = 0;
+
+    bool HashPrepMarkerCandidate = false;
+    bool HashPrepMarkerMarked = false;
+    uint64_t HashPrepMarkerId = 0;
+    uint64_t HashPrepMarkerRangeBegin = 0;
+    uint64_t HashPrepMarkerRangeEnd = 0;
+    uint64_t HashPrepMarkerCoveredOpCount = 0;
+    uint64_t HashPrepMarkerCoveredMStoreOpCount = 0;
+    uint64_t HashPrepMarkerCoveredMLoadOpCount = 0;
+    uint64_t HashPrepMarkerCoveredKeccakOpCount = 0;
+    uint64_t HashPrepMarkerRejectedReason = 0;
   };
   void noteBlockMemoryEventPC(uint64_t PC);
   bool hasCurrentMemoryBlockStats() const;
@@ -1263,6 +1383,13 @@ private:
   bool tryConsumeConstBlockMemoryPrecheck();
   bool tryConsumeLinearBlockMemoryPrecheck(MInstruction *FirstAddr,
                                            MInstruction *OrderingDep);
+  uint64_t NextHashPrepMarkerId = 0;
+  enum class SmallFrameMemoryOp : uint8_t { MLoad, MStore, MStore8 };
+  void noteSmallFrameMemoryOp(SmallFrameMemoryOp Op, bool OffsetWasConst,
+                              uint64_t ConstOffset, bool OffsetKnownU64,
+                              uint64_t AccessSize, bool UsedSharedPrecheck);
+  void noteKeccak256MemoryAccess(bool OffsetWasConstU64, uint64_t ConstOffset,
+                                 bool LengthWasConstU64, uint64_t ConstLength);
   uint64_t NextMemoryBlockSeqId = 0;
   MemoryBlockCompileStats CurBlockMemStats;
   MemoryBlockConstPrecheckPlan CurBlockConstPrecheckPlan;
@@ -1283,6 +1410,7 @@ private:
   // Chunk gas metering
   const uint32_t *GasChunkEnd = nullptr;
   const uint64_t *GasChunkCost = nullptr;
+  const uint64_t *GasChunkCostSPP = nullptr;
   size_t GasChunkSize = 0;
 
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER

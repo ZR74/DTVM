@@ -144,6 +144,9 @@ private:
           reinterpret_cast<const uint8_t *>(Ctx->getBytecode());
       size_t BytecodeSize = Ctx->getBytecodeSize();
       EVMAnalyzer Analyzer(Ctx->getRevision());
+      if (Ctx->getResolvedJumpTargets()) {
+        Analyzer.setResolvedJumpTargets(Ctx->getResolvedJumpTargets());
+      }
       Analyzer.analyze(Bytecode, BytecodeSize);
       initializeLiftedBlocks(Analyzer);
 
@@ -1045,7 +1048,7 @@ private:
       CurrentBlockLifted = true;
       CurrentBlockHiddenLiveInPrefixDepth =
           static_cast<uint32_t>(std::max(BlockInfo.HiddenLiveInPrefixDepth, 0));
-      materializeLiftedBlockMergeRequests(PC);
+      materializeLiftedBlockMergeRequests(PC, BlockInfo);
       restoreLiftedBlockLogicalEntryState(PC);
       return;
     }
@@ -1053,9 +1056,23 @@ private:
     CurrentBlockLifted = false;
     int32_t TotalPopSize = -BlockInfo.MinPopHeight;
     EvalStack ReverseStack;
+    // Refine each popped Operand's ValueRange from analyzer-computed entry
+    // ranges so u64-narrow fast paths fire on values flowing through CFG
+    // joins (see EVMRangeAnalyzer /
+    // docs/changes/2026-05-07-value-range-cfg-join). EntryStackRanges[0] is the
+    // bottom of entry stack; pop order is top-first.
+    const auto &EntryRanges = BlockInfo.EntryStackRanges;
+    const int32_t EntryTopIdx = static_cast<int32_t>(EntryRanges.size()) - 1;
+    int32_t PopIter = 0;
     while (TotalPopSize > 0) {
-      ReverseStack.push(Builder.stackPop());
-      TotalPopSize--;
+      Operand Opnd = Builder.stackPop();
+      const int32_t SlotIdx = EntryTopIdx - PopIter;
+      if (SlotIdx >= 0 && SlotIdx < static_cast<int32_t>(EntryRanges.size())) {
+        Opnd.setRange(EntryRanges[SlotIdx]);
+      }
+      ReverseStack.push(Opnd);
+      ++PopIter;
+      --TotalPopSize;
     }
     while (!ReverseStack.empty()) {
       Operand Opnd = ReverseStack.pop();
@@ -1063,7 +1080,9 @@ private:
     }
   }
 
-  void materializeLiftedBlockMergeRequests(uint64_t BlockPC) {
+  void
+  materializeLiftedBlockMergeRequests(uint64_t BlockPC,
+                                      const EVMAnalyzer::BlockInfo &BlockInfo) {
     for (const MergeMaterializationRequest &Request :
          StackLifter.getMergeMaterializationRequests(BlockPC)) {
       std::vector<std::pair<uint64_t, Operand>> IncomingValues;
@@ -1072,10 +1091,12 @@ private:
         IncomingValues.emplace_back(IncomingValue.PredBlockPC,
                                     IncomingValue.Value);
       }
-      StackLifter.assignMergeOperand(
-          BlockPC, Request.SlotIndex,
-          materializeStackMergeOperandCompat(Request.ExpectedPredBlockPCs,
-                                             IncomingValues));
+      Operand Merge = materializeStackMergeOperandCompat(
+          Request.ExpectedPredBlockPCs, IncomingValues);
+      if (Request.SlotIndex < BlockInfo.EntryStackRanges.size()) {
+        Merge.setRange(BlockInfo.EntryStackRanges[Request.SlotIndex]);
+      }
+      StackLifter.assignMergeOperand(BlockPC, Request.SlotIndex, Merge);
     }
   }
 
@@ -1651,16 +1672,18 @@ private:
     Builder.handleJump(Dest);
   }
 
-  void handleJumpIOpcode(EVMAnalyzer &Analyzer, Operand Dest,
-                         Operand Cond) {
+  void handleJumpIOpcode(EVMAnalyzer &Analyzer, Operand Dest, Operand Cond) {
     uint64_t JumpSuccPC = 0;
-    bool HasJumpSucc = tryGetConstantJumpSuccessorPC(Analyzer, Dest, JumpSuccPC);
+    bool HasJumpSucc =
+        tryGetConstantJumpSuccessorPC(Analyzer, Dest, JumpSuccPC);
     uint64_t FallthroughPC = PC + 1;
     if (Analyzer.hasCanonicalJumpDest(FallthroughPC)) {
       FallthroughPC = Analyzer.getCanonicalJumpDestPC(FallthroughPC);
     }
-    bool CanLiftFallthrough = CurrentBlockLifted && isLiftedBlock(FallthroughPC);
-    bool CanLiftJump = HasJumpSucc && CurrentBlockLifted && isLiftedBlock(JumpSuccPC);
+    bool CanLiftFallthrough =
+        CurrentBlockLifted && isLiftedBlock(FallthroughPC);
+    bool CanLiftJump =
+        HasJumpSucc && CurrentBlockLifted && isLiftedBlock(JumpSuccPC);
     bool CanPreassignFallthrough =
         CurrentBlockLifted && isLiftedBlock(FallthroughPC);
     bool CanPreassignJump =
@@ -1758,9 +1781,8 @@ private:
   }
 
   bool tryHandleControlFlowMacroOp(EVMAnalyzer &Analyzer,
-                                   const uint8_t *Bytecode,
-                                   size_t BytecodeSize, evmc_opcode Opcode,
-                                   const uint8_t *&Ip) {
+                                   const uint8_t *Bytecode, size_t BytecodeSize,
+                                   evmc_opcode Opcode, const uint8_t *&Ip) {
     if (Opcode >= OP_PUSH0 && Opcode <= OP_PUSH32) {
       const uint8_t NumBytes =
           static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
@@ -1810,9 +1832,8 @@ private:
     Builder.meterOpcodeRange(PC, JumpPC + 1);
     Operand Value = pop();
     Operand Dest = buildPushOperandAt(PushPC, NumBytes);
-    Operand Cond =
-        Builder.template handleCompareOp<CompareOperator::CO_EQZ>(Value,
-                                                                  Operand());
+    Operand Cond = Builder.template handleCompareOp<CompareOperator::CO_EQZ>(
+        Value, Operand());
     PC = JumpPC;
     handleJumpIOpcode(Analyzer, Dest, Cond);
     Ip += static_cast<ptrdiff_t>(NumBytes) + 2;
@@ -1906,8 +1927,8 @@ private:
     if (LengthPushOpcode < OP_PUSH0 || LengthPushOpcode > OP_PUSH32) {
       return false;
     }
-    const uint8_t LengthNumBytes = static_cast<uint8_t>(LengthPushOpcode) -
-                                   static_cast<uint8_t>(OP_PUSH0);
+    const uint8_t LengthNumBytes =
+        static_cast<uint8_t>(LengthPushOpcode) - static_cast<uint8_t>(OP_PUSH0);
     uint64_t LengthValue = 0;
     if (!parsePushConstU64(RawBytecode, BytecodeSize, LengthPushPC + 1,
                            LengthNumBytes, LengthValue) ||
@@ -1921,8 +1942,7 @@ private:
     }
 
     const uint64_t BasePushPC = ScanPC;
-    evmc_opcode BasePushOpcode =
-        static_cast<evmc_opcode>(Bytecode[BasePushPC]);
+    evmc_opcode BasePushOpcode = static_cast<evmc_opcode>(Bytecode[BasePushPC]);
     if (BasePushOpcode < OP_PUSH0 || BasePushOpcode > OP_PUSH32) {
       return false;
     }
@@ -2031,8 +2051,8 @@ private:
     if (LengthPushOpcode < OP_PUSH0 || LengthPushOpcode > OP_PUSH32) {
       return false;
     }
-    const uint8_t LengthNumBytes = static_cast<uint8_t>(LengthPushOpcode) -
-                                   static_cast<uint8_t>(OP_PUSH0);
+    const uint8_t LengthNumBytes =
+        static_cast<uint8_t>(LengthPushOpcode) - static_cast<uint8_t>(OP_PUSH0);
     uint64_t LengthValue = 0;
     if (!parsePushConstU64(RawBytecode, BytecodeSize, LengthPushPC + 1,
                            LengthNumBytes, LengthValue) ||
@@ -2046,8 +2066,7 @@ private:
     }
 
     const uint64_t BasePushPC = ScanPC;
-    evmc_opcode BasePushOpcode =
-        static_cast<evmc_opcode>(Bytecode[BasePushPC]);
+    evmc_opcode BasePushOpcode = static_cast<evmc_opcode>(Bytecode[BasePushPC]);
     if (BasePushOpcode < OP_PUSH0 || BasePushOpcode > OP_PUSH32) {
       return false;
     }
@@ -2150,7 +2169,8 @@ private:
       if (MStorePC < BytecodeSize &&
           static_cast<evmc_opcode>(Bytecode[MStorePC]) == OP_MSTORE) {
         Builder.meterOpcodeRange(PC, MStorePC + 1);
-        handlePushConstMStoreMacroOp(buildPushOperandAt(PC, NumBytes), MStorePC);
+        handlePushConstMStoreMacroOp(buildPushOperandAt(PC, NumBytes),
+                                     MStorePC);
         Ip += static_cast<ptrdiff_t>(NumBytes) + 1;
         return true;
       }
@@ -2197,16 +2217,18 @@ private:
     requireLogicalStackDepth(DupIndex);
     Operand DuplicatedValue = Stack.peek(DupIndex - 1);
     Operand TopValue = pop();
-    Operand Result = Builder.template handleBinaryArithmetic<
-        BinaryOperator::BO_ADD>(DuplicatedValue, TopValue);
+    Operand Result =
+        Builder.template handleBinaryArithmetic<BinaryOperator::BO_ADD>(
+            DuplicatedValue, TopValue);
     push(Result);
   }
 
   void handlePushConstAddMacroOp(const Operand &ConstOp) {
     requireLogicalStackDepth(1);
     Operand TopValue = pop();
-    Operand Result = Builder.template handleBinaryArithmetic<
-        BinaryOperator::BO_ADD>(ConstOp, TopValue);
+    Operand Result =
+        Builder.template handleBinaryArithmetic<BinaryOperator::BO_ADD>(
+            ConstOp, TopValue);
     push(Result);
   }
 
@@ -2215,9 +2237,11 @@ private:
       requireLogicalStackDepth(static_cast<uint32_t>(DupIndex) - 1u);
     }
     Operand SourceValue =
-        DupIndex == 1 ? ConstOp : Stack.peek(static_cast<uint32_t>(DupIndex) - 2u);
-    Operand Result = Builder.template handleBinaryArithmetic<
-        BinaryOperator::BO_ADD>(SourceValue, ConstOp);
+        DupIndex == 1 ? ConstOp
+                      : Stack.peek(static_cast<uint32_t>(DupIndex) - 2u);
+    Operand Result =
+        Builder.template handleBinaryArithmetic<BinaryOperator::BO_ADD>(
+            SourceValue, ConstOp);
     push(Result);
   }
 
@@ -2231,8 +2255,9 @@ private:
   void handleAddMStoreMacroOp(uint64_t MStorePC) {
     Operand AddLHS = pop();
     Operand AddRHS = pop();
-    Operand Addr = Builder.template handleBinaryArithmetic<
-        BinaryOperator::BO_ADD>(AddLHS, AddRHS);
+    Operand Addr =
+        Builder.template handleBinaryArithmetic<BinaryOperator::BO_ADD>(AddLHS,
+                                                                        AddRHS);
     Builder.noteMemoryOpcodeInBlock(OP_MSTORE, MStorePC);
     maybePrepareLinearBlockMemoryPrecheck(OP_MSTORE);
     Operand Value = pop();
@@ -2246,8 +2271,9 @@ private:
     Builder.noteMemoryOpcodeInBlock(OP_MSTORE, MStorePC);
     maybePrepareLinearBlockMemoryPrecheck(OP_MSTORE);
     Builder.handleMStore(Current, Current);
-    Operand Next = Builder.template handleBinaryArithmetic<
-        BinaryOperator::BO_ADD>(Current, Stride);
+    Operand Next =
+        Builder.template handleBinaryArithmetic<BinaryOperator::BO_ADD>(Current,
+                                                                        Stride);
     pop();
     push(Next);
   }
