@@ -28,7 +28,9 @@ template <size_t I, typename T> struct variant_alternative;
 template <size_t I, typename T>
 using variant_alternative_t = typename variant_alternative<I, T>::type;
 
-template <typename T> struct add_const { typedef const T type; };
+template <typename T> struct add_const {
+  typedef const T type;
+};
 
 template <size_t I, typename T>
 struct variant_alternative<I, const T>

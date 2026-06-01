@@ -34,7 +34,9 @@ template <typename T> struct underlying_type_impl<T, true> {
 
 /// \return the type itself for non-enum types
 /// \note differs from std::underlying_type
-template <typename T> struct underlying_type_impl<T, false> { using type = T; };
+template <typename T> struct underlying_type_impl<T, false> {
+  using type = T;
+};
 
 } // namespace zen::common::libcxx
 

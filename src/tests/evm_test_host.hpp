@@ -591,6 +591,7 @@ public:
                           ReturnData.size());
 
     } catch (const std::exception &E) {
+      // On error, return parent result
       ZEN_LOG_ERROR("Error in recursive call: %s", E.what());
       restoreHostState(StateSnapshot);
       return makeInternalExecutionFailure(Msg);
