@@ -724,7 +724,13 @@ void Runtime::callEVMMainOnPhysStack(EVMInstance &Inst, evmc_message &Msg,
   MsgWithCode.code_size = Inst.getModule()->CodeSize;
   Inst.setExeResult(evmc::Result{EVMC_SUCCESS, 0, 0});
   Inst.pushMessage(&MsgWithCode);
-  if (getConfig().Mode == RunMode::InterpMode) {
+  const auto *Module = Inst.getModule();
+  bool ShouldFallbackToInterp = false;
+#ifdef ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
+  ShouldFallbackToInterp = Module->ShouldFallbackToInterp;
+#endif
+  if (getConfig().Mode == RunMode::InterpMode || ShouldFallbackToInterp ||
+      Module->getJITCode() == nullptr) {
     callEVMInInterpMode(Inst, MsgWithCode, Result);
   } else {
 #ifdef ZEN_ENABLE_JIT

@@ -110,7 +110,8 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
                      Mod->CodeSize);
     Mod->ShouldFallbackToInterp =
         Analyzer.getJITSuitability().ShouldFallback ||
-        hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer);
+        hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer) ||
+        Analyzer.hasUnresolvedNonLiftedDeepEntryRisk();
     if (!Mod->ShouldFallbackToInterp)
 #endif // ZEN_ENABLE_JIT_PRECOMPILE_FALLBACK
     {
