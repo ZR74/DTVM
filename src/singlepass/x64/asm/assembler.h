@@ -337,7 +337,7 @@ X64Assembler::imul<X64::I64>(const typename X64TypeAttr<X64::I64>::Type &LHS,
   }
 
 // define DECL_BINOP_TMPL to nothing
-#define DECL_BINOP_TMPL(N, T, RR, RM, RI, MR, MI)
+#define DECL_BINOP_TMPL(N, T, RR, RM, RI, MR, MI)                              \
 // define DECL_BINOP_SPEC to DECL_ASM_BINOP_SPEC_IMPL
 #define DECL_BINOP_SPEC(N, T, RR, RM, RI, MR, MI)                              \
   DECL_ASM_BINOP_SPEC_IMPL(N, T, RR, RM, RI, MR, MI)
@@ -369,7 +369,7 @@ DECL_ALL_BINOP()
   }
 
 // define DECL_UNAOP_TMPL to nothing
-#define DECL_UNAOP_TMPL(N, T, R, M)
+#define DECL_UNAOP_TMPL(N, T, R, M)                                            \
 // define DECL_UNAOP_SPEC to DECL_ASM_UNAOP_SPEC_IMPL
 #define DECL_UNAOP_SPEC(N, T, R, M) DECL_ASM_UNAOP_SPEC_IMPL(N, T, R, M)
 // define TODO to unaop_todo

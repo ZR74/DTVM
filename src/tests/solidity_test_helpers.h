@@ -197,12 +197,6 @@ struct DeployedContract {
   std::string RuntimeBytecode;
 };
 
-struct SolidityContractTiming {
-  double DeployMs = 0.0;
-  double ExecutionMs = 0.0;
-  uint32_t TestCaseCount = 0;
-};
-
 DeployedContract deployContract(
     EVMTestEnvironment &Env, const std::string &ContractName,
     const SolcContractData &ContractData,
@@ -246,8 +240,7 @@ ContractDirectoryInfo checkCaseDirectory(const std::filesystem::path &DirPath);
 evmc_status_code
 executeSingleContractTest(const zen::runtime::RuntimeConfig &Config,
                           uint64_t GasLimit, const std::string &TestCategory,
-                          const std::string &TestContract,
-                          SolidityContractTiming *Timing = nullptr);
+                          const std::string &TestContract);
 
 } // namespace zen::evm_test_utils
 
