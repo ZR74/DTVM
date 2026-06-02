@@ -1780,6 +1780,18 @@ private:
     push(Result);
   }
 
+  void meterOpcodeSequence(const uint8_t *Bytecode, uint64_t StartPC,
+                           uint64_t EndPCExclusive) {
+    for (uint64_t OpPC = StartPC; OpPC < EndPCExclusive;) {
+      const evmc_opcode Op = static_cast<evmc_opcode>(Bytecode[OpPC]);
+      Builder.meterOpcode(Op, OpPC);
+      OpPC++;
+      if (Op >= OP_PUSH0 && Op <= OP_PUSH32) {
+        OpPC += static_cast<uint8_t>(Op) - static_cast<uint8_t>(OP_PUSH0);
+      }
+    }
+  }
+
   bool tryHandleControlFlowMacroOp(EVMAnalyzer &Analyzer,
                                    const uint8_t *Bytecode, size_t BytecodeSize,
                                    evmc_opcode Opcode, const uint8_t *&Ip) {
@@ -1791,7 +1803,8 @@ private:
         const evmc_opcode NextOpcode =
             static_cast<evmc_opcode>(Bytecode[JumpPC]);
         if (NextOpcode == OP_JUMP || NextOpcode == OP_JUMPI) {
-          Builder.meterOpcodeRange(PC, JumpPC + 1);
+          Builder.meterOpcode(Opcode, PC);
+          Builder.meterOpcode(NextOpcode, JumpPC);
           Operand Dest = buildPushOperandAt(PC, NumBytes);
           PC = JumpPC;
           if (NextOpcode == OP_JUMP) {
@@ -1829,7 +1842,9 @@ private:
       return false;
     }
 
-    Builder.meterOpcodeRange(PC, JumpPC + 1);
+    Builder.meterOpcode(Opcode, PC);
+    Builder.meterOpcode(PushOpcode, PushPC);
+    Builder.meterOpcode(OP_JUMPI, JumpPC);
     Operand Value = pop();
     Operand Dest = buildPushOperandAt(PushPC, NumBytes);
     Operand Cond = Builder.template handleCompareOp<CompareOperator::CO_EQZ>(
@@ -1961,7 +1976,7 @@ private:
       return false;
     }
 
-    Builder.meterOpcodeRange(PC, KeccakPC + 1);
+    meterOpcodeSequence(Bytecode, PC, KeccakPC + 1);
     Builder.noteHelperOpcodeInBlock(OP_KECCAK256, KeccakPC);
     Operand Offset = buildPushOperandAt(AddrPushPC, AddrNumBytes);
     Operand SlotWord = buildPushOperandAt(SlotPushPC, SlotNumBytes);
@@ -2085,7 +2100,7 @@ private:
       return false;
     }
 
-    Builder.meterOpcodeRange(PC, KeccakPC + 1);
+    meterOpcodeSequence(Bytecode, PC, KeccakPC + 1);
     Builder.noteHelperOpcodeInBlock(OP_KECCAK256, KeccakPC);
     Operand Offset = buildPushOperandAt(AddrPushPC, AddrNumBytes);
     Operand CallDataOffset = buildPushOperandAt(PC, CallDataOffsetNumBytes);
@@ -2108,7 +2123,7 @@ private:
           static_cast<evmc_opcode>(Bytecode[AddPC]) == OP_ADD &&
           (PostAddPC >= BytecodeSize ||
            static_cast<evmc_opcode>(Bytecode[PostAddPC]) != OP_MSTORE)) {
-        Builder.meterOpcodeRange(PC, AddPC + 1);
+        meterOpcodeSequence(Bytecode, PC, AddPC + 1);
         handleDupAddMacroOp(DupIndex);
         Ip += 1;
         return true;
@@ -2133,7 +2148,7 @@ private:
     if (NextOpcode == OP_ADD &&
         (PostAddPC >= BytecodeSize ||
          static_cast<evmc_opcode>(Bytecode[PostAddPC]) != OP_MSTORE)) {
-      Builder.meterOpcodeRange(PC, NextPC + 1);
+      meterOpcodeSequence(Bytecode, PC, NextPC + 1);
       handlePushConstAddMacroOp(ConstOp);
       Ip += static_cast<ptrdiff_t>(NumBytes) + 1;
       return true;
@@ -2154,7 +2169,7 @@ private:
       return false;
     }
 
-    Builder.meterOpcodeRange(PC, AddPC + 1);
+    meterOpcodeSequence(Bytecode, PC, AddPC + 1);
     handlePushConstDupAddMacroOp(ConstOp, DupIndex);
     Ip += static_cast<ptrdiff_t>(NumBytes) + 2;
     return true;
@@ -2168,7 +2183,7 @@ private:
       const uint64_t MStorePC = PC + 1 + NumBytes;
       if (MStorePC < BytecodeSize &&
           static_cast<evmc_opcode>(Bytecode[MStorePC]) == OP_MSTORE) {
-        Builder.meterOpcodeRange(PC, MStorePC + 1);
+        meterOpcodeSequence(Bytecode, PC, MStorePC + 1);
         handlePushConstMStoreMacroOp(buildPushOperandAt(PC, NumBytes),
                                      MStorePC);
         Ip += static_cast<ptrdiff_t>(NumBytes) + 1;
@@ -2181,7 +2196,7 @@ private:
       const uint64_t MStorePC = PC + 1;
       if (MStorePC < BytecodeSize &&
           static_cast<evmc_opcode>(Bytecode[MStorePC]) == OP_MSTORE) {
-        Builder.meterOpcodeRange(PC, MStorePC + 1);
+        meterOpcodeSequence(Bytecode, PC, MStorePC + 1);
         handleAddMStoreMacroOp(MStorePC);
         Ip += 1;
         return true;
@@ -2207,7 +2222,7 @@ private:
       return false;
     }
 
-    Builder.meterOpcodeRange(PC, AddPC + 1);
+    meterOpcodeSequence(Bytecode, PC, AddPC + 1);
     handleLinearMStoreNextMacroOp(MStorePC);
     Ip += 4;
     return true;
