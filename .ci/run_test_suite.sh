@@ -275,7 +275,6 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
 
             export LD_LIBRARY_PATH="$WORKSPACE_ROOT/build/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
             PGJ_OPTS=",profile_guided_jit=true,jit_trigger_calls=1,jit_trigger_gas=1,ring_buffer_capacity=1"
-            EVMONE_STATETEST_GTEST_FILTER=${EVMONE_STATETEST_GTEST_FILTER:-"-*stCreateTest.CreateOOGafterMaxCodesize:*stQuadraticComplexityTest.Call50000_sha256:*stTimeConsuming.static_Call50000_sha256:*stTimeConsuming.CALLBlake2f_MaxRounds:*VMTests/vmPerformance.*:*stZeroKnowledge.*:*stZeroKnowledge2.*"}
             for EVMONE_MODE in multipass interpreter; do
                 VM_ARG="${DTVM_VM_SO},mode=${EVMONE_MODE},enable_gas_metering=true"
                 if [[ "$EVMONE_MODE" == "multipass" ]]; then
@@ -288,7 +287,6 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
                         DTVM_EVM_ENABLE_GAS_METERING=true \
                         EVMONE_EXTERNAL_OPTIONS="$VM_ARG" \
                         "$EVMONE_STATETEST_BIN" "$EVMONE_STATETEST_PATH" \
-                        --gtest_filter="$EVMONE_STATETEST_GTEST_FILTER" \
                         --vm external_vm \
                         -k "$EVMONE_STATETEST_FILTER"
                 else
@@ -296,7 +294,6 @@ for STACK_TYPE in ${STACK_TYPES[@]}; do
                         DTVM_EVM_MODE="$EVMONE_MODE" \
                         DTVM_EVM_ENABLE_GAS_METERING=true \
                         "$EVMONE_STATETEST_BIN" "$EVMONE_STATETEST_PATH" \
-                        --gtest_filter="$EVMONE_STATETEST_GTEST_FILTER" \
                         --vm external_vm \
                         -k "$EVMONE_STATETEST_FILTER"
                 fi
