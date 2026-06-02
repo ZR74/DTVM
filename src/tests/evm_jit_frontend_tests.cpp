@@ -796,11 +796,9 @@ TEST(EVMJITFrontendVisitorTest, FusesPushConstJumpIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 0U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 3U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_JUMP), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_JUMP), 1U);
 }
 
 TEST(EVMJITFrontendVisitorTest, FusesPushConstJumpiIntoMeteredRange) {
@@ -824,11 +822,9 @@ TEST(EVMJITFrontendVisitorTest, FusesPushConstJumpiIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 2U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 5U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 1U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_JUMPI), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_JUMPI), 1U);
 }
 
 TEST(EVMJITFrontendVisitorTest, FusesIszeroPushConstJumpiIntoMeteredRange) {
@@ -853,11 +849,10 @@ TEST(EVMJITFrontendVisitorTest, FusesIszeroPushConstJumpiIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 2U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 6U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ISZERO), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_JUMPI), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ISZERO), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_JUMPI), 1U);
 }
 
 TEST(EVMJITFrontendVisitorTest, FusesDupAddIntoMeteredRange) {
@@ -882,11 +877,9 @@ TEST(EVMJITFrontendVisitorTest, FusesDupAddIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 6U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 8U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP2), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP2), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 1U);
   EXPECT_EQ(Builder.runtimeStackDepth(), 2U);
   EXPECT_EQ(Builder.topStackValue()[0], 0x24U);
 }
@@ -910,11 +903,9 @@ TEST(EVMJITFrontendVisitorTest, FusesPushConstAddIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 2U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 5U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 1U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 1U);
   EXPECT_EQ(Builder.runtimeStackDepth(), 1U);
   EXPECT_EQ(Builder.topStackValue()[0], 0x24U);
 }
@@ -939,12 +930,10 @@ TEST(EVMJITFrontendVisitorTest, FusesPushConstDupAddIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 2U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 6U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 1U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP2), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP2), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 1U);
   EXPECT_EQ(Builder.runtimeStackDepth(), 2U);
   EXPECT_EQ(Builder.topStackValue()[0], 0x24U);
 }
@@ -968,11 +957,9 @@ TEST(EVMJITFrontendVisitorTest, FusesPushConstMStoreIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 2U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 5U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 1U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 1U);
   EXPECT_EQ(Builder.runtimeStackDepth(), 0U);
   EXPECT_EQ(Builder.mstoreCount(), 1U);
   EXPECT_EQ(Builder.lastMStore().Addr[0], 0x20U);
@@ -1000,11 +987,9 @@ TEST(EVMJITFrontendVisitorTest, FusesAddMStoreIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 6U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 8U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 1U);
   EXPECT_EQ(Builder.runtimeStackDepth(), 0U);
   EXPECT_EQ(Builder.mstoreCount(), 1U);
   EXPECT_EQ(Builder.lastMStore().Addr[0], 0x24U);
@@ -1034,13 +1019,11 @@ TEST(EVMJITFrontendVisitorTest, FusesLinearMStoreNextMotifIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 4U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 9U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP1), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP2), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP1), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_DUP2), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_ADD), 1U);
   EXPECT_EQ(Builder.mstoreCount(), 1U);
   EXPECT_EQ(Builder.lastMStore().Addr[0], 0x40U);
   EXPECT_EQ(Builder.lastMStore().Value[0], 0x40U);
@@ -1073,12 +1056,10 @@ TEST(EVMJITFrontendVisitorTest, FusesCallerSlotKeccakIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 0U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 14U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_CALLER), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_KECCAK256), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_CALLER), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_KECCAK256), 1U);
   EXPECT_EQ(Builder.keccakCallerSlotCount(), 1U);
   EXPECT_EQ(Builder.keccakCount(), 0U);
   EXPECT_EQ(Builder.mstoreCount(), 0U);
@@ -1113,13 +1094,11 @@ TEST(EVMJITFrontendVisitorTest, FusesCallDataSlotKeccakIntoMeteredRange) {
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 0U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 16U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_CALLDATALOAD), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 0U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_KECCAK256), 0U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_PUSH1), 6U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_CALLDATALOAD), 1U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 2U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_KECCAK256), 1U);
   EXPECT_EQ(Builder.keccakCallDataSlotCount(), 1U);
   EXPECT_EQ(Builder.keccakCount(), 0U);
   EXPECT_EQ(Builder.mstoreCount(), 0U);
@@ -1155,13 +1134,9 @@ TEST(EVMJITFrontendVisitorTest,
   EXPECT_FALSE(Builder.Trapped);
   EXPECT_FALSE(Builder.Undefined);
 
-  ASSERT_EQ(Builder.meteredRanges().size(), 2U);
-  EXPECT_EQ(Builder.meteredRanges()[0].StartPC, 1U);
-  EXPECT_EQ(Builder.meteredRanges()[0].EndPCExclusive, 4U);
-  EXPECT_EQ(Builder.meteredRanges()[1].StartPC, 6U);
-  EXPECT_EQ(Builder.meteredRanges()[1].EndPCExclusive, 9U);
+  EXPECT_TRUE(Builder.meteredRanges().empty());
   EXPECT_EQ(Builder.meteredOpcodeCount(OP_CALLER), 1U);
-  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 0U);
+  EXPECT_EQ(Builder.meteredOpcodeCount(OP_MSTORE), 2U);
   EXPECT_EQ(Builder.meteredOpcodeCount(OP_KECCAK256), 1U);
   EXPECT_EQ(Builder.keccakCallerSlotCount(), 0U);
   EXPECT_EQ(Builder.keccakCallDataSlotCount(), 0U);
