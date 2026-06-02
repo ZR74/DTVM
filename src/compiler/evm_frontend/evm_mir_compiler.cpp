@@ -4958,8 +4958,8 @@ EVMMirBuilder::handleKeccak256TwoWord(Operand OffsetComponents, Operand Word0,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const uint8_t *, uint64_t, const intx::uint256 &,
-                               const intx::uint256 &>(
+  auto Result = callRuntimeForWithErrorCheck<
+      const uint8_t *, uint64_t, const intx::uint256 &, const intx::uint256 &>(
       RuntimeFunctions.GetKeccak256TwoWord, OffsetComponents, Word0, Word1);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
@@ -4978,8 +4978,8 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleKeccak256CallDataConstSlot(
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result = callRuntimeFor<const uint8_t *, uint64_t, uint64_t,
-                               const intx::uint256 &>(
+  auto Result = callRuntimeForWithErrorCheck<const uint8_t *, uint64_t,
+                                             uint64_t, const intx::uint256 &>(
       RuntimeFunctions.GetKeccak256CallDataSlot, OffsetComponents,
       CallDataOffset, SlotWord);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
@@ -4998,9 +4998,9 @@ EVMMirBuilder::handleKeccak256CallerConstSlot(Operand OffsetComponents,
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
-  auto Result =
-      callRuntimeFor<const uint8_t *, uint64_t, const intx::uint256 &>(
-          RuntimeFunctions.GetKeccak256CallerSlot, OffsetComponents, SlotWord);
+  auto Result = callRuntimeForWithErrorCheck<const uint8_t *, uint64_t,
+                                             const intx::uint256 &>(
+      RuntimeFunctions.GetKeccak256CallerSlot, OffsetComponents, SlotWord);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
 #endif
@@ -5793,6 +5793,13 @@ typename EVMMirBuilder::Operand EVMMirBuilder::callRuntimeForWithErrorCheck(
   MInstruction *CallInstr = createInstruction<ICallInstruction>(
       IsStmt, ReturnType, FuncAddrInst,
       llvm::ArrayRef<MInstruction *>(InstancePtr));
+  if constexpr (std::is_same_v<RetType, const uint8_t *>) {
+    Variable *RetVar = storeInstructionInTemp(CallInstr, CallInstr->getType());
+    emitRuntimeSoftErrorCheck(InstancePtr);
+    MInstruction *RetValue = loadVariable(RetVar);
+    emitRuntimeNullPointerCheck(RetValue);
+    return Operand(RetValue, EVMType::BYTES32);
+  }
   emitRuntimeSoftErrorCheck(InstancePtr);
   return convertCallResult<RetType>(CallInstr);
 }
@@ -6050,6 +6057,13 @@ EVMMirBuilder::Operand EVMMirBuilder::callRuntimeForWithErrorCheck(
   const bool IsStmt = std::is_same_v<RetType, void>;
   MInstruction *CallInstr = createInstruction<ICallInstruction>(
       IsStmt, ReturnType, FuncAddrInst, llvm::ArrayRef<MInstruction *>{Args});
+  if constexpr (std::is_same_v<RetType, const uint8_t *>) {
+    Variable *RetVar = storeInstructionInTemp(CallInstr, CallInstr->getType());
+    emitRuntimeSoftErrorCheck(InstancePtr);
+    MInstruction *RetValue = loadVariable(RetVar);
+    emitRuntimeNullPointerCheck(RetValue);
+    return Operand(RetValue, EVMType::BYTES32);
+  }
   emitRuntimeSoftErrorCheck(InstancePtr);
   return convertCallResult<RetType>(CallInstr);
 }
@@ -6109,6 +6123,20 @@ void EVMMirBuilder::emitRuntimeSoftErrorCheck(MInstruction *InstancePtr) {
 #else
   (void)InstancePtr;
 #endif
+}
+
+void EVMMirBuilder::emitRuntimeNullPointerCheck(MInstruction *PtrValue) {
+  MType *U64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  MInstruction *Zero = createIntConstInstruction(U64Type, 0);
+  MInstruction *IsNull = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_EQ, U64Type, PtrValue, Zero);
+
+  MBasicBlock *TrapBB = getOrCreateExceptionSetBB(ErrorCode::GasLimitExceeded);
+  MBasicBlock *ContinueBB = createBasicBlock();
+  createInstruction<BrIfInstruction>(true, Ctx, IsNull, TrapBB, ContinueBB);
+  addUniqueSuccessor(TrapBB);
+  addSuccessor(ContinueBB);
+  setInsertBlock(ContinueBB);
 }
 
 MInstruction *EVMMirBuilder::getCurrentInstancePointer() {

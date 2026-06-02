@@ -1077,6 +1077,7 @@ private:
       RetType (*RuntimeFunc)(runtime::EVMInstance *, ArgTypes...),
       const ParamTypes &...Params);
   void emitRuntimeSoftErrorCheck(MInstruction *InstancePtr);
+  void emitRuntimeNullPointerCheck(MInstruction *PtrValue);
 
   // Helper template functions for runtime call type mapping
   template <typename RetType> MType *getMIRReturnType();
