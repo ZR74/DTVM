@@ -1502,6 +1502,8 @@ MInstruction *EVMMirBuilder::createJumpCondition(const Operand &Cond) {
       EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
   MInstruction *Zero = createIntConstInstruction(MirI64Type, 0);
 
+  // BrIfInstruction tests whether its condition operand is non-zero, so the
+  // compare result can be consumed directly without materializing an i64 0/1.
   auto BuildNonZeroOr = [this, MirI64Type](const U256Inst &Parts) {
     MInstruction *OrResult = Parts[0];
     for (size_t I = 1; I < EVM_ELEMENTS_COUNT; ++I) {

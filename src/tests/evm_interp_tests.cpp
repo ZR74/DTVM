@@ -583,7 +583,7 @@ TEST(EVMMultipassKeccakHelperTest,
       makePaddedAddressWord(DEFAULT_DEPLOYER_ADDRESS), makeUint256Calldata(5));
 
   expectInterpMatchesMultipass("keccak_caller_const_slot", *BytecodeBuf, {},
-                               EVMC_SUCCESS, ExpectedDigest, false);
+                               EVMC_SUCCESS, ExpectedDigest);
 }
 
 TEST(EVMMultipassKeccakHelperTest,
@@ -597,7 +597,7 @@ TEST(EVMMultipassKeccakHelperTest,
       computeTwoWordKeccakHex(CallData, makeUint256Calldata(7));
 
   expectInterpMatchesMultipass("keccak_calldata_const_slot", *BytecodeBuf,
-                               CallData, EVMC_SUCCESS, ExpectedDigest, false);
+                               CallData, EVMC_SUCCESS, ExpectedDigest);
 }
 
 TEST(EVMMultipassKeccakHelperTest,

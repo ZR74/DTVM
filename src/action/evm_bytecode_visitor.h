@@ -1869,11 +1869,18 @@ private:
     return false;
   }
 
-  bool tryHandleCallerSlotKeccakMacroOp(const uint8_t *Bytecode,
-                                        size_t BytecodeSize,
-                                        const uint8_t *&Ip) {
+  struct TwoWordKeccakStagingTail {
+    uint64_t AddrPushPC = 0;
+    uint64_t SlotPushPC = 0;
+    uint64_t KeccakPC = 0;
+    uint8_t AddrNumBytes = 0;
+    uint8_t SlotNumBytes = 0;
+  };
+
+  bool parseTwoWordKeccakStagingTail(const uint8_t *Bytecode,
+                                     size_t BytecodeSize, uint64_t AddrPushPC,
+                                     TwoWordKeccakStagingTail &Tail) {
     const Byte *RawBytecode = reinterpret_cast<const Byte *>(Bytecode);
-    const uint64_t AddrPushPC = PC + 1;
     if (AddrPushPC >= BytecodeSize) {
       return false;
     }
@@ -1976,13 +1983,31 @@ private:
       return false;
     }
 
-    meterOpcodeSequence(Bytecode, PC, KeccakPC + 1);
-    Builder.noteHelperOpcodeInBlock(OP_KECCAK256, KeccakPC);
-    Operand Offset = buildPushOperandAt(AddrPushPC, AddrNumBytes);
-    Operand SlotWord = buildPushOperandAt(SlotPushPC, SlotNumBytes);
+    Tail.AddrPushPC = AddrPushPC;
+    Tail.SlotPushPC = SlotPushPC;
+    Tail.KeccakPC = KeccakPC;
+    Tail.AddrNumBytes = AddrNumBytes;
+    Tail.SlotNumBytes = SlotNumBytes;
+    return true;
+  }
+
+  bool tryHandleCallerSlotKeccakMacroOp(const uint8_t *Bytecode,
+                                        size_t BytecodeSize,
+                                        const uint8_t *&Ip) {
+    const uint64_t AddrPushPC = PC + 1;
+    TwoWordKeccakStagingTail Tail;
+    if (!parseTwoWordKeccakStagingTail(Bytecode, BytecodeSize, AddrPushPC,
+                                       Tail)) {
+      return false;
+    }
+
+    meterOpcodeSequence(Bytecode, PC, Tail.KeccakPC + 1);
+    Builder.noteHelperOpcodeInBlock(OP_KECCAK256, Tail.KeccakPC);
+    Operand Offset = buildPushOperandAt(Tail.AddrPushPC, Tail.AddrNumBytes);
+    Operand SlotWord = buildPushOperandAt(Tail.SlotPushPC, Tail.SlotNumBytes);
     Operand Result = Builder.handleKeccak256CallerConstSlot(Offset, SlotWord);
     push(Result);
-    Ip += static_cast<ptrdiff_t>(KeccakPC - PC);
+    Ip += static_cast<ptrdiff_t>(Tail.KeccakPC - PC);
     return true;
   }
 
@@ -1990,7 +2015,6 @@ private:
                                           size_t BytecodeSize,
                                           evmc_opcode Opcode,
                                           const uint8_t *&Ip) {
-    const Byte *RawBytecode = reinterpret_cast<const Byte *>(Bytecode);
     const uint8_t CallDataOffsetNumBytes =
         static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
     const uint64_t CallDataLoadPC = PC + 1 + CallDataOffsetNumBytes;
@@ -2000,115 +2024,21 @@ private:
     }
 
     const uint64_t AddrPushPC = CallDataLoadPC + 1;
-    if (AddrPushPC >= BytecodeSize) {
+    TwoWordKeccakStagingTail Tail;
+    if (!parseTwoWordKeccakStagingTail(Bytecode, BytecodeSize, AddrPushPC,
+                                       Tail)) {
       return false;
     }
 
-    evmc_opcode AddrPushOpcode = static_cast<evmc_opcode>(Bytecode[AddrPushPC]);
-    if (AddrPushOpcode < OP_PUSH0 || AddrPushOpcode > OP_PUSH32) {
-      return false;
-    }
-    const uint8_t AddrNumBytes =
-        static_cast<uint8_t>(AddrPushOpcode) - static_cast<uint8_t>(OP_PUSH0);
-    uint64_t AddrValue = 0;
-    if (!parsePushConstU64(RawBytecode, BytecodeSize, AddrPushPC + 1,
-                           AddrNumBytes, AddrValue)) {
-      return false;
-    }
-
-    uint64_t ScanPC = AddrPushPC + 1 + AddrNumBytes;
-    if (!consumeExpectedOpcode(RawBytecode, BytecodeSize, ScanPC, OP_MSTORE) ||
-        ScanPC >= BytecodeSize) {
-      return false;
-    }
-
-    const uint64_t SlotPushPC = ScanPC;
-    evmc_opcode SlotPushOpcode = static_cast<evmc_opcode>(Bytecode[SlotPushPC]);
-    if (SlotPushOpcode < OP_PUSH0 || SlotPushOpcode > OP_PUSH32) {
-      return false;
-    }
-    const uint8_t SlotNumBytes =
-        static_cast<uint8_t>(SlotPushOpcode) - static_cast<uint8_t>(OP_PUSH0);
-    ScanPC += static_cast<uint64_t>(1 + SlotNumBytes);
-    if (ScanPC >= BytecodeSize) {
-      return false;
-    }
-
-    const uint64_t Addr2PushPC = ScanPC;
-    evmc_opcode Addr2PushOpcode =
-        static_cast<evmc_opcode>(Bytecode[Addr2PushPC]);
-    if (Addr2PushOpcode < OP_PUSH0 || Addr2PushOpcode > OP_PUSH32) {
-      return false;
-    }
-    const uint8_t Addr2NumBytes =
-        static_cast<uint8_t>(Addr2PushOpcode) - static_cast<uint8_t>(OP_PUSH0);
-    uint64_t Addr2Value = 0;
-    if (!parsePushConstU64(RawBytecode, BytecodeSize, Addr2PushPC + 1,
-                           Addr2NumBytes, Addr2Value)) {
-      return false;
-    }
-
-    uint64_t ExpectedAddr2 = 0;
-    if (!addConstU64(AddrValue, 32, ExpectedAddr2) ||
-        Addr2Value != ExpectedAddr2) {
-      return false;
-    }
-
-    ScanPC = Addr2PushPC + 1 + Addr2NumBytes;
-    if (!consumeExpectedOpcode(RawBytecode, BytecodeSize, ScanPC, OP_MSTORE) ||
-        ScanPC >= BytecodeSize) {
-      return false;
-    }
-
-    const uint64_t LengthPushPC = ScanPC;
-    evmc_opcode LengthPushOpcode =
-        static_cast<evmc_opcode>(Bytecode[LengthPushPC]);
-    if (LengthPushOpcode < OP_PUSH0 || LengthPushOpcode > OP_PUSH32) {
-      return false;
-    }
-    const uint8_t LengthNumBytes =
-        static_cast<uint8_t>(LengthPushOpcode) - static_cast<uint8_t>(OP_PUSH0);
-    uint64_t LengthValue = 0;
-    if (!parsePushConstU64(RawBytecode, BytecodeSize, LengthPushPC + 1,
-                           LengthNumBytes, LengthValue) ||
-        LengthValue != 64) {
-      return false;
-    }
-
-    ScanPC = LengthPushPC + 1 + LengthNumBytes;
-    if (ScanPC >= BytecodeSize) {
-      return false;
-    }
-
-    const uint64_t BasePushPC = ScanPC;
-    evmc_opcode BasePushOpcode = static_cast<evmc_opcode>(Bytecode[BasePushPC]);
-    if (BasePushOpcode < OP_PUSH0 || BasePushOpcode > OP_PUSH32) {
-      return false;
-    }
-    const uint8_t BaseNumBytes =
-        static_cast<uint8_t>(BasePushOpcode) - static_cast<uint8_t>(OP_PUSH0);
-    uint64_t BaseValue = 0;
-    if (!parsePushConstU64(RawBytecode, BytecodeSize, BasePushPC + 1,
-                           BaseNumBytes, BaseValue) ||
-        BaseValue != AddrValue) {
-      return false;
-    }
-
-    const uint64_t KeccakPC = BasePushPC + 1 + BaseNumBytes;
-    if (KeccakPC >= BytecodeSize ||
-        static_cast<evmc_opcode>(Bytecode[KeccakPC]) != OP_KECCAK256) {
-      return false;
-    }
-
-    meterOpcodeSequence(Bytecode, PC, KeccakPC + 1);
-    Builder.noteHelperOpcodeInBlock(OP_KECCAK256, KeccakPC);
-    Operand Offset = buildPushOperandAt(AddrPushPC, AddrNumBytes);
+    meterOpcodeSequence(Bytecode, PC, Tail.KeccakPC + 1);
+    Builder.noteHelperOpcodeInBlock(OP_KECCAK256, Tail.KeccakPC);
+    Operand Offset = buildPushOperandAt(Tail.AddrPushPC, Tail.AddrNumBytes);
     Operand CallDataOffset = buildPushOperandAt(PC, CallDataOffsetNumBytes);
-    Operand SlotWord = buildPushOperandAt(SlotPushPC, SlotNumBytes);
+    Operand SlotWord = buildPushOperandAt(Tail.SlotPushPC, Tail.SlotNumBytes);
     Operand Result = Builder.handleKeccak256CallDataConstSlot(
         Offset, CallDataOffset, SlotWord);
     push(Result);
-    Ip += static_cast<ptrdiff_t>(KeccakPC - PC);
+    Ip += static_cast<ptrdiff_t>(Tail.KeccakPC - PC);
     return true;
   }
 

@@ -1303,18 +1303,6 @@ const uint8_t *evmGetKeccak256TwoWord(zen::runtime::EVMInstance *Instance,
     return nullptr;
   }
 
-  // The helper performs the two MSTORE writes directly, so charge their base
-  // opcode gas here while memory expansion is handled above.
-  const auto *Metrics =
-      evmc_get_instruction_metrics_table(Instance->getRevision());
-  if (Metrics) {
-    const uint64_t MStoreGas = static_cast<uint64_t>(
-        Metrics[static_cast<uint8_t>(OP_MSTORE)].gas_cost);
-    if (MStoreGas != 0 && !Instance->chargeGas(MStoreGas * 2)) {
-      return nullptr;
-    }
-  }
-
   storeWordToMemory(MemoryBase + Offset, Word0);
   storeWordToMemory(MemoryBase + Offset + 32, Word1);
   return evmGetKeccak256(Instance, Offset, 64);
