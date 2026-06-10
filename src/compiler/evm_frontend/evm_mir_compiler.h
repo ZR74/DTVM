@@ -400,6 +400,9 @@ public:
             false, CmpInstruction::ICMP_ULT, MirI64Type, Sum, LHS[0]);
         MInstruction *CarryExt = zeroExtendToI64(CarryCmp);
         U256Inst Result = {Sum, CarryExt, Zero, Zero};
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+        ++MemStats.AddFastRangeU64Count;
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
         return Operand(Result, EVMType::UINT256, ValueRange::U128);
       }
     }
@@ -412,6 +415,9 @@ public:
         // ADD is commutative: normalize so the u64 const is on the RHS
         const Operand &FullOp = LHSIsU64 ? RHSOp : LHSOp;
         const Operand &U64Op = LHSIsU64 ? LHSOp : RHSOp;
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+        ++MemStats.AddFastConstU64Count;
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
         return handleAddU64Const(FullOp, U64Op);
       }
     }
@@ -419,6 +425,9 @@ public:
     // Phase 2: u64 fast path for SUB (only when RHS is u64 const)
     if constexpr (Operator == BinaryOperator::BO_SUB) {
       if (RHSOp.isConstU64()) {
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+        ++MemStats.SubFastConstU64Count;
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
         return handleSubU64Const(LHSOp, RHSOp);
       }
     }
@@ -483,6 +492,13 @@ public:
     } else {
       ZEN_ASSERT_TODO();
     }
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+    if constexpr (Operator == BinaryOperator::BO_ADD) {
+      ++MemStats.AddFullCount;
+    } else if constexpr (Operator == BinaryOperator::BO_SUB) {
+      ++MemStats.SubFullCount;
+    }
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
     return Operand(Result, EVMType::UINT256);
   }
 
@@ -686,7 +702,10 @@ public:
         for (size_t I = 1; I < EVM_ELEMENTS_COUNT; ++I) {
           Result[I] = Other[I];
         }
-        return Operand(Result, EVMType::UINT256);
+        // OR/XOR with a u64 constant: limbs[1..3] pass through as the same
+        // MInstruction pointers from OtherOp, so the value range of those
+        // limbs is preserved exactly. max(U64, OtherOp.range) = OtherOp.range.
+        return Operand(Result, EVMType::UINT256, OtherOp.getRange());
       }
     }
 
@@ -699,6 +718,12 @@ public:
       MInstruction *LocalResult = createInstruction<BinaryInstruction>(
           false, getMirOpcode(Operator), MirI64Type, LHS[I], RHS[I]);
       Result[I] = protectUnsafeValue(LocalResult, MirI64Type);
+    }
+    // OR/XOR are monotone on range: result range = max(LHS, RHS).
+    if constexpr (Operator == BinaryOperator::BO_OR ||
+                  Operator == BinaryOperator::BO_XOR) {
+      return Operand(Result, EVMType::UINT256,
+                     std::max(LHSOp.getRange(), RHSOp.getRange()));
     }
     return Operand(Result, EVMType::UINT256);
   }
@@ -763,6 +788,12 @@ public:
       Result = handleArithmeticRightShift(Value, ShiftAmount, IsLargeShift);
     }
 
+    // Unsigned right shift cannot widen: an N-bit value shifted right yields an
+    // at-most-N-bit value. SHL widens by construction; SAR sign-fills upper
+    // limbs; both keep the conservative U256 default.
+    if constexpr (Operator == BinaryOperator::BO_SHR_U) {
+      return Operand(Result, EVMType::UINT256, ValueOp.getRange());
+    }
     return Operand(Result, EVMType::UINT256);
   }
 
@@ -1269,8 +1300,33 @@ private:
     uint64_t HashPrepMarkerRejectedGasMemorySemantics = 0;
     uint64_t HashPrepMarkerRejectedPointerInstability = 0;
     uint64_t HashPrepMarkerRejectedUnknownHelper = 0;
+
+    // Arithmetic fast-path tier hit counters. Increments are gated by
+    // ZEN_ENABLE_MULTIPASS_JIT_LOGGING; the fields always exist.
+    uint64_t AddFastRangeU64Count = 0;
+    uint64_t AddFastConstU64Count = 0;
+    uint64_t AddFullCount = 0;
+    uint64_t SubFastConstU64Count = 0;
+    uint64_t SubFullCount = 0;
+    uint64_t MulFastRangeU64Count = 0;
+    uint64_t MulFastConstU64Count = 0;
+    uint64_t MulFullCount = 0;
+    uint64_t DivFastRangeU64Count = 0;
+    uint64_t DivFastConstU64Count = 0;
+    uint64_t DivFullCount = 0;
+    uint64_t ModFastRangeU64Count = 0;
+    uint64_t ModFastConstU64Count = 0;
+    uint64_t ModFullCount = 0;
+
+    // U128-consumer opportunity counters: incremented on the genuine
+    // full-limb fallback when one operand has proven range U128 and the
+    // other is <= U128, i.e. a 128-bit half-width path could have applied.
+    uint64_t MulU128OpportunityCount = 0;
+    uint64_t DivU128OpportunityCount = 0;
+    uint64_t ModU128OpportunityCount = 0;
   };
   bool hasMemoryCompileStats() const;
+  bool hasArithCompileStats() const;
   MemoryCompileStats MemStats;
 
   struct MemoryBlockCompileStats {

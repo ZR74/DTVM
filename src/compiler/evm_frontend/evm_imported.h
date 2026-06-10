@@ -151,7 +151,6 @@ struct RuntimeFunctions {
   Bytes32WithUInt64U256U256Fn GetKeccak256TwoWord;
   Bytes32WithUInt64UInt64U256Fn GetKeccak256CallDataSlot;
   Bytes32WithUInt64U256Fn GetKeccak256CallerSlot;
-  U256WithU256Fn GetClz;
   FallbackFn HandleFallback;
 };
 
@@ -294,8 +293,6 @@ void evmSetTStore(zen::runtime::EVMInstance *Instance,
                   const intx::uint256 &Index, const intx::uint256 &Value);
 void evmHandleSelfDestruct(zen::runtime::EVMInstance *Instance,
                            const uint8_t *Beneficiary);
-const intx::uint256 *evmGetClz(zen::runtime::EVMInstance *Instance,
-                               const intx::uint256 &Value);
 } // namespace COMPILER
 
 #endif // EVM_FRONTEND_EVM_IMPORTED_H

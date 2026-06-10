@@ -240,7 +240,6 @@ const RuntimeFunctions &getRuntimeFunctionTable() {
       .GetKeccak256TwoWord = &evmGetKeccak256TwoWord,
       .GetKeccak256CallDataSlot = &evmGetKeccak256CallDataSlot,
       .GetKeccak256CallerSlot = &evmGetKeccak256CallerSlot,
-      .GetClz = &evmGetClz,
       .HandleFallback = &evmHandleFallback};
   return Table;
 }
@@ -1524,11 +1523,4 @@ void evmHandleSelfDestruct(zen::runtime::EVMInstance *Instance,
   }
 }
 
-const intx::uint256 *evmGetClz(zen::runtime::EVMInstance *Instance,
-                               const intx::uint256 &Value) {
-  uint64_t clzResult = intx::clz(Value);
-  intx::uint256 result;
-  result[0] = clzResult;
-  return storeUint256Result(result);
-}
 } // namespace COMPILER
