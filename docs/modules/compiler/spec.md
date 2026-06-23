@@ -129,6 +129,16 @@ From `common/errors.h`, used by the compiler module:
 
 **RA-expensive opcode classification**: SHL (0x1b), SHR (0x1c), SAR (0x1d), MUL (0x02), SIGNEXTEND (0x0b).
 
+When `ZEN_ENABLE_EVM_STACK_SSA_LIFT` is disabled, EVM JIT stack operations use a
+runtime-stack overlay. The visitor lazily loads stack entries from the runtime
+stack on demand, keeps block-local pushes/pops in an overlay, materializes
+overlay operands to MIR temporaries at opcode boundaries, and commits the
+overlay back to the runtime stack at block exits and runtime/host/memory
+side-effect boundaries. In that mode, unresolved deep-entry stack state is not a
+runtime fallback reason; compatible dynamic-trampoline state-transfer risk is
+also handled by runtime-stack materialization at dynamic jump boundaries instead
+of forcing module-level fallback. Normal JIT suitability checks still apply.
+
 ### EVM Frontend Context and Gas
 
 - Enable/disable Gas metering based on runtime config (`setGasMeteringEnabled`)

@@ -45,6 +45,12 @@ public:
 private:
   static constexpr size_t EVM_MAX_STACK_SIZE = 1024;
   static constexpr size_t EVM_MAX_PUSH_IMMEDIATE_SIZE = 32;
+  static constexpr size_t EVM_RUNTIME_STACK_OVERLAY_MAX_VALUES = 64;
+#ifdef ZEN_ENABLE_EVM_STACK_SSA_LIFT
+  static constexpr bool StackSSALiftEnabled = true;
+#else
+  static constexpr bool StackSSALiftEnabled = false;
+#endif
 
   struct BlockConstPrecheckPlan {
     bool Eligible = false;
@@ -124,7 +130,25 @@ private:
     }
   }
 
-  void push(const Operand &Opnd) { Stack.push(Opnd); }
+  bool useDirectRuntimeStack() const {
+    if constexpr (!StackSSALiftEnabled) {
+      return !CurrentBlockLifted;
+    } else {
+      return false;
+    }
+  }
+
+  void push(const Operand &Opnd) {
+    if (useDirectRuntimeStack()) {
+      RuntimeStackOverlayValues.push_back(Opnd);
+      if (RuntimeStackOverlayValues.size() >
+          EVM_RUNTIME_STACK_OVERLAY_MAX_VALUES) {
+        flushRuntimeStackOverlay();
+      }
+      return;
+    }
+    Stack.push(Opnd);
+  }
 
   void requireLogicalStackDepth(uint32_t Depth) {
     ZEN_ASSERT(Stack.getSize() >= Depth &&
@@ -132,6 +156,9 @@ private:
   }
 
   Operand pop() {
+    if (useDirectRuntimeStack()) {
+      return popRuntimeStackOverlay();
+    }
     requireLogicalStackDepth(1);
     Operand Opnd = Stack.pop();
     Builder.releaseOperand(Opnd);
@@ -195,6 +222,9 @@ private:
             Builder.handleUndefined();
             PC++;
             continue;
+          }
+          if (Builder.hasOpcodeGasMeteringBoundary(Opcode, PC)) {
+            syncRuntimeStackOverlayForHelper();
           }
           Builder.meterOpcode(Opcode, PC);
         }
@@ -382,6 +412,7 @@ private:
           Builder.noteHelperOpcodeInBlock(Opcode, PC);
           Operand Offset = pop();
           Operand Length = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleKeccak256(Offset, Length);
           push(Result);
           break;
@@ -395,12 +426,14 @@ private:
 
         case OP_BALANCE: {
           Operand Address = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleBalance(Address);
           push(Result);
           break;
         }
 
         case OP_ORIGIN: {
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleOrigin();
           push(Result);
           break;
@@ -420,6 +453,7 @@ private:
 
         case OP_CALLDATALOAD: {
           Operand Offset = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleCallDataLoad(Offset);
           push(Result);
           break;
@@ -436,6 +470,7 @@ private:
           Operand DestOffset = pop();
           Operand Offset = pop();
           Operand Size = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleCallDataCopy(DestOffset, Offset, Size);
           break;
         }
@@ -451,11 +486,13 @@ private:
           Operand DestOffset = pop();
           Operand Offset = pop();
           Operand Size = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleCodeCopy(DestOffset, Offset, Size);
           break;
         }
 
         case OP_GASPRICE: {
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleGasPrice();
           push(Result);
           break;
@@ -463,6 +500,7 @@ private:
 
         case OP_EXTCODESIZE: {
           Operand Address = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleExtCodeSize(Address);
           push(Result);
           break;
@@ -474,11 +512,13 @@ private:
           Operand DestOffset = pop();
           Operand Offset = pop();
           Operand Size = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleExtCodeCopy(Address, DestOffset, Offset, Size);
           break;
         }
 
         case OP_RETURNDATASIZE: {
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleReturnDataSize();
           push(Result);
           break;
@@ -489,12 +529,14 @@ private:
           Operand DestOffset = pop();
           Operand Offset = pop();
           Operand Size = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleReturnDataCopy(DestOffset, Offset, Size);
           break;
         }
 
         case OP_EXTCODEHASH: {
           Operand Address = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleExtCodeHash(Address);
           push(Result);
           break;
@@ -502,6 +544,7 @@ private:
 
         case OP_BLOCKHASH: {
           Operand BlockNumber = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleBlockHash(BlockNumber);
           push(Result);
           break;
@@ -557,6 +600,7 @@ private:
 
         case OP_BLOBHASH: {
           Operand Index = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleBlobHash(Index);
           push(Result);
           break;
@@ -572,6 +616,7 @@ private:
           Builder.noteMemoryOpcodeInBlock(Opcode, PC);
           maybePrepareLinearBlockMemoryPrecheck(Opcode);
           Operand Addr = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleMLoad(Addr);
           push(Result);
           break;
@@ -582,6 +627,7 @@ private:
           maybePrepareLinearBlockMemoryPrecheck(Opcode);
           Operand Addr = pop();
           Operand Value = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleMStore(Addr, Value);
           break;
         }
@@ -590,12 +636,14 @@ private:
           Builder.noteMemoryOpcodeInBlock(Opcode, PC);
           Operand Addr = pop();
           Operand Value = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleMStore8(Addr, Value);
           break;
         }
 
         case OP_SLOAD: {
           Operand Key = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleSLoad(Key);
           push(Result);
           break;
@@ -604,12 +652,14 @@ private:
         case OP_SSTORE: {
           Operand Key = pop();
           Operand Value = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleSStore(Key, Value);
           break;
         }
 
         case OP_MSIZE: {
           Builder.noteMemoryOpcodeInBlock(Opcode, PC);
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleMSize();
           push(Result);
           break;
@@ -617,6 +667,7 @@ private:
 
         case OP_TLOAD: {
           Operand Index = pop();
+          syncRuntimeStackOverlayForHelper();
           Operand Result = Builder.handleTLoad(Index);
           push(Result);
           break;
@@ -625,6 +676,7 @@ private:
         case OP_TSTORE: {
           Operand Index = pop();
           Operand Value = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleTStore(Index, Value);
           break;
         }
@@ -634,6 +686,7 @@ private:
           Operand DestAddr = pop();
           Operand SrcAddr = pop();
           Operand Length = pop();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleMCopy(DestAddr, SrcAddr, Length);
           break;
         }
@@ -677,6 +730,7 @@ private:
         case OP_SELFDESTRUCT: {
           Operand Beneficiary = pop();
           handleEndBlock();
+          syncRuntimeStackOverlayForHelper();
           Builder.handleSelfDestruct(Beneficiary);
           handleStop();
           InDeadCode = true;
@@ -686,6 +740,11 @@ private:
         // Control flow operations
         case OP_JUMP: {
           Operand Dest = pop();
+          if constexpr (!StackSSALiftEnabled) {
+            handleEndBlock();
+            Builder.handleJump(Dest);
+            break;
+          }
           uint64_t SuccPC = 0;
           bool HasLiftedSucc = tryAssignConstantJumpEntryState(Analyzer, Dest);
           if (!HasLiftedSucc) {
@@ -738,6 +797,13 @@ private:
           uint64_t FallthroughPC = PC + 1;
           if (Analyzer.hasCanonicalJumpDest(FallthroughPC)) {
             FallthroughPC = Analyzer.getCanonicalJumpDestPC(FallthroughPC);
+          }
+          if constexpr (!StackSSALiftEnabled) {
+            handleEndBlock();
+            Builder.handleJumpI(Dest, Cond);
+            PC = FallthroughPC;
+            handleBeginBlock(Analyzer);
+            break;
           }
           bool CanLiftFallthrough =
               CurrentBlockLifted && isLiftedBlock(FallthroughPC);
@@ -813,6 +879,15 @@ private:
           if (HasLiveFallthrough && tryAssignFallthroughEntryState(PC)) {
             // Keep runtime stack materialization elided on lifted fallthrough.
           } else {
+            if constexpr (!StackSSALiftEnabled) {
+              if (HasLiveFallthrough) {
+                handleEndBlock();
+              }
+              Builder.handleJumpDest(PC);
+              handleBeginBlock(Analyzer);
+              Builder.meterOpcode(Opcode, PC);
+              break;
+            }
             if (HasLiveFallthrough && CurrentBlockLifted && isLiftedBlock(PC)) {
               auto OutgoingStack = drainLogicalStack();
               assignLiftedEntryState(PC, OutgoingStack);
@@ -871,6 +946,9 @@ private:
           handleEndBlock();
           Builder.handleUndefined();
         }
+        if (!isBlockTerminatorOpcode(Opcode)) {
+          materializeRuntimeStackOverlayOperands();
+        }
         PC++; // offset 1 byte for opcode
       }
       if (!InDeadCode) {
@@ -885,11 +963,20 @@ private:
   }
 
   void initializeLiftedBlocks(const EVMAnalyzer &Analyzer) {
-    StackLifter.initialize(Analyzer);
+    if constexpr (StackSSALiftEnabled) {
+      StackLifter.initialize(Analyzer);
+    } else {
+      (void)Analyzer;
+    }
   }
 
   bool isLiftedBlock(uint64_t BlockPC) const {
-    return StackLifter.isLiftedBlock(BlockPC);
+    if constexpr (StackSSALiftEnabled) {
+      return StackLifter.isLiftedBlock(BlockPC);
+    } else {
+      (void)BlockPC;
+      return false;
+    }
   }
 
   bool canAssignLiftedEntryStateFromRuntime(const EVMAnalyzer &Analyzer,
@@ -930,7 +1017,86 @@ private:
     }
   }
 
+  Operand peekRuntimeStackOverlay(uint32_t IndexFromTop) {
+    if (IndexFromTop < RuntimeStackOverlayValues.size()) {
+      return RuntimeStackOverlayValues[RuntimeStackOverlayValues.size() -
+                                       IndexFromTop - 1];
+    }
+    uint32_t RuntimeIndex = RuntimeStackOverlayPopCount +
+                            (IndexFromTop - RuntimeStackOverlayValues.size());
+    return Builder.stackGet(static_cast<int32_t>(RuntimeIndex));
+  }
+
+  Operand popRuntimeStackOverlay() {
+    if (!RuntimeStackOverlayValues.empty()) {
+      Operand Opnd = RuntimeStackOverlayValues.back();
+      RuntimeStackOverlayValues.pop_back();
+      return Opnd;
+    }
+    Operand Opnd =
+        Builder.stackGet(static_cast<int32_t>(RuntimeStackOverlayPopCount));
+    RuntimeStackOverlayPopCount++;
+    return Opnd;
+  }
+
+  void materializeRuntimeStackOverlayDepth(uint32_t Depth) {
+    if (RuntimeStackOverlayValues.size() >= Depth) {
+      return;
+    }
+
+    uint32_t Missing =
+        Depth - static_cast<uint32_t>(RuntimeStackOverlayValues.size());
+    std::vector<Operand> Values;
+    Values.reserve(Depth);
+    for (uint32_t I = 0; I < Missing; ++I) {
+      uint32_t RuntimeIndex = RuntimeStackOverlayPopCount + Missing - I - 1;
+      Values.push_back(Builder.stackGet(static_cast<int32_t>(RuntimeIndex)));
+    }
+    Values.insert(Values.end(), RuntimeStackOverlayValues.begin(),
+                  RuntimeStackOverlayValues.end());
+    RuntimeStackOverlayValues.swap(Values);
+    RuntimeStackOverlayPopCount += Missing;
+  }
+
+  void flushRuntimeStackOverlay() {
+    if (RuntimeStackOverlayPopCount > 0) {
+      Builder.stackDrop(RuntimeStackOverlayPopCount);
+      RuntimeStackOverlayPopCount = 0;
+    }
+    for (const Operand &Opnd : RuntimeStackOverlayValues) {
+      Builder.stackPush(Opnd);
+    }
+    RuntimeStackOverlayValues.clear();
+  }
+
+  void resetRuntimeStackOverlay() {
+    RuntimeStackOverlayPopCount = 0;
+    RuntimeStackOverlayValues.clear();
+  }
+
+  void syncRuntimeStackOverlayForHelper() {
+    if (useDirectRuntimeStack()) {
+      flushRuntimeStackOverlay();
+    }
+  }
+
+  void materializeRuntimeStackOverlayOperands() {
+    if (!useDirectRuntimeStack()) {
+      return;
+    }
+    for (Operand &Opnd : RuntimeStackOverlayValues) {
+      Operand Temp = Builder.createStackEntryOperand();
+      Builder.assignStackEntryOperand(Temp, Opnd);
+      Opnd = Temp;
+    }
+  }
+
   void finalizeBlockExit(std::vector<Operand> Values, bool Materialize) {
+    if (useDirectRuntimeStack()) {
+      flushRuntimeStackOverlay();
+      Values.clear();
+      Materialize = false;
+    }
     Builder.endMemoryCompileBlock();
     CurBlockLinearPrecheckPlan = BlockLinearPrecheckPlan();
     if (Materialize) {
@@ -1107,6 +1273,7 @@ private:
     const auto &BlockInfo = BlockInfos.at(PC);
     CurrentBlockEntryPC = PC;
     CurrentBlockHiddenLiveInPrefixDepth = 0;
+    resetRuntimeStackOverlay();
     registerCurrentBlockPC(PC);
     bool LiftedBlock = isLiftedBlock(PC);
     if (LiftedBlock && !validateLiftedBlockStackBounds(BlockInfo)) {
@@ -1141,6 +1308,9 @@ private:
     }
 
     CurrentBlockLifted = false;
+    if constexpr (!StackSSALiftEnabled) {
+      return;
+    }
     int32_t TotalPopSize = -BlockInfo.MinPopHeight;
     EvalStack ReverseStack;
     // Refine each popped Operand's ValueRange from analyzer-computed entry
@@ -1797,6 +1967,11 @@ private:
 
   // DUP1-DUP16: Duplicate Nth stack item
   void handleDup(uint8_t Index) {
+    if (useDirectRuntimeStack()) {
+      Operand Result = peekRuntimeStackOverlay(Index - 1);
+      push(Result);
+      return;
+    }
     requireLogicalStackDepth(Index);
     Operand Result = Stack.peek(Index - 1);
     push(Result);
@@ -1810,6 +1985,13 @@ private:
 
   // SWAP1-SWAP16: Swap top with Nth+1 stack item
   void handleSwap(uint8_t Index) {
+    if (useDirectRuntimeStack()) {
+      materializeRuntimeStackOverlayDepth(static_cast<uint32_t>(Index) + 1u);
+      std::swap(RuntimeStackOverlayValues.back(),
+                RuntimeStackOverlayValues[RuntimeStackOverlayValues.size() -
+                                          Index - 1]);
+      return;
+    }
     requireLogicalStackDepth(static_cast<uint32_t>(Index) + 1u);
     std::swap(Stack.peek(0), Stack.peek(Index));
   }
@@ -1821,26 +2003,26 @@ private:
     Operand OffsetOp = pop();
     Operand SizeOp = pop();
 
+    std::array<Operand, NumTopics> Topics;
+    for (size_t i = 0; i < NumTopics; ++i) {
+      Topics[i] = pop();
+    }
+
+    syncRuntimeStackOverlayForHelper();
+
     if constexpr (NumTopics == 0) {
       Builder.template handleLogWithTopics<0>(OffsetOp, SizeOp);
+    } else if constexpr (NumTopics == 1) {
+      Builder.template handleLogWithTopics<1>(OffsetOp, SizeOp, Topics[0]);
+    } else if constexpr (NumTopics == 2) {
+      Builder.template handleLogWithTopics<2>(OffsetOp, SizeOp, Topics[0],
+                                              Topics[1]);
+    } else if constexpr (NumTopics == 3) {
+      Builder.template handleLogWithTopics<3>(OffsetOp, SizeOp, Topics[0],
+                                              Topics[1], Topics[2]);
     } else {
-      std::array<Operand, NumTopics> Topics;
-      for (size_t i = 0; i < NumTopics; ++i) {
-        Topics[i] = pop();
-      }
-
-      if constexpr (NumTopics == 1) {
-        Builder.template handleLogWithTopics<1>(OffsetOp, SizeOp, Topics[0]);
-      } else if constexpr (NumTopics == 2) {
-        Builder.template handleLogWithTopics<2>(OffsetOp, SizeOp, Topics[0],
-                                                Topics[1]);
-      } else if constexpr (NumTopics == 3) {
-        Builder.template handleLogWithTopics<3>(OffsetOp, SizeOp, Topics[0],
-                                                Topics[1], Topics[2]);
-      } else { // NumTopics == 4
-        Builder.template handleLogWithTopics<4>(
-            OffsetOp, SizeOp, Topics[0], Topics[1], Topics[2], Topics[3]);
-      }
+      Builder.template handleLogWithTopics<4>(OffsetOp, SizeOp, Topics[0],
+                                              Topics[1], Topics[2], Topics[3]);
     }
   }
 
@@ -1870,6 +2052,7 @@ private:
     Operand ValueOp = pop();
     Operand OffsetOp = pop();
     Operand SizeOp = pop();
+    syncRuntimeStackOverlayForHelper();
     Operand RetAddrOp = Builder.handleCreate(ValueOp, OffsetOp, SizeOp);
     push(RetAddrOp);
   }
@@ -1879,6 +2062,7 @@ private:
     Operand OffsetOp = pop();
     Operand SizeOp = pop();
     Operand SaltOp = pop();
+    syncRuntimeStackOverlayForHelper();
     Operand RetAddrOp =
         Builder.handleCreate2(ValueOp, OffsetOp, SizeOp, SaltOp);
     push(RetAddrOp);
@@ -1893,6 +2077,7 @@ private:
     Operand ArgsSizeOp = pop();
     Operand RetOffsetOp = pop();
     Operand RetSizeOp = pop();
+    syncRuntimeStackOverlayForHelper();
     Operand StatusOp =
         (Builder.*handler)(GasOp, ToAddrOp, ValueOp, ArgsOffsetOp, ArgsSizeOp,
                            RetOffsetOp, RetSizeOp);
@@ -1908,6 +2093,7 @@ private:
     Operand ArgsSizeOp = pop();
     Operand RetOffsetOp = pop();
     Operand RetSizeOp = pop();
+    syncRuntimeStackOverlayForHelper();
     Operand StatusOp = (Builder.*handler)(GasOp, ToAddrOp, ArgsOffsetOp,
                                           ArgsSizeOp, RetOffsetOp, RetSizeOp);
     push(StatusOp);
@@ -1916,6 +2102,8 @@ private:
   IRBuilder &Builder;
   CompilerContext *Ctx;
   EvalStack Stack;
+  std::vector<Operand> RuntimeStackOverlayValues;
+  uint32_t RuntimeStackOverlayPopCount = 0;
   BlockLinearPrecheckPlan CurBlockLinearPrecheckPlan;
   StackLifterType StackLifter;
   bool InDeadCode = false;

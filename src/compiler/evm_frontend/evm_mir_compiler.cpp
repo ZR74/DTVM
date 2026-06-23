@@ -657,6 +657,23 @@ void EVMMirBuilder::meterOpcodeRange(uint64_t StartPC,
   meterGas(TotalCost);
 }
 
+bool EVMMirBuilder::hasOpcodeGasMeteringBoundary(evmc_opcode Opcode,
+                                                 uint64_t PC) const {
+  if (!Ctx.isGasMeteringEnabled()) {
+    return false;
+  }
+  if (GasChunkEnd && GasChunkCost && PC < GasChunkSize) {
+    if (GasChunkEnd[PC] > PC) {
+      const uint64_t Cost =
+          GasChunkCostSPP ? GasChunkCostSPP[PC] : GasChunkCost[PC];
+      return Cost != 0;
+    }
+    return false;
+  }
+  const uint8_t Index = static_cast<uint8_t>(Opcode);
+  return static_cast<uint64_t>(InstructionMetrics[Index].gas_cost) != 0;
+}
+
 bool EVMMirBuilder::isOpcodeDefined(evmc_opcode Opcode) const {
   const uint8_t Index = static_cast<uint8_t>(Opcode);
   if (InstructionNames && InstructionNames[Index] != nullptr) {
@@ -1014,6 +1031,27 @@ typename EVMMirBuilder::Operand EVMMirBuilder::stackPop() {
   createInstruction<DassignInstruction>(true, &(Ctx.VoidType), NewSize,
                                         StackSizeVar->getVarIdx());
   return Operand(PopComponents, EVMType::UINT256);
+}
+
+void EVMMirBuilder::stackDrop(uint32_t Count) {
+  if (Count == 0) {
+    return;
+  }
+
+  MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+  MInstruction *StackSize = loadVariable(StackSizeVar);
+  MInstruction *StackTopInt = getInstanceStackTopInt();
+  MInstruction *DropBytes =
+      createIntConstInstruction(I64Type, static_cast<uint64_t>(Count) * 32ULL);
+
+  MInstruction *NewSize = createInstruction<BinaryInstruction>(
+      false, OP_sub, I64Type, StackSize, DropBytes);
+  MInstruction *NewTop = createInstruction<BinaryInstruction>(
+      false, OP_sub, I64Type, StackTopInt, DropBytes);
+  createInstruction<DassignInstruction>(true, &(Ctx.VoidType), NewTop,
+                                        StackTopVar->getVarIdx());
+  createInstruction<DassignInstruction>(true, &(Ctx.VoidType), NewSize,
+                                        StackSizeVar->getVarIdx());
 }
 
 void EVMMirBuilder::stackSet(int32_t IndexFromTop, Operand SetValue) {

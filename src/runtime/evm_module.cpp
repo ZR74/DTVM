@@ -24,6 +24,7 @@ namespace zen::runtime {
 
 namespace {
 
+#ifdef ZEN_ENABLE_EVM_STACK_SSA_LIFT
 bool hasUnresolvedCompatibleDynamicReturnTrampoline(
     const COMPILER::EVMAnalyzer &Analyzer) {
   for (const auto &[EntryPC, Info] : Analyzer.getBlockInfos()) {
@@ -42,6 +43,7 @@ bool hasUnresolvedCompatibleDynamicReturnTrampoline(
   }
   return false;
 }
+#endif
 
 } // namespace
 
@@ -106,10 +108,13 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
     COMPILER::EVMAnalyzer Analyzer(Rev);
     Analyzer.analyze(reinterpret_cast<const uint8_t *>(Mod->Code),
                      Mod->CodeSize);
-    Mod->ShouldFallbackToInterp =
-        Analyzer.getJITSuitability().ShouldFallback ||
-        hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer) ||
-        Analyzer.hasUnresolvedNonLiftedDeepEntryRisk();
+    bool ShouldFallback = Analyzer.getJITSuitability().ShouldFallback;
+#ifdef ZEN_ENABLE_EVM_STACK_SSA_LIFT
+    ShouldFallback = ShouldFallback ||
+                     hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer) ||
+                     Analyzer.hasUnresolvedDeepEntryJITRisk();
+#endif
+    Mod->ShouldFallbackToInterp = ShouldFallback;
 
 #ifdef ZEN_ENABLE_MULTIPASS_JIT
     if (RT.getConfig().EnableProfileGuidedJIT) {

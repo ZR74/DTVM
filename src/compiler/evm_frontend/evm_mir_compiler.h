@@ -312,6 +312,7 @@ public:
 
   void meterOpcode(evmc_opcode Opcode, uint64_t PC);
   void meterOpcodeRange(uint64_t StartPC, uint64_t EndPCExclusive);
+  bool hasOpcodeGasMeteringBoundary(evmc_opcode Opcode, uint64_t PC) const;
   bool isOpcodeDefined(evmc_opcode Opcode) const;
   void meterGas(uint64_t GasCost);
 
@@ -329,6 +330,7 @@ public:
 
   void stackPush(Operand PushValue);
   Operand stackPop();
+  void stackDrop(uint32_t Count);
 
   void stackSet(int32_t IndexFromTop, Operand SetValue);
   Operand stackGet(int32_t IndexFromTop);

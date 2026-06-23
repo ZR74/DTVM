@@ -171,6 +171,12 @@ public:
     bool HasDynamicJump = false;
     bool HasConditionalJump = false;
     bool HasConstantJump = false;
+    // JIT safety gate: true when this block's entry stack state can be
+    // materialized or transferred without relying on interpreter fallback.
+    // This is computed even when stack SSA lifting is disabled.
+    bool CanMaterializeJITEntryState = false;
+    // Stack SSA optimization gate. The actual lifter consumes this only when
+    // ZEN_ENABLE_EVM_STACK_SSA_LIFT is enabled.
     bool CanLiftStack = false;
     uint64_t ConstantJumpTargetPC = 0;
     uint64_t DynamicJumpTargetRegionEntryPC = 0;
@@ -386,6 +392,12 @@ public:
     return It != BlockInfos.end() && It->second.CanLiftStack;
   }
 
+  bool canMaterializeJITEntryStateWithoutRuntimeMaterialization(
+      uint64_t BlockPC) const {
+    auto It = BlockInfos.find(BlockPC);
+    return It != BlockInfos.end() && It->second.CanMaterializeJITEntryState;
+  }
+
   bool canTransferCompatibleDynamicJumpTargetsWithoutRuntimeMaterialization(
       uint64_t BlockPC) const {
     const std::vector<uint64_t> TargetBlockPCs =
@@ -394,16 +406,17 @@ public:
            std::all_of(
                TargetBlockPCs.begin(), TargetBlockPCs.end(),
                [this](uint64_t TargetBlockPC) {
-                 return canTransferLiftedEntryStateWithoutRuntimeMaterialization(
+                 return canMaterializeJITEntryStateWithoutRuntimeMaterialization(
                      TargetBlockPC);
                });
   }
 
   const JITSuitabilityResult &getJITSuitability() const { return JITResult; }
 
-  bool hasUnresolvedNonLiftedDeepEntryRisk() const {
+  bool hasUnresolvedDeepEntryJITRisk() const {
     for (const auto &[BlockPC, Info] : BlockInfos) {
-      if (Info.CanLiftStack || Info.ResolvedEntryStackDepth >= 0) {
+      if (Info.CanMaterializeJITEntryState ||
+          Info.ResolvedEntryStackDepth >= 0) {
         continue;
       }
 
@@ -419,7 +432,8 @@ public:
         }
 
         const BlockInfo &PredInfo = PredIt->second;
-        if (PredInfo.CanLiftStack || PredInfo.ResolvedEntryStackDepth >= 0) {
+        if (PredInfo.CanMaterializeJITEntryState ||
+            PredInfo.ResolvedEntryStackDepth >= 0) {
           continue;
         }
 
@@ -428,6 +442,10 @@ public:
     }
 
     return false;
+  }
+
+  bool hasUnresolvedNonLiftedDeepEntryRisk() const {
+    return hasUnresolvedDeepEntryJITRisk();
   }
 
   bool hasCanonicalJumpDest(uint64_t PC) const {
@@ -462,6 +480,7 @@ public:
     markDynamicJumpTargetCandidates();
     resolveDynamicJumpTargetEntryDepths();
     finalizeEntryShapeMetadata();
+    finalizeJITEntryMaterializability();
     finalizeLiftability();
     runRangeAnalysis(Bytecode, BytecodeSize);
     return true;
@@ -1371,11 +1390,7 @@ private:
     return false;
   }
 
-  void finalizeLiftability() {
-    // Computed once and reused across blocks; independent of the per-block
-    // loop.
-    const std::vector<uint64_t> DispatchSources =
-        collectAllDynamicJumpDispatchSourceBlocks();
+  void finalizeJITEntryMaterializability() {
     for (auto &[EntryPC, Info] : BlockInfos) {
       (void)EntryPC;
       bool EntryKnown = Info.IsEntryStateCompatible;
@@ -1385,20 +1400,33 @@ private:
       bool NonLiftableDynamicSource = HasUnknownDynamicJump &&
                                       Info.IsDynamicJumpTargetCandidate &&
                                       hasNonLiftableDynamicJumpSource(EntryPC);
-      Info.CanLiftStack = EntryKnown && !Info.HasUndefinedInstr &&
-                          !Info.HasInconsistentEntryDepth &&
-                          !DynamicJumpDestConflict && !NonLiftableDynamicSource;
-      if (Info.CanLiftStack && Info.IsDynamicJumpTargetCandidate &&
-          Info.HasDeferredEntryMerge && Info.HiddenLiveInPrefixDepth > 0 &&
+      Info.CanMaterializeJITEntryState =
+          EntryKnown && !Info.HasUndefinedInstr &&
+          !Info.HasInconsistentEntryDepth && !DynamicJumpDestConflict &&
+          !NonLiftableDynamicSource;
+      if (Info.CanMaterializeJITEntryState &&
+          Info.IsDynamicJumpTargetCandidate && Info.HasDeferredEntryMerge &&
+          Info.HiddenLiveInPrefixDepth > 0 &&
           getDynamicJumpSourceBlocksForBlock(EntryPC).empty()) {
-        Info.CanLiftStack = false;
+        Info.CanMaterializeJITEntryState = false;
       }
-      if (Info.CanLiftStack && Info.IsDynamicJumpTargetCandidate &&
-          Info.HasDeferredEntryMerge &&
+      if (Info.CanMaterializeJITEntryState &&
+          Info.IsDynamicJumpTargetCandidate && Info.HasDeferredEntryMerge &&
           getDynamicJumpSourceBlocksForBlock(EntryPC).size() > 1 &&
           getPotentialEntryPredecessorsForBlock(EntryPC).size() > 4) {
-        Info.CanLiftStack = false;
+        Info.CanMaterializeJITEntryState = false;
       }
+    }
+  }
+
+  void finalizeLiftability() {
+    // Computed once and reused across blocks; independent of the per-block
+    // loop.
+    const std::vector<uint64_t> DispatchSources =
+        collectAllDynamicJumpDispatchSourceBlocks();
+    for (auto &[EntryPC, Info] : BlockInfos) {
+      (void)EntryPC;
+      Info.CanLiftStack = Info.CanMaterializeJITEntryState;
       // Never lift a dynamic-jump-target block whose statically enumerated
       // predecessor set (which sizes its stack-merge phis) cannot account for
       // every dynamic-jump dispatch edge codegen wires. The shape-class source

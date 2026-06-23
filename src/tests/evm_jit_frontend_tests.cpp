@@ -113,6 +113,7 @@ private:
 struct MockStackAccessStats {
   uint32_t StackPopCount = 0;
   uint32_t StackPushCount = 0;
+  uint32_t StackDropCount = 0;
   uint32_t StackGetCount = 0;
   uint32_t StackSetCount = 0;
 };
@@ -184,6 +185,12 @@ public:
     Operand Top = RuntimeStack.back();
     RuntimeStack.pop_back();
     return Top;
+  }
+
+  void stackDrop(uint32_t Count) {
+    Stats[CurrentOpcode].StackDropCount += Count;
+    ZEN_ASSERT(RuntimeStack.size() >= Count && "mock runtime stack underflow");
+    RuntimeStack.resize(RuntimeStack.size() - Count);
   }
 
   void stackSet(int32_t IndexFromTop, Operand SetValue) {
@@ -329,6 +336,9 @@ public:
   void noteMemoryOpcodeInBlock(evmc_opcode, uint64_t) {}
   void noteHelperOpcodeInBlock(evmc_opcode, uint64_t) {}
   void endMemoryCompileBlock() {}
+  bool hasOpcodeGasMeteringBoundary(evmc_opcode, uint64_t) const {
+    return false;
+  }
 
   void handleJump(Operand) {}
   void handleJumpI(Operand, Operand) {}
@@ -549,11 +559,13 @@ TEST(EVMJITFrontendAnalyzerTest,
   expectPCList(EntryBlock->Successors, {5, 6});
 
   EXPECT_EQ(FallthroughBlock->ResolvedEntryStackDepth, 0);
+  EXPECT_TRUE(FallthroughBlock->CanMaterializeJITEntryState);
   EXPECT_TRUE(FallthroughBlock->CanLiftStack);
   expectPCList(FallthroughBlock->Predecessors, {0});
 
   EXPECT_TRUE(JumpDestBlock->IsJumpDest);
   EXPECT_EQ(JumpDestBlock->ResolvedEntryStackDepth, 0);
+  EXPECT_TRUE(JumpDestBlock->CanMaterializeJITEntryState);
   EXPECT_TRUE(JumpDestBlock->CanLiftStack);
   expectPCList(JumpDestBlock->Predecessors, {0});
 }
@@ -582,10 +594,12 @@ TEST(EVMJITFrontendAnalyzerTest,
   EXPECT_TRUE(Analyzer.hasUnknownDynamicJumpTargets());
   EXPECT_TRUE(EntryBlock->HasConditionalJump);
   EXPECT_TRUE(DynamicJumpBlock->HasDynamicJump);
+  EXPECT_TRUE(DynamicJumpBlock->CanMaterializeJITEntryState);
   EXPECT_TRUE(DynamicJumpBlock->CanLiftStack);
 
   EXPECT_TRUE(JumpDestBlock->IsJumpDest);
   EXPECT_EQ(JumpDestBlock->ResolvedEntryStackDepth, 0);
+  EXPECT_FALSE(JumpDestBlock->CanMaterializeJITEntryState);
   EXPECT_FALSE(JumpDestBlock->CanLiftStack);
 }
 
@@ -646,6 +660,7 @@ TEST(EVMJITFrontendAnalyzerTest, MergeDepthConflictDisablesLiftedEntry) {
   EXPECT_EQ(MergeBlock->ResolvedEntryStackDepth, -1);
   EXPECT_EQ(MergeBlock->ResolvedExitStackDepth, -1);
   EXPECT_TRUE(MergeBlock->HasInconsistentEntryDepth);
+  EXPECT_FALSE(MergeBlock->CanMaterializeJITEntryState);
   EXPECT_FALSE(MergeBlock->CanLiftStack);
   expectPCList(MergeBlock->Predecessors, {0, 5});
 }
@@ -686,7 +701,7 @@ TEST(EVMJITFrontendAnalyzerTest,
 }
 
 TEST(EVMJITFrontendVisitorTest,
-     MaterializedBlockKeepsPopDupSwapAndAddOnLogicalStack) {
+     MaterializedBlockUsesDirectRuntimeStackWhenSSALiftDisabled) {
   const std::vector<uint8_t> Bytecode = {
       0x60, 0xaa, // PUSH1 0xaa
       0x60, 0xbb, // PUSH1 0xbb
@@ -725,23 +740,67 @@ TEST(EVMJITFrontendVisitorTest,
 
   const auto &PopStats = Builder.accessStats(OP_POP);
   EXPECT_EQ(PopStats.StackPopCount, 0U);
-  EXPECT_EQ(PopStats.StackGetCount, 0U);
+  EXPECT_EQ(PopStats.StackDropCount, 0U);
+  EXPECT_EQ(PopStats.StackPushCount, 0U);
+  EXPECT_EQ(PopStats.StackGetCount, 1U);
   EXPECT_EQ(PopStats.StackSetCount, 0U);
 
   const auto &DupStats = Builder.accessStats(OP_DUP1);
   EXPECT_EQ(DupStats.StackPopCount, 0U);
-  EXPECT_EQ(DupStats.StackGetCount, 0U);
+  EXPECT_EQ(DupStats.StackDropCount, 0U);
+  EXPECT_EQ(DupStats.StackPushCount, 0U);
+  EXPECT_EQ(DupStats.StackGetCount, 1U);
   EXPECT_EQ(DupStats.StackSetCount, 0U);
 
   const auto &SwapStats = Builder.accessStats(OP_SWAP1);
   EXPECT_EQ(SwapStats.StackPopCount, 0U);
-  EXPECT_EQ(SwapStats.StackGetCount, 0U);
+  EXPECT_EQ(SwapStats.StackDropCount, 0U);
+  EXPECT_EQ(SwapStats.StackPushCount, 0U);
+  EXPECT_EQ(SwapStats.StackGetCount, 1U);
   EXPECT_EQ(SwapStats.StackSetCount, 0U);
 
   const auto &AddStats = Builder.accessStats(OP_ADD);
   EXPECT_EQ(AddStats.StackPopCount, 0U);
+  EXPECT_EQ(AddStats.StackDropCount, 0U);
+  EXPECT_EQ(AddStats.StackPushCount, 0U);
   EXPECT_EQ(AddStats.StackGetCount, 0U);
   EXPECT_EQ(AddStats.StackSetCount, 0U);
+
+  const auto &StopStats = Builder.accessStats(OP_STOP);
+  EXPECT_EQ(StopStats.StackPopCount, 0U);
+  EXPECT_EQ(StopStats.StackDropCount, 2U);
+  EXPECT_EQ(StopStats.StackPushCount, 1U);
+  EXPECT_EQ(StopStats.StackGetCount, 0U);
+  EXPECT_EQ(StopStats.StackSetCount, 0U);
+}
+
+TEST(EVMJITFrontendVisitorTest, DirectRuntimeStackOverlayFlushesWhenBounded) {
+  std::vector<uint8_t> Bytecode = {
+      0x60, 0x00 // PUSH1 0x00
+  };
+  for (int I = 0; I < 70; ++I) {
+    Bytecode.push_back(0x80); // DUP1
+  }
+  Bytecode.push_back(0x00); // STOP
+
+  COMPILER::EVMFrontendContext Ctx;
+  Ctx.setRevision(EVMC_CANCUN);
+  Ctx.setBytecode(reinterpret_cast<const zen::common::Byte *>(Bytecode.data()),
+                  Bytecode.size());
+
+  MockEVMBuilder Builder;
+  COMPILER::EVMByteCodeVisitor<MockEVMBuilder> Visitor(Builder, &Ctx);
+  EXPECT_TRUE(Visitor.compile());
+  EXPECT_FALSE(Builder.Trapped);
+  EXPECT_FALSE(Builder.Undefined);
+  EXPECT_EQ(Builder.runtimeStackDepth(), 71U);
+
+  const auto &DupStats = Builder.accessStats(OP_DUP1);
+  EXPECT_EQ(DupStats.StackPushCount, 65U);
+  EXPECT_EQ(DupStats.StackGetCount, 1U);
+
+  const auto &StopStats = Builder.accessStats(OP_STOP);
+  EXPECT_EQ(StopStats.StackPushCount, 6U);
 }
 
 TEST(EVMJITFrontendVisitorTest,
