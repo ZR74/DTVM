@@ -6,6 +6,8 @@
 
 #include "action/vm_eval_stack.h"
 #include "compiler/context.h"
+#include "compiler/evm_frontend/evm_memory_facts.h"
+#include "compiler/evm_frontend/evm_memory_grouping.h"
 #include "compiler/evm_frontend/evm_value_range.h"
 #include "compiler/mir/function.h"
 #include "compiler/mir/instructions.h"
@@ -14,6 +16,8 @@
 #include "evmc/instructions.h"
 #include "intx/intx.hpp"
 #include <algorithm>
+#include <cstdint>
+#include <memory>
 #include <unordered_map>
 #include <vector>
 
@@ -1009,7 +1013,8 @@ public:
                             Operand OffsetComponents, Operand SizeComponents);
   Operand handleReturnDataSize();
   void dumpMemoryCompileStats() const;
-  void beginMemoryCompileBlock(uint64_t EntryPC);
+  void beginMemoryCompileBlock(uint64_t EntryPC,
+                               uint64_t BodyEndPC = UINT64_MAX);
   void setMemoryCompileBlockConstPrecheckPlan(uint64_t MaxRequiredSize,
                                               uint64_t CoveredDirectOps);
   void
@@ -1055,6 +1060,18 @@ public:
   void handleInvalid();
   void handleUndefined();
   void handleTrap(ErrorCode ErrCode);
+  void setMemoryFacts(const MemoryFacts &Facts) {
+    MemoryFactsData = Facts;
+#ifdef ZEN_ENABLE_EVM_MEMORY_PLAN_FRAMEWORK
+    MemoryAnalysis = std::make_unique<MemoryAnalysisView>(MemoryFactsData);
+    MemoryExpansionPlans =
+        std::make_unique<MemoryExpansionPlanner>(*MemoryAnalysis);
+#else
+    MemoryAnalysis.reset();
+    MemoryExpansionPlans.reset();
+#endif
+  }
+  const MemoryFacts &getMemoryFacts() const { return MemoryFactsData; }
   Operand handleKeccak256(Operand OffsetComponents, Operand LengthComponents);
   Operand handleKeccak256TwoWord(Operand OffsetComponents, Operand Word0,
                                  Operand Word1);
@@ -1354,6 +1371,7 @@ private:
   CompilerContext &Ctx;
   MFunction *CurFunc = nullptr;
   MBasicBlock *CurBB = nullptr;
+  MemoryFacts MemoryFactsData;
   MBasicBlock *ReturnBB = nullptr;
 #ifdef ZEN_ENABLE_LINUX_PERF
   uint64_t CurPC = 0;
@@ -1420,7 +1438,29 @@ private:
     uint64_t BlockLinearPrecheckCount = 0;
     uint64_t PrecheckedMLoadOpCount = 0;
     uint64_t PrecheckedMStoreOpCount = 0;
+    uint64_t PrecheckedMStore8OpCount = 0;
     uint64_t PrecheckedMCopyOpCount = 0;
+    uint64_t MemoryExpansionPlanCount = 0;
+    uint64_t MemoryExpansionPlanPrecheckCount = 0;
+    uint64_t MemoryExpansionPlanGroupingCount = 0;
+    uint64_t MemoryExpansionPlanReusableCount = 0;
+    uint64_t MemoryExpansionPlanCoveredOps = 0;
+    uint64_t MemoryExpansionPlanCoveredMLoadOps = 0;
+    uint64_t MemoryExpansionPlanCoveredMStoreOps = 0;
+    uint64_t MemoryExpansionPlanCoveredMStore8Ops = 0;
+    uint64_t MemoryExpansionPlanCoveredMCopyOps = 0;
+    uint64_t MemoryExpansionPlanRequiredSizeSum = 0;
+    uint64_t MemoryExpansionPlanRequiredSizeMax = 0;
+    uint64_t MemoryExpansionPlanEstimatedReducedExpansions = 0;
+    uint64_t MemoryExpansionPlanGroupingCandidates = 0;
+    uint64_t MemoryExpansionPlanPrecheckCandidates = 0;
+    uint64_t MemoryExpansionPlanRejectedNoCandidate = 0;
+    uint64_t MemoryExpansionPlanRejectedUnknownInterval = 0;
+    uint64_t MemoryExpansionPlanRejectedInvalidRange = 0;
+    uint64_t MemoryExpansionPlanRejectedOverflow = 0;
+    uint64_t MemoryExpansionPlanRejectedTooLarge = 0;
+    uint64_t MemoryExpansionPlanRejectedZeroSize = 0;
+    uint64_t MemoryExpansionPlanRejectedUnprofitable = 0;
     uint64_t MStoreAddrValueAliasReuseCount = 0;
     uint64_t LinearU64AddrFastPathCount = 0;
     uint64_t LinearU64MLoadFastPathCount = 0;
@@ -1593,7 +1633,20 @@ private:
     uint64_t PrecheckedDirectOpCount = 0;
     uint64_t PrecheckedMLoadOpCount = 0;
     uint64_t PrecheckedMStoreOpCount = 0;
+    uint64_t PrecheckedMStore8OpCount = 0;
     uint64_t PrecheckedMCopyOpCount = 0;
+    bool HasMemoryExpansionPlan = false;
+    uint64_t MemoryExpansionPlanKind = 0;
+    uint64_t MemoryExpansionPlanReusable = 0;
+    uint64_t MemoryExpansionPlanCoveredOps = 0;
+    uint64_t MemoryExpansionPlanCoveredMLoadOps = 0;
+    uint64_t MemoryExpansionPlanCoveredMStoreOps = 0;
+    uint64_t MemoryExpansionPlanCoveredMStore8Ops = 0;
+    uint64_t MemoryExpansionPlanCoveredMCopyOps = 0;
+    uint64_t MemoryExpansionPlanRequiredBegin = 0;
+    uint64_t MemoryExpansionPlanRequiredEnd = 0;
+    uint64_t MemoryExpansionPlanRequiredSize = 0;
+    uint64_t MemoryExpansionPlanEstimatedReducedExpansions = 0;
     uint64_t MStoreAddrValueAliasReuseCount = 0;
     uint64_t LinearU64AddrFastPathCount = 0;
     uint64_t LinearU64MLoadFastPathCount = 0;
@@ -1680,6 +1733,9 @@ private:
     uint64_t MaxRequiredSize = 0;
     uint64_t CoveredDirectOpsTotal = 0;
     uint64_t CoveredDirectOpsRemaining = 0;
+    bool HasOpPCRange = false;
+    uint64_t FirstOpPC = 0;
+    uint64_t LastOpPC = 0;
     Variable *AnchoredBasePtrVar = nullptr;
   };
   struct MemoryBlockLinearPrecheckPlan {
@@ -1714,6 +1770,10 @@ private:
                                               bool OffsetWasConst,
                                               uint64_t ConstOffset,
                                               uint64_t AccessSize);
+  void applyMemoryExpansionPlan(const MemoryExpansionPlan &Plan);
+  void noteMemoryExpansionPlan(const MemoryExpansionPlan &Plan);
+  void noteMemoryExpansionPlanDiagnostics(
+      const MemoryExpansionPlanDiagnostics &Diag);
   uint64_t NextHashPrepMarkerId = 0;
   enum class SmallFrameMemoryOp : uint8_t { MLoad, MStore, MStore8 };
   void noteSmallFrameMemoryOp(SmallFrameMemoryOp Op, bool OffsetWasConst,
@@ -1728,6 +1788,8 @@ private:
   MemoryBlockLinearPrecheckPlan CurBlockLinearPrecheckPlan;
   MemoryBlockLargeStaticWorkspacePrecheckPlan
       CurBlockLargeStaticWorkspacePrecheckPlan;
+  std::unique_ptr<MemoryAnalysisView> MemoryAnalysis;
+  std::unique_ptr<MemoryExpansionPlanner> MemoryExpansionPlans;
 
   // Helper methods for memory operations
   MInstruction *getMemoryDataPointer();

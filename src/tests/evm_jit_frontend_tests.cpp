@@ -3,6 +3,10 @@
 
 #include "action/evm_bytecode_visitor.h"
 #include "compiler/evm_frontend/evm_analyzer.h"
+#include "compiler/evm_frontend/evm_memory_analysis.h"
+#include "compiler/evm_frontend/evm_memory_facts.h"
+#include "compiler/evm_frontend/evm_memory_grouping.h"
+#include "compiler/evm_frontend/evm_memory_precheck.h"
 #include "compiler/evm_frontend/evm_mir_compiler.h"
 
 #include <gtest/gtest.h>
@@ -13,6 +17,7 @@
 #include <cstdint>
 #include <initializer_list>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace {
@@ -117,6 +122,492 @@ std::vector<uint8_t> makeLargeStaticDynamicOffsetMStoreBlock(uint64_t Ops) {
   }
   Bytecode.push_back(OP_STOP);
   return Bytecode;
+}
+
+COMPILER::MemoryFacts collectMemoryFacts(const std::vector<uint8_t> &Bytecode) {
+  COMPILER::MemoryFactsBuilder FactsBuilder;
+  FactsBuilder.beginBlock(0, 0);
+
+  size_t PC = 0;
+  while (PC < Bytecode.size()) {
+    evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
+    FactsBuilder.observeOpcode(Opcode, PC, Bytecode.data(), Bytecode.size());
+    ++PC;
+    if (Opcode >= OP_PUSH0 && Opcode <= OP_PUSH32) {
+      PC += static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+    }
+  }
+
+  return FactsBuilder.takeFacts();
+}
+
+TEST(EVMMemoryFactsBuilderTest, RecordsConstMStoreWriteInterval) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x2a, OP_PUSH1, 0x80,
+                                         OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+
+  ASSERT_EQ(Facts.Ops.size(), 1u);
+  const COMPILER::MemoryOp &Op = Facts.Ops[0];
+  EXPECT_EQ(Op.Pc, 4u);
+  EXPECT_EQ(Op.Opcode, OP_MSTORE);
+  EXPECT_EQ(Op.Kind, COMPILER::MemoryOpKind::MStore);
+  EXPECT_EQ(Op.Effect, COMPILER::MemoryEffect::Write);
+  ASSERT_TRUE(Op.Reads.empty());
+  ASSERT_EQ(Op.Writes.size(), 1u);
+  EXPECT_EQ(Op.Writes[0].Space, COMPILER::AddressSpace::Memory);
+  EXPECT_EQ(Op.Writes[0].Addr.Kind, COMPILER::AddressBaseKind::Const);
+  EXPECT_EQ(Op.Writes[0].Addr.Offset, 0x80);
+  ASSERT_TRUE(Op.Writes[0].Size.Known);
+  EXPECT_EQ(Op.Writes[0].Size.Value, 32u);
+}
+
+TEST(EVMMemoryFactsBuilderTest, RecordsCopyAddressSpaces) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x20, OP_PUSH1,       0x04,
+                                         OP_PUSH1, 0x80, OP_CALLDATACOPY};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+
+  ASSERT_EQ(Facts.Ops.size(), 1u);
+  const COMPILER::MemoryOp &Op = Facts.Ops[0];
+  EXPECT_EQ(Op.Kind, COMPILER::MemoryOpKind::CallDataCopy);
+  EXPECT_EQ(Op.Effect, COMPILER::MemoryEffect::ReadWrite);
+  ASSERT_EQ(Op.Reads.size(), 1u);
+  ASSERT_EQ(Op.Writes.size(), 1u);
+  EXPECT_EQ(Op.Reads[0].Space, COMPILER::AddressSpace::CallData);
+  EXPECT_EQ(Op.Reads[0].Addr.Offset, 0x04);
+  ASSERT_TRUE(Op.Reads[0].Size.Known);
+  EXPECT_EQ(Op.Reads[0].Size.Value, 0x20u);
+  EXPECT_EQ(Op.Writes[0].Space, COMPILER::AddressSpace::Memory);
+  EXPECT_EQ(Op.Writes[0].Addr.Offset, 0x80);
+  ASSERT_TRUE(Op.Writes[0].Size.Known);
+  EXPECT_EQ(Op.Writes[0].Size.Value, 0x20u);
+}
+
+TEST(EVMMemoryAnalysisViewTest, ClassifiesBarriersFromMemoryOps) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x00,     OP_MLOAD, OP_PUSH1,
+                                         0x00,     OP_MSIZE, OP_PUSH1, 0x00,
+                                         OP_PUSH1, 0x20,     OP_RETURN};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 3u);
+  EXPECT_EQ(View.getBarrierKind(Facts.Ops[0]),
+            COMPILER::MemoryBarrierKind::Read);
+  EXPECT_EQ(View.getBarrierKind(Facts.Ops[1]),
+            COMPILER::MemoryBarrierKind::MemorySizeObserver);
+  EXPECT_EQ(View.getBarrierKind(Facts.Ops[2]),
+            COMPILER::MemoryBarrierKind::Escape);
+  EXPECT_TRUE(View.isBarrier(Facts.Ops[2]));
+}
+
+TEST(EVMMemoryAnalysisViewTest, ProvesNoAliasForDisjointConstIntervals) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xa0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  ASSERT_EQ(Facts.Ops[0].Writes.size(), 1u);
+  ASSERT_EQ(Facts.Ops[1].Writes.size(), 1u);
+  EXPECT_EQ(
+      View.getIntervalRelation(Facts.Ops[0].Writes[0], Facts.Ops[1].Writes[0]),
+      COMPILER::IntervalRelationKind::Disjoint);
+  EXPECT_EQ(View.alias(Facts.Ops[0], Facts.Ops[1]),
+            COMPILER::MemoryAliasResult::NoAlias);
+}
+
+TEST(EVMMemoryAnalysisViewTest, KeepsMayAliasForOverlappingConstIntervals) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x90, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_EQ(
+      View.getIntervalRelation(Facts.Ops[0].Writes[0], Facts.Ops[1].Writes[0]),
+      COMPILER::IntervalRelationKind::Overlap);
+  EXPECT_EQ(View.alias(Facts.Ops[0], Facts.Ops[1]),
+            COMPILER::MemoryAliasResult::MayAlias);
+}
+
+TEST(EVMMemoryAnalysisViewTest, ProvesNoAliasAcrossAddressSpaces) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x20, OP_PUSH1,       0x04,
+                                         OP_PUSH1, 0x80, OP_CALLDATACOPY};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 1u);
+  ASSERT_EQ(Facts.Ops[0].Reads.size(), 1u);
+  ASSERT_EQ(Facts.Ops[0].Writes.size(), 1u);
+  EXPECT_EQ(View.alias(Facts.Ops[0].Reads[0], Facts.Ops[0].Writes[0]),
+            COMPILER::MemoryAliasResult::NoAlias);
+}
+
+TEST(EVMMemoryPrecheckConsumerTest,
+     ProducesProvenMemoryPrefixForConstDirectOps) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xa0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Consumer(View);
+
+  std::optional<COMPILER::ProvenMemoryRange> Proof =
+      Consumer.getBlockPrecheckRange(0, Bytecode.size());
+
+  ASSERT_TRUE(Proof.has_value());
+  EXPECT_EQ(Proof->EntryPC, 0u);
+  EXPECT_EQ(Proof->CoveredOpCount, 2u);
+  EXPECT_EQ(Proof->Interval.Space, COMPILER::AddressSpace::Memory);
+  EXPECT_EQ(Proof->Interval.Addr.Kind, COMPILER::AddressBaseKind::Const);
+  EXPECT_EQ(Proof->Interval.Addr.Offset, 0);
+  ASSERT_TRUE(Proof->Interval.Size.Known);
+  EXPECT_EQ(Proof->Interval.Size.Value, 0xc0u);
+  uint64_t EndOffset = 0;
+  ASSERT_TRUE(Proof->getKnownEndOffset(EndOffset));
+  EXPECT_EQ(EndOffset, 0xc0u);
+}
+
+TEST(EVMMemoryPrecheckConsumerTest, RejectsHelperBarrierInBlockRange) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x00, OP_PUSH1, 0x20, OP_KECCAK256,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xa0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Consumer(View);
+
+  EXPECT_FALSE(Consumer.getBlockPrecheckRange(0, Bytecode.size()).has_value());
+}
+
+TEST(EVMMemoryGroupingConsumerTest, GroupsContinuousStores) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xa0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  std::optional<COMPILER::SharedPrecheck> Shared =
+      Grouping.getSharedPrecheck(0, Bytecode.size());
+
+  ASSERT_TRUE(Shared.has_value());
+  EXPECT_EQ(Shared->Group.OpCount, 2u);
+  EXPECT_EQ(Shared->Group.UnionInterval.Addr.Offset, 0x80);
+  ASSERT_TRUE(Shared->Group.UnionInterval.Size.Known);
+  EXPECT_EQ(Shared->Group.UnionInterval.Size.Value, 0x40u);
+  uint64_t EndOffset = 0;
+  ASSERT_TRUE(Shared->Range.getKnownEndOffset(EndOffset));
+  EXPECT_EQ(EndOffset, 0xc0u);
+}
+
+TEST(EVMMemoryGroupingConsumerTest, GroupsContinuousMStore8) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE8,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x81, OP_MSTORE8};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  std::optional<COMPILER::SharedPrecheck> Shared =
+      Grouping.getSharedPrecheck(0, Bytecode.size());
+
+  ASSERT_TRUE(Shared.has_value());
+  EXPECT_EQ(Shared->Group.OpCount, 2u);
+  EXPECT_EQ(Shared->Group.UnionInterval.Addr.Offset, 0x80);
+  ASSERT_TRUE(Shared->Group.UnionInterval.Size.Known);
+  EXPECT_EQ(Shared->Group.UnionInterval.Size.Value, 2u);
+}
+
+TEST(EVMMemoryGroupingConsumerTest, GroupsContinuousMCopy) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x20, OP_PUSH1, 0x00, OP_PUSH1, 0x20, OP_MCOPY,
+      OP_PUSH1, 0x20, OP_PUSH1, 0x40, OP_PUSH1, 0x60, OP_MCOPY};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  std::optional<COMPILER::SharedPrecheck> Shared =
+      Grouping.getSharedPrecheck(0, Bytecode.size());
+
+  ASSERT_TRUE(Shared.has_value());
+  EXPECT_EQ(Shared->Group.OpCount, 2u);
+  EXPECT_EQ(Shared->Group.UnionInterval.Addr.Offset, 0);
+  ASSERT_TRUE(Shared->Group.UnionInterval.Size.Known);
+  EXPECT_EQ(Shared->Group.UnionInterval.Size.Value, 0x80u);
+}
+
+TEST(EVMMemoryGroupingConsumerTest, BarrierBreaksGroup) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x00, OP_PUSH1, 0x20, OP_KECCAK256,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xa0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
+}
+
+TEST(EVMMemoryGroupingConsumerTest, MayAliasBreaksGroup) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x90, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
+}
+
+TEST(EVMMemoryGroupingConsumerTest, UnknownIntervalBreaksGroup) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00, OP_CALLDATALOAD, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x80, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
+}
+
+TEST(EVMMemoryGroupingConsumerTest, DifferentAddressSpaceBreaksGroup) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01,     OP_PUSH1, 0x80,     OP_MSTORE, OP_PUSH1,
+      0x20,     OP_PUSH1, 0x04,     OP_PUSH1, 0xa0,      OP_CALLDATACOPY,
+      OP_PUSH1, 0x02,     OP_PUSH1, 0xc0,     OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
+}
+
+TEST(EVMMemoryGroupingConsumerTest,
+     RegressionNonContiguousFallsBackToPrecheck) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xc0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
+  std::optional<COMPILER::ProvenMemoryRange> Proof =
+      Prechecks.getBlockPrecheckRange(0, Bytecode.size());
+  ASSERT_TRUE(Proof.has_value());
+  uint64_t EndOffset = 0;
+  ASSERT_TRUE(Proof->getKnownEndOffset(EndOffset));
+  EXPECT_EQ(EndOffset, 0xe0u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, PrecheckConsumerBuildsExpansionPlan) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xc0, OP_MSTORE,
+      OP_PUSH1, 0x03, OP_PUSH1, 0xf0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Prechecks.buildMemoryExpansionPlan(0, Bytecode.size());
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::ProvenRange);
+  EXPECT_EQ(Plan->CoveredOps, 3u);
+  EXPECT_EQ(Plan->RequiredMemorySize, 0x110u);
+  EXPECT_TRUE(Plan->Reusable);
+  EXPECT_TRUE(Plan->coversPC(Facts.Ops[0].Pc));
+  EXPECT_TRUE(Plan->coversPC(Facts.Ops[2].Pc));
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, GroupingConsumerBuildsExpansionPlan) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xa0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+  COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Grouping.buildMemoryExpansionPlan(0, Bytecode.size());
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind,
+            COMPILER::MemoryExpansionKind::ContiguousGroup);
+  EXPECT_EQ(Plan->CoveredOps, 2u);
+  EXPECT_EQ(Plan->RequiredInterval.Addr.Offset, 0x80);
+  ASSERT_TRUE(Plan->RequiredInterval.Size.Known);
+  EXPECT_EQ(Plan->RequiredInterval.Size.Value, 0x40u);
+  EXPECT_EQ(Plan->RequiredMemorySize, 0xc0u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, ExpansionPlannerPrefersGroupingPlan) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xa0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(0, Bytecode.size());
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind,
+            COMPILER::MemoryExpansionKind::ContiguousGroup);
+  EXPECT_EQ(Plan->RequiredMemorySize, 0xc0u);
+  const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(Diag.GroupingCandidates, 1u);
+  EXPECT_EQ(Diag.GroupingAccepted, 1u);
+  EXPECT_EQ(Diag.PrecheckCandidates, 0u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, ExpansionPlannerFallsBackToPrecheckPlan) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xc0, OP_MSTORE,
+      OP_PUSH1, 0x03, OP_PUSH1, 0xf0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(0, Bytecode.size());
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::ProvenRange);
+  EXPECT_EQ(Plan->RequiredMemorySize, 0x110u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, RejectsLowProfitPrecheckPlan) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0xc0, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Prechecks(View);
+
+  std::optional<COMPILER::ProvenMemoryRange> Proof =
+      Prechecks.getBlockPrecheckRange(0, Bytecode.size());
+  ASSERT_TRUE(Proof.has_value());
+  COMPILER::MemoryExpansionPlanRejectReason Reason =
+      COMPILER::MemoryExpansionPlanRejectReason::None;
+  EXPECT_FALSE(
+      COMPILER::MemoryExpansionPlan::fromProvenRange(
+          *Proof, COMPILER::MemoryExpansionKind::ProvenRange, true, &Reason)
+          .has_value());
+  EXPECT_EQ(Reason, COMPILER::MemoryExpansionPlanRejectReason::Unprofitable);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Prechecks.buildMemoryExpansionPlan(0, Bytecode.size());
+
+  EXPECT_FALSE(Plan.has_value());
+
+  COMPILER::MemoryExpansionPlanner Planner(View);
+  EXPECT_FALSE(
+      Planner.buildMemoryExpansionPlan(0, Bytecode.size()).has_value());
+  const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(Diag.GroupingCandidates, 0u);
+  EXPECT_EQ(Diag.PrecheckCandidates, 1u);
+  EXPECT_EQ(Diag.RejectedNoCandidate, 1u);
+  EXPECT_EQ(Diag.RejectedUnprofitable, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, RejectsTooLargeExpansionPlan) {
+  COMPILER::ProvenMemoryRange Range;
+  Range.EntryPC = 0;
+  Range.FirstOpPC = 0;
+  Range.LastOpPC = 0;
+  Range.CoveredOpCount = 2;
+  Range.Interval.Space = COMPILER::AddressSpace::Memory;
+  Range.Interval.Addr = COMPILER::AddressExpr::constant(0);
+  Range.Interval.Size = COMPILER::SizeExpr::constant(
+      COMPILER::MemoryExpansionPlan::MaxRequiredMemorySize + 1);
+
+  COMPILER::MemoryExpansionPlanRejectReason Reason =
+      COMPILER::MemoryExpansionPlanRejectReason::None;
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      COMPILER::MemoryExpansionPlan::fromProvenRange(
+          Range, COMPILER::MemoryExpansionKind::ProvenRange, true, &Reason);
+
+  EXPECT_FALSE(Plan.has_value());
+  EXPECT_EQ(Reason, COMPILER::MemoryExpansionPlanRejectReason::TooLarge);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, RejectsZeroSizeExpansionPlan) {
+  COMPILER::ProvenMemoryRange Range;
+  Range.EntryPC = 0;
+  Range.FirstOpPC = 0;
+  Range.LastOpPC = 0;
+  Range.CoveredOpCount = 2;
+  Range.Interval.Space = COMPILER::AddressSpace::Memory;
+  Range.Interval.Addr = COMPILER::AddressExpr::constant(0);
+  Range.Interval.Size = COMPILER::SizeExpr::constant(0);
+  Range.Interval.Empty = true;
+
+  COMPILER::MemoryExpansionPlanRejectReason Reason =
+      COMPILER::MemoryExpansionPlanRejectReason::None;
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      COMPILER::MemoryExpansionPlan::fromProvenRange(
+          Range, COMPILER::MemoryExpansionKind::ProvenRange, true, &Reason);
+
+  EXPECT_FALSE(Plan.has_value());
+  EXPECT_EQ(Reason, COMPILER::MemoryExpansionPlanRejectReason::ZeroSize);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, RejectsUnknownExpansionPlanInterval) {
+  COMPILER::ProvenMemoryRange Range;
+  Range.EntryPC = 0;
+  Range.FirstOpPC = 0;
+  Range.LastOpPC = 0;
+  Range.CoveredOpCount = 2;
+  Range.Interval.Space = COMPILER::AddressSpace::Memory;
+  Range.Interval.Addr = COMPILER::AddressExpr::unknown();
+  Range.Interval.Size = COMPILER::SizeExpr::unknown();
+
+  COMPILER::MemoryExpansionPlanRejectReason Reason =
+      COMPILER::MemoryExpansionPlanRejectReason::None;
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      COMPILER::MemoryExpansionPlan::fromProvenRange(
+          Range, COMPILER::MemoryExpansionKind::ProvenRange, true, &Reason);
+
+  EXPECT_FALSE(Plan.has_value());
+  EXPECT_EQ(Reason, COMPILER::MemoryExpansionPlanRejectReason::UnknownInterval);
 }
 
 struct MockOperand {
