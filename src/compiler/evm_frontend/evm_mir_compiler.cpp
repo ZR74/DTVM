@@ -138,6 +138,21 @@ uint64_t EVMMirBuilder::getCanonicalJumpDestPC(uint64_t TargetBlockPC) const {
   return It == JumpDestCanonicalPCTable.end() ? TargetBlockPC : It->second;
 }
 
+void EVMMirBuilder::linkJumpDestEntryThunkIfNeeded(MBasicBlock *TargetBB) {
+  auto It = JumpDestEntryThunkBodyTable.find(TargetBB);
+  if (It == JumpDestEntryThunkBodyTable.end()) {
+    return;
+  }
+
+  MBasicBlock *BodyBB = It->second;
+  auto SuccRange = TargetBB->successors();
+  if (std::find(SuccRange.begin(), SuccRange.end(), BodyBB) !=
+      SuccRange.end()) {
+    return;
+  }
+  TargetBB->addSuccessor(BodyBB);
+}
+
 MBasicBlock *EVMMirBuilder::resolvePhiIncomingPredecessorBB(
     uint64_t TargetBlockPC, MBasicBlock *DirectPredBB) const {
   const uint64_t CanonicalTargetPC = getCanonicalJumpDestPC(TargetBlockPC);
@@ -367,6 +382,7 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
             false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, JumpTarget,
             ExpectedPC);
         MBasicBlock *DestBB = JumpHashTable[HashEntry][0];
+        linkJumpDestEntryThunkIfNeeded(DestBB);
         registerDynamicJumpPhiIncomingBlock(JumpHashReverse[HashEntry][0],
                                             SourceBlockPC, CheckBB);
         createInstruction<BrIfInstruction>(true, Ctx, IsMatch, DestBB,
@@ -391,6 +407,7 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
           SubCases[I].first =
               createIntConstInstruction(UInt64Type, SubPCVec[I]);
           SubCases[I].second = SubDestBBVec[I];
+          linkJumpDestEntryThunkIfNeeded(SubDestBBVec[I]);
           registerDynamicJumpPhiIncomingBlock(SubPCVec[I], SourceBlockPC,
                                               SubCaseBB);
           addSuccessor(SubDestBBVec[I]);
@@ -418,6 +435,7 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
   for (const auto &[DestPC, DestBB] : JumpDestTable) {
     Cases[Index].first = createIntConstInstruction(UInt64Type, DestPC);
     Cases[Index].second = DestBB;
+    linkJumpDestEntryThunkIfNeeded(DestBB);
     registerDynamicJumpPhiIncomingBlock(DestPC, SourceBlockPC, IndirectJumpBB);
     addSuccessor(DestBB);
     Index++;
@@ -1340,6 +1358,7 @@ void EVMMirBuilder::createJumpTable() {
   JumpDestTable.clear();
   JumpDestCanonicalPCTable.clear();
   JumpDestBodyTable.clear();
+  JumpDestEntryThunkBodyTable.clear();
   JumpHashTable.clear();
   JumpHashReverse.clear();
   HashMask = 0;
@@ -1425,7 +1444,7 @@ void EVMMirBuilder::createJumpTable() {
           setInsertBlock(EntryBB);
           meterGas(SkipCostByOffset[DestPC - RangeStart]);
           createInstruction<BrInstruction>(true, Ctx, BodyBB);
-          addSuccessor(BodyBB);
+          JumpDestEntryThunkBodyTable[EntryBB] = BodyBB;
         }
         JumpDestTable[RangeEnd] = BodyBB;
       }
@@ -1458,10 +1477,13 @@ void EVMMirBuilder::createJumpTable() {
 
 void EVMMirBuilder::implementConstantJump(uint64_t ConstDest,
                                           MBasicBlock *FailureBB) {
-  if (JumpDestTable.count(ConstDest)) {
+  auto JumpIt = JumpDestTable.find(ConstDest);
+  if (JumpIt != JumpDestTable.end()) {
+    MBasicBlock *DestBB = JumpIt->second;
+    linkJumpDestEntryThunkIfNeeded(DestBB);
     registerPhiIncomingBlock(ConstDest, CurrentBlockPC, CurBB);
-    createInstruction<BrInstruction>(true, Ctx, JumpDestTable[ConstDest]);
-    addSuccessor(JumpDestTable[ConstDest]);
+    createInstruction<BrInstruction>(true, Ctx, DestBB);
+    addSuccessor(DestBB);
   } else {
     createInstruction<BrInstruction>(true, Ctx, FailureBB);
     addSuccessor(FailureBB);
@@ -1637,6 +1659,7 @@ void EVMMirBuilder::handleJumpI(Operand Dest, Operand Cond) {
         addUniqueSuccessor(InvalidJumpBB);
         addSuccessor(FallThroughBB);
       } else {
+        linkJumpDestEntryThunkIfNeeded(JumpIt->second);
         registerPhiIncomingBlock(ConstDest, CurrentBlockPC, CurBB);
         createInstruction<BrIfInstruction>(true, Ctx, IsNonZero, JumpIt->second,
                                            FallThroughBB);
