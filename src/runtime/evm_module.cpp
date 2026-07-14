@@ -7,8 +7,10 @@
 #include "action/evm_module_loader.h"
 #include "common/enums.h"
 #include "common/errors.h"
+#include "host/evm/crypto.h"
 #include "runtime/codeholder.h"
 #include "runtime/symbol_wrapper.h"
+#include "utils/others.h"
 #include "utils/statistics.h"
 #include "utils/wasm.h"
 
@@ -72,6 +74,7 @@ EVMModule::~EVMModule() {
 EVMModuleUniquePtr
 EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
                         evmc_revision Rev,
+                        const std::string &DiagnosticModuleName,
                         EVMMemorySpecializationProfile MemoryProfile) {
   void *ObjBuf = RT.allocate(sizeof(EVMModule));
   ZEN_ASSERT(ObjBuf);
@@ -83,11 +86,21 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
 
   const uint8_t *Data = static_cast<const uint8_t *>(CodeHolder->getData());
   size_t CodeSize = CodeHolder->getSize();
+  auto &Stats = RT.getStatistics();
+  Mod->DiagnosticModuleName = DiagnosticModuleName.empty()
+                                  ? std::string("unknown")
+                                  : DiagnosticModuleName;
+  Mod->DiagnosticCodeHash = "unknown";
+  if (Stats.isEnabled()) {
+    uint8_t CodeHash[32] = {};
+    zen::host::evm::crypto::keccak256(Data, CodeSize, CodeHash);
+    Mod->DiagnosticCodeHash =
+        std::string("0x") + zen::utils::toHex(CodeHash, sizeof(CodeHash));
+  }
 
   action::EVMModuleLoader Loader(*Mod, reinterpret_cast<const Byte *>(Data),
                                  CodeSize);
 
-  auto &Stats = RT.getStatistics();
   auto Timer = Stats.startRecord(utils::StatisticPhase::Load);
 
   Loader.load();
@@ -104,12 +117,19 @@ EVMModule::newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder,
     // contract should fall back to interpreter. This avoids per-call O(n)
     // bytecode scans in the execute() hot path.
     COMPILER::EVMAnalyzer Analyzer(Rev);
+    auto AnalyzerTimer = Stats.startRecord(utils::StatisticPhase::EVMAnalyzer);
     Analyzer.analyze(reinterpret_cast<const uint8_t *>(Mod->Code),
                      Mod->CodeSize);
-    Mod->ShouldFallbackToInterp =
-        Analyzer.getJITSuitability().ShouldFallback ||
-        hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer) ||
-        Analyzer.hasUnresolvedNonLiftedDeepEntryRisk();
+    Stats.stopRecord(AnalyzerTimer);
+    {
+      auto FallbackTimer =
+          Stats.startRecord(utils::StatisticPhase::EVMFallbackDecision);
+      Mod->ShouldFallbackToInterp =
+          Analyzer.getJITSuitability().ShouldFallback ||
+          hasUnresolvedCompatibleDynamicReturnTrampoline(Analyzer) ||
+          Analyzer.hasUnresolvedNonLiftedDeepEntryRisk();
+      Stats.stopRecord(FallbackTimer);
+    }
 
 #ifdef ZEN_ENABLE_MULTIPASS_JIT
     if (RT.getConfig().EnableProfileGuidedJIT) {

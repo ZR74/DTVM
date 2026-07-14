@@ -12,6 +12,7 @@
 #include <future>
 #include <limits>
 #include <memory>
+#include <string>
 
 #ifdef ZEN_ENABLE_JIT
 namespace COMPILER {
@@ -31,6 +32,7 @@ public:
   using Byte = zen::common::Byte;
   static EVMModuleUniquePtr
   newEVMModule(Runtime &RT, CodeHolderUniquePtr CodeHolder, evmc_revision Rev,
+               const std::string &DiagnosticModuleName = {},
                EVMMemorySpecializationProfile MemoryProfile = {});
 
   virtual ~EVMModule();
@@ -44,6 +46,12 @@ public:
   void setRevision(evmc_revision Rev) { Revision = Rev; }
   const EVMMemorySpecializationProfile &getMemorySpecializationProfile() const {
     return MemoryProfile;
+  }
+  const std::string &getDiagnosticModuleName() const {
+    return DiagnosticModuleName;
+  }
+  const std::string &getDiagnosticCodeHash() const {
+    return DiagnosticCodeHash;
   }
   void setMemorySpecializationProfile(EVMMemorySpecializationProfile Profile) {
     MemoryProfile = Profile;
@@ -130,6 +138,8 @@ private:
   bool CacheNeedsSPP = false;
   evmc_revision Revision = zen::evm::DEFAULT_REVISION;
   EVMMemorySpecializationProfile MemoryProfile = {};
+  std::string DiagnosticModuleName;
+  std::string DiagnosticCodeHash;
 
 #ifdef ZEN_ENABLE_JIT
   std::unique_ptr<common::CodeMemPool> JITCodeMemPool;
