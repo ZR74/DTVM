@@ -117,6 +117,24 @@ private:
           std::declval<const std::vector<std::pair<uint64_t, Operand>> &>()))>>
       : std::true_type {};
 
+  template <typename T, typename = void>
+  struct HasHandleJumpWithCandidates : std::false_type {};
+  template <typename T>
+  struct HasHandleJumpWithCandidates<
+      T, std::void_t<decltype(std::declval<T &>().handleJump(
+             std::declval<Operand>(),
+             std::declval<const std::vector<uint64_t> *>()))>>
+      : std::true_type {};
+
+  template <typename T, typename = void>
+  struct HasHandleJumpIWithCandidates : std::false_type {};
+  template <typename T>
+  struct HasHandleJumpIWithCandidates<
+      T, std::void_t<decltype(std::declval<T &>().handleJumpI(
+             std::declval<Operand>(), std::declval<Operand>(),
+             std::declval<const std::vector<uint64_t> *>()))>>
+      : std::true_type {};
+
   void registerCurrentBlockPC(uint64_t BlockPC) {
     if constexpr (HasRegisterCurrentBlockPC<IRBuilder>::value) {
       Builder.registerCurrentBlockPC(BlockPC);
@@ -147,6 +165,26 @@ private:
         Builder.assignStackEntryOperand(Result, IncomingValues.back().second);
       }
       return Result;
+    }
+  }
+
+  void handleJumpCompat(Operand Dest,
+                        const std::vector<uint64_t> *CandidateTargets) {
+    if constexpr (HasHandleJumpWithCandidates<IRBuilder>::value) {
+      Builder.handleJump(Dest, CandidateTargets);
+    } else {
+      (void)CandidateTargets;
+      Builder.handleJump(Dest);
+    }
+  }
+
+  void handleJumpICompat(Operand Dest, Operand Cond,
+                         const std::vector<uint64_t> *CandidateTargets) {
+    if constexpr (HasHandleJumpIWithCandidates<IRBuilder>::value) {
+      Builder.handleJumpI(Dest, Cond, CandidateTargets);
+    } else {
+      (void)CandidateTargets;
+      Builder.handleJumpI(Dest, Cond);
     }
   }
 
@@ -2312,7 +2350,13 @@ private:
         assignLiftedEntryStateFromRuntime(Analyzer, SuccPC);
       }
     }
-    Builder.handleJump(Dest);
+    const auto DispatchCandidates =
+        Analyzer.getRuntimeDispatchCandidateTargetsForSourceBlock(
+            CurrentBlockEntryPC);
+    const auto *DispatchTargetPCs = DispatchCandidates.SafeForRuntimeDispatch
+                                        ? &DispatchCandidates.TargetBlocks
+                                        : nullptr;
+    handleJumpCompat(Dest, DispatchTargetPCs);
   }
 
   void handleJumpIOpcode(EVMAnalyzer &Analyzer, Operand Dest, Operand Cond) {
@@ -2371,7 +2415,13 @@ private:
         }
       }
     }
-    Builder.handleJumpI(Dest, Cond);
+    const auto DispatchCandidates =
+        Analyzer.getRuntimeDispatchCandidateTargetsForSourceBlock(
+            CurrentBlockEntryPC);
+    const auto *DispatchTargetPCs = DispatchCandidates.SafeForRuntimeDispatch
+                                        ? &DispatchCandidates.TargetBlocks
+                                        : nullptr;
+    handleJumpICompat(Dest, Cond, DispatchTargetPCs);
     PC = FallthroughPC;
     handleBeginBlock(Analyzer);
   }
