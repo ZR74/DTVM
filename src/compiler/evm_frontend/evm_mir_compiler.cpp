@@ -5175,15 +5175,21 @@ void EVMMirBuilder::handleMStore8(Operand AddrComponents,
 void EVMMirBuilder::handleMCopy(Operand DestAddrComponents,
                                 Operand SrcAddrComponents,
                                 Operand LengthComponents) {
+  const bool DestWasConst = DestAddrComponents.isConstU64();
+  const bool SrcWasConst = SrcAddrComponents.isConstU64();
+  const bool LengthWasConst = LengthComponents.isConstU64();
+  const uint64_t ConstDest =
+      DestWasConst ? DestAddrComponents.getConstValue()[0] : 0;
+  const uint64_t ConstSrc =
+      SrcWasConst ? SrcAddrComponents.getConstValue()[0] : 0;
+  const uint64_t ConstLength =
+      LengthWasConst ? LengthComponents.getConstValue()[0] : 0;
   if (LengthComponents.isConstU64() &&
       LengthComponents.getConstValue()[0] == 0) {
     return;
   }
 
   MType *I64Type = &Ctx.I64Type;
-  const bool LengthWasConst = LengthComponents.isConstU64();
-  const uint64_t ConstLength =
-      LengthWasConst ? LengthComponents.getConstValue()[0] : 0;
   const bool LengthIsKnownNonZero = LengthWasConst && ConstLength != 0;
 
   MBasicBlock *DoneBB = nullptr;
@@ -5237,7 +5243,11 @@ void EVMMirBuilder::handleMCopy(Operand DestAddrComponents,
 
   bool UsedSharedPrecheck =
       LengthIsKnownNonZero && tryConsumeConstBlockMemoryPrecheck();
-  if (!UsedSharedPrecheck) {
+  const bool UsedGuaranteedElision =
+      !UsedSharedPrecheck && DestWasConst && SrcWasConst && LengthWasConst &&
+      tryUseGuaranteedMinBytesExpansionElision(true, ConstDest, ConstLength) &&
+      tryUseGuaranteedMinBytesExpansionElision(true, ConstSrc, ConstLength);
+  if (!UsedSharedPrecheck && !UsedGuaranteedElision) {
     // Expand memory for both source and destination ranges.
     MInstruction *DestEnd = createInstruction<BinaryInstruction>(
         false, OP_add, I64Type, DestOffset, Len);
@@ -5264,6 +5274,9 @@ void EVMMirBuilder::handleMCopy(Operand DestAddrComponents,
     expandMemoryIR(RequiredSize, Overflow);
   }
 #ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  if (UsedGuaranteedElision) {
+    ++MemStats.MCopyGuaranteedElisionCount;
+  }
   if (UsedSharedPrecheck) {
     ++MemStats.PrecheckedMCopyOpCount;
     if (CurBlockMemStats.Active) {
@@ -7473,7 +7486,8 @@ void EVMMirBuilder::dumpMemoryCompileStats() const {
 #ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
   ZEN_LOG_DEBUG(
       "[EVM-MEM-SUMMARY] mload_expand=%llu mstore_expand=%llu "
-      "mstore8_expand=%llu mcopy_expand=%llu memory_dse_candidates=%llu "
+      "mstore8_expand=%llu mcopy_expand=%llu "
+      "mcopy_guaranteed_elision=%llu memory_dse_candidates=%llu "
       "memory_dse_eliminated_writes=%llu memory_load_forward_candidates=%llu "
       "memory_load_forwarded=%llu block_const_precheck=%llu "
       "block_linear_precheck=%llu prechecked_mload_ops=%llu "
@@ -7566,6 +7580,7 @@ void EVMMirBuilder::dumpMemoryCompileStats() const {
       static_cast<unsigned long long>(MemStats.MStoreExpandCount),
       static_cast<unsigned long long>(MemStats.MStore8ExpandCount),
       static_cast<unsigned long long>(MemStats.MCopyExpandCount),
+      static_cast<unsigned long long>(MemStats.MCopyGuaranteedElisionCount),
       static_cast<unsigned long long>(MemStats.MemoryDSEStoreCandidates),
       static_cast<unsigned long long>(MemStats.MemoryDSEEliminatedWrites),
       static_cast<unsigned long long>(MemStats.MemoryLoadForwardCandidates),

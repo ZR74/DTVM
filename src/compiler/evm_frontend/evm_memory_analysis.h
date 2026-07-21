@@ -879,6 +879,19 @@ private:
     case MemoryOpKind::MStore:
     case MemoryOpKind::MStore8:
       return Op.Writes.size() == 1 && getIntervalEnd(Op.Writes[0], End);
+    case MemoryOpKind::MCopy: {
+      if (Op.Reads.size() != 1 || Op.Writes.size() != 1) {
+        return false;
+      }
+      uint64_t ReadEnd = 0;
+      uint64_t WriteEnd = 0;
+      if (!getIntervalEnd(Op.Reads[0], ReadEnd) ||
+          !getIntervalEnd(Op.Writes[0], WriteEnd)) {
+        return false;
+      }
+      End = std::max(ReadEnd, WriteEnd);
+      return true;
+    }
     default:
       return false;
     }

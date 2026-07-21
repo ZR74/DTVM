@@ -344,6 +344,30 @@ TEST(EVMMemoryGuaranteedMinBytesAnalysisTest,
   EXPECT_EQ(Guaranteed.getGuaranteedMinBytesBeforeOp(Facts.Ops[3].Id), 32u);
 }
 
+TEST(EVMMemoryGuaranteedMinBytesAnalysisTest, LearnsConstMCopyUnionEnd) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x20,    OP_PUSH1, 0x00,
+                                         OP_PUSH1, 0x20,    OP_MCOPY, OP_PUSH1,
+                                         0x00,     OP_MLOAD};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryGuaranteedMinBytesAnalysis Guaranteed(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_EQ(Guaranteed.getGuaranteedMinBytesBeforeOp(Facts.Ops[1].Id), 0x40u);
+}
+
+TEST(EVMMemoryGuaranteedMinBytesAnalysisTest, IgnoresZeroLengthMCopy) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x00,    OP_PUSH1, 0x80,
+                                         OP_PUSH1, 0xa0,    OP_MCOPY, OP_PUSH1,
+                                         0x00,     OP_MLOAD};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryGuaranteedMinBytesAnalysis Guaranteed(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_EQ(Guaranteed.getGuaranteedMinBytesBeforeOp(Facts.Ops[1].Id), 0u);
+}
+
 TEST(EVMMemoryFactsBuilderTest, RecordsCopyAddressSpaces) {
   const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x20, OP_PUSH1,       0x04,
                                          OP_PUSH1, 0x80, OP_CALLDATACOPY};
@@ -545,6 +569,22 @@ TEST(EVMMemoryDeadStoreAnalysisTest, DoesNotCrossMemoryObserver) {
 
   ASSERT_EQ(Facts.Ops.size(), 3u);
   EXPECT_FALSE(DeadStores.isDeadStore(Facts.Ops[0].Id));
+}
+
+TEST(EVMMemoryDeadStoreAnalysisTest, RejectsSameBasePartialOverlap) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH0, OP_CALLDATALOAD, OP_DUP1, OP_PUSH1, 0x01,
+      OP_SWAP1, OP_MSTORE,       OP_DUP1, OP_PUSH1, 0x04,
+      OP_ADD,   OP_PUSH1,        0x02,    OP_SWAP1, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryDeadStoreAnalysis DeadStores(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 3u);
+  EXPECT_EQ(View.alias(Facts.Ops[1], Facts.Ops[2]),
+            COMPILER::MemoryAliasResult::PartialAlias);
+  EXPECT_FALSE(DeadStores.isDeadStore(Facts.Ops[1].Id));
 }
 
 TEST(EVMMemoryLoadForwardingAnalysisTest, FindsExactReachingMStore) {

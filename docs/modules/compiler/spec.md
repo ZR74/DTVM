@@ -152,6 +152,27 @@ only local unique-successor and unique-predecessor checks; it does not perform
 dominator analysis. The precheck remains in the selected head and is never
 hoisted into the skipped prefix.
 
+Memory intervals support exact constants and conservative bounded offsets over
+the same abstract stack-value base. Alias queries distinguish `NoAlias`,
+`MustAlias`, `PartialAlias`, and `MayAlias`; unknown bases and overflow always
+fall back. Ordered clobber queries are currently block-local and stop at every
+hard barrier or CFG boundary.
+
+Block prechecks select one maximal safe window with at least two proven direct
+memory operations. The plan records explicit operation IDs, is emitted at the
+first covered operation, and may cover gaps or overlapping intervals because
+expansion grouping does not transform memory values. Per-operation guaranteed
+bytes include proven earlier expansion in the same block, but stop learning
+new guarantees after a hard barrier.
+
+The framework may eliminate only the write of an exact, fully overwritten
+`MSTORE` or `MSTORE8`, and may forward an exact 32-byte `MSTORE` value to a
+later `MLOAD`. Both transformations are block-local, require strict
+must-alias/no-clobber proofs, and preserve each original opcode's gas and
+expansion behavior. Constant nonzero `MCOPY` uses the checked maximum of source
+and destination ends for expansion elision while retaining the original
+`memmove` lowering. Zero-length `MCOPY` never expands memory.
+
 ### EVM Frontend Context and Gas
 
 - Enable/disable Gas metering based on runtime config (`setGasMeteringEnabled`)

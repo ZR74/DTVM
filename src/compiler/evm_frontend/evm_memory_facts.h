@@ -591,14 +591,21 @@ private:
     if (!Base.isKnown()) {
       return false;
     }
-    if ((Delta > 0 &&
-         Base.Offset > std::numeric_limits<int64_t>::max() - Delta) ||
-        (Delta < 0 &&
-         Base.Offset < std::numeric_limits<int64_t>::min() - Delta)) {
+    auto CanAdd = [Delta](int64_t Value) {
+      return !(
+          (Delta > 0 && Value > std::numeric_limits<int64_t>::max() - Delta) ||
+          (Delta < 0 && Value < std::numeric_limits<int64_t>::min() - Delta));
+    };
+    if (!CanAdd(Base.Offset) || (Base.Bounded && (!CanAdd(Base.MinOffset) ||
+                                                  !CanAdd(Base.MaxOffset)))) {
       return false;
     }
     Out = Base;
     Out.Offset += Delta;
+    if (Out.Bounded) {
+      Out.MinOffset += Delta;
+      Out.MaxOffset += Delta;
+    }
     return true;
   }
 

@@ -1,6 +1,6 @@
 # Change: EVM Memory Alias and Expansion Optimization Roadmap
 
-- **Status**: Accepted
+- **Status**: Implemented
 - **Date**: 2026-07-21
 - **Tier**: Full
 
@@ -16,6 +16,24 @@ The work is intentionally split into six commits. Analysis infrastructure lands
 before behavior-changing consumers, and every consumer remains behind
 `ZEN_ENABLE_EVM_MEMORY_PLAN_FRAMEWORK` until differential testing shows that it
 is safe and useful.
+
+## Implementation Result
+
+The six-commit implementation delivers the conservative first stage of each
+area in this roadmap:
+
+- exact and bounded interval/alias queries plus block-local clobber queries;
+- one safe precheck window per block, explicit covered operation IDs, and
+  per-operation guaranteed-byte facts;
+- expansion grouping across gaps and overlaps;
+- block-local exact full-overwrite DSE that removes only the write;
+- block-local exact `MSTORE -> MLOAD` forwarding that retains load expansion;
+- constant `MCOPY` source/destination expansion proofs with zero-length and
+  overlap semantics preserved.
+
+The deliberately deferred extensions remain multiple windows per block,
+symbolic-bound propagation from general EVM arithmetic, cross-region DSE/load
+forwarding, partial-byte value reconstruction, and MCOPY data elimination.
 
 ## Motivation
 
@@ -190,8 +208,7 @@ Lowering must not infer coverage from a broad PC range alone.
 
 ### Commit 1: Stronger Intervals, Alias Analysis, and Diagnostics
 
-This is the recommended next PR. It changes analysis only and must not change
-lowering.
+This commit changes analysis only and does not change lowering.
 
 - [ ] Add exact and bounded base-plus-offset interval forms.
 - [ ] Add checked interval union, containment, equality, overlap, and disjoint
