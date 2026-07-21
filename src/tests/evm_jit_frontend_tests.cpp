@@ -319,6 +319,31 @@ TEST(EVMMemoryGuaranteedMinBytesAnalysisTest, RejectedMergeKeepsMinimumZero) {
   EXPECT_EQ(Guaranteed.getGuaranteedMinBytesAtEntry(14), 0u);
 }
 
+TEST(EVMMemoryGuaranteedMinBytesAnalysisTest, RecordsGuaranteeBeforeEachOp) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE, OP_PUSH1, 0x40, OP_MLOAD};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryGuaranteedMinBytesAnalysis Guaranteed(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_EQ(Guaranteed.getGuaranteedMinBytesBeforeOp(Facts.Ops[0].Id), 0u);
+  EXPECT_EQ(Guaranteed.getGuaranteedMinBytesBeforeOp(Facts.Ops[1].Id), 0xa0u);
+}
+
+TEST(EVMMemoryGuaranteedMinBytesAnalysisTest,
+     DoesNotLearnNewGuaranteesAfterBarrier) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01,     OP_PUSH1, 0x00,      OP_MSTORE, OP_GAS, OP_PUSH1,
+      0x02,     OP_PUSH1, 0x80,     OP_MSTORE, OP_PUSH1,  0x80,   OP_MLOAD};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryGuaranteedMinBytesAnalysis Guaranteed(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 4u);
+  EXPECT_EQ(Guaranteed.getGuaranteedMinBytesBeforeOp(Facts.Ops[3].Id), 32u);
+}
+
 TEST(EVMMemoryFactsBuilderTest, RecordsCopyAddressSpaces) {
   const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x20, OP_PUSH1,       0x04,
                                          OP_PUSH1, 0x80, OP_CALLDATACOPY};
@@ -534,6 +559,27 @@ TEST(EVMMemoryPrecheckConsumerTest, RejectsHelperBarrierInBlockRange) {
   COMPILER::MemoryPrecheckConsumer Consumer(View);
 
   EXPECT_FALSE(Consumer.getBlockPrecheckRange(0, Bytecode.size()).has_value());
+}
+
+TEST(EVMMemoryPrecheckConsumerTest, SelectsSafeWindowBeforeBarrier) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1,     0x01,     OP_PUSH1,  0x80,     OP_MSTORE, OP_PUSH1, 0x02,
+      OP_PUSH1,     0xa0,     OP_MSTORE, OP_PUSH1, 0x00,      OP_PUSH1, 0x20,
+      OP_KECCAK256, OP_PUSH1, 0x03,      OP_PUSH1, 0xc0,      OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryPrecheckConsumer Consumer(View);
+
+  std::optional<COMPILER::ProvenMemoryRange> Proof =
+      Consumer.getBlockPrecheckRange(0, Bytecode.size());
+
+  ASSERT_TRUE(Proof.has_value());
+  EXPECT_EQ(Proof->CoveredOpCount, 2u);
+  ASSERT_EQ(Proof->CoveredOpIds.size(), 2u);
+  EXPECT_EQ(Proof->CoveredOpIds[0], Facts.Ops[0].Id);
+  EXPECT_EQ(Proof->CoveredOpIds[1], Facts.Ops[1].Id);
+  EXPECT_EQ(Proof->LastOpPC, Facts.Ops[1].Pc);
 }
 
 TEST(EVMMemoryGroupingConsumerTest, GroupsContinuousStores) {
@@ -1042,7 +1088,7 @@ TEST(EVMMemoryConsumerFrameworkTest, KeepsExistingEntryHeadRegion) {
   EXPECT_EQ(Diag.LinearRegionHeadSelectedNonEntryBlock, 0u);
 }
 
-TEST(EVMMemoryConsumerFrameworkTest, RejectsLowProfitPrecheckPlan) {
+TEST(EVMMemoryConsumerFrameworkTest, AcceptsTwoOpPrecheckPlan) {
   const std::vector<uint8_t> Bytecode = {
       OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
       OP_PUSH1, 0x02, OP_PUSH1, 0xc0, OP_MSTORE};
@@ -1056,26 +1102,25 @@ TEST(EVMMemoryConsumerFrameworkTest, RejectsLowProfitPrecheckPlan) {
   ASSERT_TRUE(Proof.has_value());
   COMPILER::MemoryExpansionPlanRejectReason Reason =
       COMPILER::MemoryExpansionPlanRejectReason::None;
-  EXPECT_FALSE(
+  EXPECT_TRUE(
       COMPILER::MemoryExpansionPlan::fromProvenRange(
           *Proof, COMPILER::MemoryExpansionKind::ProvenRange, true, &Reason)
           .has_value());
-  EXPECT_EQ(Reason, COMPILER::MemoryExpansionPlanRejectReason::Unprofitable);
+  EXPECT_EQ(Reason, COMPILER::MemoryExpansionPlanRejectReason::None);
 
   std::optional<COMPILER::MemoryExpansionPlan> Plan =
       Prechecks.buildMemoryExpansionPlan(0, Bytecode.size());
 
-  EXPECT_FALSE(Plan.has_value());
+  EXPECT_TRUE(Plan.has_value());
 
   COMPILER::MemoryExpansionPlanner Planner(View);
-  EXPECT_FALSE(
-      Planner.buildMemoryExpansionPlan(0, Bytecode.size()).has_value());
+  EXPECT_TRUE(Planner.buildMemoryExpansionPlan(0, Bytecode.size()).has_value());
   const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
       Planner.getLastDiagnostics();
   EXPECT_EQ(Diag.GroupingCandidates, 0u);
   EXPECT_EQ(Diag.PrecheckCandidates, 1u);
   EXPECT_EQ(Diag.RejectedNoCandidate, 1u);
-  EXPECT_EQ(Diag.RejectedUnprofitable, 1u);
+  EXPECT_EQ(Diag.RejectedUnprofitable, 0u);
 }
 
 TEST(EVMMemoryConsumerFrameworkTest, RejectsTooLargeExpansionPlan) {

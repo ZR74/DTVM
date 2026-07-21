@@ -7972,6 +7972,7 @@ void EVMMirBuilder::applyMemoryExpansionPlan(const MemoryExpansionPlan &Plan) {
   CurBlockConstPrecheckPlan.MaxRequiredSize = Plan.RequiredMemorySize;
   CurBlockConstPrecheckPlan.CoveredDirectOpsTotal = Plan.CoveredOps;
   CurBlockConstPrecheckPlan.CoveredDirectOpsRemaining = Plan.CoveredOps;
+  CurBlockConstPrecheckPlan.CoveredOpIds = Plan.CoveredOpIds;
   CurBlockConstPrecheckPlan.HasOpPCRange = true;
   CurBlockConstPrecheckPlan.FirstOpPC = Plan.FirstOpPC;
   CurBlockConstPrecheckPlan.LastOpPC = Plan.LastOpPC;
@@ -8671,15 +8672,20 @@ void EVMMirBuilder::endMemoryCompileBlock() {
 
 bool EVMMirBuilder::tryUseGuaranteedMinBytesExpansionElision(
     bool OffsetWasConst, uint64_t ConstOffset, uint64_t AccessSize) {
-  if (!OffsetWasConst || AccessSize == 0 ||
-      CurrentBlockGuaranteedMinBytes == 0) {
+  if (!OffsetWasConst || AccessSize == 0) {
     return false;
   }
   if (AccessSize > std::numeric_limits<uint64_t>::max() - ConstOffset) {
     return false;
   }
   const uint64_t RequiredBytes = ConstOffset + AccessSize;
-  return RequiredBytes <= CurrentBlockGuaranteedMinBytes;
+  uint64_t GuaranteedBytes = CurrentBlockGuaranteedMinBytes;
+  if (MemoryExpansionPlans) {
+    GuaranteedBytes = std::max(
+        GuaranteedBytes,
+        MemoryExpansionPlans->getGuaranteedMinBytesBeforeOp(CurrentMemoryOpPC));
+  }
+  return RequiredBytes <= GuaranteedBytes;
 }
 
 bool EVMMirBuilder::tryConsumeConstBlockMemoryPrecheck() {
@@ -8693,6 +8699,22 @@ bool EVMMirBuilder::tryConsumeConstBlockMemoryPrecheck() {
     }
     if (CurrentMemoryOpPC > CurBlockConstPrecheckPlan.LastOpPC) {
       CurBlockConstPrecheckPlan.Active = false;
+      return false;
+    }
+  }
+  if (!CurBlockConstPrecheckPlan.CoveredOpIds.empty()) {
+    const MemoryOp *CurrentOp = nullptr;
+    for (const MemoryOp &Op : MemoryFactsData.Ops) {
+      if (Op.Pc == CurrentMemoryOpPC) {
+        CurrentOp = &Op;
+        break;
+      }
+    }
+    if (CurrentOp == nullptr ||
+        std::find(CurBlockConstPrecheckPlan.CoveredOpIds.begin(),
+                  CurBlockConstPrecheckPlan.CoveredOpIds.end(),
+                  CurrentOp->Id) ==
+            CurBlockConstPrecheckPlan.CoveredOpIds.end()) {
       return false;
     }
   }

@@ -10,6 +10,7 @@
 #include <cstdint>
 #include <limits>
 #include <optional>
+#include <vector>
 
 namespace COMPILER {
 
@@ -20,6 +21,7 @@ struct ProvenMemoryRange {
   uint64_t FirstOpPC = 0;
   uint64_t LastOpPC = 0;
   uint64_t CoveredOpCount = 0;
+  std::vector<uint32_t> CoveredOpIds;
   MemoryInterval Interval;
 
   bool getKnownEndOffset(uint64_t &EndOffset) const {
@@ -117,6 +119,7 @@ struct MemoryExpansionPlan {
   uint64_t FirstOpPC = 0;
   uint64_t LastOpPC = 0;
   uint64_t CoveredOps = 0;
+  std::vector<uint32_t> CoveredOpIds;
   MemoryInterval RequiredInterval;
   uint64_t RequiredMemorySize = 0;
   bool Reusable = true;
@@ -178,7 +181,7 @@ struct MemoryExpansionPlan {
     case MemoryExpansionKind::LinearRegion:
       return Range.CoveredOpCount >= 2 && EstimatedReducedExpansions >= 1;
     case MemoryExpansionKind::ProvenRange:
-      return Range.CoveredOpCount >= 3 && EstimatedReducedExpansions >= 2;
+      return Range.CoveredOpCount >= 2 && EstimatedReducedExpansions >= 1;
     }
     return false;
   }
@@ -203,6 +206,7 @@ struct MemoryExpansionPlan {
     Plan.FirstOpPC = Range.FirstOpPC;
     Plan.LastOpPC = Range.LastOpPC;
     Plan.CoveredOps = Range.CoveredOpCount;
+    Plan.CoveredOpIds = Range.CoveredOpIds;
     Plan.RequiredInterval = Range.Interval;
     Plan.RequiredMemorySize = RequiredMemorySize;
     Plan.Reusable = Reusable;
@@ -486,16 +490,26 @@ public:
     Proof.FirstOpPC = Op.Pc;
     Proof.LastOpPC = Op.Pc;
     Proof.CoveredOpCount = 1;
+    Proof.CoveredOpIds.push_back(Op.Id);
     Proof.Interval = Interval;
     return Proof;
   }
 
   std::optional<ProvenMemoryRange>
   getBlockPrecheckRange(uint64_t EntryPC, uint64_t BodyEndPC) const {
-    uint64_t MaxEnd = 0;
-    uint64_t CoveredOps = 0;
-    uint64_t FirstOpPC = 0;
-    uint64_t LastOpPC = 0;
+    ProvenMemoryRange Current;
+    ProvenMemoryRange Best;
+    Current.EntryPC = EntryPC;
+    Best.EntryPC = EntryPC;
+
+    auto FinishWindow = [&]() {
+      if (Current.CoveredOpCount >= 2 &&
+          Current.CoveredOpCount > Best.CoveredOpCount) {
+        Best = Current;
+      }
+      Current = ProvenMemoryRange();
+      Current.EntryPC = EntryPC;
+    };
 
     for (const MemoryOp &Op : View.getFacts().Ops) {
       if (Op.Pc < EntryPC) {
@@ -508,37 +522,34 @@ public:
       const MemoryInterval *Interval = getDirectMemoryInterval(Op);
       if (Interval == nullptr) {
         if (View.getBarrierKind(Op) != MemoryBarrierKind::None) {
-          return std::nullopt;
+          FinishWindow();
         }
         continue;
       }
 
       uint64_t End = 0;
       if (!getIntervalEnd(*Interval, End)) {
-        return std::nullopt;
+        FinishWindow();
+        continue;
       }
-      MaxEnd = std::max(MaxEnd, End);
-      if (CoveredOps == 0) {
-        FirstOpPC = Op.Pc;
+      if (Current.CoveredOpCount == 0) {
+        Current.FirstOpPC = Op.Pc;
+        Current.Interval.Space = AddressSpace::Memory;
+        Current.Interval.Addr = AddressExpr::constant(0);
       }
-      LastOpPC = Op.Pc;
-      ++CoveredOps;
+      Current.LastOpPC = Op.Pc;
+      ++Current.CoveredOpCount;
+      Current.CoveredOpIds.push_back(Op.Id);
+      Current.Interval.Size =
+          SizeExpr::constant(std::max(Current.Interval.Size.Value, End));
+      Current.Interval.Empty = Current.Interval.Size.Value == 0;
     }
+    FinishWindow();
 
-    if (CoveredOps < 2) {
+    if (Best.CoveredOpCount < 2) {
       return std::nullopt;
     }
-
-    ProvenMemoryRange Proof;
-    Proof.EntryPC = EntryPC;
-    Proof.FirstOpPC = FirstOpPC;
-    Proof.LastOpPC = LastOpPC;
-    Proof.CoveredOpCount = CoveredOps;
-    Proof.Interval.Space = AddressSpace::Memory;
-    Proof.Interval.Addr = AddressExpr::constant(0);
-    Proof.Interval.Size = SizeExpr::constant(MaxEnd);
-    Proof.Interval.Empty = MaxEnd == 0;
-    return Proof;
+    return Best;
   }
 
 private:

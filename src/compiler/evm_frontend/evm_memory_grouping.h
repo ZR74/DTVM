@@ -22,6 +22,7 @@ struct ContiguousGroup {
   uint64_t FirstOpPC = 0;
   uint64_t LastOpPC = 0;
   uint64_t OpCount = 0;
+  std::vector<uint32_t> OpIds;
   MemoryInterval UnionInterval;
 };
 
@@ -104,6 +105,7 @@ public:
     Result.Range.FirstOpPC = Best->FirstOpPC;
     Result.Range.LastOpPC = Best->LastOpPC;
     Result.Range.CoveredOpCount = Best->OpCount;
+    Result.Range.CoveredOpIds = Best->OpIds;
     Result.Range.Interval = Best->UnionInterval;
     return Result;
   }
@@ -155,6 +157,7 @@ private:
     Group.FirstOpPC = Proof.FirstOpPC;
     Group.LastOpPC = Proof.LastOpPC;
     Group.OpCount = 1;
+    Group.OpIds = Proof.CoveredOpIds;
     Group.UnionInterval = Proof.Interval;
     return Group;
   }
@@ -173,6 +176,8 @@ private:
     const uint64_t UnionEnd = std::max(GroupEnd, ProofEnd);
     Group.LastOpPC = Proof.LastOpPC;
     ++Group.OpCount;
+    Group.OpIds.insert(Group.OpIds.end(), Proof.CoveredOpIds.begin(),
+                       Proof.CoveredOpIds.end());
     Group.UnionInterval.Space = AddressSpace::Memory;
     Group.UnionInterval.Addr = AddressExpr::constant(UnionBegin);
     Group.UnionInterval.Size = SizeExpr::constant(UnionEnd - UnionBegin);
@@ -570,6 +575,7 @@ private:
     uint64_t HeadCoveredOps = 0;
     uint64_t FirstOpPC = 0;
     uint64_t LastOpPC = 0;
+    std::vector<uint32_t> CoveredOpIds;
 
     for (size_t BlockIndex = 0; BlockIndex < Chain.size(); ++BlockIndex) {
       const MemoryBlockFacts &Block = *Chain[BlockIndex];
@@ -593,6 +599,7 @@ private:
           FirstOpPC = Op.Pc;
         }
         LastOpPC = Op.Pc;
+        CoveredOpIds.push_back(Op.Id);
         ++CoveredOps;
         if (BlockIndex == 0) {
           ++HeadCoveredOps;
@@ -614,6 +621,7 @@ private:
     Range.FirstOpPC = FirstOpPC;
     Range.LastOpPC = LastOpPC;
     Range.CoveredOpCount = CoveredOps;
+    Range.CoveredOpIds = std::move(CoveredOpIds);
     Range.Interval.Space = AddressSpace::Memory;
     Range.Interval.Addr = AddressExpr::constant(0);
     Range.Interval.Size = SizeExpr::constant(MaxEnd);
@@ -739,8 +747,8 @@ private:
 class MemoryExpansionPlanner final : public MemoryOptimizationPlanProvider {
 public:
   explicit MemoryExpansionPlanner(const MemoryAnalysisView &View)
-      : Prechecks(View), Grouping(View, Prechecks), LinearRegions(View),
-        GuaranteedMinBytes(View.getFacts()) {}
+      : View(View), Prechecks(View), Grouping(View, Prechecks),
+        LinearRegions(View), GuaranteedMinBytes(View.getFacts()) {}
 
   std::optional<MemoryExpansionPlan>
   buildMemoryExpansionPlan(uint64_t EntryPC,
@@ -807,7 +815,20 @@ public:
                     LinearRegions.getGuaranteedMinBytesAtEntry(EntryPC));
   }
 
+  uint64_t getGuaranteedMinBytesBeforeOp(uint64_t PC) const {
+    for (const MemoryOp &Op : View.getFacts().Ops) {
+      if (Op.Pc != PC) {
+        continue;
+      }
+      return std::max(
+          GuaranteedMinBytes.getGuaranteedMinBytesBeforeOp(Op.Id),
+          LinearRegions.getGuaranteedMinBytesAtEntry(Op.BlockEntryPC));
+    }
+    return 0;
+  }
+
 private:
+  const MemoryAnalysisView &View;
   MemoryPrecheckConsumer Prechecks;
   MemoryGroupingConsumer Grouping;
   MemoryLinearRegionConsumer LinearRegions;

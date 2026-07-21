@@ -778,6 +778,11 @@ public:
     return It == EntryBytes.end() ? 0 : It->second;
   }
 
+  uint64_t getGuaranteedMinBytesBeforeOp(uint32_t OpId) const {
+    auto It = BeforeOpBytes.find(OpId);
+    return It == BeforeOpBytes.end() ? 0 : It->second;
+  }
+
 private:
   static bool isHardBarrier(const MemoryOp &Op) {
     switch (Op.Kind) {
@@ -843,6 +848,28 @@ private:
     return Current;
   }
 
+  void recordBeforeOpBytes(const MemoryBlockFacts &Block,
+                           uint64_t EntryBytesValue) {
+    uint64_t Current = EntryBytesValue;
+    bool SeenBarrier = false;
+    for (size_t I = Block.OpsBegin; I < Block.OpsEnd && I < Facts.Ops.size();
+         ++I) {
+      const MemoryOp &Op = Facts.Ops[I];
+      BeforeOpBytes[Op.Id] = Current;
+      if (isHardBarrier(Op)) {
+        SeenBarrier = true;
+        continue;
+      }
+      if (SeenBarrier) {
+        continue;
+      }
+      uint64_t RequiredBytes = 0;
+      if (getDirectRequiredBytes(Op, RequiredBytes)) {
+        Current = std::max(Current, RequiredBytes);
+      }
+    }
+  }
+
   uint64_t computeEntryFromPredecessors(const MemoryBlockFacts &Block) const {
     if (Block.Predecessors.empty()) {
       return 0;
@@ -896,11 +923,16 @@ private:
         }
       }
     }
+
+    for (const auto &[EntryPC, Block] : Facts.Blocks) {
+      recordBeforeOpBytes(Block, getGuaranteedMinBytesAtEntry(EntryPC));
+    }
   }
 
   const MemoryFacts &Facts;
   std::map<uint64_t, uint64_t> EntryBytes;
   std::map<uint64_t, uint64_t> ExitBytes;
+  std::map<uint32_t, uint64_t> BeforeOpBytes;
 };
 
 } // namespace COMPILER

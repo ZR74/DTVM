@@ -1782,6 +1782,7 @@ private:
     uint64_t MaxRequiredSize = 0;
     uint64_t CoveredDirectOpsTotal = 0;
     uint64_t CoveredDirectOpsRemaining = 0;
+    std::vector<uint32_t> CoveredOpIds;
     bool HasOpPCRange = false;
     uint64_t FirstOpPC = 0;
     uint64_t LastOpPC = 0;
