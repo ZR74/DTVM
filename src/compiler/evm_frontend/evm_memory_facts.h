@@ -29,8 +29,7 @@ enum class AddressSpace : uint8_t {
   Unknown
 };
 
-// Fact: MVP address expression. It intentionally supports only
-// Base+ConstOffset.
+// Fact: an exact or bounded offset relative to a stable abstract base.
 enum class AddressBaseKind : uint8_t { Const, StackValue, Unknown };
 
 struct AddressExpr {
@@ -39,6 +38,9 @@ struct AddressExpr {
   uint32_t ValueId = 0;
   int64_t Offset = 0;
   bool Exact = false;
+  bool Bounded = false;
+  int64_t MinOffset = 0;
+  int64_t MaxOffset = 0;
 
   static AddressExpr unknown() { return {}; }
 
@@ -49,6 +51,9 @@ struct AddressExpr {
     Expr.Offset = static_cast<int64_t>(Value);
     Expr.Exact =
         Value <= static_cast<uint64_t>(std::numeric_limits<int64_t>::max());
+    Expr.Bounded = Expr.Exact;
+    Expr.MinOffset = Expr.Offset;
+    Expr.MaxOffset = Expr.Offset;
     return Expr;
   }
 
@@ -58,20 +63,53 @@ struct AddressExpr {
     Expr.ValueId = ValueId;
     Expr.Offset = Offset;
     Expr.Exact = true;
+    Expr.Bounded = true;
+    Expr.MinOffset = Offset;
+    Expr.MaxOffset = Offset;
+    return Expr;
+  }
+
+  static AddressExpr boundedStackValue(uint32_t ValueId, int64_t MinOffset,
+                                       int64_t MaxOffset) {
+    if (MinOffset > MaxOffset) {
+      return unknown();
+    }
+    AddressExpr Expr;
+    Expr.Kind = AddressBaseKind::StackValue;
+    Expr.ValueId = ValueId;
+    Expr.Bounded = true;
+    Expr.MinOffset = MinOffset;
+    Expr.MaxOffset = MaxOffset;
     return Expr;
   }
 
   bool isKnown() const { return Kind != AddressBaseKind::Unknown && Exact; }
+  bool hasBounds() const {
+    return Kind != AddressBaseKind::Unknown && Bounded &&
+           MinOffset <= MaxOffset;
+  }
 };
 
-// Fact: MVP size expression. Unknown symbolic sizes are deliberately not
-// represented in Phase 0.
+// Fact: an exact or bounded non-negative byte size.
 struct SizeExpr {
   bool Known = false;
   uint64_t Value = 0;
+  bool Bounded = false;
+  uint64_t MinValue = 0;
+  uint64_t MaxValue = 0;
 
   static SizeExpr unknown() { return {}; }
-  static SizeExpr constant(uint64_t Value) { return {true, Value}; }
+  static SizeExpr constant(uint64_t Value) {
+    return {true, Value, true, Value, Value};
+  }
+  static SizeExpr bounded(uint64_t MinValue, uint64_t MaxValue) {
+    if (MinValue > MaxValue) {
+      return unknown();
+    }
+    return {false, 0, true, MinValue, MaxValue};
+  }
+
+  bool hasBounds() const { return Bounded && MinValue <= MaxValue; }
 };
 
 struct MemoryEntryValue {
@@ -123,6 +161,22 @@ enum class MemoryOpKind : uint8_t {
   Other
 };
 
+enum class MemoryHardBarrierKind : uint8_t {
+  None,
+  MSize,
+  Gas,
+  Call,
+  Create,
+  Return,
+  Revert,
+  Log,
+  Storage,
+  SelfDestruct,
+  Invalid,
+  UnknownEffect,
+  Escape
+};
+
 // Fact: the single core memory access model. It records what the bytecode does,
 // not whether anything can be optimized.
 struct MemoryOp {
@@ -144,6 +198,9 @@ struct MemoryBlockFacts {
   size_t OpsBegin = 0;
   size_t OpsEnd = 0;
   bool HasBarrier = false;
+  MemoryHardBarrierKind FirstHardBarrierKind = MemoryHardBarrierKind::None;
+  evmc_opcode FirstHardBarrierOpcode = OP_STOP;
+  uint64_t FirstHardBarrierPC = 0;
   uint64_t MaxConstRequiredSize = 0;
   std::vector<uint64_t> Successors;
   std::vector<uint64_t> Predecessors;
@@ -322,7 +379,7 @@ public:
       pushUnknown();
       return;
     default:
-      observeGenericOpcode(Opcode);
+      observeGenericOpcode(Opcode, Pc);
       return;
     }
   }
@@ -361,6 +418,68 @@ private:
            Effect == MemoryEffect::MemorySizeObserver ||
            Effect == MemoryEffect::GasSensitive ||
            Effect == MemoryEffect::Unknown;
+  }
+
+  static MemoryHardBarrierKind getHardBarrierKind(const MemoryOp &Op) {
+    switch (Op.Kind) {
+    case MemoryOpKind::MSize:
+      return MemoryHardBarrierKind::MSize;
+    case MemoryOpKind::Gas:
+      return MemoryHardBarrierKind::Gas;
+    case MemoryOpKind::Call:
+      return MemoryHardBarrierKind::Call;
+    case MemoryOpKind::Create:
+      return MemoryHardBarrierKind::Create;
+    case MemoryOpKind::Return:
+      return MemoryHardBarrierKind::Return;
+    case MemoryOpKind::Revert:
+      return MemoryHardBarrierKind::Revert;
+    case MemoryOpKind::Log:
+      return MemoryHardBarrierKind::Log;
+    default:
+      break;
+    }
+
+    switch (Op.Opcode) {
+    case OP_SSTORE:
+    case OP_TSTORE:
+      return MemoryHardBarrierKind::Storage;
+    case OP_SELFDESTRUCT:
+      return MemoryHardBarrierKind::SelfDestruct;
+    case OP_INVALID:
+      return MemoryHardBarrierKind::Invalid;
+    default:
+      break;
+    }
+
+    switch (Op.Effect) {
+    case MemoryEffect::Escape:
+      return MemoryHardBarrierKind::Escape;
+    case MemoryEffect::MemorySizeObserver:
+      return MemoryHardBarrierKind::MSize;
+    case MemoryEffect::GasSensitive:
+      return MemoryHardBarrierKind::Gas;
+    case MemoryEffect::Unknown:
+      return MemoryHardBarrierKind::UnknownEffect;
+    case MemoryEffect::None:
+    case MemoryEffect::Read:
+    case MemoryEffect::Write:
+    case MemoryEffect::ReadWrite:
+      break;
+    }
+    return MemoryHardBarrierKind::None;
+  }
+
+  static bool isUnknownEffectBarrierOpcode(evmc_opcode Opcode) {
+    switch (Opcode) {
+    case OP_SSTORE:
+    case OP_TSTORE:
+    case OP_SELFDESTRUCT:
+    case OP_INVALID:
+      return true;
+    default:
+      return false;
+    }
   }
 
   static bool getDirectMemoryIntervalEnd(const MemoryInterval &Interval,
@@ -405,8 +524,14 @@ private:
     }
     MemoryBlockFacts &Block = It->second;
     Block.OpsEnd = Facts.Ops.size();
-    Block.HasBarrier =
-        Block.HasBarrier || isHardBarrierEffect(Op.Effect, Op.Kind);
+    if (isHardBarrierEffect(Op.Effect, Op.Kind)) {
+      Block.HasBarrier = true;
+      if (Block.FirstHardBarrierKind == MemoryHardBarrierKind::None) {
+        Block.FirstHardBarrierKind = getHardBarrierKind(Op);
+        Block.FirstHardBarrierOpcode = Op.Opcode;
+        Block.FirstHardBarrierPC = Op.Pc;
+      }
+    }
     uint64_t End = 0;
     if (getMemoryExpansionEnd(Op, End)) {
       Block.MaxConstRequiredSize = std::max(Block.MaxConstRequiredSize, End);
@@ -723,7 +848,7 @@ private:
     pushUnknown();
   }
 
-  void observeGenericOpcode(evmc_opcode Opcode) {
+  void observeGenericOpcode(evmc_opcode Opcode, uint64_t Pc) {
     const auto &Metrics = evmc_get_instruction_metrics_table(EVMC_CANCUN);
     const auto &Metric = Metrics[static_cast<uint8_t>(Opcode)];
     const int PopCount = Metric.stack_height_required;
@@ -733,6 +858,10 @@ private:
     }
     for (int I = 0; I < PushCount; ++I) {
       pushUnknown();
+    }
+    if (isUnknownEffectBarrierOpcode(Opcode)) {
+      noteBlockFact(
+          addOp(Pc, Opcode, MemoryOpKind::Other, MemoryEffect::Unknown));
     }
   }
 };

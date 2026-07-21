@@ -138,10 +138,19 @@ minimum memory size guaranteed at each block entry. Lowering may use that entry
 guarantee only to elide redundant constant-address `MLOAD`, `MSTORE`, and
 `MSTORE8` expansion checks.
 
-The memory plan framework must not hoist expansion, move Gas charging, cross
-`MSIZE`, `GAS`, host, escape, or unknown-effect barriers, or change opcode
-order. Existing block-local memory expansion plans remain valid and are still
-consumed through the existing per-block lowering path.
+The memory plan framework may also build one conservative Linear Region
+precheck for a single-entry, single-successor straight-line CFG chain. The
+region head emits the expansion precheck at the first covered direct memory
+operation, and successor blocks may reuse that guarantee only through the
+existing block-entry guaranteed-byte query. Linear Region planning must not
+cross branches, merges, backedges, `MSIZE`, `GAS`, host, escape, or
+unknown-effect barriers. Existing block-local memory expansion plans remain
+valid and are still consumed through the existing per-block lowering path.
+The planner may skip a straight-line prefix of blocks with no memory facts and
+select the first direct-memory block as the region head. This selection uses
+only local unique-successor and unique-predecessor checks; it does not perform
+dominator analysis. The precheck remains in the selected head and is never
+hoisted into the skipped prefix.
 
 ### EVM Frontend Context and Gas
 

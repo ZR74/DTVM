@@ -172,6 +172,37 @@ collectAnalyzerMemoryFacts(const std::vector<uint8_t> &Bytecode) {
   return FactsBuilder.takeFacts();
 }
 
+struct MemoryFactBlockSpec {
+  uint64_t EntryPC = 0;
+  uint64_t BodyStartPC = 0;
+  uint64_t BodyEndPC = 0;
+  std::vector<uint64_t> Successors;
+  std::vector<uint64_t> Predecessors;
+};
+
+COMPILER::MemoryFacts
+collectManualBlockMemoryFacts(const std::vector<uint8_t> &Bytecode,
+                              const std::vector<MemoryFactBlockSpec> &Blocks) {
+  COMPILER::MemoryFactsBuilder FactsBuilder;
+  const uint8_t *Data = Bytecode.empty() ? nullptr : Bytecode.data();
+  for (const MemoryFactBlockSpec &Block : Blocks) {
+    FactsBuilder.beginBlock(Block.EntryPC, Block.BodyStartPC, Block.BodyEndPC,
+                            {}, Block.Successors, Block.Predecessors);
+
+    size_t PC = static_cast<size_t>(Block.BodyStartPC);
+    const size_t EndPC = std::min<size_t>(Block.BodyEndPC, Bytecode.size());
+    while (PC < EndPC) {
+      evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
+      FactsBuilder.observeOpcode(Opcode, PC, Data, Bytecode.size());
+      ++PC;
+      if (Opcode >= OP_PUSH0 && Opcode <= OP_PUSH32) {
+        PC += static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+      }
+    }
+  }
+  return FactsBuilder.takeFacts();
+}
+
 TEST(EVMMemoryFactsBuilderTest, RecordsConstMStoreWriteInterval) {
   const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x2a, OP_PUSH1, 0x80,
                                          OP_MSTORE};
@@ -251,9 +282,9 @@ TEST(EVMMemoryEntryAddressAnalysisTest, RejectsConflictingMergeConstants) {
 
 TEST(EVMMemoryEntryAddressAnalysisTest, RejectsOverflowedU64ConstAddress) {
   const std::vector<uint8_t> Bytecode = {
-      OP_PUSH8, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-      OP_PUSH1, 0x01, OP_ADD, OP_PUSH1, 0x0f, OP_JUMP, OP_JUMPDEST,
-      OP_MLOAD, OP_STOP};
+      OP_PUSH8, 0xff, 0xff,    0xff,        0xff,     0xff,
+      0xff,     0xff, 0xff,    OP_PUSH1,    0x01,     OP_ADD,
+      OP_PUSH1, 0x0f, OP_JUMP, OP_JUMPDEST, OP_MLOAD, OP_STOP};
 
   COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
 
@@ -346,7 +377,7 @@ TEST(EVMMemoryAnalysisViewTest, ProvesNoAliasForDisjointConstIntervals) {
             COMPILER::MemoryAliasResult::NoAlias);
 }
 
-TEST(EVMMemoryAnalysisViewTest, KeepsMayAliasForOverlappingConstIntervals) {
+TEST(EVMMemoryAnalysisViewTest, ClassifiesOverlappingConstIntervals) {
   const std::vector<uint8_t> Bytecode = {
       OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
       OP_PUSH1, 0x02, OP_PUSH1, 0x90, OP_MSTORE};
@@ -359,7 +390,59 @@ TEST(EVMMemoryAnalysisViewTest, KeepsMayAliasForOverlappingConstIntervals) {
       View.getIntervalRelation(Facts.Ops[0].Writes[0], Facts.Ops[1].Writes[0]),
       COMPILER::IntervalRelationKind::Overlap);
   EXPECT_EQ(View.alias(Facts.Ops[0], Facts.Ops[1]),
-            COMPILER::MemoryAliasResult::MayAlias);
+            COMPILER::MemoryAliasResult::PartialAlias);
+}
+
+TEST(EVMMemoryAnalysisViewTest, ProvesMustAliasForEqualConstIntervals) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x80, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_EQ(
+      View.getIntervalRelation(Facts.Ops[0].Writes[0], Facts.Ops[1].Writes[0]),
+      COMPILER::IntervalRelationKind::Equal);
+  EXPECT_EQ(View.alias(Facts.Ops[0], Facts.Ops[1]),
+            COMPILER::MemoryAliasResult::MustAlias);
+}
+
+TEST(EVMMemoryAnalysisViewTest, ProvesNoAliasForBoundedSameBaseIntervals) {
+  COMPILER::MemoryInterval LHS{
+      COMPILER::AddressSpace::Memory,
+      COMPILER::AddressExpr::boundedStackValue(7, 0, 8),
+      COMPILER::SizeExpr::constant(8), false};
+  COMPILER::MemoryInterval RHS{
+      COMPILER::AddressSpace::Memory,
+      COMPILER::AddressExpr::boundedStackValue(7, 32, 40),
+      COMPILER::SizeExpr::constant(8), false};
+
+  COMPILER::MemoryFacts Facts;
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  EXPECT_EQ(View.getIntervalRelation(LHS, RHS),
+            COMPILER::IntervalRelationKind::Disjoint);
+  EXPECT_EQ(View.alias(LHS, RHS), COMPILER::MemoryAliasResult::NoAlias);
+}
+
+TEST(EVMMemoryAnalysisViewTest, KeepsMayAliasForUncertainBoundedOverlap) {
+  COMPILER::MemoryInterval LHS{
+      COMPILER::AddressSpace::Memory,
+      COMPILER::AddressExpr::boundedStackValue(7, 0, 32),
+      COMPILER::SizeExpr::constant(32), false};
+  COMPILER::MemoryInterval RHS{
+      COMPILER::AddressSpace::Memory,
+      COMPILER::AddressExpr::boundedStackValue(7, 16, 48),
+      COMPILER::SizeExpr::constant(32), false};
+
+  COMPILER::MemoryFacts Facts;
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  EXPECT_EQ(View.getIntervalRelation(LHS, RHS),
+            COMPILER::IntervalRelationKind::Unknown);
+  EXPECT_EQ(View.alias(LHS, RHS), COMPILER::MemoryAliasResult::MayAlias);
 }
 
 TEST(EVMMemoryAnalysisViewTest, ProvesNoAliasAcrossAddressSpaces) {
@@ -374,6 +457,44 @@ TEST(EVMMemoryAnalysisViewTest, ProvesNoAliasAcrossAddressSpaces) {
   ASSERT_EQ(Facts.Ops[0].Writes.size(), 1u);
   EXPECT_EQ(View.alias(Facts.Ops[0].Reads[0], Facts.Ops[0].Writes[0]),
             COMPILER::MemoryAliasResult::NoAlias);
+}
+
+TEST(EVMMemoryClobberAnalysisTest, FindsReachingMustAliasStore) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1,  0x80,     OP_MSTORE, OP_PUSH1, 0x02,
+      OP_PUSH1, 0xa0, OP_MSTORE, OP_PUSH1, 0x80,      OP_MLOAD};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 3u);
+  EXPECT_EQ(View.findReachingMustAliasStore(Facts.Ops[2]), &Facts.Ops[0]);
+}
+
+TEST(EVMMemoryClobberAnalysisTest, FindsUnreadOverwrittenStore) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x80, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_EQ(View.findOverwritingMustAliasStore(Facts.Ops[0]), &Facts.Ops[1]);
+}
+
+TEST(EVMMemoryClobberAnalysisTest, ReadPreventsDeadStoreProof) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01,     OP_PUSH1, 0x80,     OP_MSTORE, OP_PUSH1, 0x80,
+      OP_MLOAD, OP_PUSH1, 0x02,     OP_PUSH1, 0x80,      OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryAnalysisView View(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 3u);
+  EXPECT_EQ(View.findOverwritingMustAliasStore(Facts.Ops[0]), nullptr);
+  EXPECT_TRUE(View.hasMayAliasRead(Facts.Ops[0].Id, Facts.Ops[2].Id,
+                                   Facts.Ops[0].Writes[0]));
 }
 
 TEST(EVMMemoryPrecheckConsumerTest,
@@ -636,6 +757,289 @@ TEST(EVMMemoryConsumerFrameworkTest, ExpansionPlannerFallsBackToPrecheckPlan) {
   ASSERT_TRUE(Plan.has_value());
   EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::ProvenRange);
   EXPECT_EQ(Plan->RequiredMemorySize, 0x110u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest,
+     ExpansionPlannerBuildsLinearRegionAcrossStraightLineSuccessor) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00, OP_MSTORE, OP_JUMPDEST,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x20, OP_MSTORE, OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+  const COMPILER::MemoryBlockFacts *Head = Facts.getBlock(0);
+  const COMPILER::MemoryBlockFacts *Successor = Facts.getBlock(5);
+  ASSERT_NE(Head, nullptr);
+  ASSERT_NE(Successor, nullptr);
+
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(Head->EntryPC, Head->BodyEndPC);
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::LinearRegion);
+  EXPECT_EQ(Plan->FirstOpPC, 4u);
+  EXPECT_EQ(Plan->LastOpPC, 10u);
+  EXPECT_EQ(Plan->CoveredOps, 2u);
+  EXPECT_EQ(Plan->RequiredMemorySize, 0x40u);
+  EXPECT_EQ(Planner.getGuaranteedMinBytesAtEntry(Successor->EntryPC), 0x40u);
+
+  const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(Diag.LinearRegionCandidates, 1u);
+  EXPECT_EQ(Diag.LinearRegionAccepted, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest,
+     ExpansionPlannerBuildsLinearRegionAcrossLongStraightLineChain) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00, OP_MSTORE, OP_JUMPDEST,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x20, OP_MSTORE, OP_JUMPDEST,
+      OP_PUSH1, 0x03, OP_PUSH1, 0x40, OP_MSTORE, OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+  const COMPILER::MemoryBlockFacts *Head = Facts.getBlock(0);
+  const COMPILER::MemoryBlockFacts *Middle = Facts.getBlock(5);
+  const COMPILER::MemoryBlockFacts *Tail = Facts.getBlock(11);
+  ASSERT_NE(Head, nullptr);
+  ASSERT_NE(Middle, nullptr);
+  ASSERT_NE(Tail, nullptr);
+
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(Head->EntryPC, Head->BodyEndPC);
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::LinearRegion);
+  EXPECT_EQ(Plan->FirstOpPC, 4u);
+  EXPECT_EQ(Plan->LastOpPC, 16u);
+  EXPECT_EQ(Plan->CoveredOps, 3u);
+  EXPECT_EQ(Plan->RequiredMemorySize, 0x60u);
+  EXPECT_EQ(Planner.getGuaranteedMinBytesAtEntry(Middle->EntryPC), 0x60u);
+  EXPECT_EQ(Planner.getGuaranteedMinBytesAtEntry(Tail->EntryPC), 0x60u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, LinearRegionRejectsBranchingHead) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x20, OP_MSTORE,
+      OP_PUSH1, 0x03, OP_PUSH1, 0x40, OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 5, {5, 10}, {}},
+      {5, 5, 10, {}, {0}},
+      {10, 10, 15, {}, {0}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(0, 5);
+
+  EXPECT_FALSE(Plan.has_value());
+  EXPECT_EQ(Planner.getLastDiagnostics().LinearRegionCandidates, 0u);
+  EXPECT_EQ(Planner.getLastDiagnostics().LinearRegionRejectedBranchingHead, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, LinearRegionRejectsMergeSuccessor) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x20, OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 5, {5}, {}},
+      {5, 5, 10, {}, {0, 12}},
+      {12, 10, 10, {5}, {}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(0, 5);
+
+  EXPECT_FALSE(Plan.has_value());
+  EXPECT_EQ(Planner.getGuaranteedMinBytesAtEntry(5), 0u);
+  EXPECT_EQ(Planner.getLastDiagnostics().LinearRegionRejectedMergeSuccessor,
+            1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, LinearRegionRejectsBarrier) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1,  0x01,     OP_PUSH1, 0x00,
+                                         OP_MSTORE, OP_MSIZE, OP_PUSH1, 0x02,
+                                         OP_PUSH1,  0x20,     OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 6, {6}, {}},
+      {6, 6, 11, {}, {0}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(0, 6);
+
+  EXPECT_FALSE(Plan.has_value());
+  EXPECT_EQ(Planner.getGuaranteedMinBytesAtEntry(6), 0x20u);
+  EXPECT_EQ(Planner.getLastDiagnostics().LinearRegionRejectedHardBarrier, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, LinearRegionRejectsUnknownEffectBarrier) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00, OP_MSTORE,
+      OP_PUSH1, 0x00, OP_PUSH1, 0x00, OP_SSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x20, OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 10, {10}, {}},
+      {10, 10, 15, {}, {0}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  const COMPILER::MemoryBlockFacts *Head = Facts.getBlock(0);
+  ASSERT_NE(Head, nullptr);
+  EXPECT_TRUE(Head->HasBarrier);
+
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(0, 10);
+
+  EXPECT_FALSE(Plan.has_value());
+  EXPECT_EQ(Planner.getGuaranteedMinBytesAtEntry(10), 0x20u);
+  EXPECT_EQ(Planner.getLastDiagnostics().LinearRegionRejectedHardBarrier, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest,
+     SelectsFirstMemoryBlockAsLinearRegionHead) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_JUMPDEST, OP_PUSH1, 0x01,     OP_PUSH1, 0x00,     OP_MSTORE,
+      OP_PUSH1,    0x02,     OP_PUSH1, 0x20,     OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 1, {1}, {}},
+      {1, 1, 6, {6}, {0}},
+      {6, 6, 11, {}, {1}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  EXPECT_FALSE(Planner.buildMemoryExpansionPlan(0, 1).has_value());
+  const COMPILER::MemoryExpansionPlanDiagnostics &HeadDiag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(HeadDiag.LinearRegionHeadCandidateBlocks, 1u);
+  EXPECT_EQ(HeadDiag.LinearRegionHeadSkippedEmptyBlocks, 1u);
+  EXPECT_EQ(HeadDiag.LinearRegionHeadSelectedNonEntryBlock, 1u);
+  EXPECT_EQ(HeadDiag.LinearRegionHeadRejectedEntryGuaranteeMissing, 0u);
+  EXPECT_EQ(HeadDiag.LinearRegionRejectedNoHeadMemoryOp, 0u);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(1, 6);
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::LinearRegion);
+  EXPECT_EQ(Plan->FirstOpPC, 5u);
+  EXPECT_EQ(Plan->LastOpPC, 10u);
+  EXPECT_EQ(Plan->CoveredOps, 2u);
+  EXPECT_EQ(Planner.getGuaranteedMinBytesAtEntry(6), 0x40u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, RejectsHeadSelectionAcrossBranch) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_JUMPDEST, OP_PUSH1, 0x01,     OP_PUSH1, 0x00,     OP_MSTORE,
+      OP_PUSH1,    0x02,     OP_PUSH1, 0x20,     OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 1, {1, 6}, {}},
+      {1, 1, 6, {6}, {0}},
+      {6, 6, 11, {}, {0, 1}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  EXPECT_FALSE(Planner.buildMemoryExpansionPlan(0, 1).has_value());
+  const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(Diag.LinearRegionHeadSkippedEmptyBlocks, 1u);
+  EXPECT_EQ(Diag.LinearRegionHeadSelectedNonEntryBlock, 0u);
+  EXPECT_EQ(Diag.LinearRegionHeadRejectedPredecessorNotStraight, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, RejectsHeadSelectionAcrossMerge) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_JUMPDEST, OP_PUSH1, 0x01,     OP_PUSH1, 0x00,     OP_MSTORE,
+      OP_PUSH1,    0x02,     OP_PUSH1, 0x20,     OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 1, {1}, {}},
+      {1, 1, 6, {6}, {0, 11}},
+      {6, 6, 11, {}, {1}},
+      {11, 11, 11, {1}, {}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  EXPECT_FALSE(Planner.buildMemoryExpansionPlan(0, 1).has_value());
+  const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(Diag.LinearRegionHeadCandidateBlocks, 1u);
+  EXPECT_EQ(Diag.LinearRegionHeadSelectedNonEntryBlock, 0u);
+  EXPECT_EQ(Diag.LinearRegionHeadRejectedHeadNotDominatingChain, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, RejectsHeadSelectionAcrossBarrier) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_GAS,   OP_PUSH1, 0x01,     OP_PUSH1, 0x00,     OP_MSTORE,
+      OP_PUSH1, 0x02,     OP_PUSH1, 0x20,     OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 1, {1}, {}},
+      {1, 1, 6, {6}, {0}},
+      {6, 6, 11, {}, {1}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  EXPECT_FALSE(Planner.buildMemoryExpansionPlan(0, 1).has_value());
+  const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(Diag.LinearRegionHeadSelectedNonEntryBlock, 0u);
+  EXPECT_EQ(Diag.LinearRegionHeadSkippedEmptyBlocks, 0u);
+  EXPECT_EQ(Diag.LinearRegionRejectedBarrierGas, 1u);
+}
+
+TEST(EVMMemoryConsumerFrameworkTest, KeepsExistingEntryHeadRegion) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x20, OP_MSTORE};
+  const std::vector<MemoryFactBlockSpec> Blocks = {
+      {0, 0, 5, {5}, {}},
+      {5, 5, 10, {}, {0}},
+  };
+
+  COMPILER::MemoryFacts Facts = collectManualBlockMemoryFacts(Bytecode, Blocks);
+  COMPILER::MemoryAnalysisView View(Facts);
+  COMPILER::MemoryExpansionPlanner Planner(View);
+
+  std::optional<COMPILER::MemoryExpansionPlan> Plan =
+      Planner.buildMemoryExpansionPlan(0, 5);
+
+  ASSERT_TRUE(Plan.has_value());
+  EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::LinearRegion);
+  const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
+      Planner.getLastDiagnostics();
+  EXPECT_EQ(Diag.LinearRegionHeadCandidateBlocks, 1u);
+  EXPECT_EQ(Diag.LinearRegionHeadSkippedEmptyBlocks, 0u);
+  EXPECT_EQ(Diag.LinearRegionHeadSelectedNonEntryBlock, 0u);
 }
 
 TEST(EVMMemoryConsumerFrameworkTest, RejectsLowProfitPrecheckPlan) {

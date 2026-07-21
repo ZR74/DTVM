@@ -37,7 +37,11 @@ struct ProvenMemoryRange {
   }
 };
 
-enum class MemoryExpansionKind : uint8_t { ProvenRange, ContiguousGroup };
+enum class MemoryExpansionKind : uint8_t {
+  ProvenRange,
+  ContiguousGroup,
+  LinearRegion
+};
 
 enum class MemoryExpansionPlanRejectReason : uint8_t {
   None,
@@ -48,6 +52,60 @@ enum class MemoryExpansionPlanRejectReason : uint8_t {
   TooLarge,
   ZeroSize,
   Unprofitable
+};
+
+enum class MemoryLinearRegionRejectReason : uint8_t {
+  None,
+  NotStraightLine,
+  BranchingHead,
+  MergeSuccessor,
+  BackedgeOrNonForward,
+  HardBarrier,
+  NoHeadMemoryOp,
+  UnknownInterval,
+  NonDirectMemoryOp,
+  TooFewOps,
+  Unprofitable,
+  BarrierMSize,
+  BarrierGas,
+  BarrierCall,
+  BarrierCreate,
+  BarrierReturn,
+  BarrierRevert,
+  BarrierLog,
+  BarrierStorage,
+  BarrierSelfDestruct,
+  BarrierInvalid,
+  BarrierUnknownEffect,
+  BarrierEscape
+};
+
+enum class MemoryLinearRegionPrefixStopReason : uint8_t {
+  None,
+  TerminalAfterSafePrefix,
+  BranchingAfterSafePrefix,
+  MergeAfterSafePrefix,
+  MissingSuccessorBlock,
+  BackedgeAfterSafePrefix,
+  BarrierAfterSafePrefix
+};
+
+struct MemoryLinearRegionPrefixInfo {
+  uint64_t Blocks = 0;
+  uint64_t Ops = 0;
+  MemoryLinearRegionPrefixStopReason StopReason =
+      MemoryLinearRegionPrefixStopReason::None;
+};
+
+struct MemoryLinearRegionHeadSelectionInfo {
+  uint64_t CandidateBlocks = 0;
+  uint64_t SkippedEmptyBlocks = 0;
+  bool SelectedNonEntryBlock = false;
+  bool RejectedPredecessorNotStraight = false;
+  bool RejectedHeadNotDominatingChain = false;
+  // A B-local precheck does not require an incoming memory-size guarantee.
+  // Keep this bit for future plan forms that do require one.
+  bool RejectedEntryGuaranteeMissing = false;
 };
 
 // Stable consumer plan: describes the memory expansion coverage required by a
@@ -117,6 +175,7 @@ struct MemoryExpansionPlan {
         getEstimatedReducedExpansions(Range.CoveredOpCount);
     switch (Kind) {
     case MemoryExpansionKind::ContiguousGroup:
+    case MemoryExpansionKind::LinearRegion:
       return Range.CoveredOpCount >= 2 && EstimatedReducedExpansions >= 1;
     case MemoryExpansionKind::ProvenRange:
       return Range.CoveredOpCount >= 3 && EstimatedReducedExpansions >= 2;
@@ -155,8 +214,10 @@ struct MemoryExpansionPlan {
 
 struct MemoryExpansionPlanDiagnostics {
   uint64_t GroupingCandidates = 0;
+  uint64_t LinearRegionCandidates = 0;
   uint64_t PrecheckCandidates = 0;
   uint64_t GroupingAccepted = 0;
+  uint64_t LinearRegionAccepted = 0;
   uint64_t PrecheckAccepted = 0;
   uint64_t RejectedNoCandidate = 0;
   uint64_t RejectedUnknownInterval = 0;
@@ -165,6 +226,48 @@ struct MemoryExpansionPlanDiagnostics {
   uint64_t RejectedTooLarge = 0;
   uint64_t RejectedZeroSize = 0;
   uint64_t RejectedUnprofitable = 0;
+  uint64_t LinearRegionRejectedNotStraightLine = 0;
+  uint64_t LinearRegionRejectedBranchingHead = 0;
+  uint64_t LinearRegionRejectedMergeSuccessor = 0;
+  uint64_t LinearRegionRejectedBackedgeOrNonForward = 0;
+  uint64_t LinearRegionRejectedHardBarrier = 0;
+  uint64_t LinearRegionRejectedNoHeadMemoryOp = 0;
+  uint64_t LinearRegionRejectedUnknownInterval = 0;
+  uint64_t LinearRegionRejectedNonDirectMemoryOp = 0;
+  uint64_t LinearRegionRejectedTooFewOps = 0;
+  uint64_t LinearRegionRejectedUnprofitable = 0;
+  uint64_t LinearRegionRejectedBarrierMSize = 0;
+  uint64_t LinearRegionRejectedBarrierGas = 0;
+  uint64_t LinearRegionRejectedBarrierCall = 0;
+  uint64_t LinearRegionRejectedBarrierCreate = 0;
+  uint64_t LinearRegionRejectedBarrierReturn = 0;
+  uint64_t LinearRegionRejectedBarrierRevert = 0;
+  uint64_t LinearRegionRejectedBarrierLog = 0;
+  uint64_t LinearRegionRejectedBarrierStorage = 0;
+  uint64_t LinearRegionRejectedBarrierSelfDestruct = 0;
+  uint64_t LinearRegionRejectedBarrierInvalid = 0;
+  uint64_t LinearRegionRejectedBarrierUnknownEffect = 0;
+  uint64_t LinearRegionRejectedBarrierEscape = 0;
+  uint64_t LinearRegionPrefixCandidateBlocks = 0;
+  uint64_t LinearRegionPrefixCandidateOps = 0;
+  uint64_t LinearRegionPrefixAcceptedBlocks = 0;
+  uint64_t LinearRegionPrefixAcceptedOps = 0;
+  uint64_t LinearRegionPrefixRejectedTooShort = 0;
+  uint64_t LinearRegionPrefixRejectedNoHeadMemoryOp = 0;
+  uint64_t LinearRegionPrefixBranchingAfterSafePrefix = 0;
+  uint64_t LinearRegionPrefixMergeAfterSafePrefix = 0;
+  uint64_t LinearRegionPrefixTerminalAfterSafePrefix = 0;
+  uint64_t LinearRegionPrefixMissingSuccessorBlock = 0;
+  uint64_t LinearRegionPrefixBackedgeAfterSafePrefix = 0;
+  uint64_t LinearRegionPrefixBarrierAfterSafePrefix = 0;
+  uint64_t LinearRegionRejectedBranchingHeadNoSafePrefix = 0;
+  uint64_t LinearRegionRejectedMergeSuccessorNoSafePrefix = 0;
+  uint64_t LinearRegionHeadCandidateBlocks = 0;
+  uint64_t LinearRegionHeadSkippedEmptyBlocks = 0;
+  uint64_t LinearRegionHeadSelectedNonEntryBlock = 0;
+  uint64_t LinearRegionHeadRejectedPredecessorNotStraight = 0;
+  uint64_t LinearRegionHeadRejectedHeadNotDominatingChain = 0;
+  uint64_t LinearRegionHeadRejectedEntryGuaranteeMissing = 0;
 
   void clear() { *this = MemoryExpansionPlanDiagnostics(); }
 
@@ -194,6 +297,150 @@ struct MemoryExpansionPlanDiagnostics {
       ++RejectedUnprofitable;
       break;
     }
+  }
+
+  void noteLinearRegionReject(MemoryLinearRegionRejectReason Reason) {
+    switch (Reason) {
+    case MemoryLinearRegionRejectReason::None:
+      break;
+    case MemoryLinearRegionRejectReason::NotStraightLine:
+      ++LinearRegionRejectedNotStraightLine;
+      break;
+    case MemoryLinearRegionRejectReason::BranchingHead:
+      ++LinearRegionRejectedBranchingHead;
+      ++LinearRegionRejectedBranchingHeadNoSafePrefix;
+      break;
+    case MemoryLinearRegionRejectReason::MergeSuccessor:
+      ++LinearRegionRejectedMergeSuccessor;
+      ++LinearRegionRejectedMergeSuccessorNoSafePrefix;
+      break;
+    case MemoryLinearRegionRejectReason::BackedgeOrNonForward:
+      ++LinearRegionRejectedBackedgeOrNonForward;
+      break;
+    case MemoryLinearRegionRejectReason::HardBarrier:
+      ++LinearRegionRejectedHardBarrier;
+      break;
+    case MemoryLinearRegionRejectReason::NoHeadMemoryOp:
+      ++LinearRegionRejectedNoHeadMemoryOp;
+      ++LinearRegionPrefixRejectedNoHeadMemoryOp;
+      break;
+    case MemoryLinearRegionRejectReason::UnknownInterval:
+      ++LinearRegionRejectedUnknownInterval;
+      break;
+    case MemoryLinearRegionRejectReason::NonDirectMemoryOp:
+      ++LinearRegionRejectedNonDirectMemoryOp;
+      break;
+    case MemoryLinearRegionRejectReason::TooFewOps:
+      ++LinearRegionRejectedTooFewOps;
+      ++LinearRegionPrefixRejectedTooShort;
+      break;
+    case MemoryLinearRegionRejectReason::Unprofitable:
+      ++LinearRegionRejectedUnprofitable;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierMSize:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierMSize;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierGas:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierGas;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierCall:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierCall;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierCreate:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierCreate;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierReturn:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierReturn;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierRevert:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierRevert;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierLog:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierLog;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierStorage:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierStorage;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierSelfDestruct:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierSelfDestruct;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierInvalid:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierInvalid;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierUnknownEffect:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierUnknownEffect;
+      break;
+    case MemoryLinearRegionRejectReason::BarrierEscape:
+      ++LinearRegionRejectedHardBarrier;
+      ++LinearRegionRejectedBarrierEscape;
+      break;
+    }
+  }
+
+  void noteLinearRegionPrefix(const MemoryLinearRegionPrefixInfo &Info,
+                              bool Accepted) {
+    if (Info.Blocks == 0) {
+      return;
+    }
+    LinearRegionPrefixCandidateBlocks += Info.Blocks;
+    LinearRegionPrefixCandidateOps += Info.Ops;
+    if (Accepted) {
+      LinearRegionPrefixAcceptedBlocks += Info.Blocks;
+      LinearRegionPrefixAcceptedOps += Info.Ops;
+    } else if (Info.Blocks < 2) {
+      ++LinearRegionPrefixRejectedTooShort;
+    }
+
+    if (Info.Blocks < 2) {
+      return;
+    }
+
+    switch (Info.StopReason) {
+    case MemoryLinearRegionPrefixStopReason::None:
+      break;
+    case MemoryLinearRegionPrefixStopReason::TerminalAfterSafePrefix:
+      ++LinearRegionPrefixTerminalAfterSafePrefix;
+      break;
+    case MemoryLinearRegionPrefixStopReason::BranchingAfterSafePrefix:
+      ++LinearRegionPrefixBranchingAfterSafePrefix;
+      break;
+    case MemoryLinearRegionPrefixStopReason::MergeAfterSafePrefix:
+      ++LinearRegionPrefixMergeAfterSafePrefix;
+      break;
+    case MemoryLinearRegionPrefixStopReason::MissingSuccessorBlock:
+      ++LinearRegionPrefixMissingSuccessorBlock;
+      break;
+    case MemoryLinearRegionPrefixStopReason::BackedgeAfterSafePrefix:
+      ++LinearRegionPrefixBackedgeAfterSafePrefix;
+      break;
+    case MemoryLinearRegionPrefixStopReason::BarrierAfterSafePrefix:
+      ++LinearRegionPrefixBarrierAfterSafePrefix;
+      break;
+    }
+  }
+
+  void noteLinearRegionHeadSelection(
+      const MemoryLinearRegionHeadSelectionInfo &Info) {
+    LinearRegionHeadCandidateBlocks += Info.CandidateBlocks;
+    LinearRegionHeadSkippedEmptyBlocks += Info.SkippedEmptyBlocks;
+    LinearRegionHeadSelectedNonEntryBlock += Info.SelectedNonEntryBlock;
+    LinearRegionHeadRejectedPredecessorNotStraight +=
+        Info.RejectedPredecessorNotStraight;
+    LinearRegionHeadRejectedHeadNotDominatingChain +=
+        Info.RejectedHeadNotDominatingChain;
+    LinearRegionHeadRejectedEntryGuaranteeMissing +=
+        Info.RejectedEntryGuaranteeMissing;
   }
 };
 

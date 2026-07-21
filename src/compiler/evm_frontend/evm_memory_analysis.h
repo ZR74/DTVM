@@ -30,15 +30,27 @@ enum class MemoryBarrierKind : uint8_t {
   Unknown
 };
 
-// Inference: MVP alias lattice. Phase 1 intentionally exposes only NoAlias and
-// MayAlias. MustAlias and PartialAlias are future extensions.
-enum class MemoryAliasResult : uint8_t { NoAlias, MayAlias };
+enum class MemoryAliasResult : uint8_t {
+  NoAlias,
+  MustAlias,
+  PartialAlias,
+  MayAlias
+};
 
 enum class IntervalRelationKind : uint8_t { Unknown, Disjoint, Equal, Overlap };
 
-// Inference: derives a relation between two MemoryIntervals from Facts only.
-// It proves relations for exact Base+ConstOffset intervals and otherwise
-// returns Unknown.
+struct MemoryIntervalBounds {
+  AddressBaseKind BaseKind = AddressBaseKind::Unknown;
+  uint64_t Const = 0;
+  uint32_t ValueId = 0;
+  int64_t MinBegin = 0;
+  int64_t MaxBegin = 0;
+  int64_t MinEnd = 0;
+  int64_t MaxEnd = 0;
+  bool Exact = false;
+};
+
+// Inference: derives exact or conservative bounded relations between intervals.
 class IntervalRelation {
 public:
   static IntervalRelationKind compare(const MemoryInterval &LHS,
@@ -54,21 +66,25 @@ public:
       return IntervalRelationKind::Disjoint;
     }
 
-    std::optional<Bounds> LHSBounds = getBounds(LHS);
-    std::optional<Bounds> RHSBounds = getBounds(RHS);
+    std::optional<MemoryIntervalBounds> LHSBounds = getBounds(LHS);
+    std::optional<MemoryIntervalBounds> RHSBounds = getBounds(RHS);
     if (!LHSBounds || !RHSBounds || !sameBase(*LHSBounds, *RHSBounds)) {
       return IntervalRelationKind::Unknown;
     }
 
-    if (LHSBounds->End <= RHSBounds->Begin ||
-        RHSBounds->End <= LHSBounds->Begin) {
+    if (LHSBounds->MaxEnd <= RHSBounds->MinBegin ||
+        RHSBounds->MaxEnd <= LHSBounds->MinBegin) {
       return IntervalRelationKind::Disjoint;
     }
-    if (LHSBounds->Begin == RHSBounds->Begin &&
-        LHSBounds->End == RHSBounds->End) {
+    if (LHSBounds->Exact && RHSBounds->Exact &&
+        LHSBounds->MinBegin == RHSBounds->MinBegin &&
+        LHSBounds->MinEnd == RHSBounds->MinEnd) {
       return IntervalRelationKind::Equal;
     }
-    return IntervalRelationKind::Overlap;
+    if (LHSBounds->Exact && RHSBounds->Exact) {
+      return IntervalRelationKind::Overlap;
+    }
+    return IntervalRelationKind::Unknown;
   }
 
   static bool isKnownDisjoint(const MemoryInterval &LHS,
@@ -76,43 +92,57 @@ public:
     return compare(LHS, RHS) == IntervalRelationKind::Disjoint;
   }
 
-private:
-  struct Bounds {
-    AddressBaseKind BaseKind = AddressBaseKind::Unknown;
-    uint64_t Const = 0;
-    uint32_t ValueId = 0;
-    int64_t Begin = 0;
-    int64_t End = 0;
-  };
+  static bool contains(const MemoryInterval &Container,
+                       const MemoryInterval &Contained) {
+    if (Container.Space != Contained.Space ||
+        Container.Space == AddressSpace::Unknown) {
+      return false;
+    }
+    std::optional<MemoryIntervalBounds> ContainerBounds = getBounds(Container);
+    std::optional<MemoryIntervalBounds> ContainedBounds = getBounds(Contained);
+    return ContainerBounds && ContainedBounds &&
+           sameBase(*ContainerBounds, *ContainedBounds) &&
+           ContainerBounds->MinBegin <= ContainedBounds->MinBegin &&
+           ContainerBounds->MaxEnd >= ContainedBounds->MaxEnd;
+  }
 
-  static std::optional<Bounds> getBounds(const MemoryInterval &Interval) {
-    if (!Interval.Addr.isKnown() || !Interval.Size.Known) {
+  static std::optional<MemoryIntervalBounds>
+  getBounds(const MemoryInterval &Interval) {
+    if (!Interval.Addr.hasBounds() || !Interval.Size.hasBounds()) {
       return std::nullopt;
     }
-    if (Interval.Addr.Offset < 0) {
+    if (Interval.Addr.MinOffset < 0 || Interval.Addr.MaxOffset < 0) {
       return std::nullopt;
     }
-    if (Interval.Size.Value >
+    if (Interval.Size.MaxValue >
         static_cast<uint64_t>(std::numeric_limits<int64_t>::max())) {
       return std::nullopt;
     }
 
-    const int64_t Size = static_cast<int64_t>(Interval.Size.Value);
-    const int64_t Begin = Interval.Addr.Offset;
-    if (Begin > std::numeric_limits<int64_t>::max() - Size) {
+    const int64_t MinSize = static_cast<int64_t>(Interval.Size.MinValue);
+    const int64_t MaxSize = static_cast<int64_t>(Interval.Size.MaxValue);
+    if (Interval.Addr.MinOffset >
+            std::numeric_limits<int64_t>::max() - MinSize ||
+        Interval.Addr.MaxOffset >
+            std::numeric_limits<int64_t>::max() - MaxSize) {
       return std::nullopt;
     }
 
-    Bounds Result;
+    MemoryIntervalBounds Result;
     Result.BaseKind = Interval.Addr.Kind;
     Result.Const = Interval.Addr.Const;
     Result.ValueId = Interval.Addr.ValueId;
-    Result.Begin = Begin;
-    Result.End = Begin + Size;
+    Result.MinBegin = Interval.Addr.MinOffset;
+    Result.MaxBegin = Interval.Addr.MaxOffset;
+    Result.MinEnd = Result.MinBegin + MinSize;
+    Result.MaxEnd = Result.MaxBegin + MaxSize;
+    Result.Exact = Interval.Addr.Exact && Interval.Size.Known;
     return Result;
   }
 
-  static bool sameBase(const Bounds &LHS, const Bounds &RHS) {
+private:
+  static bool sameBase(const MemoryIntervalBounds &LHS,
+                       const MemoryIntervalBounds &RHS) {
     if (LHS.BaseKind != RHS.BaseKind) {
       return false;
     }
@@ -190,48 +220,198 @@ private:
   const MemoryFacts &Facts;
 };
 
-// Inference: NoAlias/MayAlias query API over MemoryIntervals and MemoryOps.
+// Inference: conservative alias query API over MemoryIntervals and MemoryOps.
 class AliasAnalysis {
 public:
   explicit AliasAnalysis(const MemoryFacts &Facts) : Facts(Facts) {}
 
   MemoryAliasResult alias(const MemoryInterval &LHS,
                           const MemoryInterval &RHS) const {
-    return IntervalRelation::isKnownDisjoint(LHS, RHS)
-               ? MemoryAliasResult::NoAlias
-               : MemoryAliasResult::MayAlias;
+    switch (IntervalRelation::compare(LHS, RHS)) {
+    case IntervalRelationKind::Disjoint:
+      return MemoryAliasResult::NoAlias;
+    case IntervalRelationKind::Equal:
+      return MemoryAliasResult::MustAlias;
+    case IntervalRelationKind::Overlap:
+      return MemoryAliasResult::PartialAlias;
+    case IntervalRelationKind::Unknown:
+      return MemoryAliasResult::MayAlias;
+    }
+    return MemoryAliasResult::MayAlias;
   }
 
   MemoryAliasResult alias(const MemoryOp &LHS, const MemoryOp &RHS) const {
+    MemoryAliasResult Result = MemoryAliasResult::NoAlias;
     for (const MemoryInterval &LHSInterval : LHS.Reads) {
-      if (mayAliasAny(LHSInterval, RHS)) {
-        return MemoryAliasResult::MayAlias;
-      }
+      Result = mergeAliasResult(Result, aliasAny(LHSInterval, RHS));
     }
     for (const MemoryInterval &LHSInterval : LHS.Writes) {
-      if (mayAliasAny(LHSInterval, RHS)) {
-        return MemoryAliasResult::MayAlias;
-      }
+      Result = mergeAliasResult(Result, aliasAny(LHSInterval, RHS));
     }
-    return MemoryAliasResult::NoAlias;
+    return Result;
   }
 
 private:
-  bool mayAliasAny(const MemoryInterval &Interval, const MemoryOp &Op) const {
+  static MemoryAliasResult mergeAliasResult(MemoryAliasResult LHS,
+                                            MemoryAliasResult RHS) {
+    if (LHS == MemoryAliasResult::MayAlias ||
+        RHS == MemoryAliasResult::MayAlias) {
+      return MemoryAliasResult::MayAlias;
+    }
+    if (LHS == MemoryAliasResult::NoAlias) {
+      return RHS;
+    }
+    if (RHS == MemoryAliasResult::NoAlias) {
+      return LHS;
+    }
+    return LHS == RHS ? LHS : MemoryAliasResult::MayAlias;
+  }
+
+  MemoryAliasResult aliasAny(const MemoryInterval &Interval,
+                             const MemoryOp &Op) const {
+    MemoryAliasResult Result = MemoryAliasResult::NoAlias;
     for (const MemoryInterval &Other : Op.Reads) {
-      if (alias(Interval, Other) == MemoryAliasResult::MayAlias) {
-        return true;
-      }
+      Result = mergeAliasResult(Result, alias(Interval, Other));
     }
     for (const MemoryInterval &Other : Op.Writes) {
-      if (alias(Interval, Other) == MemoryAliasResult::MayAlias) {
+      Result = mergeAliasResult(Result, alias(Interval, Other));
+    }
+    return Result;
+  }
+
+  const MemoryFacts &Facts;
+};
+
+// Inference: bounded ordered clobber queries. The first version intentionally
+// scans only within one analyzer block; consumers may compose it with an
+// already-proven straight-line region without changing the alias rules.
+class MemoryClobberAnalysis {
+public:
+  explicit MemoryClobberAnalysis(const MemoryFacts &Facts)
+      : Facts(Facts), Barriers(Facts), Aliases(Facts) {}
+
+  bool hasMayAliasRead(uint32_t BeginOpId, uint32_t EndOpId,
+                       const MemoryInterval &Location) const {
+    return hasClobber(BeginOpId, EndOpId, Location, true);
+  }
+
+  bool hasMayAliasWrite(uint32_t BeginOpId, uint32_t EndOpId,
+                        const MemoryInterval &Location) const {
+    return hasClobber(BeginOpId, EndOpId, Location, false);
+  }
+
+  const MemoryOp *findReachingMustAliasStore(const MemoryOp &Load) const {
+    if (Load.Reads.size() != 1) {
+      return nullptr;
+    }
+    const size_t LoadIndex = findIndex(Load.Id);
+    if (LoadIndex == Facts.Ops.size()) {
+      return nullptr;
+    }
+
+    for (size_t I = LoadIndex; I-- > 0;) {
+      const MemoryOp &Op = Facts.Ops[I];
+      if (Op.BlockEntryPC != Load.BlockEntryPC || isHardBarrier(Op)) {
+        return nullptr;
+      }
+      for (const MemoryInterval &Write : Op.Writes) {
+        const MemoryAliasResult Result = Aliases.alias(Write, Load.Reads[0]);
+        if (Result == MemoryAliasResult::MustAlias) {
+          return Op.Kind == MemoryOpKind::MStore ? &Op : nullptr;
+        }
+        if (Result != MemoryAliasResult::NoAlias) {
+          return nullptr;
+        }
+      }
+    }
+    return nullptr;
+  }
+
+  const MemoryOp *findOverwritingMustAliasStore(const MemoryOp &Store) const {
+    if (Store.Writes.size() != 1) {
+      return nullptr;
+    }
+    const size_t StoreIndex = findIndex(Store.Id);
+    if (StoreIndex == Facts.Ops.size()) {
+      return nullptr;
+    }
+
+    for (size_t I = StoreIndex + 1; I < Facts.Ops.size(); ++I) {
+      const MemoryOp &Op = Facts.Ops[I];
+      if (Op.BlockEntryPC != Store.BlockEntryPC || isHardBarrier(Op)) {
+        return nullptr;
+      }
+      for (const MemoryInterval &Read : Op.Reads) {
+        if (Aliases.alias(Read, Store.Writes[0]) !=
+            MemoryAliasResult::NoAlias) {
+          return nullptr;
+        }
+      }
+      for (const MemoryInterval &Write : Op.Writes) {
+        const MemoryAliasResult Result = Aliases.alias(Write, Store.Writes[0]);
+        if (Result == MemoryAliasResult::MustAlias) {
+          return Op.Kind == Store.Kind ? &Op : nullptr;
+        }
+        if (Result != MemoryAliasResult::NoAlias) {
+          return nullptr;
+        }
+      }
+    }
+    return nullptr;
+  }
+
+private:
+  static bool isHardBarrierKind(MemoryBarrierKind Kind) {
+    return Kind == MemoryBarrierKind::Escape ||
+           Kind == MemoryBarrierKind::MemorySizeObserver ||
+           Kind == MemoryBarrierKind::GasSensitive ||
+           Kind == MemoryBarrierKind::Unknown;
+  }
+
+  bool isHardBarrier(const MemoryOp &Op) const {
+    return isHardBarrierKind(Barriers.getBarrierKind(Op));
+  }
+
+  size_t findIndex(uint32_t OpId) const {
+    for (size_t I = 0; I < Facts.Ops.size(); ++I) {
+      if (Facts.Ops[I].Id == OpId) {
+        return I;
+      }
+    }
+    return Facts.Ops.size();
+  }
+
+  bool hasClobber(uint32_t BeginOpId, uint32_t EndOpId,
+                  const MemoryInterval &Location, bool Reads) const {
+    const size_t Begin = findIndex(BeginOpId);
+    const size_t End = findIndex(EndOpId);
+    if (Begin == Facts.Ops.size() || End == Facts.Ops.size() || Begin >= End) {
+      return true;
+    }
+    const uint64_t BlockEntryPC = Facts.Ops[Begin].BlockEntryPC;
+    if (Facts.Ops[End].BlockEntryPC != BlockEntryPC) {
+      return true;
+    }
+
+    for (size_t I = Begin + 1; I < End; ++I) {
+      const MemoryOp &Op = Facts.Ops[I];
+      if (Op.BlockEntryPC != BlockEntryPC || isHardBarrier(Op)) {
         return true;
+      }
+      const std::vector<MemoryInterval> &Intervals =
+          Reads ? Op.Reads : Op.Writes;
+      for (const MemoryInterval &Interval : Intervals) {
+        if (Aliases.alias(Location, Interval) != MemoryAliasResult::NoAlias) {
+          return true;
+        }
       }
     }
     return false;
   }
 
   const MemoryFacts &Facts;
+  BarrierAnalysis Barriers;
+  AliasAnalysis Aliases;
 };
 
 // Inference facade: the only public entry point intended for consumers. It
@@ -239,7 +419,7 @@ private:
 class MemoryAnalysisView {
 public:
   explicit MemoryAnalysisView(const MemoryFacts &Facts)
-      : Facts(Facts), Barriers(Facts), Aliases(Facts) {}
+      : Facts(Facts), Barriers(Facts), Aliases(Facts), Clobbers(Facts) {}
 
   const MemoryFacts &getFacts() const { return Facts; }
 
@@ -276,10 +456,29 @@ public:
     return Aliases.alias(LHS, RHS);
   }
 
+  bool hasMayAliasRead(uint32_t BeginOpId, uint32_t EndOpId,
+                       const MemoryInterval &Location) const {
+    return Clobbers.hasMayAliasRead(BeginOpId, EndOpId, Location);
+  }
+
+  bool hasMayAliasWrite(uint32_t BeginOpId, uint32_t EndOpId,
+                        const MemoryInterval &Location) const {
+    return Clobbers.hasMayAliasWrite(BeginOpId, EndOpId, Location);
+  }
+
+  const MemoryOp *findReachingMustAliasStore(const MemoryOp &Load) const {
+    return Clobbers.findReachingMustAliasStore(Load);
+  }
+
+  const MemoryOp *findOverwritingMustAliasStore(const MemoryOp &Store) const {
+    return Clobbers.findOverwritingMustAliasStore(Store);
+  }
+
 private:
   const MemoryFacts &Facts;
   BarrierAnalysis Barriers;
   AliasAnalysis Aliases;
+  MemoryClobberAnalysis Clobbers;
 };
 
 class MemoryEntryAddressAnalysis {

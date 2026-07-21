@@ -1443,6 +1443,7 @@ private:
     uint64_t MemoryExpansionPlanCount = 0;
     uint64_t MemoryExpansionPlanPrecheckCount = 0;
     uint64_t MemoryExpansionPlanGroupingCount = 0;
+    uint64_t MemoryExpansionPlanLinearRegionCount = 0;
     uint64_t MemoryExpansionPlanReusableCount = 0;
     uint64_t MemoryExpansionPlanCoveredOps = 0;
     uint64_t MemoryExpansionPlanCoveredMLoadOps = 0;
@@ -1453,6 +1454,7 @@ private:
     uint64_t MemoryExpansionPlanRequiredSizeMax = 0;
     uint64_t MemoryExpansionPlanEstimatedReducedExpansions = 0;
     uint64_t MemoryExpansionPlanGroupingCandidates = 0;
+    uint64_t MemoryExpansionPlanLinearRegionCandidates = 0;
     uint64_t MemoryExpansionPlanPrecheckCandidates = 0;
     uint64_t MemoryExpansionPlanRejectedNoCandidate = 0;
     uint64_t MemoryExpansionPlanRejectedUnknownInterval = 0;
@@ -1461,6 +1463,53 @@ private:
     uint64_t MemoryExpansionPlanRejectedTooLarge = 0;
     uint64_t MemoryExpansionPlanRejectedZeroSize = 0;
     uint64_t MemoryExpansionPlanRejectedUnprofitable = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedNotStraightLine = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBranchingHead = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedMergeSuccessor = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBackedgeOrNonForward = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedHardBarrier = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedNoHeadMemoryOp = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedUnknownInterval = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedNonDirectMemoryOp = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedTooFewOps = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedUnprofitable = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierMSize = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierGas = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierCall = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierCreate = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierReturn = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierRevert = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierLog = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierStorage = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierSelfDestruct = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierInvalid = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierUnknownEffect = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBarrierEscape = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixCandidateBlocks = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixCandidateOps = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixAcceptedBlocks = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixAcceptedOps = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixRejectedTooShort = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixRejectedNoHeadMemoryOp = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixBranchingAfterSafePrefix = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixMergeAfterSafePrefix = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixTerminalAfterSafePrefix = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixMissingSuccessorBlock = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixBackedgeAfterSafePrefix = 0;
+    uint64_t MemoryExpansionPlanLinearRegionPrefixBarrierAfterSafePrefix = 0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedBranchingHeadNoSafePrefix =
+        0;
+    uint64_t MemoryExpansionPlanLinearRegionRejectedMergeSuccessorNoSafePrefix =
+        0;
+    uint64_t MemoryExpansionPlanLinearRegionHeadCandidateBlocks = 0;
+    uint64_t MemoryExpansionPlanLinearRegionHeadSkippedEmptyBlocks = 0;
+    uint64_t MemoryExpansionPlanLinearRegionHeadSelectedNonEntryBlock = 0;
+    uint64_t MemoryExpansionPlanLinearRegionHeadRejectedPredecessorNotStraight =
+        0;
+    uint64_t MemoryExpansionPlanLinearRegionHeadRejectedHeadNotDominatingChain =
+        0;
+    uint64_t MemoryExpansionPlanLinearRegionHeadRejectedEntryGuaranteeMissing =
+        0;
     uint64_t MStoreAddrValueAliasReuseCount = 0;
     uint64_t LinearU64AddrFastPathCount = 0;
     uint64_t LinearU64MLoadFastPathCount = 0;
