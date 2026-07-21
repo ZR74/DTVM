@@ -715,7 +715,7 @@ public:
   explicit MemoryExpansionPlanner(const MemoryAnalysisView &View)
       : View(View), Prechecks(View), Grouping(View, Prechecks),
         LinearRegions(View), GuaranteedMinBytes(View.getFacts()),
-        DeadStores(View.getFacts()) {}
+        DeadStores(View.getFacts()), LoadForwarding(View.getFacts()) {}
 
   std::optional<MemoryExpansionPlan>
   buildMemoryExpansionPlan(uint64_t EntryPC,
@@ -803,6 +803,23 @@ public:
     return false;
   }
 
+  std::optional<uint64_t> getForwardingStorePC(uint64_t LoadPC) const {
+    for (const MemoryOp &Op : View.getFacts().Ops) {
+      if (Op.Pc != LoadPC) {
+        continue;
+      }
+      std::optional<uint32_t> StoreId =
+          LoadForwarding.getReachingStoreId(Op.Id);
+      if (!StoreId) {
+        return std::nullopt;
+      }
+      const MemoryOp *Store = View.getOp(*StoreId);
+      return Store == nullptr ? std::nullopt
+                              : std::optional<uint64_t>(Store->Pc);
+    }
+    return std::nullopt;
+  }
+
 private:
   const MemoryAnalysisView &View;
   MemoryPrecheckConsumer Prechecks;
@@ -810,6 +827,7 @@ private:
   MemoryLinearRegionConsumer LinearRegions;
   MemoryGuaranteedMinBytesAnalysis GuaranteedMinBytes;
   MemoryDeadStoreAnalysis DeadStores;
+  MemoryLoadForwardingAnalysis LoadForwarding;
   mutable MemoryExpansionPlanDiagnostics LastDiagnostics;
 };
 

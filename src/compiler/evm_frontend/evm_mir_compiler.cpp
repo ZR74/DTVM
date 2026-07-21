@@ -4770,6 +4770,29 @@ EVMMirBuilder::handleMLoad(Operand AddrComponents) {
     expandMemoryIR(RequiredSize, Overflow);
   }
 
+  std::optional<uint64_t> ForwardingStorePC;
+  if (MemoryExpansionPlans) {
+    ForwardingStorePC =
+        MemoryExpansionPlans->getForwardingStorePC(CurrentMemoryOpPC);
+  }
+  auto ForwardedIt = ForwardingStorePC
+                         ? CurrentBlockMStoreValues.find(*ForwardingStorePC)
+                         : CurrentBlockMStoreValues.end();
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  if (MemoryExpansionPlans) {
+    ++MemStats.MemoryLoadForwardCandidates;
+  }
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  if (ForwardedIt != CurrentBlockMStoreValues.end()) {
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+    ++MemStats.MemoryLoadForwarded;
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+#ifdef ZEN_ENABLE_EVM_GAS_REGISTER
+    reloadGasFromMemory();
+#endif
+    return ForwardedIt->second;
+  }
+
   Operand Result;
   if (!UsedLinearPrecheck && UsedSharedPrecheck && CanUseConstBaseDispPath) {
     MInstruction *BasePtr = UsedLargeStaticPrecheck
@@ -4923,6 +4946,7 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
     expandMemoryIR(RequiredSize, Overflow);
   }
 
+  CurrentBlockMStoreValues.insert_or_assign(CurrentMemoryOpPC, ValueComponents);
   const bool ElideDeadWrite =
       MemoryExpansionPlans &&
       MemoryExpansionPlans->isDeadStore(CurrentMemoryOpPC);
@@ -7450,7 +7474,8 @@ void EVMMirBuilder::dumpMemoryCompileStats() const {
   ZEN_LOG_DEBUG(
       "[EVM-MEM-SUMMARY] mload_expand=%llu mstore_expand=%llu "
       "mstore8_expand=%llu mcopy_expand=%llu memory_dse_candidates=%llu "
-      "memory_dse_eliminated_writes=%llu block_const_precheck=%llu "
+      "memory_dse_eliminated_writes=%llu memory_load_forward_candidates=%llu "
+      "memory_load_forwarded=%llu block_const_precheck=%llu "
       "block_linear_precheck=%llu prechecked_mload_ops=%llu "
       "prechecked_mstore_ops=%llu prechecked_mstore8_ops=%llu "
       "prechecked_mcopy_ops=%llu memory_expansion_plan_count=%llu "
@@ -7543,6 +7568,8 @@ void EVMMirBuilder::dumpMemoryCompileStats() const {
       static_cast<unsigned long long>(MemStats.MCopyExpandCount),
       static_cast<unsigned long long>(MemStats.MemoryDSEStoreCandidates),
       static_cast<unsigned long long>(MemStats.MemoryDSEEliminatedWrites),
+      static_cast<unsigned long long>(MemStats.MemoryLoadForwardCandidates),
+      static_cast<unsigned long long>(MemStats.MemoryLoadForwarded),
       static_cast<unsigned long long>(MemStats.BlockConstPrecheckCount),
       static_cast<unsigned long long>(MemStats.BlockLinearPrecheckCount),
       static_cast<unsigned long long>(MemStats.PrecheckedMLoadOpCount),
@@ -7968,6 +7995,7 @@ void EVMMirBuilder::beginMemoryCompileBlock(uint64_t EntryPC,
       MemoryBlockLargeStaticWorkspacePrecheckPlan();
   CurrentMemoryOpPC = 0;
   CurrentBlockGuaranteedMinBytes = 0;
+  CurrentBlockMStoreValues.clear();
   CurBlockMemStats.Active = true;
   if (MemoryExpansionPlans) {
     CurrentBlockGuaranteedMinBytes =
@@ -8707,6 +8735,7 @@ void EVMMirBuilder::endMemoryCompileBlock() {
       MemoryBlockLargeStaticWorkspacePrecheckPlan();
   CurrentMemoryOpPC = 0;
   CurrentBlockGuaranteedMinBytes = 0;
+  CurrentBlockMStoreValues.clear();
 }
 
 bool EVMMirBuilder::tryUseGuaranteedMinBytesExpansionElision(

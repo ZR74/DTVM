@@ -547,6 +547,32 @@ TEST(EVMMemoryDeadStoreAnalysisTest, DoesNotCrossMemoryObserver) {
   EXPECT_FALSE(DeadStores.isDeadStore(Facts.Ops[0].Id));
 }
 
+TEST(EVMMemoryLoadForwardingAnalysisTest, FindsExactReachingMStore) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x2a, OP_PUSH1, 0x80, OP_MSTORE, OP_PUSH1, 0x80, OP_MLOAD};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryLoadForwardingAnalysis Forwarding(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  std::optional<uint32_t> StoreId =
+      Forwarding.getReachingStoreId(Facts.Ops[1].Id);
+  ASSERT_TRUE(StoreId.has_value());
+  EXPECT_EQ(*StoreId, Facts.Ops[0].Id);
+}
+
+TEST(EVMMemoryLoadForwardingAnalysisTest, RejectsInterveningMayAliasWrite) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x2a, OP_PUSH1,   0x80,     OP_MSTORE, OP_PUSH1, 0x01,
+      OP_PUSH1, 0x90, OP_MSTORE8, OP_PUSH1, 0x80,      OP_MLOAD};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryLoadForwardingAnalysis Forwarding(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 3u);
+  EXPECT_FALSE(Forwarding.getReachingStoreId(Facts.Ops[2].Id).has_value());
+}
+
 TEST(EVMMemoryPrecheckConsumerTest,
      ProducesProvenMemoryPrefixForConstDirectOps) {
   const std::vector<uint8_t> Bytecode = {

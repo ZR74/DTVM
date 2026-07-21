@@ -1436,6 +1436,8 @@ private:
     uint64_t MCopyExpandCount = 0;
     uint64_t MemoryDSEStoreCandidates = 0;
     uint64_t MemoryDSEEliminatedWrites = 0;
+    uint64_t MemoryLoadForwardCandidates = 0;
+    uint64_t MemoryLoadForwarded = 0;
     uint64_t BlockConstPrecheckCount = 0;
     uint64_t BlockLinearPrecheckCount = 0;
     uint64_t PrecheckedMLoadOpCount = 0;
@@ -1839,6 +1841,7 @@ private:
   uint64_t NextMemoryBlockSeqId = 0;
   uint64_t CurrentMemoryOpPC = 0;
   uint64_t CurrentBlockGuaranteedMinBytes = 0;
+  std::map<uint64_t, Operand> CurrentBlockMStoreValues;
   MemoryBlockCompileStats CurBlockMemStats;
   MemoryBlockConstPrecheckPlan CurBlockConstPrecheckPlan;
   MemoryBlockLinearPrecheckPlan CurBlockLinearPrecheckPlan;

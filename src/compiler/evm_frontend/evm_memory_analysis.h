@@ -439,6 +439,34 @@ private:
   std::set<uint32_t> DeadStoreIds;
 };
 
+class MemoryLoadForwardingAnalysis {
+public:
+  explicit MemoryLoadForwardingAnalysis(const MemoryFacts &Facts)
+      : Clobbers(Facts) {
+    for (const MemoryOp &Op : Facts.Ops) {
+      if (Op.Kind != MemoryOpKind::MLoad) {
+        continue;
+      }
+      const MemoryOp *Store = Clobbers.findReachingMustAliasStore(Op);
+      if (Store != nullptr) {
+        ReachingStoreIds[Op.Id] = Store->Id;
+      }
+    }
+  }
+
+  std::optional<uint32_t> getReachingStoreId(uint32_t LoadOpId) const {
+    auto It = ReachingStoreIds.find(LoadOpId);
+    if (It == ReachingStoreIds.end()) {
+      return std::nullopt;
+    }
+    return It->second;
+  }
+
+private:
+  MemoryClobberAnalysis Clobbers;
+  std::map<uint32_t, uint32_t> ReachingStoreIds;
+};
+
 // Inference facade: the only public entry point intended for consumers. It
 // keeps analysis internals private and exposes query APIs over MemoryFacts.
 class MemoryAnalysisView {
