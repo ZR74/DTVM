@@ -4744,10 +4744,17 @@ EVMMirBuilder::handleMLoad(Operand AddrComponents) {
   }
   bool UsedSharedPrecheck =
       UsedLinearPrecheck || UsedConstPrecheck || UsedLargeStaticPrecheck;
+  bool UsedGuaranteedMinBytesElision = false;
+  if (!UsedSharedPrecheck) {
+    UsedGuaranteedMinBytesElision = tryUseGuaranteedMinBytesExpansionElision(
+        OffsetWasConst, OriginalConstOffset, 32);
+  }
+  const bool ExpansionCovered =
+      UsedSharedPrecheck || UsedGuaranteedMinBytesElision;
   noteSmallFrameMemoryOp(SmallFrameMemoryOp::MLoad, OffsetWasConst,
                          OriginalConstOffset, OffsetKnownU64, 32,
-                         UsedSharedPrecheck);
-  if (!UsedSharedPrecheck) {
+                         ExpansionCovered);
+  if (!ExpansionCovered) {
     MInstruction *SizeConst = createIntConstInstruction(I64Type, 32);
     MInstruction *RequiredSize = createInstruction<BinaryInstruction>(
         false, OP_add, I64Type, Offset, SizeConst);
@@ -4875,10 +4882,17 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
   }
   bool UsedSharedPrecheck =
       UsedLinearPrecheck || UsedConstPrecheck || UsedLargeStaticPrecheck;
+  bool UsedGuaranteedMinBytesElision = false;
+  if (!UsedSharedPrecheck) {
+    UsedGuaranteedMinBytesElision = tryUseGuaranteedMinBytesExpansionElision(
+        OffsetWasConst, OriginalConstOffset, 32);
+  }
+  const bool ExpansionCovered =
+      UsedSharedPrecheck || UsedGuaranteedMinBytesElision;
   noteSmallFrameMemoryOp(SmallFrameMemoryOp::MStore, OffsetWasConst,
                          OriginalConstOffset, OffsetKnownU64, 32,
-                         UsedSharedPrecheck);
-  if (!UsedSharedPrecheck) {
+                         ExpansionCovered);
+  if (!ExpansionCovered) {
     ValueParts = extractU256Operand(ValueComponents);
     HasValueParts = true;
     MInstruction *SizeConst = createIntConstInstruction(I64Type, 32);
@@ -5033,10 +5047,17 @@ void EVMMirBuilder::handleMStore8(Operand AddrComponents,
   }
   bool UsedSharedPrecheck =
       UsedLinearPrecheck || UsedConstPrecheck || UsedLargeStaticPrecheck;
+  bool UsedGuaranteedMinBytesElision = false;
+  if (!UsedSharedPrecheck) {
+    UsedGuaranteedMinBytesElision = tryUseGuaranteedMinBytesExpansionElision(
+        OffsetWasConst, OriginalConstOffset, 1);
+  }
+  const bool ExpansionCovered =
+      UsedSharedPrecheck || UsedGuaranteedMinBytesElision;
   noteSmallFrameMemoryOp(SmallFrameMemoryOp::MStore8, OffsetWasConst,
                          OriginalConstOffset, OffsetKnownU64, 1,
-                         UsedSharedPrecheck);
-  if (!UsedSharedPrecheck) {
+                         ExpansionCovered);
+  if (!ExpansionCovered) {
     MInstruction *SizeConst = createIntConstInstruction(I64Type, 1);
     MInstruction *RequiredSize = createInstruction<BinaryInstruction>(
         false, OP_add, I64Type, Offset, SizeConst);
@@ -7698,8 +7719,11 @@ void EVMMirBuilder::beginMemoryCompileBlock(uint64_t EntryPC,
   CurBlockLargeStaticWorkspacePrecheckPlan =
       MemoryBlockLargeStaticWorkspacePrecheckPlan();
   CurrentMemoryOpPC = 0;
+  CurrentBlockGuaranteedMinBytes = 0;
   CurBlockMemStats.Active = true;
   if (MemoryExpansionPlans) {
+    CurrentBlockGuaranteedMinBytes =
+        MemoryExpansionPlans->getGuaranteedMinBytesAtEntry(EntryPC);
     std::optional<MemoryExpansionPlan> Plan =
         MemoryExpansionPlans->buildMemoryExpansionPlan(EntryPC, BodyEndPC);
     noteMemoryExpansionPlanDiagnostics(
@@ -8336,6 +8360,20 @@ void EVMMirBuilder::endMemoryCompileBlock() {
   CurBlockLargeStaticWorkspacePrecheckPlan =
       MemoryBlockLargeStaticWorkspacePrecheckPlan();
   CurrentMemoryOpPC = 0;
+  CurrentBlockGuaranteedMinBytes = 0;
+}
+
+bool EVMMirBuilder::tryUseGuaranteedMinBytesExpansionElision(
+    bool OffsetWasConst, uint64_t ConstOffset, uint64_t AccessSize) {
+  if (!OffsetWasConst || AccessSize == 0 ||
+      CurrentBlockGuaranteedMinBytes == 0) {
+    return false;
+  }
+  if (AccessSize > std::numeric_limits<uint64_t>::max() - ConstOffset) {
+    return false;
+  }
+  const uint64_t RequiredBytes = ConstOffset + AccessSize;
+  return RequiredBytes <= CurrentBlockGuaranteedMinBytes;
 }
 
 bool EVMMirBuilder::tryConsumeConstBlockMemoryPrecheck() {

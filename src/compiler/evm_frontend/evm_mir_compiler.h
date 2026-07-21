@@ -1770,6 +1770,9 @@ private:
                                               bool OffsetWasConst,
                                               uint64_t ConstOffset,
                                               uint64_t AccessSize);
+  bool tryUseGuaranteedMinBytesExpansionElision(bool OffsetWasConst,
+                                                uint64_t ConstOffset,
+                                                uint64_t AccessSize);
   void applyMemoryExpansionPlan(const MemoryExpansionPlan &Plan);
   void noteMemoryExpansionPlan(const MemoryExpansionPlan &Plan);
   void noteMemoryExpansionPlanDiagnostics(
@@ -1783,6 +1786,7 @@ private:
                                  bool LengthWasConstU64, uint64_t ConstLength);
   uint64_t NextMemoryBlockSeqId = 0;
   uint64_t CurrentMemoryOpPC = 0;
+  uint64_t CurrentBlockGuaranteedMinBytes = 0;
   MemoryBlockCompileStats CurBlockMemStats;
   MemoryBlockConstPrecheckPlan CurBlockConstPrecheckPlan;
   MemoryBlockLinearPrecheckPlan CurBlockLinearPrecheckPlan;
