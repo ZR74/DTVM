@@ -659,7 +659,7 @@ TEST(EVMMemoryGroupingConsumerTest, BarrierBreaksGroup) {
   EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
 }
 
-TEST(EVMMemoryGroupingConsumerTest, MayAliasBreaksGroup) {
+TEST(EVMMemoryGroupingConsumerTest, GroupsOverlappingIntervalsForExpansion) {
   const std::vector<uint8_t> Bytecode = {
       OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
       OP_PUSH1, 0x02, OP_PUSH1, 0x90, OP_MSTORE};
@@ -669,7 +669,13 @@ TEST(EVMMemoryGroupingConsumerTest, MayAliasBreaksGroup) {
   COMPILER::MemoryPrecheckConsumer Prechecks(View);
   COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
 
-  EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
+  std::optional<COMPILER::SharedPrecheck> Shared =
+      Grouping.getSharedPrecheck(0, Bytecode.size());
+  ASSERT_TRUE(Shared.has_value());
+  EXPECT_EQ(Shared->Group.OpCount, 2u);
+  uint64_t EndOffset = 0;
+  ASSERT_TRUE(Shared->Range.getKnownEndOffset(EndOffset));
+  EXPECT_EQ(EndOffset, 0xb0u);
 }
 
 TEST(EVMMemoryGroupingConsumerTest, UnknownIntervalBreaksGroup) {
@@ -699,8 +705,7 @@ TEST(EVMMemoryGroupingConsumerTest, DifferentAddressSpaceBreaksGroup) {
   EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
 }
 
-TEST(EVMMemoryGroupingConsumerTest,
-     RegressionNonContiguousFallsBackToPrecheck) {
+TEST(EVMMemoryGroupingConsumerTest, GroupsNonContiguousIntervalsForExpansion) {
   const std::vector<uint8_t> Bytecode = {
       OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
       OP_PUSH1, 0x02, OP_PUSH1, 0xc0, OP_MSTORE};
@@ -710,12 +715,12 @@ TEST(EVMMemoryGroupingConsumerTest,
   COMPILER::MemoryPrecheckConsumer Prechecks(View);
   COMPILER::MemoryGroupingConsumer Grouping(View, Prechecks);
 
-  EXPECT_FALSE(Grouping.getSharedPrecheck(0, Bytecode.size()).has_value());
-  std::optional<COMPILER::ProvenMemoryRange> Proof =
-      Prechecks.getBlockPrecheckRange(0, Bytecode.size());
-  ASSERT_TRUE(Proof.has_value());
+  std::optional<COMPILER::SharedPrecheck> Shared =
+      Grouping.getSharedPrecheck(0, Bytecode.size());
+  ASSERT_TRUE(Shared.has_value());
+  EXPECT_EQ(Shared->Group.OpCount, 2u);
   uint64_t EndOffset = 0;
-  ASSERT_TRUE(Proof->getKnownEndOffset(EndOffset));
+  ASSERT_TRUE(Shared->Range.getKnownEndOffset(EndOffset));
   EXPECT_EQ(EndOffset, 0xe0u);
 }
 
@@ -787,7 +792,7 @@ TEST(EVMMemoryConsumerFrameworkTest, ExpansionPlannerPrefersGroupingPlan) {
   EXPECT_EQ(Diag.PrecheckCandidates, 0u);
 }
 
-TEST(EVMMemoryConsumerFrameworkTest, ExpansionPlannerFallsBackToPrecheckPlan) {
+TEST(EVMMemoryConsumerFrameworkTest, ExpansionPlannerGroupsIntervalsWithGaps) {
   const std::vector<uint8_t> Bytecode = {
       OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
       OP_PUSH1, 0x02, OP_PUSH1, 0xc0, OP_MSTORE,
@@ -801,7 +806,8 @@ TEST(EVMMemoryConsumerFrameworkTest, ExpansionPlannerFallsBackToPrecheckPlan) {
       Planner.buildMemoryExpansionPlan(0, Bytecode.size());
 
   ASSERT_TRUE(Plan.has_value());
-  EXPECT_EQ(Plan->ExpansionKind, COMPILER::MemoryExpansionKind::ProvenRange);
+  EXPECT_EQ(Plan->ExpansionKind,
+            COMPILER::MemoryExpansionKind::ContiguousGroup);
   EXPECT_EQ(Plan->RequiredMemorySize, 0x110u);
 }
 
@@ -1117,9 +1123,9 @@ TEST(EVMMemoryConsumerFrameworkTest, AcceptsTwoOpPrecheckPlan) {
   EXPECT_TRUE(Planner.buildMemoryExpansionPlan(0, Bytecode.size()).has_value());
   const COMPILER::MemoryExpansionPlanDiagnostics &Diag =
       Planner.getLastDiagnostics();
-  EXPECT_EQ(Diag.GroupingCandidates, 0u);
-  EXPECT_EQ(Diag.PrecheckCandidates, 1u);
-  EXPECT_EQ(Diag.RejectedNoCandidate, 1u);
+  EXPECT_EQ(Diag.GroupingCandidates, 1u);
+  EXPECT_EQ(Diag.PrecheckCandidates, 0u);
+  EXPECT_EQ(Diag.RejectedNoCandidate, 0u);
   EXPECT_EQ(Diag.RejectedUnprofitable, 0u);
 }
 

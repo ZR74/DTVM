@@ -33,7 +33,7 @@ struct SharedPrecheck {
 };
 
 // Consumer: groups adjacent proven MemoryOps for shared memory precheck only.
-// It consumes MemoryAnalysisView and MemoryPrecheckConsumer query APIs.
+// Expansion depends on the union end, not on alias or contiguity.
 class MemoryGroupingConsumer final : public MemoryOptimizationPlanProvider {
 public:
   MemoryGroupingConsumer(const MemoryAnalysisView &View,
@@ -56,7 +56,6 @@ public:
                                                   uint64_t BodyEndPC) const {
     std::optional<ContiguousGroup> Best;
     std::optional<ContiguousGroup> Current;
-    std::optional<ProvenMemoryRange> PreviousProof;
 
     for (const MemoryOp &Op : View.getFacts().Ops) {
       if (Op.Pc < EntryPC) {
@@ -71,17 +70,10 @@ public:
       if (!Proof) {
         const MemoryBarrierKind Barrier = View.getBarrierKind(Op);
         finishGroup(Current, Best);
-        PreviousProof.reset();
         if (Barrier != MemoryBarrierKind::None) {
           continue;
         }
         continue;
-      }
-
-      if (!canAppend(Current, PreviousProof, *Proof)) {
-        finishGroup(Current, Best);
-        Current.reset();
-        PreviousProof.reset();
       }
 
       if (!Current) {
@@ -90,8 +82,6 @@ public:
         finishGroup(Current, Best);
         Current = makeGroup(EntryPC, *Proof);
       }
-
-      PreviousProof = Proof;
     }
 
     finishGroup(Current, Best);
@@ -124,30 +114,6 @@ private:
     }
     End = Begin + Interval.Size.Value;
     return true;
-  }
-
-  bool canAppend(const std::optional<ContiguousGroup> &Current,
-                 const std::optional<ProvenMemoryRange> &PreviousProof,
-                 const ProvenMemoryRange &NextProof) const {
-    if (!Current || !PreviousProof) {
-      return true;
-    }
-    if (View.alias(PreviousProof->Interval, NextProof.Interval) !=
-        MemoryAliasResult::NoAlias) {
-      return false;
-    }
-
-    uint64_t PrevBegin = 0;
-    uint64_t PrevEnd = 0;
-    uint64_t NextBegin = 0;
-    uint64_t NextEnd = 0;
-    if (!getBounds(PreviousProof->Interval, PrevBegin, PrevEnd) ||
-        !getBounds(NextProof.Interval, NextBegin, NextEnd)) {
-      return false;
-    }
-    (void)PrevBegin;
-    (void)NextEnd;
-    return PrevEnd == NextBegin;
   }
 
   static ContiguousGroup makeGroup(uint64_t EntryPC,
