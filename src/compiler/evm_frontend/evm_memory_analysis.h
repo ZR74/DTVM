@@ -13,6 +13,7 @@
 #include <map>
 #include <optional>
 #include <queue>
+#include <set>
 #include <vector>
 
 namespace COMPILER {
@@ -412,6 +413,30 @@ private:
   const MemoryFacts &Facts;
   BarrierAnalysis Barriers;
   AliasAnalysis Aliases;
+};
+
+// Consumer-ready proof set for stores whose write is fully overwritten before
+// any possible observation. Expansion and gas at the original opcode remain.
+class MemoryDeadStoreAnalysis {
+public:
+  explicit MemoryDeadStoreAnalysis(const MemoryFacts &Facts) : Clobbers(Facts) {
+    for (const MemoryOp &Op : Facts.Ops) {
+      if (Op.Kind != MemoryOpKind::MStore && Op.Kind != MemoryOpKind::MStore8) {
+        continue;
+      }
+      if (Clobbers.findOverwritingMustAliasStore(Op) != nullptr) {
+        DeadStoreIds.insert(Op.Id);
+      }
+    }
+  }
+
+  bool isDeadStore(uint32_t OpId) const {
+    return DeadStoreIds.count(OpId) != 0;
+  }
+
+private:
+  MemoryClobberAnalysis Clobbers;
+  std::set<uint32_t> DeadStoreIds;
 };
 
 // Inference facade: the only public entry point intended for consumers. It

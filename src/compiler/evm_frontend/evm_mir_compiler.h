@@ -1434,6 +1434,8 @@ private:
     uint64_t MStoreExpandCount = 0;
     uint64_t MStore8ExpandCount = 0;
     uint64_t MCopyExpandCount = 0;
+    uint64_t MemoryDSEStoreCandidates = 0;
+    uint64_t MemoryDSEEliminatedWrites = 0;
     uint64_t BlockConstPrecheckCount = 0;
     uint64_t BlockLinearPrecheckCount = 0;
     uint64_t PrecheckedMLoadOpCount = 0;

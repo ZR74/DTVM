@@ -522,6 +522,31 @@ TEST(EVMMemoryClobberAnalysisTest, ReadPreventsDeadStoreProof) {
                                    Facts.Ops[0].Writes[0]));
 }
 
+TEST(EVMMemoryDeadStoreAnalysisTest, MarksOnlyFullyOverwrittenStore) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x80, OP_MSTORE,
+      OP_PUSH1, 0x02, OP_PUSH1, 0x80, OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryDeadStoreAnalysis DeadStores(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_TRUE(DeadStores.isDeadStore(Facts.Ops[0].Id));
+  EXPECT_FALSE(DeadStores.isDeadStore(Facts.Ops[1].Id));
+}
+
+TEST(EVMMemoryDeadStoreAnalysisTest, DoesNotCrossMemoryObserver) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1,  0x01,     OP_PUSH1, 0x80,
+                                         OP_MSTORE, OP_MSIZE, OP_PUSH1, 0x02,
+                                         OP_PUSH1,  0x80,     OP_MSTORE};
+
+  COMPILER::MemoryFacts Facts = collectMemoryFacts(Bytecode);
+  COMPILER::MemoryDeadStoreAnalysis DeadStores(Facts);
+
+  ASSERT_EQ(Facts.Ops.size(), 3u);
+  EXPECT_FALSE(DeadStores.isDeadStore(Facts.Ops[0].Id));
+}
+
 TEST(EVMMemoryPrecheckConsumerTest,
      ProducesProvenMemoryPrefixForConstDirectOps) {
   const std::vector<uint8_t> Bytecode = {

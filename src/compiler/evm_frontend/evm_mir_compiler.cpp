@@ -4923,6 +4923,24 @@ void EVMMirBuilder::handleMStore(Operand AddrComponents,
     expandMemoryIR(RequiredSize, Overflow);
   }
 
+  const bool ElideDeadWrite =
+      MemoryExpansionPlans &&
+      MemoryExpansionPlans->isDeadStore(CurrentMemoryOpPC);
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  if (MemoryExpansionPlans) {
+    ++MemStats.MemoryDSEStoreCandidates;
+  }
+  if (ElideDeadWrite) {
+    ++MemStats.MemoryDSEEliminatedWrites;
+  }
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  if (ElideDeadWrite) {
+#ifdef ZEN_ENABLE_EVM_GAS_REGISTER
+    reloadGasFromMemory();
+#endif
+    return;
+  }
+
   if (!HasValueParts && UsedSharedPrecheck && CanReuseAddrAsValue) {
     MInstruction *Zero = createIntConstInstruction(I64Type, 0);
     ValueParts = {Offset, Zero, Zero, Zero};
@@ -5077,6 +5095,24 @@ void EVMMirBuilder::handleMStore8(Operand AddrComponents,
     }
 #endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
     expandMemoryIR(RequiredSize, Overflow);
+  }
+
+  const bool ElideDeadWrite =
+      MemoryExpansionPlans &&
+      MemoryExpansionPlans->isDeadStore(CurrentMemoryOpPC);
+#ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  if (MemoryExpansionPlans) {
+    ++MemStats.MemoryDSEStoreCandidates;
+  }
+  if (ElideDeadWrite) {
+    ++MemStats.MemoryDSEEliminatedWrites;
+  }
+#endif // ZEN_ENABLE_MULTIPASS_JIT_LOGGING
+  if (ElideDeadWrite) {
+#ifdef ZEN_ENABLE_EVM_GAS_REGISTER
+    reloadGasFromMemory();
+#endif
+    return;
   }
 
   MInstruction *Low64 = ValueParts[0];
@@ -7413,7 +7449,8 @@ void EVMMirBuilder::dumpMemoryCompileStats() const {
 #ifdef ZEN_ENABLE_MULTIPASS_JIT_LOGGING
   ZEN_LOG_DEBUG(
       "[EVM-MEM-SUMMARY] mload_expand=%llu mstore_expand=%llu "
-      "mstore8_expand=%llu mcopy_expand=%llu block_const_precheck=%llu "
+      "mstore8_expand=%llu mcopy_expand=%llu memory_dse_candidates=%llu "
+      "memory_dse_eliminated_writes=%llu block_const_precheck=%llu "
       "block_linear_precheck=%llu prechecked_mload_ops=%llu "
       "prechecked_mstore_ops=%llu prechecked_mstore8_ops=%llu "
       "prechecked_mcopy_ops=%llu memory_expansion_plan_count=%llu "
@@ -7504,6 +7541,8 @@ void EVMMirBuilder::dumpMemoryCompileStats() const {
       static_cast<unsigned long long>(MemStats.MStoreExpandCount),
       static_cast<unsigned long long>(MemStats.MStore8ExpandCount),
       static_cast<unsigned long long>(MemStats.MCopyExpandCount),
+      static_cast<unsigned long long>(MemStats.MemoryDSEStoreCandidates),
+      static_cast<unsigned long long>(MemStats.MemoryDSEEliminatedWrites),
       static_cast<unsigned long long>(MemStats.BlockConstPrecheckCount),
       static_cast<unsigned long long>(MemStats.BlockLinearPrecheckCount),
       static_cast<unsigned long long>(MemStats.PrecheckedMLoadOpCount),

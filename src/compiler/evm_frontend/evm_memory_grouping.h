@@ -714,7 +714,8 @@ class MemoryExpansionPlanner final : public MemoryOptimizationPlanProvider {
 public:
   explicit MemoryExpansionPlanner(const MemoryAnalysisView &View)
       : View(View), Prechecks(View), Grouping(View, Prechecks),
-        LinearRegions(View), GuaranteedMinBytes(View.getFacts()) {}
+        LinearRegions(View), GuaranteedMinBytes(View.getFacts()),
+        DeadStores(View.getFacts()) {}
 
   std::optional<MemoryExpansionPlan>
   buildMemoryExpansionPlan(uint64_t EntryPC,
@@ -793,12 +794,22 @@ public:
     return 0;
   }
 
+  bool isDeadStore(uint64_t PC) const {
+    for (const MemoryOp &Op : View.getFacts().Ops) {
+      if (Op.Pc == PC) {
+        return DeadStores.isDeadStore(Op.Id);
+      }
+    }
+    return false;
+  }
+
 private:
   const MemoryAnalysisView &View;
   MemoryPrecheckConsumer Prechecks;
   MemoryGroupingConsumer Grouping;
   MemoryLinearRegionConsumer LinearRegions;
   MemoryGuaranteedMinBytesAnalysis GuaranteedMinBytes;
+  MemoryDeadStoreAnalysis DeadStores;
   mutable MemoryExpansionPlanDiagnostics LastDiagnostics;
 };
 
