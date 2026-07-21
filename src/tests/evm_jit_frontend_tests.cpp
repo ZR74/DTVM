@@ -141,6 +141,37 @@ COMPILER::MemoryFacts collectMemoryFacts(const std::vector<uint8_t> &Bytecode) {
   return FactsBuilder.takeFacts();
 }
 
+COMPILER::MemoryFacts
+collectAnalyzerMemoryFacts(const std::vector<uint8_t> &Bytecode) {
+  EVMAnalyzer Analyzer = analyzeBytecode(Bytecode);
+  const uint8_t *Data = Bytecode.empty() ? nullptr : Bytecode.data();
+  COMPILER::MemoryEntryAddressAnalysis EntryAddresses(Analyzer, Data,
+                                                      Bytecode.size());
+  COMPILER::MemoryFactsBuilder FactsBuilder;
+  const auto &Blocks = Analyzer.getBlockInfos();
+  for (const auto &[EntryPC, BlockInfo] : Blocks) {
+    const int32_t EntryDepth = std::max(BlockInfo.ResolvedEntryStackDepth, 0);
+    std::vector<COMPILER::MemoryEntryValue> EntryValues =
+        EntryAddresses.getEntryValues(EntryPC,
+                                      static_cast<uint32_t>(EntryDepth));
+    FactsBuilder.beginBlock(EntryPC, BlockInfo.BodyStartPC, BlockInfo.BodyEndPC,
+                            EntryValues, BlockInfo.Successors,
+                            BlockInfo.Predecessors);
+
+    size_t PC = static_cast<size_t>(BlockInfo.BodyStartPC);
+    const size_t EndPC = std::min<size_t>(BlockInfo.BodyEndPC, Bytecode.size());
+    while (PC < EndPC) {
+      evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[PC]);
+      FactsBuilder.observeOpcode(Opcode, PC, Data, Bytecode.size());
+      ++PC;
+      if (Opcode >= OP_PUSH0 && Opcode <= OP_PUSH32) {
+        PC += static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+      }
+    }
+  }
+  return FactsBuilder.takeFacts();
+}
+
 TEST(EVMMemoryFactsBuilderTest, RecordsConstMStoreWriteInterval) {
   const std::vector<uint8_t> Bytecode = {OP_PUSH1, 0x2a, OP_PUSH1, 0x80,
                                          OP_MSTORE};
@@ -160,6 +191,101 @@ TEST(EVMMemoryFactsBuilderTest, RecordsConstMStoreWriteInterval) {
   EXPECT_EQ(Op.Writes[0].Addr.Offset, 0x80);
   ASSERT_TRUE(Op.Writes[0].Size.Known);
   EXPECT_EQ(Op.Writes[0].Size.Value, 32u);
+}
+
+TEST(EVMMemoryFactsBuilderTest, AttributesOpsToAnalyzerBlocks) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01,     OP_PUSH1, 0x0b,      OP_JUMPI,  OP_PUSH1,
+      0x01,     OP_PUSH1, 0x20,     OP_MSTORE, OP_STOP,   OP_JUMPDEST,
+      OP_PUSH1, 0x02,     OP_PUSH1, 0x40,      OP_MSTORE, OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+
+  ASSERT_EQ(Facts.Ops.size(), 2u);
+  EXPECT_EQ(Facts.Ops[0].Pc, 9u);
+  EXPECT_EQ(Facts.Ops[0].BlockEntryPC, 5u);
+  EXPECT_EQ(Facts.Ops[1].Pc, 16u);
+  EXPECT_EQ(Facts.Ops[1].BlockEntryPC, 11u);
+
+  const COMPILER::MemoryBlockFacts *Fallthrough = Facts.getBlock(5);
+  ASSERT_NE(Fallthrough, nullptr);
+  EXPECT_EQ(Fallthrough->OpsEnd - Fallthrough->OpsBegin, 1u);
+  EXPECT_EQ(Fallthrough->MaxConstRequiredSize, 0x40u);
+
+  const COMPILER::MemoryBlockFacts *JumpTarget = Facts.getBlock(11);
+  ASSERT_NE(JumpTarget, nullptr);
+  EXPECT_EQ(JumpTarget->OpsEnd - JumpTarget->OpsBegin, 1u);
+  EXPECT_EQ(JumpTarget->MaxConstRequiredSize, 0x60u);
+}
+
+TEST(EVMMemoryEntryAddressAnalysisTest,
+     PropagatesConstAddressAcrossUnconditionalJump) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1,    0x80,     OP_PUSH1,
+                                         0x06,        OP_JUMP,  OP_STOP,
+                                         OP_JUMPDEST, OP_MLOAD, OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+
+  ASSERT_EQ(Facts.Ops.size(), 1u);
+  const COMPILER::MemoryOp &Op = Facts.Ops[0];
+  EXPECT_EQ(Op.Pc, 7u);
+  ASSERT_EQ(Op.Reads.size(), 1u);
+  EXPECT_EQ(Op.Reads[0].Addr.Kind, COMPILER::AddressBaseKind::Const);
+  EXPECT_EQ(Op.Reads[0].Addr.Offset, 0x80);
+}
+
+TEST(EVMMemoryEntryAddressAnalysisTest, RejectsConflictingMergeConstants) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01,     OP_PUSH1,    0x0b,     OP_JUMPI, OP_PUSH1,
+      0x80,     OP_PUSH1, 0x0e,        OP_JUMP,  OP_STOP,  OP_JUMPDEST,
+      OP_PUSH1, 0xa0,     OP_JUMPDEST, OP_MLOAD, OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+
+  ASSERT_EQ(Facts.Ops.size(), 1u);
+  const COMPILER::MemoryOp &Op = Facts.Ops[0];
+  EXPECT_EQ(Op.Pc, 15u);
+  ASSERT_EQ(Op.Reads.size(), 1u);
+  EXPECT_EQ(Op.Reads[0].Addr.Kind, COMPILER::AddressBaseKind::Unknown);
+}
+
+TEST(EVMMemoryEntryAddressAnalysisTest, RejectsOverflowedU64ConstAddress) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH8, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+      OP_PUSH1, 0x01, OP_ADD, OP_PUSH1, 0x0f, OP_JUMP, OP_JUMPDEST,
+      OP_MLOAD, OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+
+  ASSERT_EQ(Facts.Ops.size(), 1u);
+  const COMPILER::MemoryOp &Op = Facts.Ops[0];
+  ASSERT_EQ(Op.Reads.size(), 1u);
+  EXPECT_EQ(Op.Reads[0].Addr.Kind, COMPILER::AddressBaseKind::Unknown);
+}
+
+TEST(EVMMemoryGuaranteedMinBytesAnalysisTest,
+     SuccessorSkipExpansionWhenPredecessorGuaranteesBytes) {
+  const std::vector<uint8_t> Bytecode = {OP_PUSH1,  0x01,        OP_PUSH1, 0x00,
+                                         OP_MSTORE, OP_JUMPDEST, OP_PUSH1, 0x00,
+                                         OP_MLOAD,  OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+  COMPILER::MemoryGuaranteedMinBytesAnalysis Guaranteed(Facts);
+
+  EXPECT_EQ(Guaranteed.getGuaranteedMinBytesAtEntry(5), 32u);
+}
+
+TEST(EVMMemoryGuaranteedMinBytesAnalysisTest, RejectedMergeKeepsMinimumZero) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x01, OP_PUSH1, 0x0d,        OP_JUMPI,
+      OP_PUSH1, 0x01, OP_PUSH1, 0x00,        OP_MSTORE,
+      OP_PUSH1, 0x0e, OP_JUMP,  OP_JUMPDEST, OP_JUMPDEST,
+      OP_PUSH1, 0x00, OP_MLOAD, OP_STOP};
+
+  COMPILER::MemoryFacts Facts = collectAnalyzerMemoryFacts(Bytecode);
+  COMPILER::MemoryGuaranteedMinBytesAnalysis Guaranteed(Facts);
+
+  EXPECT_EQ(Guaranteed.getGuaranteedMinBytesAtEntry(14), 0u);
 }
 
 TEST(EVMMemoryFactsBuilderTest, RecordsCopyAddressSpaces) {

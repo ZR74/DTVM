@@ -195,7 +195,8 @@ private:
 class MemoryExpansionPlanner final : public MemoryOptimizationPlanProvider {
 public:
   explicit MemoryExpansionPlanner(const MemoryAnalysisView &View)
-      : Prechecks(View), Grouping(View, Prechecks) {}
+      : Prechecks(View), Grouping(View, Prechecks),
+        GuaranteedMinBytes(View.getFacts()) {}
 
   std::optional<MemoryExpansionPlan>
   buildMemoryExpansionPlan(uint64_t EntryPC,
@@ -242,9 +243,14 @@ public:
     return LastDiagnostics;
   }
 
+  uint64_t getGuaranteedMinBytesAtEntry(uint64_t EntryPC) const {
+    return GuaranteedMinBytes.getGuaranteedMinBytesAtEntry(EntryPC);
+  }
+
 private:
   MemoryPrecheckConsumer Prechecks;
   MemoryGroupingConsumer Grouping;
+  MemoryGuaranteedMinBytesAnalysis GuaranteedMinBytes;
   mutable MemoryExpansionPlanDiagnostics LastDiagnostics;
 };
 

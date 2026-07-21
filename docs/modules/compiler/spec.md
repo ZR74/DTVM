@@ -129,6 +129,20 @@ From `common/errors.h`, used by the compiler module:
 
 **RA-expensive opcode classification**: SHL (0x1b), SHR (0x1c), SAR (0x1d), MUL (0x02), SIGNEXTEND (0x0b).
 
+### EVM Memory Plan Framework
+
+When `ZEN_ENABLE_EVM_MEMORY_PLAN_FRAMEWORK` is enabled, the EVM frontend builds
+block-aware `MemoryFacts` from `EVMAnalyzer` block ranges. A conservative
+const-only CFG pass may propagate stack-entry memory addresses and compute the
+minimum memory size guaranteed at each block entry. Lowering may use that entry
+guarantee only to elide redundant constant-address `MLOAD`, `MSTORE`, and
+`MSTORE8` expansion checks.
+
+The memory plan framework must not hoist expansion, move Gas charging, cross
+`MSIZE`, `GAS`, host, escape, or unknown-effect barriers, or change opcode
+order. Existing block-local memory expansion plans remain valid and are still
+consumed through the existing per-block lowering path.
+
 ### EVM Frontend Context and Gas
 
 - Enable/disable Gas metering based on runtime config (`setGasMeteringEnabled`)

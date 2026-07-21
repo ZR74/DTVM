@@ -7,8 +7,10 @@
 #include "evmc/evmc.h"
 #include "evmc/instructions.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <map>
 #include <utility>
 #include <vector>
 
@@ -72,6 +74,14 @@ struct SizeExpr {
   static SizeExpr constant(uint64_t Value) { return {true, Value}; }
 };
 
+struct MemoryEntryValue {
+  bool ConstKnown = false;
+  uint64_t ConstValue = 0;
+
+  static MemoryEntryValue unknown() { return {}; }
+  static MemoryEntryValue constant(uint64_t Value) { return {true, Value}; }
+};
+
 // Fact: a byte interval in an address space. Empty ranges are explicit because
 // EVM memory expansion treats size=0 specially.
 struct MemoryInterval {
@@ -118,6 +128,7 @@ enum class MemoryOpKind : uint8_t {
 struct MemoryOp {
   uint32_t Id = 0;
   uint64_t Pc = 0;
+  uint64_t BlockEntryPC = 0;
   evmc_opcode Opcode = OP_STOP;
   MemoryOpKind Kind = MemoryOpKind::Other;
   std::vector<MemoryInterval> Reads;
@@ -126,12 +137,37 @@ struct MemoryOp {
   bool IsTerminator = false;
 };
 
+struct MemoryBlockFacts {
+  uint64_t EntryPC = 0;
+  uint64_t BodyStartPC = 0;
+  uint64_t BodyEndPC = 0;
+  size_t OpsBegin = 0;
+  size_t OpsEnd = 0;
+  bool HasBarrier = false;
+  uint64_t MaxConstRequiredSize = 0;
+  std::vector<uint64_t> Successors;
+  std::vector<uint64_t> Predecessors;
+
+  bool containsPC(uint64_t PC) const {
+    return BodyStartPC <= PC && PC < BodyEndPC;
+  }
+};
+
 struct MemoryFacts {
   std::vector<MemoryOp> Ops;
+  std::map<uint64_t, MemoryBlockFacts> Blocks;
 
-  void clear() { Ops.clear(); }
+  void clear() {
+    Ops.clear();
+    Blocks.clear();
+  }
   bool empty() const { return Ops.empty(); }
   size_t size() const { return Ops.size(); }
+
+  const MemoryBlockFacts *getBlock(uint64_t EntryPC) const {
+    auto It = Blocks.find(EntryPC);
+    return It == Blocks.end() ? nullptr : &It->second;
+  }
 };
 
 // Fact builder: consumes bytecode order and builds MemoryFacts. It has no
@@ -141,17 +177,57 @@ public:
   MemoryFactsBuilder() = default;
 
   void reset() {
+    endBlock();
     Facts.clear();
     Stack.clear();
     NextValueId = 1;
+    CurrentBlockEntryPC = 0;
+    HasCurrentBlock = false;
   }
 
   void beginBlock(uint64_t EntryPC, uint32_t EntryDepth) {
-    (void)EntryPC;
+    std::vector<MemoryEntryValue> EntryValues;
+    EntryValues.assign(EntryDepth, MemoryEntryValue::unknown());
+    beginBlock(EntryPC, EntryPC, EntryPC, EntryValues);
+  }
+
+  void beginBlock(uint64_t EntryPC, uint64_t BodyStartPC, uint64_t BodyEndPC,
+                  const std::vector<MemoryEntryValue> &EntryValues,
+                  const std::vector<uint64_t> &Successors = {},
+                  const std::vector<uint64_t> &Predecessors = {}) {
+    endBlock();
+    HasCurrentBlock = true;
+    CurrentBlockEntryPC = EntryPC;
+
+    MemoryBlockFacts Block;
+    Block.EntryPC = EntryPC;
+    Block.BodyStartPC = BodyStartPC;
+    Block.BodyEndPC = BodyEndPC;
+    Block.OpsBegin = Facts.Ops.size();
+    Block.OpsEnd = Facts.Ops.size();
+    Block.Successors = Successors;
+    Block.Predecessors = Predecessors;
+    Facts.Blocks[EntryPC] = std::move(Block);
+
     Stack.clear();
-    for (uint32_t I = 0; I < EntryDepth; ++I) {
-      Stack.push_back(makeUnknownValue());
+    for (const MemoryEntryValue &EntryValue : EntryValues) {
+      if (EntryValue.ConstKnown) {
+        Stack.push_back(makeConstValue(EntryValue.ConstValue));
+      } else {
+        Stack.push_back(makeOpaqueUnknownValue());
+      }
     }
+  }
+
+  void endBlock() {
+    if (!HasCurrentBlock) {
+      return;
+    }
+    auto It = Facts.Blocks.find(CurrentBlockEntryPC);
+    if (It != Facts.Blocks.end()) {
+      It->second.OpsEnd = Facts.Ops.size();
+    }
+    HasCurrentBlock = false;
   }
 
   void observeOpcode(evmc_opcode Opcode, uint64_t Pc, const uint8_t *Bytecode,
@@ -236,11 +312,13 @@ public:
       observeCreate(Pc, Opcode, true);
       return;
     case OP_MSIZE:
-      addOp(Pc, Opcode, MemoryOpKind::MSize, MemoryEffect::MemorySizeObserver);
+      noteBlockFact(addOp(Pc, Opcode, MemoryOpKind::MSize,
+                          MemoryEffect::MemorySizeObserver));
       pushUnknown();
       return;
     case OP_GAS:
-      addOp(Pc, Opcode, MemoryOpKind::Gas, MemoryEffect::GasSensitive);
+      noteBlockFact(
+          addOp(Pc, Opcode, MemoryOpKind::Gas, MemoryEffect::GasSensitive));
       pushUnknown();
       return;
     default:
@@ -250,7 +328,10 @@ public:
   }
 
   const MemoryFacts &getFacts() const { return Facts; }
-  MemoryFacts takeFacts() { return std::move(Facts); }
+  MemoryFacts takeFacts() {
+    endBlock();
+    return std::move(Facts);
+  }
 
 private:
   struct StackValue {
@@ -266,12 +347,79 @@ private:
   MemoryFacts Facts;
   std::vector<StackValue> Stack;
   uint32_t NextValueId = 1;
+  uint64_t CurrentBlockEntryPC = 0;
+  bool HasCurrentBlock = false;
+
+  static bool isHardBarrierEffect(MemoryEffect Effect, MemoryOpKind Kind) {
+    if (Kind == MemoryOpKind::Log || Kind == MemoryOpKind::Call ||
+        Kind == MemoryOpKind::Create || Kind == MemoryOpKind::Return ||
+        Kind == MemoryOpKind::Revert || Kind == MemoryOpKind::MSize ||
+        Kind == MemoryOpKind::Gas) {
+      return true;
+    }
+    return Effect == MemoryEffect::Escape ||
+           Effect == MemoryEffect::MemorySizeObserver ||
+           Effect == MemoryEffect::GasSensitive ||
+           Effect == MemoryEffect::Unknown;
+  }
+
+  static bool getDirectMemoryIntervalEnd(const MemoryInterval &Interval,
+                                         uint64_t &End) {
+    if (Interval.Space != AddressSpace::Memory || Interval.Empty ||
+        !Interval.Addr.isKnown() ||
+        Interval.Addr.Kind != AddressBaseKind::Const || !Interval.Size.Known ||
+        Interval.Addr.Offset < 0) {
+      return false;
+    }
+    const uint64_t Begin = static_cast<uint64_t>(Interval.Addr.Offset);
+    if (Interval.Size.Value > std::numeric_limits<uint64_t>::max() - Begin) {
+      return false;
+    }
+    End = Begin + Interval.Size.Value;
+    return true;
+  }
+
+  static bool getMemoryExpansionEnd(const MemoryOp &Op, uint64_t &End) {
+    const MemoryInterval *Interval = nullptr;
+    switch (Op.Kind) {
+    case MemoryOpKind::MLoad:
+      Interval = Op.Reads.size() == 1 ? &Op.Reads[0] : nullptr;
+      break;
+    case MemoryOpKind::MStore:
+    case MemoryOpKind::MStore8:
+      Interval = Op.Writes.size() == 1 ? &Op.Writes[0] : nullptr;
+      break;
+    default:
+      return false;
+    }
+    return Interval != nullptr && getDirectMemoryIntervalEnd(*Interval, End);
+  }
+
+  void noteBlockFact(const MemoryOp &Op) {
+    if (!HasCurrentBlock) {
+      return;
+    }
+    auto It = Facts.Blocks.find(CurrentBlockEntryPC);
+    if (It == Facts.Blocks.end()) {
+      return;
+    }
+    MemoryBlockFacts &Block = It->second;
+    Block.OpsEnd = Facts.Ops.size();
+    Block.HasBarrier =
+        Block.HasBarrier || isHardBarrierEffect(Op.Effect, Op.Kind);
+    uint64_t End = 0;
+    if (getMemoryExpansionEnd(Op, End)) {
+      Block.MaxConstRequiredSize = std::max(Block.MaxConstRequiredSize, End);
+    }
+  }
 
   StackValue makeUnknownValue() {
     StackValue Value;
     Value.ValueId = NextValueId++;
     return Value;
   }
+
+  StackValue makeOpaqueUnknownValue() { return {}; }
 
   StackValue makeConstValue(uint64_t ConstValue) {
     StackValue Value;
@@ -376,6 +524,7 @@ private:
     MemoryOp Op;
     Op.Id = static_cast<uint32_t>(Facts.Ops.size());
     Op.Pc = Pc;
+    Op.BlockEntryPC = CurrentBlockEntryPC;
     Op.Opcode = Opcode;
     Op.Kind = Kind;
     Op.Effect = Effect;
@@ -447,6 +596,7 @@ private:
     StackValue Addr = pop();
     MemoryOp &Op = addOp(Pc, OP_MLOAD, MemoryOpKind::MLoad, MemoryEffect::Read);
     Op.Reads.push_back(fixedInterval(AddressSpace::Memory, Addr, 32));
+    noteBlockFact(Op);
     pushUnknown();
   }
 
@@ -456,6 +606,7 @@ private:
     MemoryOp &Op =
         addOp(Pc, OP_MSTORE, MemoryOpKind::MStore, MemoryEffect::Write);
     Op.Writes.push_back(fixedInterval(AddressSpace::Memory, Addr, 32));
+    noteBlockFact(Op);
   }
 
   void observeMStore8(uint64_t Pc) {
@@ -464,6 +615,7 @@ private:
     MemoryOp &Op =
         addOp(Pc, OP_MSTORE8, MemoryOpKind::MStore8, MemoryEffect::Write);
     Op.Writes.push_back(fixedInterval(AddressSpace::Memory, Addr, 1));
+    noteBlockFact(Op);
   }
 
   void observeMCopy(uint64_t Pc) {
@@ -474,6 +626,7 @@ private:
         addOp(Pc, OP_MCOPY, MemoryOpKind::MCopy, MemoryEffect::ReadWrite);
     Op.Reads.push_back(interval(AddressSpace::Memory, Src, Size));
     Op.Writes.push_back(interval(AddressSpace::Memory, Dest, Size));
+    noteBlockFact(Op);
   }
 
   void observeKeccak(uint64_t Pc) {
@@ -482,6 +635,7 @@ private:
     MemoryOp &Op =
         addOp(Pc, OP_KECCAK256, MemoryOpKind::Keccak, MemoryEffect::Read);
     Op.Reads.push_back(interval(AddressSpace::Memory, Offset, Size));
+    noteBlockFact(Op);
     pushUnknown();
   }
 
@@ -494,6 +648,7 @@ private:
     }
     MemoryOp &Op = addOp(Pc, Opcode, MemoryOpKind::Log, MemoryEffect::Read);
     Op.Reads.push_back(interval(AddressSpace::Memory, Offset, Size));
+    noteBlockFact(Op);
   }
 
   void observeCallDataLoad(uint64_t Pc) {
@@ -501,6 +656,7 @@ private:
     MemoryOp &Op = addOp(Pc, OP_CALLDATALOAD, MemoryOpKind::CallDataLoad,
                          MemoryEffect::Read);
     Op.Reads.push_back(fixedInterval(AddressSpace::CallData, Offset, 32));
+    noteBlockFact(Op);
     pushUnknown();
   }
 
@@ -512,6 +668,7 @@ private:
     MemoryOp &Op = addOp(Pc, Opcode, Kind, MemoryEffect::ReadWrite);
     Op.Reads.push_back(interval(SourceSpace, Offset, Size));
     Op.Writes.push_back(interval(AddressSpace::Memory, DestOffset, Size));
+    noteBlockFact(Op);
   }
 
   void observeExtCodeCopy(uint64_t Pc) {
@@ -523,6 +680,7 @@ private:
                          MemoryEffect::ReadWrite);
     Op.Reads.push_back(interval(AddressSpace::ExternalCode, Offset, Size));
     Op.Writes.push_back(interval(AddressSpace::Memory, DestOffset, Size));
+    noteBlockFact(Op);
   }
 
   void observeReturnLike(uint64_t Pc, evmc_opcode Opcode, MemoryOpKind Kind) {
@@ -531,6 +689,7 @@ private:
     MemoryOp &Op = addOp(Pc, Opcode, Kind, MemoryEffect::Escape);
     Op.Reads.push_back(interval(AddressSpace::Memory, Offset, Size));
     Op.IsTerminator = true;
+    noteBlockFact(Op);
   }
 
   void observeCall(uint64_t Pc, evmc_opcode Opcode, bool HasValue) {
@@ -546,6 +705,7 @@ private:
     MemoryOp &Op = addOp(Pc, Opcode, MemoryOpKind::Call, MemoryEffect::Unknown);
     Op.Reads.push_back(interval(AddressSpace::Memory, ArgsOffset, ArgsSize));
     Op.Writes.push_back(interval(AddressSpace::Memory, RetOffset, RetSize));
+    noteBlockFact(Op);
     pushUnknown();
   }
 
@@ -559,6 +719,7 @@ private:
     MemoryOp &Op =
         addOp(Pc, Opcode, MemoryOpKind::Create, MemoryEffect::Escape);
     Op.Reads.push_back(interval(AddressSpace::Memory, Offset, Size));
+    noteBlockFact(Op);
     pushUnknown();
   }
 

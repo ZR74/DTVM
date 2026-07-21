@@ -6,6 +6,7 @@
 
 #include "compiler/evm_frontend/evm_analyzer.h"
 #include "compiler/evm_frontend/evm_lifted_stack_lifter.h"
+#include "compiler/evm_frontend/evm_memory_analysis.h"
 #include "compiler/evm_frontend/evm_memory_facts.h"
 #include "compiler/evm_frontend/evm_mir_compiler.h"
 #include "evmc/evmc.h"
@@ -142,26 +143,31 @@ private:
   void buildMemoryFacts(const EVMAnalyzer &Analyzer, const uint8_t *Bytecode,
                         size_t BytecodeSize) {
     MemoryFacts.reset();
+    MemoryEntryAddressAnalysis EntryAddresses(Analyzer, Bytecode, BytecodeSize);
     const auto &BlockInfos = Analyzer.getBlockInfos();
 
-    size_t ScanPC = 0;
-    while (ScanPC < BytecodeSize) {
-      auto BlockIt = BlockInfos.find(static_cast<uint64_t>(ScanPC));
-      if (BlockIt != BlockInfos.end()) {
-        const int32_t EntryDepth =
-            std::max(BlockIt->second.ResolvedEntryStackDepth, 0);
-        MemoryFacts.beginBlock(static_cast<uint64_t>(ScanPC),
-                               static_cast<uint32_t>(EntryDepth));
-      }
+    for (const auto &[EntryPC, BlockInfo] : BlockInfos) {
+      const int32_t EntryDepth = std::max(BlockInfo.ResolvedEntryStackDepth, 0);
+      std::vector<MemoryEntryValue> EntryValues = EntryAddresses.getEntryValues(
+          EntryPC, static_cast<uint32_t>(EntryDepth));
+      MemoryFacts.beginBlock(EntryPC, BlockInfo.BodyStartPC,
+                             BlockInfo.BodyEndPC, EntryValues,
+                             BlockInfo.Successors, BlockInfo.Predecessors);
 
-      evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[ScanPC]);
-      MemoryFacts.observeOpcode(Opcode, static_cast<uint64_t>(ScanPC), Bytecode,
-                                BytecodeSize);
-      ++ScanPC;
-      if (Opcode >= OP_PUSH0 && Opcode <= OP_PUSH32) {
-        ScanPC += static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+      size_t ScanPC = static_cast<size_t>(BlockInfo.BodyStartPC);
+      const size_t EndPC = std::min<size_t>(BlockInfo.BodyEndPC, BytecodeSize);
+      while (ScanPC < EndPC) {
+        evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[ScanPC]);
+        MemoryFacts.observeOpcode(Opcode, static_cast<uint64_t>(ScanPC),
+                                  Bytecode, BytecodeSize);
+        ++ScanPC;
+        if (Opcode >= OP_PUSH0 && Opcode <= OP_PUSH32) {
+          ScanPC +=
+              static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+        }
       }
     }
+    MemoryFacts.endBlock();
   }
 
   void beginMemoryCompileBlockCompat(uint64_t EntryPC, uint64_t BodyEndPC) {
