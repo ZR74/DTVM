@@ -301,15 +301,42 @@ void EVMMirBuilder::loadEVMInstanceAttr() {
   ExceptionReturnBB = CurFunc->createExceptionReturnBB();
 }
 
-MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
+bool EVMMirBuilder::shouldUseSharedDynamicDispatch() const {
+#ifdef ZEN_ENABLE_EVM_STACK_SSA_LIFT
+  return false;
+#else
+  return true;
+#endif
+}
+
+MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(
+    uint64_t SourceBlockPC, const JumpTargetPCList *CandidateTargets) {
   auto ExistingIt = IndirectJumpBBs.find(SourceBlockPC);
   if (ExistingIt != IndirectJumpBBs.end()) {
     return ExistingIt->second;
   }
 
+  MBasicBlock *IndirectJumpBB =
+      buildIndirectJumpBB(SourceBlockPC, CandidateTargets, true);
+  IndirectJumpBBs[SourceBlockPC] = IndirectJumpBB;
+  return IndirectJumpBB;
+}
+
+MBasicBlock *EVMMirBuilder::getOrCreateSharedIndirectJumpBB() {
+  if (SharedIndirectJumpBB != nullptr) {
+    return SharedIndirectJumpBB;
+  }
+
+  SharedIndirectJumpBB = buildIndirectJumpBB(0, nullptr, false);
+  return SharedIndirectJumpBB;
+}
+
+MBasicBlock *
+EVMMirBuilder::buildIndirectJumpBB(uint64_t SourceBlockPC,
+                                   const JumpTargetPCList *CandidateTargets,
+                                   bool RegisterDynamicPhi) {
   MBasicBlock *FromBB = CurBB;
   MBasicBlock *IndirectJumpBB = CurFunc->createBasicBlock();
-  IndirectJumpBBs[SourceBlockPC] = IndirectJumpBB;
   setInsertBlock(IndirectJumpBB);
 #ifdef ZEN_ENABLE_LINUX_PERF
   CurBB->setSourceOffset(CurPC);
@@ -322,6 +349,43 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
   MInstruction *JumpTarget = loadVariable(JumpTargetVar);
   MType *UInt64Type =
       EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
+
+  if (CandidateTargets != nullptr && !CandidateTargets->empty()) {
+    std::set<uint64_t> CandidateTargetPCs(CandidateTargets->begin(),
+                                          CandidateTargets->end());
+    std::vector<std::pair<uint64_t, MBasicBlock *>> FilteredTargets;
+    FilteredTargets.reserve(CandidateTargets->size());
+    for (const auto &[DestPC, DestBB] : JumpDestTable) {
+      if (!CandidateTargetPCs.count(DestPC) &&
+          !CandidateTargetPCs.count(getCanonicalJumpDestPC(DestPC))) {
+        continue;
+      }
+      FilteredTargets.emplace_back(DestPC, DestBB);
+    }
+
+    if (!FilteredTargets.empty() &&
+        FilteredTargets.size() < JumpDestTable.size()) {
+      CompileVector<std::pair<ConstantInstruction *, MBasicBlock *>> Cases(
+          FilteredTargets.size(), Ctx.MemPool);
+      for (size_t I = 0; I < FilteredTargets.size(); ++I) {
+        const uint64_t DestPC = FilteredTargets[I].first;
+        MBasicBlock *DestBB = FilteredTargets[I].second;
+        Cases[I].first = createIntConstInstruction(UInt64Type, DestPC);
+        Cases[I].second = DestBB;
+        if (RegisterDynamicPhi) {
+          registerDynamicJumpPhiIncomingBlock(DestPC, SourceBlockPC,
+                                              IndirectJumpBB);
+        }
+        addSuccessor(DestBB);
+      }
+
+      createInstruction<SwitchInstruction>(true, Ctx, JumpTarget, FailureBB,
+                                           Cases);
+      addUniqueSuccessor(FailureBB);
+      setInsertBlock(FromBB);
+      return IndirectJumpBB;
+    }
+  }
 
   // If hash table is used, create mir to calculate hash index of JumpTarget
   // PC and create switch instruction with hash index
@@ -368,8 +432,10 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
             false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, JumpTarget,
             ExpectedPC);
         MBasicBlock *DestBB = JumpHashTable[HashEntry][0];
-        registerDynamicJumpPhiIncomingBlock(JumpHashReverse[HashEntry][0],
-                                            SourceBlockPC, CheckBB);
+        if (RegisterDynamicPhi) {
+          registerDynamicJumpPhiIncomingBlock(JumpHashReverse[HashEntry][0],
+                                              SourceBlockPC, CheckBB);
+        }
         createInstruction<BrIfInstruction>(true, Ctx, IsMatch, DestBB,
                                            FailureBB);
         addSuccessor(DestBB);
@@ -392,8 +458,10 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
           SubCases[I].first =
               createIntConstInstruction(UInt64Type, SubPCVec[I]);
           SubCases[I].second = SubDestBBVec[I];
-          registerDynamicJumpPhiIncomingBlock(SubPCVec[I], SourceBlockPC,
-                                              SubCaseBB);
+          if (RegisterDynamicPhi) {
+            registerDynamicJumpPhiIncomingBlock(SubPCVec[I], SourceBlockPC,
+                                                SubCaseBB);
+          }
           addSuccessor(SubDestBBVec[I]);
         }
         createInstruction<SwitchInstruction>(true, Ctx, JumpTarget, FailureBB,
@@ -419,7 +487,10 @@ MBasicBlock *EVMMirBuilder::getOrCreateIndirectJumpBB(uint64_t SourceBlockPC) {
   for (const auto &[DestPC, DestBB] : JumpDestTable) {
     Cases[Index].first = createIntConstInstruction(UInt64Type, DestPC);
     Cases[Index].second = DestBB;
-    registerDynamicJumpPhiIncomingBlock(DestPC, SourceBlockPC, IndirectJumpBB);
+    if (RegisterDynamicPhi) {
+      registerDynamicJumpPhiIncomingBlock(DestPC, SourceBlockPC,
+                                          IndirectJumpBB);
+    }
     addSuccessor(DestBB);
     Index++;
   }
@@ -1469,8 +1540,9 @@ void EVMMirBuilder::implementConstantJump(uint64_t ConstDest,
   }
 }
 
-void EVMMirBuilder::implementIndirectJump(MInstruction *JumpTarget,
-                                          MBasicBlock *FailureBB) {
+void EVMMirBuilder::implementIndirectJump(
+    MInstruction *JumpTarget, MBasicBlock *FailureBB,
+    const JumpTargetPCList *CandidateTargets) {
   if (JumpDestTable.empty()) {
     createInstruction<BrInstruction>(true, Ctx, FailureBB);
     addUniqueSuccessor(FailureBB);
@@ -1478,7 +1550,15 @@ void EVMMirBuilder::implementIndirectJump(MInstruction *JumpTarget,
   }
   HasIndirectJump = true;
 
-  MBasicBlock *TargetBB = getOrCreateIndirectJumpBB(CurrentBlockPC);
+  const bool UseFilteredPerSource =
+      CandidateTargets != nullptr && !CandidateTargets->empty() &&
+      CandidateTargets->size() < JumpDestTable.size();
+  MBasicBlock *TargetBB =
+      UseFilteredPerSource
+          ? getOrCreateIndirectJumpBB(CurrentBlockPC, CandidateTargets)
+          : (shouldUseSharedDynamicDispatch()
+                 ? getOrCreateSharedIndirectJumpBB()
+                 : getOrCreateIndirectJumpBB(CurrentBlockPC));
   createInstruction<DassignInstruction>(true, &(Ctx.VoidType), JumpTarget,
                                         JumpTargetVar->getVarIdx());
   createInstruction<BrInstruction>(true, Ctx, TargetBB);
@@ -1529,7 +1609,8 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handlePush(const Bytes &Data) {
 
 // ==================== Control Flow Instruction Handlers ====================
 
-void EVMMirBuilder::handleJump(Operand Dest) {
+void EVMMirBuilder::handleJump(Operand Dest,
+                               const JumpTargetPCList *CandidateTargets) {
   MBasicBlock *InvalidJumpBB =
       getOrCreateExceptionSetBB(ErrorCode::EVMBadJumpDestination);
   if (Dest.isConstant()) {
@@ -1561,7 +1642,7 @@ void EVMMirBuilder::handleJump(Operand Dest) {
   addSuccessor(InvalidJumpBB);
   addSuccessor(ValidJumpBB);
   setInsertBlock(ValidJumpBB);
-  implementIndirectJump(JumpTarget, InvalidJumpBB);
+  implementIndirectJump(JumpTarget, InvalidJumpBB, CandidateTargets);
 }
 
 MInstruction *EVMMirBuilder::createJumpCondition(const Operand &Cond) {
@@ -1603,7 +1684,8 @@ MInstruction *EVMMirBuilder::createJumpCondition(const Operand &Cond) {
       false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, OrResult, Zero);
 }
 
-void EVMMirBuilder::handleJumpI(Operand Dest, Operand Cond) {
+void EVMMirBuilder::handleJumpI(Operand Dest, Operand Cond,
+                                const JumpTargetPCList *CandidateTargets) {
   U256Inst DestComponents = extractU256Operand(Dest);
   MInstruction *JumpTarget = DestComponents[0];
 
@@ -1664,13 +1746,14 @@ void EVMMirBuilder::handleJumpI(Operand Dest, Operand Cond) {
     addSuccessor(InvalidJumpBB);
     addSuccessor(ValidJumpBB);
     setInsertBlock(ValidJumpBB);
-    implementIndirectJump(JumpTarget, InvalidJumpBB);
+    implementIndirectJump(JumpTarget, InvalidJumpBB, CandidateTargets);
   }
 
   setInsertBlock(FallThroughBB);
 }
 
-void EVMMirBuilder::handleJumpDest(const uint64_t &PC) {
+void EVMMirBuilder::handleJumpDest(const uint64_t &PC,
+                                   bool HasLiveFallthrough) {
   auto BodyIt = JumpDestBodyTable.find(PC);
   ZEN_ASSERT(BodyIt != JumpDestBodyTable.end() && "JUMPDEST body not found");
   MBasicBlock *DestBB = BodyIt->second;
@@ -1682,7 +1765,7 @@ void EVMMirBuilder::handleJumpDest(const uint64_t &PC) {
       break;
     }
   }
-  if (CurBB != DestBB && !IsExceptionSetBB) {
+  if (HasLiveFallthrough && CurBB != DestBB && !IsExceptionSetBB) {
     if (CurBB->empty()) {
       registerPhiIncomingBlock(PC, CurrentBlockPC, CurBB);
       CurBB->addSuccessor(DestBB);
@@ -1861,16 +1944,16 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDivModGeneral(
   U256Inst A = extractU256Operand(DividendOp);
   U256Inst B = extractU256Operand(DivisorOp);
 
-  // Materialize dividend limbs before branching.  The tree IR for A[i] may
-  // contain sub-expressions (e.g. cascading-division intermediates from a
-  // preceding MOD) that are also referenced inside SingleLimbBB.  Without
-  // materialisation the instruction-selection lowering can place the shared
-  // computations into only one branch, leaving the other branch with undefined
-  // virtual-register uses -- a miscompile observed as issue #525 (SHR after
-  // double MOD producing wrong shift counts).
+  // Materialize operand limbs before branching.  Their tree IR may contain
+  // sub-expressions that are referenced from both successor blocks.  Without
+  // materialization instruction selection can place a shared computation in
+  // only one branch, leaving the sibling with undefined virtual-register uses.
   for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
     A[I] = protectUnsafeValue(A[I], I64Type);
+    B[I] = protectUnsafeValue(B[I], I64Type);
   }
+  Operand ProtectedDividend(A, EVMType::UINT256, DividendOp.getRange());
+  Operand ProtectedDivisor(B, EVMType::UINT256, DivisorOp.getRange());
 
   // Check if divisor upper limbs are all zero (runtime 1-limb divisor)
   MInstruction *UpperOr = createInstruction<BinaryInstruction>(
@@ -1964,11 +2047,11 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDivModGeneral(
   if (WantQuotient) {
     RuntimeResult = callRuntimeFor<const intx::uint256 *, const intx::uint256 &,
                                    const intx::uint256 &>(
-        RuntimeFunctions.GetDiv, DividendOp, DivisorOp);
+        RuntimeFunctions.GetDiv, ProtectedDividend, ProtectedDivisor);
   } else {
     RuntimeResult = callRuntimeFor<const intx::uint256 *, const intx::uint256 &,
                                    const intx::uint256 &>(
-        RuntimeFunctions.GetMod, DividendOp, DivisorOp);
+        RuntimeFunctions.GetMod, ProtectedDividend, ProtectedDivisor);
   }
   storeResult(extractU256Operand(RuntimeResult));
   createInstruction<BrInstruction>(true, Ctx, AfterBB);
@@ -2187,6 +2270,10 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDiv(Operand DividendOp,
         MType *I64Type = &Ctx.I64Type;
         MInstruction *Zero = createIntConstInstruction(I64Type, 0);
 
+        // A[0] is shared by both successors but is not consumed by HasUpper.
+        A[0] = protectUnsafeValue(A[0], I64Type);
+        Operand ProtectedDividend(A, EVMType::UINT256, DividendOp.getRange());
+
         MInstruction *UpperAny = createInstruction<BinaryInstruction>(
             false, OP_or, I64Type, A[1],
             createInstruction<BinaryInstruction>(false, OP_or, I64Type, A[2],
@@ -2233,7 +2320,7 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDiv(Operand DividendOp,
 
         setInsertBlock(SlowBB);
         U256Inst SlowResult =
-            extractU256Operand(handleDivU64Divisor(DividendOp, D));
+            extractU256Operand(handleDivU64Divisor(ProtectedDividend, D));
         storeResult(SlowResult);
         createInstruction<BrInstruction>(true, Ctx, AfterBB);
         addSuccessor(AfterBB);
@@ -2474,6 +2561,31 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleAddMod(Operand AugendOp,
 
   MType *I64Type = EVMFrontendContext::getMIRTypeFromEVMType(EVMType::UINT64);
   MInstruction *Zero = createIntConstInstruction(I64Type, 0);
+
+  if (AugendOp.getRange() == ValueRange::U64 &&
+      AddendOp.getRange() == ValueRange::U64 &&
+      ModulusOp.getRange() == ValueRange::U64) {
+    U256Inst Augend = extractU256Operand(AugendOp);
+    U256Inst Addend = extractU256Operand(AddendOp);
+    U256Inst Modulus = extractU256Operand(ModulusOp);
+    MInstruction *SumLo = createInstruction<BinaryInstruction>(
+        false, OP_add, I64Type, Augend[0], Addend[0]);
+    MInstruction *Carry = createInstruction<CmpInstruction>(
+        false, CmpInstruction::ICMP_ULT, I64Type, SumLo, Augend[0]);
+
+    MInstruction *One = createIntConstInstruction(I64Type, 1);
+    MInstruction *Two = createIntConstInstruction(I64Type, 2);
+    MInstruction *ModulusLEOne = createInstruction<CmpInstruction>(
+        false, CmpInstruction::ICMP_ULE, I64Type, Modulus[0], One);
+    MInstruction *SafeModulus = createInstruction<SelectInstruction>(
+        false, I64Type, ModulusLEOne, Two, Modulus[0]);
+    MInstruction *Div = createEvmUdiv128By64(Carry, SumLo, SafeModulus);
+    MInstruction *Rem = createEvmUrem128By64(Div);
+    MInstruction *ResultLo = createInstruction<SelectInstruction>(
+        false, I64Type, ModulusLEOne, Zero, Rem);
+    U256Inst Result = {ResultLo, Zero, Zero, Zero};
+    return Operand(Result, EVMType::UINT256, ValueRange::U64);
+  }
 
   U256Inst Augend = extractU256Operand(AugendOp);
   U256Inst Addend = extractU256Operand(AddendOp);
@@ -2746,6 +2858,37 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleExp(Operand BaseOp,
   U256Inst Base = extractU256Operand(BaseOp);
   U256Inst Exponent = extractU256Operand(ExponentOp);
 
+  auto chargeConstExpGas = [&]() {
+    const uint64_t ExpBytes = intx::count_significant_bytes(
+        u256ValueToIntx(ExponentOp.getConstValue()));
+    if (ExpBytes == 0) {
+      return;
+    }
+    const uint64_t GasPerByte = Ctx.getRevision() < EVMC_SPURIOUS_DRAGON
+                                    ? zen::evm::EXP_BYTE_GAS_PRE_SPURIOUS_DRAGON
+                                    : zen::evm::EXP_BYTE_GAS;
+    chargeDynamicGasIR(
+        createIntConstInstruction(I64Type, ExpBytes * GasPerByte));
+  };
+
+  if (ExponentOp.isConstU64()) {
+    const uint64_t ExpValue = ExponentOp.getConstValue()[0];
+    if (ExpValue <= 3) {
+      chargeConstExpGas();
+      if (ExpValue == 0) {
+        return createU256ConstOperand(intx::uint256{1});
+      }
+      if (ExpValue == 1) {
+        return BaseOp;
+      }
+      Operand Square = handleMul(BaseOp, BaseOp);
+      if (ExpValue == 2) {
+        return Square;
+      }
+      return handleMul(Square, BaseOp);
+    }
+  }
+
   auto loadU256Vars = [&](const U256Var &Vars) -> U256Inst {
     U256Inst Result = {};
     for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
@@ -2759,6 +2902,25 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleExp(Operand BaseOp,
       createInstruction<DassignInstruction>(true, &(Ctx.VoidType), Values[I],
                                             Vars[I]->getVarIdx());
     }
+  };
+
+  MInstruction *Const63 = createIntConstInstruction(I64Type, 63);
+  auto shiftRightOneU256 = [&](const U256Inst &Value) -> U256Inst {
+    U256Inst Result = {};
+    for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
+      MInstruction *Lo = createInstruction<BinaryInstruction>(
+          false, OP_ushr, I64Type, Value[I], One);
+      if (I + 1 == EVM_ELEMENTS_COUNT) {
+        Result[I] = Lo;
+        continue;
+      }
+
+      MInstruction *HiCarry = createInstruction<BinaryInstruction>(
+          false, OP_shl, I64Type, Value[I + 1], Const63);
+      Result[I] = createInstruction<BinaryInstruction>(false, OP_or, I64Type,
+                                                       Lo, HiCarry);
+    }
+    return Result;
   };
 
   // Calculate exponent byte size for dynamic gas (EIP-160)
@@ -2868,103 +3030,105 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleExp(Operand BaseOp,
   U256Var ResultVars = {};
   Operand ResultInit = createU256ConstOperand(intx::uint256{1});
   U256Inst ResultInitComponents = ResultInit.getU256Components();
+  const bool ExponentProvablyU64 = ExponentOp.getRange() == ValueRange::U64;
 
   for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
     BaseVars[I] = CurFunc->createVariable(I64Type);
-    ExpVars[I] = CurFunc->createVariable(I64Type);
     ResultVars[I] = CurFunc->createVariable(I64Type);
     createInstruction<DassignInstruction>(true, &(Ctx.VoidType), Base[I],
                                           BaseVars[I]->getVarIdx());
-    createInstruction<DassignInstruction>(true, &(Ctx.VoidType), Exponent[I],
-                                          ExpVars[I]->getVarIdx());
     createInstruction<DassignInstruction>(true, &(Ctx.VoidType),
                                           ResultInitComponents[I],
                                           ResultVars[I]->getVarIdx());
+    if (!ExponentProvablyU64) {
+      ExpVars[I] = CurFunc->createVariable(I64Type);
+      createInstruction<DassignInstruction>(true, &(Ctx.VoidType), Exponent[I],
+                                            ExpVars[I]->getVarIdx());
+    }
   }
 
-  Variable *Exp64Var = CurFunc->createVariable(I64Type);
-  createInstruction<DassignInstruction>(true, &(Ctx.VoidType), Exponent[0],
-                                        Exp64Var->getVarIdx());
-
-  Operand ShiftOne = createU256ConstOperand(intx::uint256{1});
-
-  MInstruction *High01 = createInstruction<BinaryInstruction>(
-      false, OP_or, I64Type, Exponent[1], Exponent[2]);
-  MInstruction *HighAny = createInstruction<BinaryInstruction>(
-      false, OP_or, I64Type, High01, Exponent[3]);
-  MInstruction *HasHigh = createInstruction<CmpInstruction>(
-      false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, HighAny, Zero);
-
-  MBasicBlock *FastCondBB = createBasicBlock();
-  MBasicBlock *SlowCondBB = createBasicBlock();
   MBasicBlock *AfterBB = createBasicBlock();
-  createInstruction<BrIfInstruction>(true, Ctx, HasHigh, SlowCondBB,
-                                     FastCondBB);
+
+  if (ExponentProvablyU64) {
+    Variable *Exp64Var = CurFunc->createVariable(I64Type);
+    createInstruction<DassignInstruction>(true, &(Ctx.VoidType), Exponent[0],
+                                          Exp64Var->getVarIdx());
+
+    MBasicBlock *FastCondBB = createBasicBlock();
+    createInstruction<BrInstruction>(true, Ctx, FastCondBB);
+    addSuccessor(FastCondBB);
+
+    // 64-bit exponent loop when high limbs are statically known to be zero.
+    MBasicBlock *FastBodyBB = createBasicBlock();
+    MBasicBlock *FastOddBB = createBasicBlock();
+    MBasicBlock *FastEvenBB = createBasicBlock();
+    MBasicBlock *FastContinueBB = createBasicBlock();
+    MBasicBlock *FastBaseBB = createBasicBlock();
+
+    setInsertBlock(FastCondBB);
+    MInstruction *Exp64 = loadVariable(Exp64Var);
+    MInstruction *FastIsNonZero = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, Exp64, Zero);
+    createInstruction<BrIfInstruction>(true, Ctx, FastIsNonZero, FastBodyBB,
+                                       AfterBB);
+    addSuccessor(FastBodyBB);
+    addSuccessor(AfterBB);
+
+    setInsertBlock(FastBodyBB);
+    U256Inst FastBaseCur = loadU256Vars(BaseVars);
+    Operand FastBaseOpCur(FastBaseCur, EVMType::UINT256);
+    MInstruction *FastLsb = createInstruction<BinaryInstruction>(
+        false, OP_and, I64Type, Exp64, One);
+    MInstruction *FastIsOdd = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, FastLsb, Zero);
+    createInstruction<BrIfInstruction>(true, Ctx, FastIsOdd, FastOddBB,
+                                       FastEvenBB);
+    addSuccessor(FastOddBB);
+    addSuccessor(FastEvenBB);
+
+    setInsertBlock(FastOddBB);
+    U256Inst FastResultCur = loadU256Vars(ResultVars);
+    Operand FastResultOp(FastResultCur, EVMType::UINT256);
+    Operand FastMulResOp = handleMul(FastResultOp, FastBaseOpCur);
+    U256Inst FastMulRes = extractU256Operand(FastMulResOp);
+    storeU256Vars(FastMulRes, ResultVars);
+    createInstruction<BrInstruction>(true, Ctx, FastContinueBB);
+    addSuccessor(FastContinueBB);
+
+    setInsertBlock(FastEvenBB);
+    createInstruction<BrInstruction>(true, Ctx, FastContinueBB);
+    addSuccessor(FastContinueBB);
+
+    setInsertBlock(FastContinueBB);
+    MInstruction *FastShifted = createInstruction<BinaryInstruction>(
+        false, OP_ushr, I64Type, Exp64, One);
+    MInstruction *FastShiftZero = createInstruction<CmpInstruction>(
+        false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, FastShifted,
+        Zero);
+    createInstruction<BrIfInstruction>(true, Ctx, FastShiftZero, AfterBB,
+                                       FastBaseBB);
+    addSuccessor(AfterBB);
+    addSuccessor(FastBaseBB);
+
+    setInsertBlock(FastBaseBB);
+    createInstruction<DassignInstruction>(true, &(Ctx.VoidType), FastShifted,
+                                          Exp64Var->getVarIdx());
+    Operand FastBaseSquaredOp = handleMul(FastBaseOpCur, FastBaseOpCur);
+    U256Inst FastBaseSquared = extractU256Operand(FastBaseSquaredOp);
+    storeU256Vars(FastBaseSquared, BaseVars);
+    createInstruction<BrInstruction>(true, Ctx, FastCondBB);
+    addSuccessor(FastCondBB);
+
+    setInsertBlock(AfterBB);
+    U256Inst ResultFinal = loadU256Vars(ResultVars);
+    return Operand(ResultFinal, EVMType::UINT256);
+  }
+
+  MBasicBlock *SlowCondBB = createBasicBlock();
+  createInstruction<BrInstruction>(true, Ctx, SlowCondBB);
   addSuccessor(SlowCondBB);
-  addSuccessor(FastCondBB);
 
-  // Fast path: 64-bit exponent loop when high limbs are zero.
-  MBasicBlock *FastBodyBB = createBasicBlock();
-  MBasicBlock *FastOddBB = createBasicBlock();
-  MBasicBlock *FastEvenBB = createBasicBlock();
-  MBasicBlock *FastContinueBB = createBasicBlock();
-  MBasicBlock *FastBaseBB = createBasicBlock();
-
-  setInsertBlock(FastCondBB);
-  MInstruction *Exp64 = loadVariable(Exp64Var);
-  MInstruction *FastIsNonZero = createInstruction<CmpInstruction>(
-      false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, Exp64, Zero);
-  createInstruction<BrIfInstruction>(true, Ctx, FastIsNonZero, FastBodyBB,
-                                     AfterBB);
-  addSuccessor(FastBodyBB);
-  addSuccessor(AfterBB);
-
-  setInsertBlock(FastBodyBB);
-  U256Inst FastBaseCur = loadU256Vars(BaseVars);
-  Operand FastBaseOpCur(FastBaseCur, EVMType::UINT256);
-  MInstruction *FastLsb =
-      createInstruction<BinaryInstruction>(false, OP_and, I64Type, Exp64, One);
-  MInstruction *FastIsOdd = createInstruction<CmpInstruction>(
-      false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I64Type, FastLsb, Zero);
-  createInstruction<BrIfInstruction>(true, Ctx, FastIsOdd, FastOddBB,
-                                     FastEvenBB);
-  addSuccessor(FastOddBB);
-  addSuccessor(FastEvenBB);
-
-  setInsertBlock(FastOddBB);
-  U256Inst FastResultCur = loadU256Vars(ResultVars);
-  Operand FastResultOp(FastResultCur, EVMType::UINT256);
-  Operand FastMulResOp = handleMul(FastResultOp, FastBaseOpCur);
-  U256Inst FastMulRes = extractU256Operand(FastMulResOp);
-  storeU256Vars(FastMulRes, ResultVars);
-  createInstruction<BrInstruction>(true, Ctx, FastContinueBB);
-  addSuccessor(FastContinueBB);
-
-  setInsertBlock(FastEvenBB);
-  createInstruction<BrInstruction>(true, Ctx, FastContinueBB);
-  addSuccessor(FastContinueBB);
-
-  setInsertBlock(FastContinueBB);
-  MInstruction *FastShifted =
-      createInstruction<BinaryInstruction>(false, OP_ushr, I64Type, Exp64, One);
-  MInstruction *FastShiftZero = createInstruction<CmpInstruction>(
-      false, CmpInstruction::Predicate::ICMP_EQ, &Ctx.I64Type, FastShifted,
-      Zero);
-  createInstruction<BrIfInstruction>(true, Ctx, FastShiftZero, AfterBB,
-                                     FastBaseBB);
-  addSuccessor(AfterBB);
-  addSuccessor(FastBaseBB);
-
-  setInsertBlock(FastBaseBB);
-  createInstruction<DassignInstruction>(true, &(Ctx.VoidType), FastShifted,
-                                        Exp64Var->getVarIdx());
-  Operand FastBaseSquaredOp = handleMul(FastBaseOpCur, FastBaseOpCur);
-  U256Inst FastBaseSquared = extractU256Operand(FastBaseSquaredOp);
-  storeU256Vars(FastBaseSquared, BaseVars);
-  createInstruction<BrInstruction>(true, Ctx, FastCondBB);
-  addSuccessor(FastCondBB);
-
-  // Slow path: full 256-bit exponent loop.
+  // Full 256-bit exponent loop.
   MBasicBlock *SlowBodyBB = createBasicBlock();
   MBasicBlock *SlowOddBB = createBasicBlock();
   MBasicBlock *SlowEvenBB = createBasicBlock();
@@ -3013,9 +3177,7 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleExp(Operand BaseOp,
   addSuccessor(SlowContinueBB);
 
   setInsertBlock(SlowContinueBB);
-  Operand ExpShiftedOp = handleShift<BinaryOperator::BO_SHR_U>(
-      ShiftOne, Operand(ExpCur, EVMType::UINT256));
-  U256Inst ExpShifted = extractU256Operand(ExpShiftedOp);
+  U256Inst ExpShifted = shiftRightOneU256(ExpCur);
   MInstruction *ShiftAny01 = createInstruction<BinaryInstruction>(
       false, OP_or, I64Type, ExpShifted[0], ExpShifted[1]);
   MInstruction *ShiftAny23 = createInstruction<BinaryInstruction>(

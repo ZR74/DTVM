@@ -17,6 +17,7 @@
 #include "intx/intx.hpp"
 #include <algorithm>
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -140,6 +141,7 @@ public:
   /// U256 value representation as array of 4 x uint64_t
   using U256Value = std::array<uint64_t, EVM_ELEMENTS_COUNT>;
   using U256ConstInt = std::array<MConstantInt *, EVM_ELEMENTS_COUNT>;
+  using JumpTargetPCList = std::vector<uint64_t>;
 
   // Range classification for u256 operands.  Narrower ranges enable
   // single-instruction fast paths instead of expensive multi-limb arithmetic.
@@ -162,14 +164,15 @@ public:
 
     // Constructor for EVMU256Type with 4 I64 components
     Operand(U256Inst Components, EVMType Type)
-        : Type(Type), U256Components(Components), IsU256MultiComponent(true) {
+        : Type(Type), U256Components(Components), IsU256MultiComponent(true),
+          IsU256InstructionBacked(true) {
       ZEN_ASSERT(Type == EVMType::UINT256 && "Multi-component only for U256");
     }
 
     // Constructor for U256 multi-component with explicit range
     Operand(U256Inst Components, EVMType Type, ValueRange Range)
         : Type(Type), Range(Range), U256Components(Components),
-          IsU256MultiComponent(true) {
+          IsU256MultiComponent(true), IsU256InstructionBacked(true) {
       ZEN_ASSERT(Type == EVMType::UINT256 && "Multi-component only for U256");
     }
 
@@ -224,6 +227,7 @@ public:
     }
 
     bool isU256MultiComponent() const { return IsU256MultiComponent; }
+    bool isU256InstructionBacked() const { return IsU256InstructionBacked; }
     bool isConstant() const { return IsConstant; }
     bool isZeroConstant() const {
       return IsConstant && ConstValue[0] == 0 && ConstValue[1] == 0 &&
@@ -314,6 +318,7 @@ public:
     U256Value ConstValue = {};
     bool IsConstant = false;
     bool IsU256MultiComponent = false;
+    bool IsU256InstructionBacked = false;
     DeferredKind DeferredValueKind = DeferredKind::NONE;
     // Range of the base value of a deferred zero-test (the value being tested),
     // used to narrow the OR-fold when materialized.
@@ -333,7 +338,9 @@ public:
   // Complete jump implementation with jump table
   void createJumpTable();
   void implementConstantJump(uint64_t ConstDest, MBasicBlock *FailureBB);
-  void implementIndirectJump(MInstruction *JumpTarget, MBasicBlock *FailureBB);
+  void
+  implementIndirectJump(MInstruction *JumpTarget, MBasicBlock *FailureBB,
+                        const JumpTargetPCList *CandidateTargets = nullptr);
 
   void releaseOperand(Operand Opnd) {}
 
@@ -370,9 +377,11 @@ public:
 
   void handleStop();
   void handleVoidReturn();
-  void handleJump(Operand Dest);
-  void handleJumpI(Operand Dest, Operand Cond);
-  void handleJumpDest(const uint64_t &PC);
+  void handleJump(Operand Dest,
+                  const JumpTargetPCList *CandidateTargets = nullptr);
+  void handleJumpI(Operand Dest, Operand Cond,
+                   const JumpTargetPCList *CandidateTargets = nullptr);
+  void handleJumpDest(const uint64_t &PC, bool HasLiveFallthrough);
 
   // ==================== Arithmetic Instruction Handlers ====================
 
@@ -1351,7 +1360,14 @@ private:
   template <size_t N>
   U256Inst convertOperandToUNInstruction(const Operand &Param);
 
-  MBasicBlock *getOrCreateIndirectJumpBB(uint64_t SourceBlockPC);
+  MBasicBlock *
+  getOrCreateIndirectJumpBB(uint64_t SourceBlockPC,
+                            const JumpTargetPCList *CandidateTargets = nullptr);
+  MBasicBlock *getOrCreateSharedIndirectJumpBB();
+  MBasicBlock *buildIndirectJumpBB(uint64_t SourceBlockPC,
+                                   const JumpTargetPCList *CandidateTargets,
+                                   bool RegisterDynamicPhi);
+  bool shouldUseSharedDynamicDispatch() const;
   void registerPhiIncomingBlock(uint64_t TargetBlockPC, uint64_t PredBlockPC,
                                 MBasicBlock *PredBB);
   void registerDynamicJumpPhiIncomingBlock(uint64_t TargetBlockPC,
@@ -1404,6 +1420,7 @@ private:
   uint64_t HashMask = 0;
   Variable *JumpTargetVar = nullptr;
   std::map<uint64_t, MBasicBlock *> IndirectJumpBBs;
+  MBasicBlock *SharedIndirectJumpBB = nullptr;
 
   // Stack check block for stack overflow/underflow checking
   MBasicBlock *StackCheckBB = nullptr;
