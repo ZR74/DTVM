@@ -2554,8 +2554,8 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleExp(Operand BaseOp,
     }
   };
 
+  MInstruction *Const63 = createIntConstInstruction(I64Type, 63);
   auto shiftRightOneU256 = [&](const U256Inst &Value) -> U256Inst {
-    MInstruction *Const63 = createIntConstInstruction(I64Type, 63);
     U256Inst Result = {};
     for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
       MInstruction *Lo = createInstruction<BinaryInstruction>(
