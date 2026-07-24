@@ -1751,7 +1751,8 @@ void EVMMirBuilder::handleJumpI(Operand Dest, Operand Cond,
   setInsertBlock(FallThroughBB);
 }
 
-void EVMMirBuilder::handleJumpDest(const uint64_t &PC) {
+void EVMMirBuilder::handleJumpDest(const uint64_t &PC,
+                                   bool HasLiveFallthrough) {
   auto BodyIt = JumpDestBodyTable.find(PC);
   ZEN_ASSERT(BodyIt != JumpDestBodyTable.end() && "JUMPDEST body not found");
   MBasicBlock *DestBB = BodyIt->second;
@@ -1763,7 +1764,7 @@ void EVMMirBuilder::handleJumpDest(const uint64_t &PC) {
       break;
     }
   }
-  if (CurBB != DestBB && !IsExceptionSetBB) {
+  if (HasLiveFallthrough && CurBB != DestBB && !IsExceptionSetBB) {
     if (CurBB->empty()) {
       registerPhiIncomingBlock(PC, CurrentBlockPC, CurBB);
       CurBB->addSuccessor(DestBB);
@@ -1942,16 +1943,16 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDivModGeneral(
   U256Inst A = extractU256Operand(DividendOp);
   U256Inst B = extractU256Operand(DivisorOp);
 
-  // Materialize dividend limbs before branching.  The tree IR for A[i] may
-  // contain sub-expressions (e.g. cascading-division intermediates from a
-  // preceding MOD) that are also referenced inside SingleLimbBB.  Without
-  // materialisation the instruction-selection lowering can place the shared
-  // computations into only one branch, leaving the other branch with undefined
-  // virtual-register uses -- a miscompile observed as issue #525 (SHR after
-  // double MOD producing wrong shift counts).
+  // Materialize operand limbs before branching.  Their tree IR may contain
+  // sub-expressions that are referenced from both successor blocks.  Without
+  // materialization instruction selection can place a shared computation in
+  // only one branch, leaving the sibling with undefined virtual-register uses.
   for (size_t I = 0; I < EVM_ELEMENTS_COUNT; ++I) {
     A[I] = protectUnsafeValue(A[I], I64Type);
+    B[I] = protectUnsafeValue(B[I], I64Type);
   }
+  Operand ProtectedDividend(A, EVMType::UINT256, DividendOp.getRange());
+  Operand ProtectedDivisor(B, EVMType::UINT256, DivisorOp.getRange());
 
   // Check if divisor upper limbs are all zero (runtime 1-limb divisor)
   MInstruction *UpperOr = createInstruction<BinaryInstruction>(
@@ -2045,11 +2046,11 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDivModGeneral(
   if (WantQuotient) {
     RuntimeResult = callRuntimeFor<const intx::uint256 *, const intx::uint256 &,
                                    const intx::uint256 &>(
-        RuntimeFunctions.GetDiv, DividendOp, DivisorOp);
+        RuntimeFunctions.GetDiv, ProtectedDividend, ProtectedDivisor);
   } else {
     RuntimeResult = callRuntimeFor<const intx::uint256 *, const intx::uint256 &,
                                    const intx::uint256 &>(
-        RuntimeFunctions.GetMod, DividendOp, DivisorOp);
+        RuntimeFunctions.GetMod, ProtectedDividend, ProtectedDivisor);
   }
   storeResult(extractU256Operand(RuntimeResult));
   createInstruction<BrInstruction>(true, Ctx, AfterBB);
@@ -2268,6 +2269,10 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDiv(Operand DividendOp,
         MType *I64Type = &Ctx.I64Type;
         MInstruction *Zero = createIntConstInstruction(I64Type, 0);
 
+        // A[0] is shared by both successors but is not consumed by HasUpper.
+        A[0] = protectUnsafeValue(A[0], I64Type);
+        Operand ProtectedDividend(A, EVMType::UINT256, DividendOp.getRange());
+
         MInstruction *UpperAny = createInstruction<BinaryInstruction>(
             false, OP_or, I64Type, A[1],
             createInstruction<BinaryInstruction>(false, OP_or, I64Type, A[2],
@@ -2314,7 +2319,7 @@ typename EVMMirBuilder::Operand EVMMirBuilder::handleDiv(Operand DividendOp,
 
         setInsertBlock(SlowBB);
         U256Inst SlowResult =
-            extractU256Operand(handleDivU64Divisor(DividendOp, D));
+            extractU256Operand(handleDivU64Divisor(ProtectedDividend, D));
         storeResult(SlowResult);
         createInstruction<BrInstruction>(true, Ctx, AfterBB);
         addSuccessor(AfterBB);
@@ -5298,30 +5303,41 @@ void EVMMirBuilder::handleLogWithTopics(Operand OffsetOp, Operand SizeOp,
                                         TopicArgs... Topics) {
   ZEN_STATIC_ASSERT(NumTopics <= 4);
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
-  normalizeOffsetWithSize(OffsetOp, SizeOp);
+
+  checkStaticModeIR();
+  preExpandMemoryRange(OffsetOp, SizeOp);
+
+  if (!SizeOp.isZeroConstant()) {
+    U256Inst SizeParts = extractU256Operand(SizeOp);
+    MInstruction *LogDataGasPerByte =
+        createIntConstInstruction(&Ctx.I64Type, 8);
+    MInstruction *LogDataCost = createInstruction<BinaryInstruction>(
+        false, OP_mul, &Ctx.I64Type, SizeParts[0], LogDataGasPerByte);
+    chargeDynamicGasIR(LogDataCost);
+  }
 
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemory();
 #endif
   if constexpr (NumTopics == 0) {
     callRuntimeForWithErrorCheck<void, uint64_t, uint64_t>(
-        RuntimeFunctions.EmitLog0, OffsetOp, SizeOp);
+        RuntimeFunctions.EmitLog0NoExpand, OffsetOp, SizeOp);
   } else if constexpr (NumTopics == 1) {
     callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *>(
-        RuntimeFunctions.EmitLog1, OffsetOp, SizeOp, Topics...);
+        RuntimeFunctions.EmitLog1NoExpand, OffsetOp, SizeOp, Topics...);
   } else if constexpr (NumTopics == 2) {
     callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *,
-                                 const uint8_t *>(RuntimeFunctions.EmitLog2,
-                                                  OffsetOp, SizeOp, Topics...);
+                                 const uint8_t *>(
+        RuntimeFunctions.EmitLog2NoExpand, OffsetOp, SizeOp, Topics...);
   } else if constexpr (NumTopics == 3) {
     callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *,
                                  const uint8_t *, const uint8_t *>(
-        RuntimeFunctions.EmitLog3, OffsetOp, SizeOp, Topics...);
+        RuntimeFunctions.EmitLog3NoExpand, OffsetOp, SizeOp, Topics...);
   } else { // NumTopics == 4
     callRuntimeForWithErrorCheck<void, uint64_t, uint64_t, const uint8_t *,
                                  const uint8_t *, const uint8_t *,
-                                 const uint8_t *>(RuntimeFunctions.EmitLog4,
-                                                  OffsetOp, SizeOp, Topics...);
+                                 const uint8_t *>(
+        RuntimeFunctions.EmitLog4NoExpand, OffsetOp, SizeOp, Topics...);
   }
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   reloadGasFromMemory();
@@ -5426,19 +5442,16 @@ EVMMirBuilder::handleCallCode(Operand GasOp, Operand ToAddrOp, Operand ValueOp,
 void EVMMirBuilder::handleReturn(Operand MemOffsetComponents,
                                  Operand LengthComponents) {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
-  uint64_t Non64Value = std::numeric_limits<uint64_t>::max();
-  normalizeOperandU64(MemOffsetComponents, &Non64Value);
-  normalizeOperandU64(LengthComponents, &Non64Value);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
+  preExpandMemoryRange(MemOffsetComponents, LengthComponents);
   callRuntimeForWithErrorCheck<void, uint64_t, uint64_t>(
-      RuntimeFunctions.SetReturn, MemOffsetComponents, LengthComponents);
+      RuntimeFunctions.SetReturnNoExpand, MemOffsetComponents,
+      LengthComponents);
 
-  // The runtime SetReturn may charge memory expansion gas via chargeGas(),
-  // which updates Instance->Gas directly. We must NOT branch to the shared
-  // ReturnBB because its syncGasToMemoryFull() would overwrite the correct
-  // Instance->Gas with the stale gas register value.
+  // RETURN terminates execution immediately. Keep the direct return path so no
+  // shared epilogue rewrites the gas/result state set by the runtime helper.
   MBasicBlock *ReturnDirectBB = createBasicBlock();
   createInstruction<BrInstruction>(true, Ctx, ReturnDirectBB);
   addSuccessor(ReturnDirectBB);
@@ -5505,19 +5518,15 @@ EVMMirBuilder::handleStaticCall(Operand GasOp, Operand ToAddrOp,
 
 void EVMMirBuilder::handleRevert(Operand OffsetOp, Operand SizeOp) {
   const auto &RuntimeFunctions = getRuntimeFunctionTable();
-  uint64_t Non64Value = std::numeric_limits<uint64_t>::max();
-  normalizeOperandU64(OffsetOp, &Non64Value);
-  normalizeOperandU64(SizeOp, &Non64Value);
 #ifdef ZEN_ENABLE_EVM_GAS_REGISTER
   syncGasToMemoryFull();
 #endif
+  preExpandMemoryRange(OffsetOp, SizeOp);
   callRuntimeForWithErrorCheck<void, uint64_t, uint64_t>(
-      RuntimeFunctions.SetRevert, OffsetOp, SizeOp);
+      RuntimeFunctions.SetRevertNoExpand, OffsetOp, SizeOp);
 
-  // The runtime SetRevert may charge memory expansion gas via chargeGas(),
-  // which updates Instance->Gas directly. We must NOT branch to the shared
-  // ReturnBB because its syncGasToMemoryFull() would overwrite the correct
-  // Instance->Gas with the stale gas register value.
+  // REVERT terminates execution immediately. Keep the direct return path so no
+  // shared epilogue rewrites the gas/result state set by the runtime helper.
   MBasicBlock *RevertReturnBB = createBasicBlock();
   createInstruction<BrInstruction>(true, Ctx, RevertReturnBB);
   addSuccessor(RevertReturnBB);
@@ -6488,7 +6497,43 @@ void EVMMirBuilder::normalizeOffsetWithSize(Operand &Offset, Operand &Size) {
   Offset = Operand(NewVal, EVMType::UINT256);
 }
 
+void EVMMirBuilder::checkStaticModeIR() {
+  MPointerType *VoidPtrType = createVoidPtrType();
+  MPointerType *I32PtrType = MPointerType::create(Ctx, Ctx.I32Type);
+
+  MInstruction *MsgPtr = getInstanceElement(
+      VoidPtrType, zen::runtime::EVMInstance::getCurrentMessagePointerOffset());
+  MInstruction *FlagsPtr = getProtectedFieldAddress(
+      MsgPtr, zen::runtime::EVMInstance::getMessageFlagsOffset(), I32PtrType);
+  MInstruction *Flags =
+      createInstruction<LoadInstruction>(false, &Ctx.I32Type, FlagsPtr);
+  MInstruction *StaticMask = createIntConstInstruction(
+      &Ctx.I32Type, static_cast<uint32_t>(EVMC_STATIC));
+  MInstruction *StaticBits = createInstruction<BinaryInstruction>(
+      false, OP_and, &Ctx.I32Type, Flags, StaticMask);
+  MInstruction *Zero = createIntConstInstruction(&Ctx.I32Type, 0);
+  MInstruction *IsStatic = createInstruction<CmpInstruction>(
+      false, CmpInstruction::Predicate::ICMP_NE, &Ctx.I32Type, StaticBits,
+      Zero);
+
+  MBasicBlock *StaticTrapBB =
+      getOrCreateExceptionSetBB(ErrorCode::EVMStaticModeViolation);
+  MBasicBlock *ContinueBB = createBasicBlock();
+  createInstruction<BrIfInstruction>(true, Ctx, IsStatic, StaticTrapBB,
+                                     ContinueBB);
+  addUniqueSuccessor(StaticTrapBB);
+  addSuccessor(ContinueBB);
+  setInsertBlock(ContinueBB);
+}
+
 void EVMMirBuilder::preExpandMemoryRange(Operand &Offset, Operand &Size) {
+  if (Size.isZeroConstant()) {
+    const U256Value ZeroValue = {0, 0, 0, 0};
+    Offset = Operand(ZeroValue);
+    Size = Operand(ZeroValue);
+    return;
+  }
+
   normalizeOffsetWithSize(Offset, Size);
 
   MType *I64Type = &Ctx.I64Type;
