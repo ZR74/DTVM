@@ -5241,8 +5241,9 @@ void EVMMirBuilder::handleMCopy(Operand DestAddrComponents,
       false, OP_mul, I64Type, Words, WordCopyCost);
   chargeDynamicGasIR(CopyGas);
 
-  bool UsedSharedPrecheck =
-      LengthIsKnownNonZero && tryConsumeConstBlockMemoryPrecheck();
+  bool UsedSharedPrecheck = LengthIsKnownNonZero &&
+                            CurBlockConstPrecheckPlan.HasOpPCRange &&
+                            tryConsumeConstBlockMemoryPrecheck();
   const bool UsedGuaranteedElision =
       !UsedSharedPrecheck && DestWasConst && SrcWasConst && LengthWasConst &&
       tryUseGuaranteedMinBytesExpansionElision(true, ConstDest, ConstLength) &&

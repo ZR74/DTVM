@@ -181,6 +181,8 @@ def load_prepared(
         command = payload.get("command") or []
         if not isinstance(command, list) or not all(isinstance(v, str) for v in command):
             raise ValueError(f"invalid command in {prepared_path}")
+        if not command:
+            raise ValueError(f"missing command in {prepared_path}")
         dataset = str(payload.get("dataset") or prepared_path.parts[-3])
         tx_hash = str(payload.get("tx_hash") or prepared_path.parts[-2]).lower()
         if dataset_filter is not None and dataset != dataset_filter:

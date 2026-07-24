@@ -236,8 +236,10 @@ private:
         Analyzer.setResolvedJumpTargets(Ctx->getResolvedJumpTargets());
       }
       Analyzer.analyze(Bytecode, BytecodeSize);
-      buildMemoryFacts(Analyzer, Bytecode, BytecodeSize);
-      setMemoryFactsCompat();
+      if constexpr (HasSetMemoryFacts<IRBuilder>::value) {
+        buildMemoryFacts(Analyzer, Bytecode, BytecodeSize);
+        setMemoryFactsCompat();
+      }
       initializeLiftedBlocks(Analyzer);
 
       const uint8_t *Ip = Bytecode;
