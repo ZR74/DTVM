@@ -50,6 +50,7 @@ private:
     bool Eligible = false;
     uint64_t MaxRequiredSize = 0;
     uint64_t CoveredDirectOps = 0;
+    std::vector<uint64_t> WordStoreOffsets;
   };
 
   struct BlockLinearPrecheckPlan {
@@ -63,6 +64,32 @@ private:
   struct AbstractConstU64 {
     bool Known = false;
     uint64_t Value = 0;
+  };
+
+  struct LargeStaticWorkspaceVerifierResult {
+    uint64_t Candidates = 0;
+    uint64_t VerifiedSegments = 0;
+    uint64_t VerifiedOps = 0;
+    uint64_t VerifiedMLoadOps = 0;
+    uint64_t VerifiedMStoreOps = 0;
+    uint64_t VerifiedMStore8Ops = 0;
+    uint64_t MaxRequiredSize = 0;
+    uint64_t Rejected = 0;
+    uint64_t RejectDynamicOffset = 0;
+    uint64_t RejectUnknownBase = 0;
+    uint64_t RejectUnboundedInterval = 0;
+    uint64_t RejectOverflowRisk = 0;
+    uint64_t RejectSideEffect = 0;
+    uint64_t RejectHelperByteExactRisk = 0;
+    uint64_t RejectTooFewOps = 0;
+    bool HasLoweringPlan = false;
+    uint64_t LoweringFirstPC = 0;
+    uint64_t LoweringLastPC = 0;
+    uint64_t LoweringMaxRequiredSize = 0;
+    uint64_t LoweringCoveredOps = 0;
+    uint64_t LoweringCoveredMLoadOps = 0;
+    uint64_t LoweringCoveredMStoreOps = 0;
+    uint64_t LoweringCoveredMStore8Ops = 0;
   };
 
   template <typename T, typename = void>
@@ -89,6 +116,24 @@ private:
       std::void_t<decltype(std::declval<T &>().materializeStackMergeOperand(
           std::declval<const std::vector<uint64_t> &>(),
           std::declval<const std::vector<std::pair<uint64_t, Operand>> &>()))>>
+      : std::true_type {};
+
+  template <typename T, typename = void>
+  struct HasHandleJumpWithCandidates : std::false_type {};
+  template <typename T>
+  struct HasHandleJumpWithCandidates<
+      T, std::void_t<decltype(std::declval<T &>().handleJump(
+             std::declval<Operand>(),
+             std::declval<const std::vector<uint64_t> *>()))>>
+      : std::true_type {};
+
+  template <typename T, typename = void>
+  struct HasHandleJumpIWithCandidates : std::false_type {};
+  template <typename T>
+  struct HasHandleJumpIWithCandidates<
+      T, std::void_t<decltype(std::declval<T &>().handleJumpI(
+             std::declval<Operand>(), std::declval<Operand>(),
+             std::declval<const std::vector<uint64_t> *>()))>>
       : std::true_type {};
 
   void registerCurrentBlockPC(uint64_t BlockPC) {
@@ -121,6 +166,26 @@ private:
         Builder.assignStackEntryOperand(Result, IncomingValues.back().second);
       }
       return Result;
+    }
+  }
+
+  void handleJumpCompat(Operand Dest,
+                        const std::vector<uint64_t> *CandidateTargets) {
+    if constexpr (HasHandleJumpWithCandidates<IRBuilder>::value) {
+      Builder.handleJump(Dest, CandidateTargets);
+    } else {
+      (void)CandidateTargets;
+      Builder.handleJump(Dest);
+    }
+  }
+
+  void handleJumpICompat(Operand Dest, Operand Cond,
+                         const std::vector<uint64_t> *CandidateTargets) {
+    if constexpr (HasHandleJumpIWithCandidates<IRBuilder>::value) {
+      Builder.handleJumpI(Dest, Cond, CandidateTargets);
+    } else {
+      (void)CandidateTargets;
+      Builder.handleJumpI(Dest, Cond);
     }
   }
 
@@ -601,6 +666,7 @@ private:
 
         case OP_MSTORE8: {
           Builder.noteMemoryOpcodeInBlock(Opcode, PC);
+          maybePrepareLinearBlockMemoryPrecheck(Opcode);
           Operand Addr = pop();
           Operand Value = pop();
           Builder.handleMStore8(Addr, Value);
@@ -714,7 +780,10 @@ private:
           // Consecutive JUMPDEST opcodes share one body BB in multipass.
           // Charge all skipped metering points before jumping to the shared
           // destination at the end of the run.
-          bool HasLiveFallthrough = !InDeadCode;
+          const bool HasDeferredLiftedFallthrough =
+              DeferredLiftedJumpDestFallthrough;
+          DeferredLiftedJumpDestFallthrough = false;
+          bool HasLiveFallthrough = !InDeadCode || HasDeferredLiftedFallthrough;
           uint64_t RunStartPC = PC;
           while (Ip < IpEnd && static_cast<evmc_opcode>(*Ip) == OP_JUMPDEST) {
             Ip++;
@@ -723,24 +792,20 @@ private:
           if (PC > RunStartPC && HasLiveFallthrough) {
             Builder.meterOpcodeRange(RunStartPC, PC);
           }
-          // When a JUMP/JUMPI terminator falls through into a JUMPDEST, the
-          // terminator handler already called handleBeginBlock for the
-          // fallthrough target before the JUMPDEST opcode is decoded, so the
-          // block currently being decoded IS this JUMPDEST's block
-          // (CurrentBlockEntryPC == RunStartPC). Its incoming entry edge was
-          // already assigned by the predecessor terminator. Re-running the
-          // fallthrough-edge assignment here would record a spurious self-edge
-          // (PredBlockPC == BlockPC) that is absent from the block's
-          // predecessor order, corrupting phi incoming-slot bookkeeping. Skip
-          // the redundant edge assignment in that case (gated on
-          // CurrentBlockLifted so the flag-OFF path is unchanged);
-          // handleJumpDest + the re-begin below still run to wire the body
-          // branch and re-materialize the lifted entry state in the canonical
-          // JUMPDEST body block.
+          // A lifted JUMPI fallthrough that starts at this JUMPDEST has already
+          // assigned its entry state and finalized the predecessor block, but
+          // deliberately deferred handleBeginBlock until handleJumpDest wires
+          // the staging fallthrough BB to the canonical body. Materializing a
+          // shared-entry phi in that staging BB would give it the analyzer's
+          // full predecessor count even though the BB has only the single
+          // JUMPI fallthrough predecessor.
           bool AlreadyBegunLiftedEntry = HasLiveFallthrough &&
                                          CurrentBlockLifted &&
                                          RunStartPC == CurrentBlockEntryPC;
-          if (AlreadyBegunLiftedEntry) {
+          if (HasDeferredLiftedFallthrough) {
+            // Entry edge assignment and predecessor finalization are complete.
+            // Begin the target once below, after entering its canonical body.
+          } else if (AlreadyBegunLiftedEntry) {
             // Entry edge already assigned by the predecessor terminator; do not
             // reassign. The predecessor's handleBeginBlock already restored
             // this block's lifted logical entry state onto the logical stack.
@@ -763,7 +828,7 @@ private:
               }
             }
           }
-          Builder.handleJumpDest(PC);
+          Builder.handleJumpDest(PC, HasLiveFallthrough);
           handleBeginBlock(Analyzer);
           Builder.meterOpcode(Opcode, PC);
           break;
@@ -816,9 +881,8 @@ private:
         handleEndBlock();
         handleStop();
       }
-    } catch (const common::Error &E) {
-      ZEN_UNREACHABLE();
-      return false;
+    } catch (const common::Error &) {
+      throw;
     }
     return true;
   }
@@ -874,8 +938,13 @@ private:
     CurBlockLinearPrecheckPlan = BlockLinearPrecheckPlan();
     if (Materialize) {
       if (CurrentBlockLifted) {
-        spillTrackedStackPreservingPrefix(Values,
-                                          CurrentBlockHiddenLiveInPrefixDepth);
+        // The lifted logical stack spans the full absolute entry depth
+        // (FullEntryStateDepth), including any hidden live-in prefix slots, so
+        // the spill base is the stack bottom: prefix 0. Spilling at Hidden*32
+        // would write the stack above its bottom and inflate the recorded
+        // StackSize by the prefix depth, causing spurious overflow traps and
+        // missed underflow traps in later blocks.
+        spillTrackedStackPreservingPrefix(Values, /*PrefixDepth=*/0);
       } else {
         for (const Operand &Opnd : Values) {
           Builder.stackPush(Opnd);
@@ -884,7 +953,6 @@ private:
     }
     InDeadCode = true;
     CurrentBlockLifted = false;
-    CurrentBlockHiddenLiveInPrefixDepth = 0;
   }
 
   bool tryGetConstantJumpSuccessorPC(const EVMAnalyzer &Analyzer,
@@ -1043,9 +1111,40 @@ private:
             CurBlockLinearPrecheckPlan.CoveredOpcode == OP_MSTORE);
       }
     }
+
+    LargeStaticWorkspaceVerifierResult LargeStaticWorkspace =
+        analyzeLargeStaticWorkspaceVerifier(Bytecode, BytecodeSize, PC);
+    if (hasLargeStaticWorkspaceVerifierResult(LargeStaticWorkspace)) {
+      Builder.noteLargeStaticWorkspaceVerifierResult(
+          LargeStaticWorkspace.Candidates,
+          LargeStaticWorkspace.VerifiedSegments,
+          LargeStaticWorkspace.VerifiedOps,
+          LargeStaticWorkspace.VerifiedMLoadOps,
+          LargeStaticWorkspace.VerifiedMStoreOps,
+          LargeStaticWorkspace.VerifiedMStore8Ops,
+          LargeStaticWorkspace.MaxRequiredSize, LargeStaticWorkspace.Rejected,
+          LargeStaticWorkspace.RejectDynamicOffset,
+          LargeStaticWorkspace.RejectUnknownBase,
+          LargeStaticWorkspace.RejectUnboundedInterval,
+          LargeStaticWorkspace.RejectOverflowRisk,
+          LargeStaticWorkspace.RejectSideEffect,
+          LargeStaticWorkspace.RejectHelperByteExactRisk,
+          LargeStaticWorkspace.RejectTooFewOps);
+    }
+#ifdef ZEN_ENABLE_EVM_MEM_LARGE_STATIC_WORKSPACE_LOWERING
+    if (LargeStaticWorkspace.HasLoweringPlan) {
+      Builder.setMemoryCompileBlockLargeStaticWorkspacePrecheckPlan(
+          LargeStaticWorkspace.LoweringFirstPC,
+          LargeStaticWorkspace.LoweringLastPC,
+          LargeStaticWorkspace.LoweringMaxRequiredSize,
+          LargeStaticWorkspace.LoweringCoveredOps,
+          LargeStaticWorkspace.LoweringCoveredMLoadOps,
+          LargeStaticWorkspace.LoweringCoveredMStoreOps,
+          LargeStaticWorkspace.LoweringCoveredMStore8Ops);
+    }
+#endif // ZEN_ENABLE_EVM_MEM_LARGE_STATIC_WORKSPACE_LOWERING
     const auto &BlockInfo = BlockInfos.at(PC);
     CurrentBlockEntryPC = PC;
-    CurrentBlockHiddenLiveInPrefixDepth = 0;
     registerCurrentBlockPC(PC);
     bool LiftedBlock = isLiftedBlock(PC);
     if (LiftedBlock && !validateLiftedBlockStackBounds(BlockInfo)) {
@@ -1072,10 +1171,29 @@ private:
 
     if (LiftedBlock) {
       CurrentBlockLifted = true;
-      CurrentBlockHiddenLiveInPrefixDepth =
-          static_cast<uint32_t>(std::max(BlockInfo.HiddenLiveInPrefixDepth, 0));
       materializeLiftedBlockMergeRequests(PC, BlockInfo);
       restoreLiftedBlockLogicalEntryState(PC);
+#ifndef NDEBUG
+      // Debug invariant: a lifted block's logical entry state must be fully
+      // materialized before its body is compiled. StackLifter.hasCompleteEntry-
+      // State() cannot be a hard assertion here: on a single linear pass a
+      // lifted loop header is begun before its back-edge predecessor is
+      // visited, and a lifted JUMPDEST reached only from dead code is never
+      // assigned, so ExpectedIncomingCount legitimately exceeds the arrived
+      // edges. The sound begin-time property is that the entry stack the body
+      // consumes has the resolved full depth with every slot defined.
+      {
+        const std::vector<Operand> LogicalEntry =
+            StackLifter.getLogicalEntryState(PC);
+        ZEN_ASSERT(static_cast<int32_t>(LogicalEntry.size()) ==
+                       std::max(BlockInfo.FullEntryStateDepth, 0) &&
+                   "lifted block entry-state depth mismatch at block begin");
+        for (const Operand &Slot : LogicalEntry) {
+          ZEN_ASSERT(!Slot.isEmpty() && "lifted block entry-state slot is "
+                                        "undefined at block begin");
+        }
+      }
+#endif
       return;
     }
 
@@ -1180,6 +1298,12 @@ private:
     }
     Result = LHS + RHS;
     return true;
+  }
+
+  static bool hasLargeStaticWorkspaceVerifierResult(
+      const LargeStaticWorkspaceVerifierResult &Result) {
+    return Result.Candidates != 0 || Result.VerifiedSegments != 0 ||
+           Result.Rejected != 0;
   }
 
   static bool parsePushConstU64(const Byte *Bytecode, size_t BytecodeSize,
@@ -1337,6 +1461,47 @@ private:
     return Plan;
   }
 
+  BlockLinearPrecheckPlan analyzeLinearMstore8DirectMemoryBlockPrecheck(
+      const Byte *Bytecode, size_t BytecodeSize, uint64_t EntryPC) {
+    uint64_t ScanPC = 0;
+    if (!consumeLinearRecurrencePrefix(Bytecode, BytecodeSize, EntryPC,
+                                       ScanPC)) {
+      return {};
+    }
+
+    uint64_t CoveredDirectOps = 0;
+    while (ScanPC < BytecodeSize) {
+      evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[ScanPC]);
+      if (Opcode == OP_JUMPDEST || isBlockTerminatorOpcode(Opcode)) {
+        break;
+      }
+
+      uint64_t MotifPC = ScanPC;
+      if (!consumeExpectedOpcode(Bytecode, BytecodeSize, MotifPC, OP_DUP1) ||
+          !consumeExpectedOpcode(Bytecode, BytecodeSize, MotifPC, OP_DUP1) ||
+          !consumeExpectedOpcode(Bytecode, BytecodeSize, MotifPC, OP_MSTORE8) ||
+          !consumeExpectedOpcode(Bytecode, BytecodeSize, MotifPC, OP_DUP2) ||
+          !consumeExpectedOpcode(Bytecode, BytecodeSize, MotifPC, OP_ADD)) {
+        return {};
+      }
+
+      ++CoveredDirectOps;
+      ScanPC = MotifPC;
+    }
+
+    if (CoveredDirectOps < 2) {
+      return {};
+    }
+
+    BlockLinearPrecheckPlan Plan;
+    Plan.Eligible = true;
+    Plan.CoveredOpcode = OP_MSTORE8;
+    Plan.AccessWidth = 1;
+    Plan.CoveredDirectOps = CoveredDirectOps;
+    Plan.StrideStackIndex = 3;
+    return Plan;
+  }
+
   BlockLinearPrecheckPlan analyzeLinearDirectMemoryBlockPrecheck(
       const Byte *Bytecode, size_t BytecodeSize, uint64_t EntryPC) {
     BlockLinearPrecheckPlan Plan = analyzeLinearMloadDirectMemoryBlockPrecheck(
@@ -1344,8 +1509,49 @@ private:
     if (Plan.Eligible) {
       return Plan;
     }
-    return analyzeLinearMstoreDirectMemoryBlockPrecheck(Bytecode, BytecodeSize,
+    Plan = analyzeLinearMstoreDirectMemoryBlockPrecheck(Bytecode, BytecodeSize,
                                                         EntryPC);
+    if (Plan.Eligible) {
+      return Plan;
+    }
+    return analyzeLinearMstore8DirectMemoryBlockPrecheck(Bytecode, BytecodeSize,
+                                                         EntryPC);
+  }
+
+  static bool isConstTwoWordKeccakHashPrepTail(
+      const std::vector<AbstractConstU64> &SimStack,
+      const BlockConstPrecheckPlan &Plan) {
+    // This only gates the direct-memory precheck. KECCAK itself still runs
+    // through the normal helper path.
+    if (Plan.CoveredDirectOps < 2 || SimStack.size() < 2) {
+      return false;
+    }
+
+    const AbstractConstU64 &Offset = SimStack.back();
+    const AbstractConstU64 &Length = SimStack[SimStack.size() - 2];
+    if (!Offset.Known || !Length.Known || Length.Value != 64) {
+      return false;
+    }
+
+    uint64_t RequiredSize = 0;
+    if (!addConstU64(Offset.Value, Length.Value, RequiredSize)) {
+      return false;
+    }
+
+    uint64_t SecondWordOffset = 0;
+    if (!addConstU64(Offset.Value, 32, SecondWordOffset)) {
+      return false;
+    }
+
+    bool HasFirstWordStore = false;
+    bool HasSecondWordStore = false;
+    for (uint64_t StoreOffset : Plan.WordStoreOffsets) {
+      HasFirstWordStore |= StoreOffset == Offset.Value;
+      HasSecondWordStore |= StoreOffset == SecondWordOffset;
+    }
+
+    return HasFirstWordStore && HasSecondWordStore &&
+           RequiredSize <= Plan.MaxRequiredSize;
   }
 
   void maybePrepareLinearBlockMemoryPrecheck(evmc_opcode Opcode) {
@@ -1356,6 +1562,477 @@ private:
     }
     Builder.prepareLinearBlockMemoryPrecheck(
         Stack.peek(CurBlockLinearPrecheckPlan.StrideStackIndex));
+  }
+
+  LargeStaticWorkspaceVerifierResult
+  analyzeLargeStaticWorkspaceVerifier(const Byte *Bytecode, size_t BytecodeSize,
+                                      uint64_t EntryPC) {
+    LargeStaticWorkspaceVerifierResult Result;
+    constexpr uint64_t InitialUnknownLiveIns = 128;
+    constexpr uint64_t MinVerifiedDirectOps = 16;
+
+    struct SegmentState {
+      bool Active = false;
+      bool DynamicOffset = false;
+      bool OverflowRisk = false;
+      uint64_t DirectOps = 0;
+      uint64_t MLoadOps = 0;
+      uint64_t MStoreOps = 0;
+      uint64_t MStore8Ops = 0;
+      uint64_t MaxRequiredSize = 0;
+      uint64_t FirstDirectPC = 0;
+      uint64_t LastDirectPC = 0;
+    };
+
+    enum class SegmentRejectReason : uint8_t {
+      None,
+      DynamicOffset,
+      UnknownBase,
+      OverflowRisk,
+      SideEffect,
+      HelperByteExactRisk,
+      TooFewOps,
+    };
+
+    std::vector<AbstractConstU64> SimStack(
+        static_cast<size_t>(InitialUnknownLiveIns), makeUnknownConstU64());
+    SegmentState Segment;
+
+    auto ResetSegment = [&]() { Segment = SegmentState(); };
+
+    auto FinalizeSegment = [&](SegmentRejectReason Reason) {
+      if (!Segment.Active || Segment.DirectOps == 0) {
+        ResetSegment();
+        return;
+      }
+
+      ++Result.Candidates;
+      SegmentRejectReason FinalReason = Reason;
+      if (FinalReason == SegmentRejectReason::None && Segment.DynamicOffset) {
+        FinalReason = SegmentRejectReason::DynamicOffset;
+      }
+      if (FinalReason == SegmentRejectReason::None && Segment.OverflowRisk) {
+        FinalReason = SegmentRejectReason::OverflowRisk;
+      }
+      if (FinalReason == SegmentRejectReason::None &&
+          Segment.DirectOps < MinVerifiedDirectOps) {
+        FinalReason = SegmentRejectReason::TooFewOps;
+      }
+
+      if (FinalReason == SegmentRejectReason::None) {
+        ++Result.VerifiedSegments;
+        Result.VerifiedOps += Segment.DirectOps;
+        Result.VerifiedMLoadOps += Segment.MLoadOps;
+        Result.VerifiedMStoreOps += Segment.MStoreOps;
+        Result.VerifiedMStore8Ops += Segment.MStore8Ops;
+        if (Segment.MaxRequiredSize > Result.MaxRequiredSize) {
+          Result.MaxRequiredSize = Segment.MaxRequiredSize;
+        }
+        if (!Result.HasLoweringPlan ||
+            Segment.DirectOps > Result.LoweringCoveredOps) {
+          Result.HasLoweringPlan = true;
+          Result.LoweringFirstPC = Segment.FirstDirectPC;
+          Result.LoweringLastPC = Segment.LastDirectPC;
+          Result.LoweringMaxRequiredSize = Segment.MaxRequiredSize;
+          Result.LoweringCoveredOps = Segment.DirectOps;
+          Result.LoweringCoveredMLoadOps = Segment.MLoadOps;
+          Result.LoweringCoveredMStoreOps = Segment.MStoreOps;
+          Result.LoweringCoveredMStore8Ops = Segment.MStore8Ops;
+        }
+      } else {
+        ++Result.Rejected;
+        switch (FinalReason) {
+        case SegmentRejectReason::DynamicOffset:
+          ++Result.RejectDynamicOffset;
+          break;
+        case SegmentRejectReason::UnknownBase:
+          ++Result.RejectUnknownBase;
+          break;
+        case SegmentRejectReason::OverflowRisk:
+          ++Result.RejectOverflowRisk;
+          break;
+        case SegmentRejectReason::SideEffect:
+          ++Result.RejectSideEffect;
+          break;
+        case SegmentRejectReason::HelperByteExactRisk:
+          ++Result.RejectHelperByteExactRisk;
+          break;
+        case SegmentRejectReason::TooFewOps:
+          ++Result.RejectTooFewOps;
+          break;
+        case SegmentRejectReason::None:
+          break;
+        }
+      }
+      ResetSegment();
+    };
+
+    auto EnsureStack = [&](size_t Count) {
+      while (SimStack.size() < Count) {
+        SimStack.insert(SimStack.begin(), makeUnknownConstU64());
+      }
+    };
+
+    auto Pop = [&]() {
+      EnsureStack(1);
+      AbstractConstU64 Value = SimStack.back();
+      SimStack.pop_back();
+      return Value;
+    };
+
+    auto Drop = [&](size_t Count) {
+      EnsureStack(Count);
+      while (Count-- != 0) {
+        SimStack.pop_back();
+      }
+    };
+
+    auto PushUnknown = [&]() { SimStack.push_back(makeUnknownConstU64()); };
+    auto PushConst = [&](uint64_t Value) {
+      SimStack.push_back(makeKnownConstU64(Value));
+    };
+
+    auto NoteDirectMemoryOp = [&](evmc_opcode Opcode, uint64_t OpPC,
+                                  AbstractConstU64 Offset, uint64_t Size) {
+      Segment.Active = true;
+      if (Segment.DirectOps == 0) {
+        Segment.FirstDirectPC = OpPC;
+      }
+      Segment.LastDirectPC = OpPC;
+      ++Segment.DirectOps;
+      switch (Opcode) {
+      case OP_MLOAD:
+        ++Segment.MLoadOps;
+        break;
+      case OP_MSTORE:
+        ++Segment.MStoreOps;
+        break;
+      case OP_MSTORE8:
+        ++Segment.MStore8Ops;
+        break;
+      default:
+        break;
+      }
+
+      if (!Offset.Known) {
+        Segment.DynamicOffset = true;
+        return;
+      }
+
+      uint64_t RequiredSize = 0;
+      if (!addConstU64(Offset.Value, Size, RequiredSize)) {
+        Segment.OverflowRisk = true;
+        return;
+      }
+      if (RequiredSize > Segment.MaxRequiredSize) {
+        Segment.MaxRequiredSize = RequiredSize;
+      }
+    };
+
+    auto HandleHelperSensitiveOpcode = [&](evmc_opcode Opcode) {
+      FinalizeSegment(SegmentRejectReason::None);
+      switch (Opcode) {
+      case OP_KECCAK256:
+        Drop(2);
+        PushUnknown();
+        break;
+      case OP_CALLDATACOPY:
+      case OP_CODECOPY:
+      case OP_RETURNDATACOPY:
+        Drop(3);
+        break;
+      case OP_EXTCODECOPY:
+        Drop(4);
+        break;
+      case OP_LOG0:
+        Drop(2);
+        break;
+      case OP_LOG1:
+        Drop(3);
+        break;
+      case OP_LOG2:
+        Drop(4);
+        break;
+      case OP_LOG3:
+        Drop(5);
+        break;
+      case OP_LOG4:
+        Drop(6);
+        break;
+      case OP_CREATE:
+        Drop(3);
+        PushUnknown();
+        break;
+      case OP_CREATE2:
+        Drop(4);
+        PushUnknown();
+        break;
+      case OP_CALL:
+      case OP_CALLCODE:
+        Drop(7);
+        PushUnknown();
+        break;
+      case OP_DELEGATECALL:
+      case OP_STATICCALL:
+        Drop(6);
+        PushUnknown();
+        break;
+      default:
+        break;
+      }
+    };
+
+    for (uint64_t ScanPC = EntryPC; ScanPC < BytecodeSize; ++ScanPC) {
+      evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[ScanPC]);
+      if (ScanPC != EntryPC && Opcode == OP_JUMPDEST) {
+        break;
+      }
+
+      if (isBlockTerminatorOpcode(Opcode)) {
+        FinalizeSegment(SegmentRejectReason::None);
+        break;
+      }
+
+      if (isHelperSensitiveOpcode(Opcode)) {
+        HandleHelperSensitiveOpcode(Opcode);
+        continue;
+      }
+
+      switch (Opcode) {
+      case OP_JUMPDEST:
+        break;
+      case OP_PUSH0:
+        PushConst(0);
+        break;
+      case OP_PUSH1:
+      case OP_PUSH2:
+      case OP_PUSH3:
+      case OP_PUSH4:
+      case OP_PUSH5:
+      case OP_PUSH6:
+      case OP_PUSH7:
+      case OP_PUSH8: {
+        uint8_t NumBytes =
+            static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+        uint64_t Value = 0;
+        if (!parsePushConstU64(Bytecode, BytecodeSize, ScanPC + 1, NumBytes,
+                               Value)) {
+          FinalizeSegment(SegmentRejectReason::UnknownBase);
+          return Result;
+        }
+        PushConst(Value);
+        ScanPC += NumBytes;
+        break;
+      }
+      case OP_PUSH9:
+      case OP_PUSH10:
+      case OP_PUSH11:
+      case OP_PUSH12:
+      case OP_PUSH13:
+      case OP_PUSH14:
+      case OP_PUSH15:
+      case OP_PUSH16:
+      case OP_PUSH17:
+      case OP_PUSH18:
+      case OP_PUSH19:
+      case OP_PUSH20:
+      case OP_PUSH21:
+      case OP_PUSH22:
+      case OP_PUSH23:
+      case OP_PUSH24:
+      case OP_PUSH25:
+      case OP_PUSH26:
+      case OP_PUSH27:
+      case OP_PUSH28:
+      case OP_PUSH29:
+      case OP_PUSH30:
+      case OP_PUSH31:
+      case OP_PUSH32: {
+        uint8_t NumBytes =
+            static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_PUSH0);
+        if (NumBytes > BytecodeSize - ScanPC - 1) {
+          FinalizeSegment(SegmentRejectReason::UnknownBase);
+          return Result;
+        }
+        ScanPC += NumBytes;
+        PushUnknown();
+        break;
+      }
+      case OP_DUP1:
+      case OP_DUP2:
+      case OP_DUP3:
+      case OP_DUP4:
+      case OP_DUP5:
+      case OP_DUP6:
+      case OP_DUP7:
+      case OP_DUP8:
+      case OP_DUP9:
+      case OP_DUP10:
+      case OP_DUP11:
+      case OP_DUP12:
+      case OP_DUP13:
+      case OP_DUP14:
+      case OP_DUP15:
+      case OP_DUP16: {
+        uint8_t Index =
+            static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_DUP1) + 1;
+        EnsureStack(Index);
+        SimStack.push_back(SimStack[SimStack.size() - Index]);
+        break;
+      }
+      case OP_SWAP1:
+      case OP_SWAP2:
+      case OP_SWAP3:
+      case OP_SWAP4:
+      case OP_SWAP5:
+      case OP_SWAP6:
+      case OP_SWAP7:
+      case OP_SWAP8:
+      case OP_SWAP9:
+      case OP_SWAP10:
+      case OP_SWAP11:
+      case OP_SWAP12:
+      case OP_SWAP13:
+      case OP_SWAP14:
+      case OP_SWAP15:
+      case OP_SWAP16: {
+        uint8_t Index =
+            static_cast<uint8_t>(Opcode) - static_cast<uint8_t>(OP_SWAP1) + 1;
+        EnsureStack(static_cast<size_t>(Index) + 1);
+        std::swap(SimStack.back(), SimStack[SimStack.size() - Index - 1]);
+        break;
+      }
+      case OP_POP:
+        Drop(1);
+        break;
+      case OP_ADD: {
+        AbstractConstU64 LHS = Pop();
+        AbstractConstU64 RHS = Pop();
+        uint64_t Sum = 0;
+        if (LHS.Known && RHS.Known && addConstU64(LHS.Value, RHS.Value, Sum)) {
+          PushConst(Sum);
+        } else {
+          PushUnknown();
+        }
+        break;
+      }
+      case OP_SUB: {
+        AbstractConstU64 LHS = Pop();
+        AbstractConstU64 RHS = Pop();
+        if (LHS.Known && RHS.Known && LHS.Value >= RHS.Value) {
+          PushConst(LHS.Value - RHS.Value);
+        } else {
+          PushUnknown();
+        }
+        break;
+      }
+      case OP_CALLDATALOAD:
+        Drop(1);
+        PushUnknown();
+        break;
+      case OP_CALLDATASIZE:
+      case OP_CODESIZE:
+      case OP_RETURNDATASIZE:
+      case OP_PC:
+      case OP_GAS:
+      case OP_ADDRESS:
+      case OP_ORIGIN:
+      case OP_CALLER:
+      case OP_CALLVALUE:
+      case OP_GASPRICE:
+      case OP_COINBASE:
+      case OP_TIMESTAMP:
+      case OP_NUMBER:
+      case OP_PREVRANDAO:
+      case OP_GASLIMIT:
+      case OP_CHAINID:
+      case OP_SELFBALANCE:
+      case OP_BASEFEE:
+      case OP_BLOBBASEFEE:
+        PushUnknown();
+        break;
+      case OP_ISZERO:
+      case OP_NOT:
+      case OP_BYTE:
+      case OP_BLOBHASH:
+      case OP_BALANCE:
+      case OP_EXTCODESIZE:
+      case OP_EXTCODEHASH:
+      case OP_BLOCKHASH:
+        Drop(1);
+        PushUnknown();
+        break;
+      case OP_MLOAD: {
+        AbstractConstU64 Offset = Pop();
+        NoteDirectMemoryOp(Opcode, ScanPC, Offset, 32);
+        PushUnknown();
+        break;
+      }
+      case OP_MSTORE: {
+        AbstractConstU64 Offset = Pop();
+        Drop(1);
+        NoteDirectMemoryOp(Opcode, ScanPC, Offset, 32);
+        break;
+      }
+      case OP_MSTORE8: {
+        AbstractConstU64 Offset = Pop();
+        Drop(1);
+        NoteDirectMemoryOp(Opcode, ScanPC, Offset, 1);
+        break;
+      }
+      case OP_MSIZE:
+        PushUnknown();
+        break;
+      case OP_MCOPY:
+        FinalizeSegment(SegmentRejectReason::HelperByteExactRisk);
+        Drop(3);
+        break;
+      case OP_SLOAD:
+      case OP_TLOAD:
+        FinalizeSegment(SegmentRejectReason::SideEffect);
+        Drop(1);
+        PushUnknown();
+        break;
+      case OP_SSTORE:
+      case OP_TSTORE:
+        FinalizeSegment(SegmentRejectReason::SideEffect);
+        Drop(2);
+        break;
+      case OP_MUL:
+      case OP_DIV:
+      case OP_SDIV:
+      case OP_MOD:
+      case OP_SMOD:
+      case OP_EXP:
+      case OP_SIGNEXTEND:
+      case OP_LT:
+      case OP_GT:
+      case OP_SLT:
+      case OP_SGT:
+      case OP_EQ:
+      case OP_AND:
+      case OP_OR:
+      case OP_XOR:
+      case OP_SHL:
+      case OP_SHR:
+      case OP_SAR:
+        Drop(2);
+        PushUnknown();
+        break;
+      case OP_ADDMOD:
+      case OP_MULMOD:
+        Drop(3);
+        PushUnknown();
+        break;
+      default:
+        FinalizeSegment(SegmentRejectReason::UnknownBase);
+        PushUnknown();
+        break;
+      }
+    }
+
+    FinalizeSegment(SegmentRejectReason::None);
+    return Result;
   }
 
   BlockConstPrecheckPlan
@@ -1369,6 +2046,13 @@ private:
       evmc_opcode Opcode = static_cast<evmc_opcode>(Bytecode[ScanPC]);
       if (ScanPC != EntryPC && Opcode == OP_JUMPDEST) {
         break;
+      }
+      if (Opcode == OP_KECCAK256) {
+        if (isConstTwoWordKeccakHashPrepTail(SimStack, Plan)) {
+          Plan.Eligible = true;
+          return Plan;
+        }
+        return {};
       }
       if (isHelperSensitiveOpcode(Opcode)) {
         return {};
@@ -1554,6 +2238,7 @@ private:
         }
         Plan.MaxRequiredSize = std::max(Plan.MaxRequiredSize, RequiredSize);
         Plan.CoveredDirectOps++;
+        Plan.WordStoreOffsets.push_back(Addr.Value);
         SawDirectMemory = true;
         break;
       }
@@ -1576,7 +2261,42 @@ private:
         SawDirectMemory = true;
         break;
       }
+      case OP_MCOPY: {
+        if (SimStack.size() < 3) {
+          return {};
+        }
+        AbstractConstU64 DestAddr = SimStack.back();
+        SimStack.pop_back();
+        AbstractConstU64 SrcAddr = SimStack.back();
+        SimStack.pop_back();
+        AbstractConstU64 Length = SimStack.back();
+        SimStack.pop_back();
+        if (!Length.Known) {
+          return {};
+        }
+        if (Length.Value == 0) {
+          break;
+        }
+        if (!DestAddr.Known || !SrcAddr.Known) {
+          return {};
+        }
+        uint64_t DestRequiredSize = 0;
+        uint64_t SrcRequiredSize = 0;
+        if (!addConstU64(DestAddr.Value, Length.Value, DestRequiredSize) ||
+            !addConstU64(SrcAddr.Value, Length.Value, SrcRequiredSize)) {
+          return {};
+        }
+        Plan.MaxRequiredSize = std::max(
+            Plan.MaxRequiredSize, std::max(DestRequiredSize, SrcRequiredSize));
+        Plan.CoveredDirectOps++;
+        SawDirectMemory = true;
+        break;
+      }
       case OP_MSIZE:
+        if (SawDirectMemory) {
+          Plan.Eligible = Plan.CoveredDirectOps >= 2;
+          return Plan;
+        }
         SimStack.push_back(makeUnknownConstU64());
         break;
       default:
@@ -1658,6 +2378,33 @@ private:
     push(Result);
   }
 
+  // Analyzer/codegen dispatch-consistency guard. Codegen emits the all-JUMPDEST
+  // indirect switch exactly when the JUMP/JUMPI dest operand is non-constant
+  // (evm_mir_compiler.cpp handleJump/handleJumpI else-branch). Soundness of
+  // Stage 2 lifting relies on that direction implying the analyzer marked this
+  // block dynamic (HasDynamicJump), which forces every JUMPDEST out of lifting.
+  // If the visitor hands a non-constant dest while the analyzer resolved the
+  // jump statically, the exclusion would not have fired and lifted JUMPDESTs
+  // could be miscompiled: fail the compile loudly instead. This is a hard
+  // check in every build configuration, not a debug-only assertion. It throws
+  // a Compilation-phase Error rather than aborting: evm_compiler.cpp's compile
+  // path catches std::exception and degrades to interpreter fallback, so a
+  // constant-tracking mismatch logs and falls back instead of killing the
+  // loading process. The invariant is config-independent and the check is
+  // cheap, so it stays active in every build.
+  void assertDynamicJumpConsistency(const EVMAnalyzer &Analyzer,
+                                    const Operand &Dest) const {
+    if (Dest.isConstant()) {
+      return;
+    }
+    const auto &BlockInfos = Analyzer.getBlockInfos();
+    auto It = BlockInfos.find(CurrentBlockEntryPC);
+    if (It == BlockInfos.end() || !It->second.HasDynamicJump) {
+      throw common::getError(
+          common::ErrorCode::EVMDynamicJumpConsistencyFailed);
+    }
+  }
+
   void handleJumpOpcode(EVMAnalyzer &Analyzer, Operand Dest) {
     uint64_t SuccPC = 0;
     bool HasLiftedSucc = tryAssignConstantJumpEntryState(Analyzer, Dest);
@@ -1671,17 +2418,20 @@ private:
           assignLiftedEntryState(SuccPC, OutgoingStack);
         }
         if (!HasKnownSucc) {
+          // SSA entry-state assignment is additive to materialization: lifted
+          // compatible targets keep their zero-reload SSA entry, while the
+          // materialized runtime stack backs non-lifted and out-of-model
+          // targets.
           assignCompatibleDynamicJumpRegionEntryStates(Analyzer, OutgoingStack);
         }
-        const bool HasCompatibleDynamicTargets =
-            !HasKnownSucc &&
-            !Analyzer
-                 .getCompatibleDynamicJumpTargetBlocksForSourceBlock(
-                     CurrentBlockEntryPC)
-                 .empty();
-        const bool NeedsRuntimeMaterialization =
-            (HasKnownSucc && !HasKnownLiftedSucc) ||
-            (!HasKnownSucc && !HasCompatibleDynamicTargets);
+        // A dynamic dispatch can land on any JUMPDEST via the jump table, so
+        // the runtime stack must be valid at every dynamic exit; a dynamic dest
+        // (!HasKnownSucc) therefore always materializes. Since
+        // HasKnownLiftedSucc == HasKnownSucc && isLiftedBlock(SuccPC), the
+        // condition (HasKnownSucc && !HasKnownLiftedSucc) || !HasKnownSucc
+        // reduces to !HasKnownLiftedSucc: materialize unless the dest is a
+        // known lifted successor.
+        const bool NeedsRuntimeMaterialization = !HasKnownLiftedSucc;
         finalizeBlockExit(std::move(OutgoingStack),
                           NeedsRuntimeMaterialization);
       } else {
@@ -1695,16 +2445,26 @@ private:
         assignLiftedEntryStateFromRuntime(Analyzer, SuccPC);
       }
     }
-    Builder.handleJump(Dest);
+    const auto DispatchCandidates =
+        Analyzer.getRuntimeDispatchCandidateTargetsForSourceBlock(
+            CurrentBlockEntryPC);
+    const auto *DispatchTargetPCs = DispatchCandidates.SafeForRuntimeDispatch
+                                        ? &DispatchCandidates.TargetBlocks
+                                        : nullptr;
+    assertDynamicJumpConsistency(Analyzer, Dest);
+    handleJumpCompat(Dest, DispatchTargetPCs);
   }
 
   void handleJumpIOpcode(EVMAnalyzer &Analyzer, Operand Dest, Operand Cond) {
     uint64_t JumpSuccPC = 0;
     bool HasJumpSucc =
         tryGetConstantJumpSuccessorPC(Analyzer, Dest, JumpSuccPC);
-    uint64_t FallthroughPC = PC + 1;
-    if (Analyzer.hasCanonicalJumpDest(FallthroughPC)) {
-      FallthroughPC = Analyzer.getCanonicalJumpDestPC(FallthroughPC);
+    const uint64_t RawFallthroughPC = PC + 1;
+    const bool FallthroughStartsAtJumpDest =
+        Analyzer.hasCanonicalJumpDest(RawFallthroughPC);
+    uint64_t FallthroughPC = RawFallthroughPC;
+    if (FallthroughStartsAtJumpDest) {
+      FallthroughPC = Analyzer.getCanonicalJumpDestPC(RawFallthroughPC);
     }
     bool CanLiftFallthrough =
         CurrentBlockLifted && isLiftedBlock(FallthroughPC);
@@ -1735,7 +2495,13 @@ private:
           assignCompatibleDynamicJumpRegionEntryStates(Analyzer, OutgoingStack);
         }
         bool NeedsRuntimeMaterialization = !CanPreassignFallthrough;
-        if (!NeedsRuntimeMaterialization && HasJumpSucc) {
+        if (!HasJumpSucc) {
+          // A dynamic dispatch can land on any JUMPDEST via the jump table, so
+          // the runtime stack must be valid at every dynamic exit. The taken
+          // edge of a dynamic-dest JUMPI forces materialization regardless of
+          // fallthrough liftability; SSA assignment above stays additive.
+          NeedsRuntimeMaterialization = true;
+        } else if (!NeedsRuntimeMaterialization) {
           NeedsRuntimeMaterialization = !CanPreassignJump;
         }
         finalizeBlockExit(std::move(OutgoingStack),
@@ -1754,9 +2520,24 @@ private:
         }
       }
     }
-    Builder.handleJumpI(Dest, Cond);
+    const auto DispatchCandidates =
+        Analyzer.getRuntimeDispatchCandidateTargetsForSourceBlock(
+            CurrentBlockEntryPC);
+    const auto *DispatchTargetPCs = DispatchCandidates.SafeForRuntimeDispatch
+                                        ? &DispatchCandidates.TargetBlocks
+                                        : nullptr;
+    assertDynamicJumpConsistency(Analyzer, Dest);
+    handleJumpICompat(Dest, Cond, DispatchTargetPCs);
     PC = FallthroughPC;
-    handleBeginBlock(Analyzer);
+    if (FallthroughStartsAtJumpDest && isLiftedBlock(FallthroughPC)) {
+      // handleJumpI leaves the builder in a one-predecessor staging BB. A
+      // lifted shared JUMPDEST must materialize its merge state in the
+      // canonical body instead, after the next decode iteration wires this
+      // fallthrough edge through handleJumpDest.
+      DeferredLiftedJumpDestFallthrough = true;
+    } else {
+      handleBeginBlock(Analyzer);
+    }
   }
 
   template <CompareOperator Opr> void handleCompare() {
@@ -2409,7 +3190,7 @@ private:
   uint64_t PC = 0;
   uint64_t CurrentBlockEntryPC = 0;
   bool CurrentBlockLifted = false;
-  uint32_t CurrentBlockHiddenLiveInPrefixDepth = 0;
+  bool DeferredLiftedJumpDestFallthrough = false;
 };
 
 } // namespace COMPILER

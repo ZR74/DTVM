@@ -14,6 +14,7 @@
 #include "evmc/instructions.h"
 #include "intx/intx.hpp"
 #include <algorithm>
+#include <map>
 #include <unordered_map>
 #include <vector>
 
@@ -136,6 +137,7 @@ public:
   /// U256 value representation as array of 4 x uint64_t
   using U256Value = std::array<uint64_t, EVM_ELEMENTS_COUNT>;
   using U256ConstInt = std::array<MConstantInt *, EVM_ELEMENTS_COUNT>;
+  using JumpTargetPCList = std::vector<uint64_t>;
 
   // Range classification for u256 operands.  Narrower ranges enable
   // single-instruction fast paths instead of expensive multi-limb arithmetic.
@@ -158,14 +160,15 @@ public:
 
     // Constructor for EVMU256Type with 4 I64 components
     Operand(U256Inst Components, EVMType Type)
-        : Type(Type), U256Components(Components), IsU256MultiComponent(true) {
+        : Type(Type), U256Components(Components), IsU256MultiComponent(true),
+          IsU256InstructionBacked(true) {
       ZEN_ASSERT(Type == EVMType::UINT256 && "Multi-component only for U256");
     }
 
     // Constructor for U256 multi-component with explicit range
     Operand(U256Inst Components, EVMType Type, ValueRange Range)
         : Type(Type), Range(Range), U256Components(Components),
-          IsU256MultiComponent(true) {
+          IsU256MultiComponent(true), IsU256InstructionBacked(true) {
       ZEN_ASSERT(Type == EVMType::UINT256 && "Multi-component only for U256");
     }
 
@@ -220,6 +223,7 @@ public:
     }
 
     bool isU256MultiComponent() const { return IsU256MultiComponent; }
+    bool isU256InstructionBacked() const { return IsU256InstructionBacked; }
     bool isConstant() const { return IsConstant; }
     bool isZeroConstant() const {
       return IsConstant && ConstValue[0] == 0 && ConstValue[1] == 0 &&
@@ -310,6 +314,7 @@ public:
     U256Value ConstValue = {};
     bool IsConstant = false;
     bool IsU256MultiComponent = false;
+    bool IsU256InstructionBacked = false;
     DeferredKind DeferredValueKind = DeferredKind::NONE;
     // Range of the base value of a deferred zero-test (the value being tested),
     // used to narrow the OR-fold when materialized.
@@ -329,7 +334,9 @@ public:
   // Complete jump implementation with jump table
   void createJumpTable();
   void implementConstantJump(uint64_t ConstDest, MBasicBlock *FailureBB);
-  void implementIndirectJump(MInstruction *JumpTarget, MBasicBlock *FailureBB);
+  void
+  implementIndirectJump(MInstruction *JumpTarget, MBasicBlock *FailureBB,
+                        const JumpTargetPCList *CandidateTargets = nullptr);
 
   void releaseOperand(Operand Opnd) {}
 
@@ -366,9 +373,11 @@ public:
 
   void handleStop();
   void handleVoidReturn();
-  void handleJump(Operand Dest);
-  void handleJumpI(Operand Dest, Operand Cond);
-  void handleJumpDest(const uint64_t &PC);
+  void handleJump(Operand Dest,
+                  const JumpTargetPCList *CandidateTargets = nullptr);
+  void handleJumpI(Operand Dest, Operand Cond,
+                   const JumpTargetPCList *CandidateTargets = nullptr);
+  void handleJumpDest(const uint64_t &PC, bool HasLiveFallthrough);
 
   // ==================== Arithmetic Instruction Handlers ====================
 
@@ -1016,6 +1025,18 @@ public:
   setMemoryCompileBlockLinearPrecheckPlan(uint64_t AccessWidth,
                                           uint64_t CoveredDirectOps,
                                           bool ValueEqualsFirstAddr = false);
+  void noteLargeStaticWorkspaceVerifierResult(
+      uint64_t Candidates, uint64_t VerifiedSegments, uint64_t VerifiedOps,
+      uint64_t VerifiedMLoadOps, uint64_t VerifiedMStoreOps,
+      uint64_t VerifiedMStore8Ops, uint64_t MaxRequiredSize, uint64_t Rejected,
+      uint64_t RejectDynamicOffset, uint64_t RejectUnknownBase,
+      uint64_t RejectUnboundedInterval, uint64_t RejectOverflowRisk,
+      uint64_t RejectSideEffect, uint64_t RejectHelperByteExactRisk,
+      uint64_t RejectTooFewOps);
+  void setMemoryCompileBlockLargeStaticWorkspacePrecheckPlan(
+      uint64_t FirstCoveredPC, uint64_t LastCoveredPC, uint64_t MaxRequiredSize,
+      uint64_t CoveredDirectOps, uint64_t CoveredMLoadOps,
+      uint64_t CoveredMStoreOps, uint64_t CoveredMStore8Ops);
   void prepareLinearBlockMemoryPrecheck(Operand StrideComponents);
   void noteMemoryOpcodeInBlock(evmc_opcode Opcode, uint64_t PC);
   void noteHelperOpcodeInBlock(evmc_opcode Opcode, uint64_t PC);
@@ -1300,7 +1321,9 @@ private:
   void normalizeOperandU64NonConst(Operand &Param, uint64_t *Value = nullptr);
   MInstruction *anchorDirectMemoryPointer(MInstruction *Ptr);
   MInstruction *extractKnownU64LowOperand(const Operand &Opnd);
+  void checkStaticModeIR();
   void normalizeOffsetWithSize(Operand &Offset, Operand &Size);
+  void preExpandMemoryRange(Operand &Offset, Operand &Size);
 
   Operand convertSingleInstrToU256Operand(MInstruction *SingleInstr);
   Operand convertU256InstrToU256Operand(MInstruction *U256Instr);
@@ -1320,7 +1343,14 @@ private:
   template <size_t N>
   U256Inst convertOperandToUNInstruction(const Operand &Param);
 
-  MBasicBlock *getOrCreateIndirectJumpBB(uint64_t SourceBlockPC);
+  MBasicBlock *
+  getOrCreateIndirectJumpBB(uint64_t SourceBlockPC,
+                            const JumpTargetPCList *CandidateTargets = nullptr);
+  MBasicBlock *getOrCreateSharedIndirectJumpBB();
+  MBasicBlock *buildIndirectJumpBB(uint64_t SourceBlockPC,
+                                   const JumpTargetPCList *CandidateTargets,
+                                   bool RegisterDynamicPhi);
+  bool shouldUseSharedDynamicDispatch() const;
   void linkJumpDestEntryThunkIfNeeded(MBasicBlock *TargetBB);
   void registerPhiIncomingBlock(uint64_t TargetBlockPC, uint64_t PredBlockPC,
                                 MBasicBlock *PredBB);
@@ -1378,6 +1408,7 @@ private:
   uint64_t HashMask = 0;
   Variable *JumpTargetVar = nullptr;
   std::map<uint64_t, MBasicBlock *> IndirectJumpBBs;
+  MBasicBlock *SharedIndirectJumpBB = nullptr;
 
   // Stack check block for stack overflow/underflow checking
   MBasicBlock *StackCheckBB = nullptr;
@@ -1412,6 +1443,7 @@ private:
     uint64_t BlockLinearPrecheckCount = 0;
     uint64_t PrecheckedMLoadOpCount = 0;
     uint64_t PrecheckedMStoreOpCount = 0;
+    uint64_t PrecheckedMCopyOpCount = 0;
     uint64_t MStoreAddrValueAliasReuseCount = 0;
     uint64_t LinearU64AddrFastPathCount = 0;
     uint64_t LinearU64MLoadFastPathCount = 0;
@@ -1517,6 +1549,32 @@ private:
     uint64_t MulU128OpportunityCount = 0;
     uint64_t DivU128OpportunityCount = 0;
     uint64_t ModU128OpportunityCount = 0;
+
+    uint64_t LargeStaticWorkspaceCandidateCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedSegmentCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedOpCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedMLoadOpCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedMStoreOpCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedMStore8OpCount = 0;
+    uint64_t LargeStaticWorkspaceMaxRequiredSize = 0;
+    uint64_t LargeStaticWorkspaceRejectedCount = 0;
+    uint64_t LargeStaticWorkspaceRejectDynamicOffset = 0;
+    uint64_t LargeStaticWorkspaceRejectUnknownBase = 0;
+    uint64_t LargeStaticWorkspaceRejectUnboundedInterval = 0;
+    uint64_t LargeStaticWorkspaceRejectOverflowRisk = 0;
+    uint64_t LargeStaticWorkspaceRejectSideEffect = 0;
+    uint64_t LargeStaticWorkspaceRejectHelperByteExactRisk = 0;
+    uint64_t LargeStaticWorkspaceRejectTooFewOps = 0;
+    uint64_t LargeStaticWorkspaceLoweringCandidateCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringEnabledRegionCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringPrecheckedOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringPrecheckedMLoadOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringPrecheckedMStoreOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringDispMLoadOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringDispMStoreOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringFallbackRegionCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringDisabledByGateCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringUnsafePrecheckPositionCount = 0;
   };
   bool hasMemoryCompileStats() const;
   bool hasArithCompileStats() const;
@@ -1558,6 +1616,7 @@ private:
     uint64_t PrecheckedDirectOpCount = 0;
     uint64_t PrecheckedMLoadOpCount = 0;
     uint64_t PrecheckedMStoreOpCount = 0;
+    uint64_t PrecheckedMCopyOpCount = 0;
     uint64_t MStoreAddrValueAliasReuseCount = 0;
     uint64_t LinearU64AddrFastPathCount = 0;
     uint64_t LinearU64MLoadFastPathCount = 0;
@@ -1608,6 +1667,32 @@ private:
     uint64_t HashPrepMarkerCoveredMLoadOpCount = 0;
     uint64_t HashPrepMarkerCoveredKeccakOpCount = 0;
     uint64_t HashPrepMarkerRejectedReason = 0;
+
+    uint64_t LargeStaticWorkspaceCandidateCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedSegmentCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedOpCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedMLoadOpCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedMStoreOpCount = 0;
+    uint64_t LargeStaticWorkspaceVerifiedMStore8OpCount = 0;
+    uint64_t LargeStaticWorkspaceMaxRequiredSize = 0;
+    uint64_t LargeStaticWorkspaceRejectedCount = 0;
+    uint64_t LargeStaticWorkspaceRejectDynamicOffset = 0;
+    uint64_t LargeStaticWorkspaceRejectUnknownBase = 0;
+    uint64_t LargeStaticWorkspaceRejectUnboundedInterval = 0;
+    uint64_t LargeStaticWorkspaceRejectOverflowRisk = 0;
+    uint64_t LargeStaticWorkspaceRejectSideEffect = 0;
+    uint64_t LargeStaticWorkspaceRejectHelperByteExactRisk = 0;
+    uint64_t LargeStaticWorkspaceRejectTooFewOps = 0;
+    uint64_t LargeStaticWorkspaceLoweringCandidateCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringEnabledRegionCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringPrecheckedOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringPrecheckedMLoadOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringPrecheckedMStoreOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringDispMLoadOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringDispMStoreOpCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringFallbackRegionCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringDisabledByGateCount = 0;
+    uint64_t LargeStaticWorkspaceLoweringUnsafePrecheckPositionCount = 0;
   };
   void noteBlockMemoryEventPC(uint64_t PC);
   bool hasCurrentMemoryBlockStats() const;
@@ -1630,9 +1715,28 @@ private:
     uint64_t CoveredDirectOpsRemaining = 0;
     Operand PendingStrideComponents;
   };
+  struct MemoryBlockLargeStaticWorkspacePrecheckPlan {
+    bool Active = false;
+    bool Emitted = false;
+    bool FallbackCounted = false;
+    bool HasAnchoredBasePtr = false;
+    uint64_t FirstCoveredPC = 0;
+    uint64_t LastCoveredPC = 0;
+    uint64_t MaxRequiredSize = 0;
+    uint64_t CoveredDirectOpsTotal = 0;
+    uint64_t CoveredDirectOpsRemaining = 0;
+    uint64_t CoveredMLoadOpsTotal = 0;
+    uint64_t CoveredMStoreOpsTotal = 0;
+    uint64_t CoveredMStore8OpsTotal = 0;
+    Variable *AnchoredBasePtrVar = nullptr;
+  };
   bool tryConsumeConstBlockMemoryPrecheck();
   bool tryConsumeLinearBlockMemoryPrecheck(MInstruction *FirstAddr,
                                            MInstruction *OrderingDep);
+  bool tryConsumeLargeStaticWorkspacePrecheck(evmc_opcode Opcode,
+                                              bool OffsetWasConst,
+                                              uint64_t ConstOffset,
+                                              uint64_t AccessSize);
   uint64_t NextHashPrepMarkerId = 0;
   enum class SmallFrameMemoryOp : uint8_t { MLoad, MStore, MStore8 };
   void noteSmallFrameMemoryOp(SmallFrameMemoryOp Op, bool OffsetWasConst,
@@ -1641,18 +1745,27 @@ private:
   void noteKeccak256MemoryAccess(bool OffsetWasConstU64, uint64_t ConstOffset,
                                  bool LengthWasConstU64, uint64_t ConstLength);
   uint64_t NextMemoryBlockSeqId = 0;
+  uint64_t CurrentMemoryOpPC = 0;
   MemoryBlockCompileStats CurBlockMemStats;
   MemoryBlockConstPrecheckPlan CurBlockConstPrecheckPlan;
   MemoryBlockLinearPrecheckPlan CurBlockLinearPrecheckPlan;
+  MemoryBlockLargeStaticWorkspacePrecheckPlan
+      CurBlockLargeStaticWorkspacePrecheckPlan;
 
   // Helper methods for memory operations
   MInstruction *getMemoryDataPointer();
   MInstruction *getDirectMemoryDataPointer(bool PreferCachedBase);
   MInstruction *getConstBlockDirectMemoryBasePtr();
+  MInstruction *getLargeStaticWorkspaceDirectMemoryBasePtr();
   MInstruction *getMemorySize();
   void reloadMemorySizeFromInstance();
   void expandMemoryIR(MInstruction *RequiredSize, MInstruction *Overflow);
+  void preExpandKeccakTwoWordMemory(Operand &OffsetComponents);
+  void preExpandCopyMemory(Operand &DestOffsetComponents,
+                           Operand &SizeComponents);
+  void chargeWordCopyGasIR(MInstruction *Size);
   void chargeDynamicGasIR(MInstruction *GasCost);
+  void chargeKeccakWordGasIR(MInstruction *Length);
   void chargeMemoryExpansionGasIR(MInstruction *CurrentSize,
                                   MInstruction *NewSize);
   MInstruction *calculateMemoryGasCostIR(MInstruction *SizeInBytes);

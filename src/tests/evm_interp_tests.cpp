@@ -269,10 +269,23 @@ std::string computeTwoWordKeccakHex(const std::vector<uint8_t> &Word0,
   return zen::utils::toHex(Hash.data(), Hash.size());
 }
 
+std::string computeKeccakHex(const std::vector<uint8_t> &Input) {
+  const auto Hash = zen::host::evm::crypto::keccak256(Input);
+  return zen::utils::toHex(Hash.data(), Hash.size());
+}
+
 std::vector<uint8_t> makePaddedAddressWord(const evmc::address &Address) {
   std::vector<uint8_t> Word(32, 0);
   std::memcpy(Word.data() + 12, Address.bytes, sizeof(Address.bytes));
   return Word;
+}
+
+std::vector<uint8_t> makeIncrementingBytes(size_t Size) {
+  std::vector<uint8_t> Data(Size);
+  for (size_t I = 0; I < Data.size(); ++I) {
+    Data[I] = static_cast<uint8_t>(I);
+  }
+  return Data;
 }
 
 void expectInterpMatchesMultipass(const std::string &ModuleName,
@@ -623,6 +636,74 @@ TEST(EVMMultipassDisplacedBytes32Test,
   EXPECT_EQ(Exec.Status, EVMC_OUT_OF_GAS);
 }
 
+TEST(EVMMultipassCopyHelperTest,
+     CallDataCopyMatchesInterpreterAfterMemoryPreExpand) {
+  auto BytecodeBuf = zen::utils::fromHex("6030601060203760406020f3");
+  ASSERT_TRUE(BytecodeBuf) << "Failed to parse calldata-copy bytecode";
+
+  const std::vector<uint8_t> CallData = makeIncrementingBytes(80);
+  std::vector<uint8_t> ExpectedOutput;
+  ExpectedOutput.insert(ExpectedOutput.end(), CallData.begin() + 16,
+                        CallData.begin() + 64);
+  ExpectedOutput.resize(64, 0);
+
+  expectInterpMatchesMultipass(
+      "calldatacopy_preexpand", *BytecodeBuf, CallData, EVMC_SUCCESS,
+      zen::utils::toHex(ExpectedOutput.data(), ExpectedOutput.size()));
+}
+
+TEST(EVMMultipassCopyHelperTest,
+     CallDataCopyZeroSizeWithOversizedDestRemainsNoOp) {
+  auto BytecodeBuf = zen::utils::fromHex(
+      "60006000"
+      "7f0100000000000000000000000000000000000000000000000000000000000000"
+      "3760006000f3");
+  ASSERT_TRUE(BytecodeBuf)
+      << "Failed to parse zero-size calldata-copy bytecode";
+
+  expectInterpMatchesMultipass("calldatacopy_zero_size_oversized_dest",
+                               *BytecodeBuf, {}, EVMC_SUCCESS);
+}
+
+TEST(EVMMultipassCopyHelperTest,
+     CallDataCopyNonZeroSizeWithOversizedDestReturnsOutOfGas) {
+  auto BytecodeBuf = zen::utils::fromHex(
+      "60016000"
+      "7f0100000000000000000000000000000000000000000000000000000000000000"
+      "3700");
+  ASSERT_TRUE(BytecodeBuf)
+      << "Failed to parse oversized calldata-copy bytecode";
+
+  expectInterpMatchesMultipass("calldatacopy_nonzero_size_oversized_dest",
+                               *BytecodeBuf, {}, EVMC_OUT_OF_GAS);
+}
+
+TEST(EVMMultipassCopyHelperTest,
+     CodeCopyMatchesInterpreterAfterMemoryPreExpand) {
+  auto BytecodeBuf = zen::utils::fromHex("6008600060003960206000f3");
+  ASSERT_TRUE(BytecodeBuf) << "Failed to parse code-copy bytecode";
+
+  std::vector<uint8_t> ExpectedOutput = {0x60, 0x08, 0x60, 0x00,
+                                         0x60, 0x00, 0x39, 0x60};
+  ExpectedOutput.resize(32, 0);
+
+  expectInterpMatchesMultipass(
+      "codecopy_preexpand", *BytecodeBuf, {}, EVMC_SUCCESS,
+      zen::utils::toHex(ExpectedOutput.data(), ExpectedOutput.size()));
+}
+
+TEST(EVMMultipassCopyHelperTest,
+     CodeCopyNonZeroSizeWithOversizedDestReturnsOutOfGas) {
+  auto BytecodeBuf = zen::utils::fromHex(
+      "60016000"
+      "7f0100000000000000000000000000000000000000000000000000000000000000"
+      "3900");
+  ASSERT_TRUE(BytecodeBuf) << "Failed to parse oversized code-copy bytecode";
+
+  expectInterpMatchesMultipass("codecopy_nonzero_size_oversized_dest",
+                               *BytecodeBuf, {}, EVMC_OUT_OF_GAS);
+}
+
 TEST(EVMMultipassKeccakHelperTest,
      CallerConstSlotHelperMatchesInterpreterAndExpectedDigest) {
   auto BytecodeBuf =
@@ -651,6 +732,22 @@ TEST(EVMMultipassKeccakHelperTest,
 }
 
 TEST(EVMMultipassKeccakHelperTest,
+     CallDataConstSlotHelperMatchesInterpreterWithNonZeroStagingBase) {
+  auto BytecodeBuf =
+      zen::utils::fromHex("6000356040526007606052604060402060005260206000f3");
+  ASSERT_TRUE(BytecodeBuf)
+      << "Failed to parse calldata-slot nonzero-base bytecode";
+
+  const std::vector<uint8_t> CallData = makeUint256Calldata(0x1234);
+  const std::string ExpectedDigest =
+      computeTwoWordKeccakHex(CallData, makeUint256Calldata(7));
+
+  expectInterpMatchesMultipass("keccak_calldata_const_slot_nonzero_base",
+                               *BytecodeBuf, CallData, EVMC_SUCCESS,
+                               ExpectedDigest);
+}
+
+TEST(EVMMultipassKeccakHelperTest,
      CallerConstSlotHelperPreservesMemoryExpansionFailureSemantics) {
   auto BytecodeBuf = zen::utils::fromHex(
       "3362ffffe0526005630100000052604062ffffe02060005260206000f3");
@@ -659,6 +756,69 @@ TEST(EVMMultipassKeccakHelperTest,
 
   expectInterpMatchesMultipass("keccak_caller_const_slot_mem_oog", *BytecodeBuf,
                                {}, EVMC_OUT_OF_GAS);
+}
+
+TEST(EVMMultipassKeccakHelperTest,
+     CallDataConstSlotHelperPreservesMemoryExpansionFailureSemantics) {
+  auto BytecodeBuf = zen::utils::fromHex(
+      "60003562ffffe0526005630100000052604062ffffe02060005260206000f3");
+  ASSERT_TRUE(BytecodeBuf)
+      << "Failed to parse calldata-slot memory edge bytecode";
+
+  expectInterpMatchesMultipass("keccak_calldata_const_slot_mem_oog",
+                               *BytecodeBuf, makeUint256Calldata(0x1234),
+                               EVMC_OUT_OF_GAS);
+}
+
+TEST(EVMMultipassKeccakHelperTest,
+     GenericKeccakPreExpandMatchesInterpreterAndExpectedDigest) {
+  std::vector<uint8_t> Word(32);
+  for (size_t I = 0; I < Word.size(); ++I) {
+    Word[I] = static_cast<uint8_t>(I);
+  }
+
+  std::vector<uint8_t> Bytecode = {0x7f};
+  Bytecode.insert(Bytecode.end(), Word.begin(), Word.end());
+  const std::vector<uint8_t> Suffix = {
+      0x60, 0x00, 0x52,       // MSTORE word at memory offset 0.
+      0x60, 0x30, 0x60, 0x00, // KECCAK256 memory[0:48].
+      0x20, 0x60, 0x00, 0x52, // Store digest at memory offset 0.
+      0x60, 0x20, 0x60, 0x00, 0xf3};
+  Bytecode.insert(Bytecode.end(), Suffix.begin(), Suffix.end());
+
+  std::vector<uint8_t> KeccakInput = Word;
+  KeccakInput.insert(KeccakInput.end(), 16, 0);
+  const std::string ExpectedDigest = computeKeccakHex(KeccakInput);
+
+  expectInterpMatchesMultipass("keccak_generic_preexpand_48", Bytecode, {},
+                               EVMC_SUCCESS, ExpectedDigest);
+}
+
+TEST(EVMMultipassKeccakHelperTest,
+     GenericKeccakZeroLengthAllowsOversizedOffset) {
+  std::vector<uint8_t> Bytecode = {0x60, 0x00, 0x7f, 0x01};
+  Bytecode.insert(Bytecode.end(), 31, 0x00);
+  const std::vector<uint8_t> Suffix = {0x20, 0x60, 0x00, 0x52,
+                                       0x60, 0x20, 0x60, 0x00};
+  Bytecode.insert(Bytecode.end(), Suffix.begin(), Suffix.end());
+  Bytecode.push_back(0xf3);
+
+  const std::vector<uint8_t> EmptyInput;
+  const std::string ExpectedDigest = computeKeccakHex(EmptyInput);
+
+  expectInterpMatchesMultipass("keccak_zero_size_oversized_offset", Bytecode,
+                               {}, EVMC_SUCCESS, ExpectedDigest);
+}
+
+TEST(EVMMultipassKeccakHelperTest,
+     GenericKeccakNonZeroLengthRejectsOversizedOffset) {
+  std::vector<uint8_t> Bytecode = {0x60, 0x01, 0x7f, 0x01};
+  Bytecode.insert(Bytecode.end(), 31, 0x00);
+  Bytecode.push_back(0x20);
+  Bytecode.push_back(0x00);
+
+  expectInterpMatchesMultipass("keccak_nonzero_oversized_offset", Bytecode, {},
+                               EVMC_OUT_OF_GAS);
 }
 
 TEST(EVMMultipassJumpRegressionTest, InvalidJumpDestStillMatchesInterpreter) {

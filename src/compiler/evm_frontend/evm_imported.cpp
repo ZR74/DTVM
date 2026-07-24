@@ -98,6 +98,11 @@ inline uint64_t calculateWordCopyGas(uint64_t Size) {
   return Words * static_cast<uint64_t>(zen::evm::WORD_COPY_COST);
 }
 
+bool chargeKeccakWordGas(zen::runtime::EVMInstance *Instance, uint64_t Length) {
+  const uint64_t ExtraGas = static_cast<uint64_t>(numWords(Length)) * 6;
+  return Instance->chargeGas(ExtraGas);
+}
+
 const uint8_t *cacheKeccak256Result(zen::runtime::EVMInstance *Instance,
                                     const uint8_t *InputData, uint64_t Length) {
   auto &ExecCache = Instance->getMessageCache();
@@ -132,6 +137,23 @@ bool prepareKeccakMemoryRange(zen::runtime::EVMInstance *Instance,
 void storeWordToMemory(uint8_t *Dst, const intx::uint256 &Word) {
   const auto Bytes = intx::be::store<evmc::bytes32>(Word);
   std::memcpy(Dst, Bytes.bytes, sizeof(Bytes.bytes));
+}
+
+const uint8_t *hashPreparedKeccakTwoWord(zen::runtime::EVMInstance *Instance,
+                                         uint8_t *MemoryBase, uint64_t Offset,
+                                         const intx::uint256 &Word0,
+                                         const intx::uint256 &Word1) {
+  constexpr uint64_t KeccakTwoWordLength = 64;
+  ZEN_ASSERT(MemoryBase);
+  storeWordToMemory(MemoryBase + Offset, Word0);
+  storeWordToMemory(MemoryBase + Offset + 32, Word1);
+  const uint64_t ExtraGas =
+      static_cast<uint64_t>(numWords(KeccakTwoWordLength)) * 6;
+  if (!Instance->chargeGas(ExtraGas)) {
+    return nullptr;
+  }
+  return cacheKeccak256Result(Instance, MemoryBase + Offset,
+                              KeccakTwoWordLength);
 }
 
 inline void triggerStaticModeViolation(zen::runtime::EVMInstance *Instance) {
@@ -195,6 +217,7 @@ const RuntimeFunctions &getRuntimeFunctionTable() {
       .GetCallDataSize = &evmGetCallDataSize,
       .GetCodeSize = &evmGetCodeSize,
       .SetCodeCopy = &evmSetCodeCopy,
+      .SetCodeCopyNoExpand = &evmSetCodeCopyNoExpand,
       .GetGasPrice = &evmGetGasPrice,
       .GetExtCodeSize = &evmGetExtCodeSize,
       .GetExtCodeHash = &evmGetExtCodeHash,
@@ -216,6 +239,8 @@ const RuntimeFunctions &getRuntimeFunctionTable() {
       .GetTLoad = &evmGetTLoad,
       .SetTStore = &evmSetTStore,
       .SetCallDataCopy = &evmSetCallDataCopy,
+      .TouchExtCodeCopyAccount = &evmTouchExtCodeCopyAccount,
+      .SetCallDataCopyNoExpand = &evmSetCallDataCopyNoExpand,
       .SetExtCodeCopy = &evmSetExtCodeCopy,
       .SetReturnDataCopy = &evmSetReturnDataCopy,
       .ExpandMemoryNoGas = &evmExpandMemoryNoGas,
@@ -225,21 +250,32 @@ const RuntimeFunctions &getRuntimeFunctionTable() {
       .EmitLog2 = &evmEmitLog2,
       .EmitLog3 = &evmEmitLog3,
       .EmitLog4 = &evmEmitLog4,
+      .EmitLog0NoExpand = &evmEmitLog0NoExpand,
+      .EmitLog1NoExpand = &evmEmitLog1NoExpand,
+      .EmitLog2NoExpand = &evmEmitLog2NoExpand,
+      .EmitLog3NoExpand = &evmEmitLog3NoExpand,
+      .EmitLog4NoExpand = &evmEmitLog4NoExpand,
       .HandleCreate = &evmHandleCreate,
       .HandleCreate2 = &evmHandleCreate2,
       .HandleCall = &evmHandleCall,
       .HandleCallCode = &evmHandleCallCode,
       .SetReturn = &evmSetReturn,
+      .SetReturnNoExpand = &evmSetReturnNoExpand,
       .HandleDelegateCall = &evmHandleDelegateCall,
       .HandleStaticCall = &evmHandleStaticCall,
       .SetRevert = &evmSetRevert,
+      .SetRevertNoExpand = &evmSetRevertNoExpand,
       .HandleInvalid = &evmHandleInvalid,
       .HandleUndefined = &evmHandleUndefined,
       .HandleSelfDestruct = &evmHandleSelfDestruct,
       .GetKeccak256 = &evmGetKeccak256,
+      .GetKeccak256NoExpand = &evmGetKeccak256NoExpand,
       .GetKeccak256TwoWord = &evmGetKeccak256TwoWord,
+      .GetKeccak256TwoWordNoExpand = &evmGetKeccak256TwoWordNoExpand,
       .GetKeccak256CallDataSlot = &evmGetKeccak256CallDataSlot,
+      .GetKeccak256CallDataSlotNoExpand = &evmGetKeccak256CallDataSlotNoExpand,
       .GetKeccak256CallerSlot = &evmGetKeccak256CallerSlot,
+      .GetKeccak256CallerSlotNoExpand = &evmGetKeccak256CallerSlotNoExpand,
       .HandleFallback = &evmHandleFallback};
   return Table;
 }
@@ -615,11 +651,18 @@ const intx::uint256 *evmGetBlobBaseFee(zen::runtime::EVMInstance *Instance) {
 
 void evmSetReturn(zen::runtime::EVMInstance *Instance, uint64_t Offset,
                   uint64_t Len) {
-  std::vector<uint8_t> ReturnData;
   if (Len > 0) {
     if (!Instance->expandMemoryChecked(Offset, Len)) {
       return;
     }
+  }
+  evmSetReturnNoExpand(Instance, Offset, Len);
+}
+
+void evmSetReturnNoExpand(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                          uint64_t Len) {
+  std::vector<uint8_t> ReturnData;
+  if (Len > 0) {
     uint8_t *MemoryBase = Instance->getMemoryBase();
     ReturnData =
         std::vector<uint8_t>(MemoryBase + Offset, MemoryBase + Offset + Len);
@@ -631,9 +674,9 @@ void evmSetReturn(zen::runtime::EVMInstance *Instance, uint64_t Offset,
                          Instance ? Instance->getGasRefund() : 0,
                          ReturnData.data(), ReturnData.size());
   Instance->setExeResult(std::move(ExeResult));
-  // Immediately terminate the execution and return the success code (0)
   Instance->exit(0);
 }
+
 void evmSetCallDataCopy(zen::runtime::EVMInstance *Instance,
                         uint64_t DestOffset, uint64_t Offset, uint64_t Size) {
   // When Size is 0, no memory operations are needed
@@ -648,11 +691,21 @@ void evmSetCallDataCopy(zen::runtime::EVMInstance *Instance,
       return;
     }
   }
+  evmSetCallDataCopyNoExpand(Instance, DestOffset, Offset, Size);
+}
 
+void evmSetCallDataCopyNoExpand(zen::runtime::EVMInstance *Instance,
+                                uint64_t DestOffset, uint64_t Offset,
+                                uint64_t Size) {
+  // JIT no-expand callers must prove memory and charge word-copy gas first.
+  if (Size == 0) {
+    return;
+  }
   const evmc_message *Msg = Instance->getCurrentMessage();
   ZEN_ASSERT(Msg && "No current message set in EVMInstance");
 
   uint8_t *MemoryBase = Instance->getMemoryBase();
+  ZEN_ASSERT(MemoryBase);
 
   // Calculate actual source offset and copy size
   uint64_t ActualOffset =
@@ -671,6 +724,21 @@ void evmSetCallDataCopy(zen::runtime::EVMInstance *Instance,
   // Fill remaining bytes with zeros if needed
   if (Size > CopySize) {
     std::memset(MemoryBase + DestOffset + CopySize, 0, Size - CopySize);
+  }
+}
+
+void evmTouchExtCodeCopyAccount(zen::runtime::EVMInstance *Instance,
+                                const uint8_t *Address) {
+  const zen::runtime::EVMModule *Module = Instance->getModule();
+  ZEN_ASSERT(Module && Module->Host);
+  evmc::address Addr = loadAddressFromLE(Address);
+
+  evmc_revision Rev = Instance->getRevision();
+  if (Rev >= EVMC_BERLIN &&
+      Module->Host->access_account(Addr) == EVMC_ACCESS_COLD) {
+    if (!Instance->chargeGas(zen::evm::ADDITIONAL_COLD_ACCOUNT_ACCESS_COST)) {
+      return;
+    }
   }
 }
 
@@ -770,31 +838,17 @@ uint64_t evmGetReturnDataSize(zen::runtime::EVMInstance *Instance) {
 }
 
 template <size_t MaxTopics>
-static void evmEmitLogGeneric(zen::runtime::EVMInstance *Instance,
-                              uint64_t Offset, uint64_t Size,
-                              const uint8_t *TopicsData[]) {
+static void evmEmitLogNoExpandGeneric(zen::runtime::EVMInstance *Instance,
+                                      uint64_t Offset, uint64_t Size,
+                                      const uint8_t *TopicsData[]) {
   const zen::runtime::EVMModule *Module = Instance->getModule();
   ZEN_ASSERT(Module && Module->Host);
 
   const evmc_message *Msg = Instance->getCurrentMessage();
   ZEN_ASSERT(Msg && "No current message set in EVMInstance");
-  if (Instance->isStaticMode()) {
-    triggerStaticModeViolation(Instance);
-    return;
-  }
 
-  // Only expand memory if we actually need to access it (Size > 0)
   const uint8_t *Data = nullptr;
   if (Size > 0) {
-    if (!Instance->expandMemoryChecked(Offset, Size)) {
-      return;
-    }
-    const uint64_t LogDataCost = 8 * Size;
-    if (LogDataCost != 0) {
-      if (!Instance->chargeGas(LogDataCost)) {
-        return;
-      }
-    }
     uint8_t *MemoryBase = Instance->getMemoryBase();
     Data = MemoryBase + Offset;
   }
@@ -813,6 +867,29 @@ static void evmEmitLogGeneric(zen::runtime::EVMInstance *Instance,
   Module->Host->emit_log(Msg->recipient, Data, Size,
                          ActualNumTopics > 0 ? Topics : nullptr,
                          ActualNumTopics);
+}
+
+template <size_t MaxTopics>
+static void evmEmitLogGeneric(zen::runtime::EVMInstance *Instance,
+                              uint64_t Offset, uint64_t Size,
+                              const uint8_t *TopicsData[]) {
+  if (Instance->isStaticMode()) {
+    triggerStaticModeViolation(Instance);
+    return;
+  }
+
+  // Only expand memory if we actually need to access it (Size > 0)
+  if (Size > 0) {
+    if (!Instance->expandMemoryChecked(Offset, Size)) {
+      return;
+    }
+    const uint64_t LogDataCost = 8 * Size;
+    if (LogDataCost != 0 && !Instance->chargeGas(LogDataCost)) {
+      return;
+    }
+  }
+
+  evmEmitLogNoExpandGeneric<MaxTopics>(Instance, Offset, Size, TopicsData);
 }
 
 void evmEmitLog0(zen::runtime::EVMInstance *Instance, uint64_t Offset,
@@ -845,6 +922,40 @@ void evmEmitLog4(zen::runtime::EVMInstance *Instance, uint64_t Offset,
                  const uint8_t *Topic3, const uint8_t *Topic4) {
   const uint8_t *Topics[4] = {Topic1, Topic2, Topic3, Topic4};
   evmEmitLogGeneric<4>(Instance, Offset, Size, Topics);
+}
+
+void evmEmitLog0NoExpand(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                         uint64_t Size) {
+  const uint8_t *Topics[0] = {};
+  evmEmitLogNoExpandGeneric<0>(Instance, Offset, Size, Topics);
+}
+
+void evmEmitLog1NoExpand(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                         uint64_t Size, const uint8_t *Topic1) {
+  const uint8_t *Topics[1] = {Topic1};
+  evmEmitLogNoExpandGeneric<1>(Instance, Offset, Size, Topics);
+}
+
+void evmEmitLog2NoExpand(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                         uint64_t Size, const uint8_t *Topic1,
+                         const uint8_t *Topic2) {
+  const uint8_t *Topics[2] = {Topic1, Topic2};
+  evmEmitLogNoExpandGeneric<2>(Instance, Offset, Size, Topics);
+}
+
+void evmEmitLog3NoExpand(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                         uint64_t Size, const uint8_t *Topic1,
+                         const uint8_t *Topic2, const uint8_t *Topic3) {
+  const uint8_t *Topics[3] = {Topic1, Topic2, Topic3};
+  evmEmitLogNoExpandGeneric<3>(Instance, Offset, Size, Topics);
+}
+
+void evmEmitLog4NoExpand(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                         uint64_t Size, const uint8_t *Topic1,
+                         const uint8_t *Topic2, const uint8_t *Topic3,
+                         const uint8_t *Topic4) {
+  const uint8_t *Topics[4] = {Topic1, Topic2, Topic3, Topic4};
+  evmEmitLogNoExpandGeneric<4>(Instance, Offset, Size, Topics);
 }
 
 const uint8_t *evmHandleCreateInternal(zen::runtime::EVMInstance *Instance,
@@ -1218,11 +1329,18 @@ uint64_t evmHandleStaticCall(zen::runtime::EVMInstance *Instance, uint64_t Gas,
 
 void evmSetRevert(zen::runtime::EVMInstance *Instance, uint64_t Offset,
                   uint64_t Size) {
-  std::vector<uint8_t> ReturnData;
   if (Size > 0) {
     if (!Instance->expandMemoryChecked(Offset, Size)) {
       return;
     }
+  }
+  evmSetRevertNoExpand(Instance, Offset, Size);
+}
+
+void evmSetRevertNoExpand(zen::runtime::EVMInstance *Instance, uint64_t Offset,
+                          uint64_t Size) {
+  std::vector<uint8_t> ReturnData;
+  if (Size > 0) {
     uint8_t *MemoryBase = Instance->getMemoryBase();
     ReturnData =
         std::vector<uint8_t>(MemoryBase + Offset, MemoryBase + Offset + Size);
@@ -1231,7 +1349,6 @@ void evmSetRevert(zen::runtime::EVMInstance *Instance, uint64_t Offset,
   Instance->setReturnData(std::move(ReturnData));
   const int64_t GasLeft =
       Instance ? static_cast<int64_t>(Instance->getGas()) : 0;
-  // Immediately terminate the execution and return the revert code (2)
   evmc::Result ExeResult(
       EVMC_REVERT, GasLeft, Instance ? Instance->getGasRefund() : 0,
       Instance->getReturnData().data(), Instance->getReturnData().size());
@@ -1253,13 +1370,23 @@ void evmSetCodeCopy(zen::runtime::EVMInstance *Instance, uint64_t DestOffset,
       return;
     }
   }
+  evmSetCodeCopyNoExpand(Instance, DestOffset, Offset, Size);
+}
 
+void evmSetCodeCopyNoExpand(zen::runtime::EVMInstance *Instance,
+                            uint64_t DestOffset, uint64_t Offset,
+                            uint64_t Size) {
+  // JIT no-expand callers must prove memory and charge word-copy gas first.
+  if (Size == 0) {
+    return;
+  }
   const zen::runtime::EVMModule *Module = Instance->getModule();
   ZEN_ASSERT(Module);
   const zen::common::Byte *Code = Module->Code;
   size_t CodeSize = Module->CodeSize;
 
   uint8_t *MemoryBase = Instance->getMemoryBase();
+  ZEN_ASSERT(MemoryBase);
 
   if (Offset < CodeSize) {
     auto CopySize = std::min(Size, CodeSize - Offset);
@@ -1276,17 +1403,25 @@ void evmSetCodeCopy(zen::runtime::EVMInstance *Instance, uint64_t DestOffset,
 
 const uint8_t *evmGetKeccak256(zen::runtime::EVMInstance *Instance,
                                uint64_t Offset, uint64_t Length) {
-  const uint8_t *InputData = nullptr;
   if (Length > 0) {
     uint8_t *MemoryBase = nullptr;
     if (!prepareKeccakMemoryRange(Instance, Offset, Length, MemoryBase)) {
       return nullptr;
     }
-    const uint64_t ExtraGas =
-        static_cast<uint64_t>(numWords(static_cast<uint64_t>(Length))) * 6;
-    if (!Instance->chargeGas(ExtraGas)) {
+    if (!chargeKeccakWordGas(Instance, Length)) {
       return nullptr;
     }
+  }
+
+  return evmGetKeccak256NoExpand(Instance, Offset, Length);
+}
+
+const uint8_t *evmGetKeccak256NoExpand(zen::runtime::EVMInstance *Instance,
+                                       uint64_t Offset, uint64_t Length) {
+  const uint8_t *InputData = nullptr;
+  if (Length > 0) {
+    uint8_t *MemoryBase = Instance->getMemoryBase();
+    ZEN_ASSERT(MemoryBase);
     InputData = MemoryBase + Offset;
   }
 
@@ -1301,10 +1436,16 @@ const uint8_t *evmGetKeccak256TwoWord(zen::runtime::EVMInstance *Instance,
   if (!prepareKeccakMemoryRange(Instance, Offset, 64, MemoryBase)) {
     return nullptr;
   }
+  return hashPreparedKeccakTwoWord(Instance, MemoryBase, Offset, Word0, Word1);
+}
 
-  storeWordToMemory(MemoryBase + Offset, Word0);
-  storeWordToMemory(MemoryBase + Offset + 32, Word1);
-  return evmGetKeccak256(Instance, Offset, 64);
+const uint8_t *
+evmGetKeccak256TwoWordNoExpand(zen::runtime::EVMInstance *Instance,
+                               uint64_t Offset, const intx::uint256 &Word0,
+                               const intx::uint256 &Word1) {
+  // JIT no-expand callers must prove and materialize [Offset, Offset + 64).
+  uint8_t *MemoryBase = Instance->getMemoryBase();
+  return hashPreparedKeccakTwoWord(Instance, MemoryBase, Offset, Word0, Word1);
 }
 
 const uint8_t *evmGetKeccak256CallDataSlot(zen::runtime::EVMInstance *Instance,
@@ -1320,6 +1461,19 @@ const uint8_t *evmGetKeccak256CallDataSlot(zen::runtime::EVMInstance *Instance,
   return evmGetKeccak256TwoWord(Instance, Offset, CallDataWord, Slot);
 }
 
+const uint8_t *
+evmGetKeccak256CallDataSlotNoExpand(zen::runtime::EVMInstance *Instance,
+                                    uint64_t Offset, uint64_t CallDataOffset,
+                                    const intx::uint256 &Slot) {
+  evmc::bytes32 CallDataWordBytes{};
+  std::memcpy(CallDataWordBytes.bytes,
+              evmGetCallDataLoad(Instance, CallDataOffset),
+              sizeof(CallDataWordBytes.bytes));
+  const intx::uint256 CallDataWord =
+      intx::be::load<intx::uint256>(CallDataWordBytes);
+  return evmGetKeccak256TwoWordNoExpand(Instance, Offset, CallDataWord, Slot);
+}
+
 const uint8_t *evmGetKeccak256CallerSlot(zen::runtime::EVMInstance *Instance,
                                          uint64_t Offset,
                                          const intx::uint256 &Slot) {
@@ -1329,6 +1483,17 @@ const uint8_t *evmGetKeccak256CallerSlot(zen::runtime::EVMInstance *Instance,
   const intx::uint256 CallerWord =
       intx::be::load<intx::uint256>(CallerWordBytes);
   return evmGetKeccak256TwoWord(Instance, Offset, CallerWord, Slot);
+}
+
+const uint8_t *
+evmGetKeccak256CallerSlotNoExpand(zen::runtime::EVMInstance *Instance,
+                                  uint64_t Offset, const intx::uint256 &Slot) {
+  evmc::bytes32 CallerWordBytes{};
+  std::memcpy(CallerWordBytes.bytes, evmGetCaller(Instance),
+              sizeof(CallerWordBytes.bytes));
+  const intx::uint256 CallerWord =
+      intx::be::load<intx::uint256>(CallerWordBytes);
+  return evmGetKeccak256TwoWordNoExpand(Instance, Offset, CallerWord, Slot);
 }
 void evmHandleFallback(zen::runtime::EVMInstance *Instance, uint64_t PC) {
   // Phase 3 implementation: Complete JIT-to-interpreter fallback
