@@ -189,8 +189,6 @@ struct MockOperand {
 
   void setRange(COMPILER::EVMValueRange) {}
 
-  bool isEmpty() const { return !Constant && !Slot; }
-
 private:
   U256Value Value = {0, 0, 0, 0};
   bool Constant = false;
