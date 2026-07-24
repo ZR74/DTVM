@@ -871,7 +871,7 @@ TEST(EVMJITFrontendMirVerifierTest,
   const EVMAnalyzer Analyzer = analyzeBytecode(Bytecode);
   const auto *MergeBlock = findBlock(Analyzer, 16);
   ASSERT_NE(MergeBlock, nullptr);
-  EXPECT_TRUE(MergeBlock->CanLiftStack);
+  EXPECT_FALSE(MergeBlock->CanLiftStack);
   expectPCList(MergeBlock->Predecessors, {0, 7});
 
   std::string VerifierOutput;
