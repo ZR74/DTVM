@@ -15,6 +15,20 @@
 
 namespace COMPILER {
 
+struct EVMLiftedStackStatistics {
+  uint64_t AnalyzedBlocks = 0;
+  uint64_t LiftedBlocks = 0;
+  uint64_t NonLiftedBlocks = 0;
+  uint64_t MergeBlocks = 0;
+  uint64_t MergeSlots = 0;
+  uint64_t MergePredecessorEdges = 0;
+  uint64_t RecordedIncomingStates = 0;
+  uint64_t FoldedMergeSlots = 0;
+  uint64_t MaterializationRequests = 0;
+  uint64_t ProtectedIncomingValues = 0;
+  uint64_t MaterializedU256Merges = 0;
+};
+
 template <typename IRBuilder> class EVMLiftedStackLifter {
 public:
   using Operand = typename IRBuilder::Operand;
@@ -96,6 +110,7 @@ public:
     ValueIds.clear();
     NextValueId = 1;
     NextOpaqueValueId = 1;
+    AnalyzedBlocks = Analyzer.getBlockInfos().size();
 #ifdef ZEN_ENABLE_EVM_STACK_SSA_LIFT
     for (const auto &[EntryPC, BlockInfo] : Analyzer.getBlockInfos()) {
       if (!BlockInfo.CanLiftStack) {
@@ -136,6 +151,35 @@ public:
 #else
     (void)Analyzer;
 #endif
+  }
+
+  EVMLiftedStackStatistics getStatistics() const {
+    EVMLiftedStackStatistics Stats;
+    Stats.AnalyzedBlocks = AnalyzedBlocks;
+    Stats.LiftedBlocks = LiftedBlocks.size();
+    Stats.NonLiftedBlocks =
+        AnalyzedBlocks >= LiftedBlocks.size()
+            ? AnalyzedBlocks - static_cast<uint64_t>(LiftedBlocks.size())
+            : 0;
+    for (const auto &[BlockPC, EntryState] : BlockEntryStates) {
+      (void)BlockPC;
+      Stats.RecordedIncomingStates += EntryState.IncomingStates.size();
+      if (EntryState.PendingPhis.empty()) {
+        continue;
+      }
+      ++Stats.MergeBlocks;
+      Stats.MergeSlots += EntryState.PendingPhis.size();
+      Stats.MergePredecessorEdges += EntryState.ExpectedIncomingCount;
+      for (const PendingPhi &Phi : EntryState.PendingPhis) {
+        if (Phi.IsComplete &&
+            Phi.Resolution == PendingPhi::ResolutionKind::Folded) {
+          ++Stats.FoldedMergeSlots;
+        } else {
+          ++Stats.MaterializationRequests;
+        }
+      }
+    }
+    return Stats;
   }
 
   bool isLiftedBlock(uint64_t BlockPC) const {
@@ -483,6 +527,7 @@ private:
   std::set<uint64_t> LiftedBlocks;
   std::map<uint64_t, BlockEntryState> BlockEntryStates;
   std::map<std::string, uint64_t> ValueIds;
+  uint64_t AnalyzedBlocks = 0;
   uint64_t NextValueId = 1;
   uint64_t NextOpaqueValueId = 1;
 };
