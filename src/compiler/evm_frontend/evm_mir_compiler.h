@@ -1367,7 +1367,6 @@ private:
   MBasicBlock *buildIndirectJumpBB(uint64_t SourceBlockPC,
                                    const JumpTargetPCList *CandidateTargets,
                                    bool RegisterDynamicPhi);
-  bool shouldUseSharedDynamicDispatch() const;
   void linkJumpDestEntryThunkIfNeeded(MBasicBlock *TargetBB);
   void registerPhiIncomingBlock(uint64_t TargetBlockPC, uint64_t PredBlockPC,
                                 MBasicBlock *PredBB);
