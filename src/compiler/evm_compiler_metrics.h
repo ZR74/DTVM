@@ -4,14 +4,26 @@
 #ifndef ZEN_COMPILER_EVM_COMPILER_METRICS_H
 #define ZEN_COMPILER_EVM_COMPILER_METRICS_H
 
-#include "compiler/evm_frontend/evm_lifted_stack_lifter.h"
-
 #include <array>
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
 
 namespace COMPILER {
+
+struct EVMLiftedStackStatistics {
+  uint64_t AnalyzedBlocks = 0;
+  uint64_t LiftedBlocks = 0;
+  uint64_t NonLiftedBlocks = 0;
+  uint64_t MergeBlocks = 0;
+  uint64_t MergeSlots = 0;
+  uint64_t MergePredecessorEdges = 0;
+  uint64_t RecordedIncomingStates = 0;
+  uint64_t FoldedMergeSlots = 0;
+  uint64_t MaterializationRequests = 0;
+  uint64_t ProtectedIncomingValues = 0;
+  uint64_t MaterializedU256Merges = 0;
+};
 
 enum class EVMCompilerPhase : uint8_t {
   ContextSetup = 0,

@@ -4,6 +4,7 @@
 #ifndef EVM_FRONTEND_EVM_LIFTED_STACK_LIFTER_H
 #define EVM_FRONTEND_EVM_LIFTED_STACK_LIFTER_H
 
+#include "compiler/evm_compiler_metrics.h"
 #include "compiler/evm_frontend/evm_analyzer.h"
 
 #include <cstdint>
@@ -14,20 +15,6 @@
 #include <vector>
 
 namespace COMPILER {
-
-struct EVMLiftedStackStatistics {
-  uint64_t AnalyzedBlocks = 0;
-  uint64_t LiftedBlocks = 0;
-  uint64_t NonLiftedBlocks = 0;
-  uint64_t MergeBlocks = 0;
-  uint64_t MergeSlots = 0;
-  uint64_t MergePredecessorEdges = 0;
-  uint64_t RecordedIncomingStates = 0;
-  uint64_t FoldedMergeSlots = 0;
-  uint64_t MaterializationRequests = 0;
-  uint64_t ProtectedIncomingValues = 0;
-  uint64_t MaterializedU256Merges = 0;
-};
 
 template <typename IRBuilder> class EVMLiftedStackLifter {
 public:
