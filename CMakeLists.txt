@@ -52,6 +52,10 @@ option(ZEN_ENABLE_EVM_GAS_REGISTER
 option(ZEN_ENABLE_EVM_STACK_SSA_LIFT
        "Enable conservative EVM stack lifting in multipass frontend" OFF
 )
+option(
+  ZEN_ENABLE_EVM_STACK_BOUNDARY_BATCH
+  "Enable batched runtime-stack loads/stores at EVM basic-block boundaries" OFF
+)
 option(ZEN_ENABLE_EVM_MEM_LARGE_STATIC_WORKSPACE_LOWERING
        "Enable experimental EVM large static workspace memory lowering" OFF
 )
