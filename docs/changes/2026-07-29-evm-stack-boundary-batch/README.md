@@ -6,13 +6,14 @@
 
 ## Overview
 
-Add an opt-in first stage of selective stack dematerialization for the EVM
+Add a first stage of selective stack dematerialization for the EVM
 multipass frontend. Non-lifted block entries load their required live-in values
 with one batch address calculation and one depth update. Non-lifted exits store
 their bottom-to-top logical stack with one top/size update.
 
-The change is gated by `ZEN_ENABLE_EVM_STACK_BOUNDARY_BATCH`, which is `OFF` by
-default. Full operand-stack SSA remains unchanged and takes priority.
+Batching is the standard runtime-stack boundary lowering. Full operand-stack
+SSA remains unchanged and takes priority, so batching only handles non-lifted
+blocks in SSA builds and all block boundaries when SSA is disabled.
 
 ## Contract
 
@@ -38,19 +39,17 @@ cmake -S . -B build-batch \
   -DZEN_ENABLE_MULTIPASS_JIT=ON \
   -DZEN_ENABLE_SINGLEPASS_JIT=OFF \
   -DZEN_ENABLE_SPEC_TEST=ON \
-  -DZEN_ENABLE_JIT_FALLBACK_TEST=ON \
   -DZEN_ENABLE_EVM_STACK_SSA_LIFT=ON \
   -DZEN_ENABLE_EVM_MEMORY_PLAN_FRAMEWORK=ON \
-  -DZEN_ENABLE_EVM_STACK_BOUNDARY_BATCH=ON \
   -DLLVM_DIR=/path/to/llvm-15/lib/cmake/llvm
 cmake --build build-batch --target evmJitFrontendTests evmDifferentialTests \
-  evmFallbackExecutionTests evmStateTests
+  evmStateTests
 ./build-batch/evmJitFrontendTests
 ./build-batch/evmDifferentialTests
-./build-batch/evmFallbackExecutionTests
 ```
 
-The final validation used two Release builds from the same source revision:
+Before the experimental gate was removed, validation used two Release builds
+from the same source revision:
 
 - A: V111 with boundary batching disabled;
 - B: V111 with boundary batching enabled.

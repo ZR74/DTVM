@@ -1167,7 +1167,6 @@ void EVMMirBuilder::dropStackBatch(uint32_t Count) {
                                         StackTopVar->getVarIdx());
   createInstruction<DassignInstruction>(true, &(Ctx.VoidType), NewSize,
                                         StackSizeVar->getVarIdx());
-
 }
 
 void EVMMirBuilder::pushStackBatch(const std::vector<Operand> &Values) {
@@ -1203,7 +1202,6 @@ void EVMMirBuilder::pushStackBatch(const std::vector<Operand> &Values) {
                                         StackTopVar->getVarIdx());
   createInstruction<DassignInstruction>(true, &(Ctx.VoidType), NewSize,
                                         StackSizeVar->getVarIdx());
-
 }
 
 void EVMMirBuilder::stackSet(int32_t IndexFromTop, Operand SetValue) {

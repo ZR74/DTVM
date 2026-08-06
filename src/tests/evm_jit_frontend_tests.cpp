@@ -3043,7 +3043,6 @@ bool compileWithMockBuilder(const std::vector<uint8_t> &Bytecode,
   return Visitor.compile();
 }
 
-#ifdef ZEN_ENABLE_EVM_STACK_BOUNDARY_BATCH
 TEST(EVMMirBuilderStackBoundaryBatchTest,
      EmptyOneSixteenAndSeventeenSlotBatchesBuild) {
   MirBuilderConstFoldHarness Harness;
@@ -3106,7 +3105,6 @@ TEST(EVMJITFrontendVisitorTest,
   EXPECT_EQ(Stats.StackTopUpdates, 2u);
   EXPECT_EQ(Stats.StackSizeUpdates, 2u);
 }
-#endif
 
 TEST(EVMJITFrontendVisitorTest, TerminatingMemoryHelpersRetainExactOpcodePC) {
   const std::vector<uint8_t> ReturnBytecode = {OP_PUSH0, OP_PUSH0, OP_RETURN};

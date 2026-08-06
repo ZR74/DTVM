@@ -1037,13 +1037,7 @@ private:
         // missed underflow traps in later blocks.
         spillTrackedStackPreservingPrefix(Values, /*PrefixDepth=*/0);
       } else {
-#ifdef ZEN_ENABLE_EVM_STACK_BOUNDARY_BATCH
         Builder.pushStackBatch(Values);
-#else
-        for (const Operand &Opnd : Values) {
-          Builder.stackPush(Opnd);
-        }
-#endif
       }
     }
     InDeadCode = true;
@@ -1300,7 +1294,6 @@ private:
     // docs/changes/2026-05-07-value-range-cfg-join). EntryStackRanges[0] is the
     // bottom of entry stack; pop order is top-first.
     const auto &EntryRanges = BlockInfo.EntryStackRanges;
-#ifdef ZEN_ENABLE_EVM_STACK_BOUNDARY_BATCH
     std::vector<Operand> EntryValues =
         Builder.peekStackBatch(static_cast<uint32_t>(TotalPopSize));
     Builder.dropStackBatch(static_cast<uint32_t>(TotalPopSize));
@@ -1314,25 +1307,6 @@ private:
       }
       Stack.push(Opnd);
     }
-#else
-    EvalStack ReverseStack;
-    const int32_t EntryTopIdx = static_cast<int32_t>(EntryRanges.size()) - 1;
-    int32_t PopIter = 0;
-    while (TotalPopSize > 0) {
-      Operand Opnd = Builder.stackPop();
-      const int32_t SlotIdx = EntryTopIdx - PopIter;
-      if (SlotIdx >= 0 && SlotIdx < static_cast<int32_t>(EntryRanges.size())) {
-        Opnd.setRange(EntryRanges[SlotIdx]);
-      }
-      ReverseStack.push(Opnd);
-      ++PopIter;
-      --TotalPopSize;
-    }
-    while (!ReverseStack.empty()) {
-      Operand Opnd = ReverseStack.pop();
-      Stack.push(Opnd);
-    }
-#endif
   }
 
   void

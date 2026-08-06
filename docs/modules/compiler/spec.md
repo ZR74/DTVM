@@ -199,12 +199,11 @@ and destination ends for expansion elision while retaining the original
 
 ### EVM Stack Boundary Batching
 
-`ZEN_ENABLE_EVM_STACK_BOUNDARY_BATCH` is an opt-in, default-off lowering for
-non-lifted EVM block boundaries. Entry loads use `peekStackBatch` followed by
-one `dropStackBatch`; exit materialization uses one `pushStackBatch`. Batch
-vectors are always bottom-to-top. Empty batches emit no MIR and do not update
-runtime stack state. Full stack-SSA blocks retain the existing entry-state and
-phi protocol.
+Non-lifted EVM block boundaries use batched runtime-stack access. Entry loads
+use `peekStackBatch` followed by one `dropStackBatch`; exit materialization uses
+one `pushStackBatch`. Batch vectors are always bottom-to-top. Empty batches emit
+no MIR and do not update runtime stack state. Full stack-SSA blocks retain the
+existing entry-state and phi protocol.
 
 The runtime stack remains the complete authoritative representation in this
 stage. Every non-lifted exit still writes all logical values, and dynamic
