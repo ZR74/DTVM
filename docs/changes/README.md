@@ -55,6 +55,7 @@ Typical triggers:
 | 2026-07-21 | [evm-memory-alias-and-expansion](2026-07-21-evm-memory-alias-and-expansion/README.md) | Implemented | Full | Stronger memory alias proofs, wider precheck/expansion coverage, DSE, load forwarding, grouping, and MCOPY roadmap |
 | 2026-07-28 | [ssa-shared-dynamic-dispatch](2026-07-28-ssa-shared-dynamic-dispatch/README.md) | Implemented | Light | Share unfiltered full-table dynamic dispatch in stack-SSA builds |
 | 2026-07-29 | [evm-stack-boundary-batch](2026-07-29-evm-stack-boundary-batch/README.md) | Validated | Full | Batch runtime-stack loads, drops, and stores at non-lifted EVM block boundaries |
+| 2026-08-22 | [evm-frontier-osaka-conformance](2026-08-22-evm-frontier-osaka-conformance/README.md) | Accepted | Full | Pinned dual-engine EVM conformance from Frontier through Osaka |
 
 Each active proposal lives in its own subdirectory. Browse `docs/changes/*/README.md`
 to see all current proposals, or use:

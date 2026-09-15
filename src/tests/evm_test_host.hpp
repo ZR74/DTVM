@@ -140,6 +140,11 @@ public:
     std::string ErrorMessage;
   };
 
+  static uint64_t refundLimitForRevision(const evmc_revision Revision,
+                                         const uint64_t GasUsed) {
+    return Revision >= EVMC_LONDON ? GasUsed / 5 : GasUsed / 2;
+  }
+
   ZenMockedEVMHost() = default;
 
   void setRuntime(Runtime *NewRT) {
@@ -304,7 +309,8 @@ public:
       Result.GasUsed += Config.IntrinsicGas;
       uint64_t GasRefund = static_cast<uint64_t>(
           std::max<int64_t>(0, PrecompileResult.gas_refund));
-      uint64_t RefundLimit = Result.GasUsed / 5;
+      const uint64_t RefundLimit =
+          zen::utils::computeRefundCap(ActiveRevision, Result.GasUsed);
       Result.GasRefund = std::min(GasRefund, RefundLimit);
       Result.GasCharged = Result.GasUsed > Result.GasRefund
                               ? Result.GasUsed - Result.GasRefund
@@ -341,7 +347,8 @@ public:
       Result.GasUsed += Config.IntrinsicGas;
       uint64_t GasRefund =
           static_cast<uint64_t>(std::max<int64_t>(0, CreateResult.gas_refund));
-      uint64_t RefundLimit = Result.GasUsed / 5;
+      const uint64_t RefundLimit =
+          zen::utils::computeRefundCap(ActiveRevision, Result.GasUsed);
       Result.GasRefund = std::min(GasRefund, RefundLimit);
       Result.GasCharged = Result.GasUsed > Result.GasRefund
                               ? Result.GasUsed - Result.GasRefund
@@ -376,7 +383,8 @@ public:
             ? ("tx_exec_mod_" + std::to_string(Counter))
             : (Config.ModuleName + "_" + std::to_string(Counter));
 
-    auto ModRet = RT->loadEVMModule(ModuleName, BytecodePtr, BytecodeSize);
+    auto ModRet = RT->loadEVMModule(ModuleName, BytecodePtr, BytecodeSize,
+                                    ActiveRevision);
     if (!ModRet) {
       Result.ErrorMessage = "Failed to load EVM module: " + ModuleName;
       return Result;
@@ -443,7 +451,8 @@ public:
     Result.GasUsed += Config.IntrinsicGas;
     uint64_t GasRefund =
         static_cast<uint64_t>(std::max<int64_t>(0, Inst->getGasRefund()));
-    uint64_t RefundLimit = Result.GasUsed / 5;
+    const uint64_t RefundLimit =
+        zen::utils::computeRefundCap(ActiveRevision, Result.GasUsed);
     Result.GasRefund = std::min(GasRefund, RefundLimit);
     Result.GasCharged = Result.GasUsed > Result.GasRefund
                             ? Result.GasUsed - Result.GasRefund
@@ -766,7 +775,8 @@ public:
         InitcodePtr = &STOP_BYTE;
         InitcodeSize = 1;
       }
-      auto ModRet = RT->loadEVMModule(ModName, InitcodePtr, InitcodeSize);
+      auto ModRet =
+          RT->loadEVMModule(ModName, InitcodePtr, InitcodeSize, Revision);
       if (!ModRet) {
         restoreHostState(StateSnapshot);
         ZEN_LOG_ERROR("Failed to load EVM module: %s", ModName.c_str());
@@ -1087,20 +1097,10 @@ private:
                             const TransactionExecutionConfig &Config,
                             const evmc_message &Msg,
                             TransactionExecutionResult &Result) {
-    intx::uint256 GasPrice = toUint256BE(tx_context.tx_gas_price);
-    intx::uint256 BaseFee = toUint256BE(tx_context.block_base_fee);
-    intx::uint256 PriorityFee =
-        GasPrice > BaseFee ? GasPrice - BaseFee : intx::uint256{0};
-    intx::uint256 EffectiveGasPrice = GasPrice;
-
-    if (Config.MaxPriorityFeePerGas) {
-      intx::uint256 MaxPriority = toUint256BE(*Config.MaxPriorityFeePerGas);
-      intx::uint256 MaxFeeMinusBase =
-          GasPrice > BaseFee ? GasPrice - BaseFee : intx::uint256{0};
-      PriorityFee =
-          MaxPriority < MaxFeeMinusBase ? MaxPriority : MaxFeeMinusBase;
-      EffectiveGasPrice = BaseFee + PriorityFee;
-    }
+    const auto Fees = zen::utils::computeEvmTransactionFees(
+        tx_context.tx_gas_price, tx_context.block_base_fee,
+        Config.MaxPriorityFeePerGas);
+    const intx::uint256 EffectiveGasPrice = Fees.EffectiveGasPrice;
 
     intx::uint256 UpfrontGasCost = intx::uint256(GasLimit) * EffectiveGasPrice;
     intx::uint256 BlobFee = 0;
@@ -1134,20 +1134,11 @@ private:
                         const TransactionExecutionConfig &Config,
                         const evmc_message &Msg,
                         TransactionExecutionResult &Result, bool FeesPrepaid) {
-    intx::uint256 GasPrice = toUint256BE(tx_context.tx_gas_price);
-    intx::uint256 BaseFee = toUint256BE(tx_context.block_base_fee);
-    intx::uint256 PriorityFee =
-        GasPrice > BaseFee ? GasPrice - BaseFee : intx::uint256{0};
-    intx::uint256 EffectiveGasPrice = GasPrice;
-
-    if (Config.MaxPriorityFeePerGas) {
-      intx::uint256 MaxPriority = toUint256BE(*Config.MaxPriorityFeePerGas);
-      intx::uint256 MaxFeeMinusBase =
-          GasPrice > BaseFee ? GasPrice - BaseFee : intx::uint256{0};
-      PriorityFee =
-          MaxPriority < MaxFeeMinusBase ? MaxPriority : MaxFeeMinusBase;
-      EffectiveGasPrice = BaseFee + PriorityFee;
-    }
+    const auto Fees = zen::utils::computeEvmTransactionFees(
+        tx_context.tx_gas_price, tx_context.block_base_fee,
+        Config.MaxPriorityFeePerGas);
+    const intx::uint256 EffectiveGasPrice = Fees.EffectiveGasPrice;
+    const intx::uint256 PriorityFee = Fees.PriorityFee;
 
     intx::uint256 GasCharged256 = intx::uint256(GasCharged);
     intx::uint256 CoinbaseReward = GasCharged256 * PriorityFee;
@@ -1189,7 +1180,7 @@ private:
       SenderAccount.balance = toBytes32(SenderBalance);
     }
 
-    if (CoinbaseReward != 0 ||
+    if (Revision < EVMC_SPURIOUS_DRAGON || CoinbaseReward != 0 ||
         accounts.find(tx_context.block_coinbase) != accounts.end()) {
       auto &CoinbaseAccount = accounts[tx_context.block_coinbase];
       ensureAccountHasCodeHash(CoinbaseAccount);

@@ -4,6 +4,7 @@
 #include "compiler/evm_frontend/evm_imported.h"
 #include "compiler/evm_frontend/evm_mir_compiler.h"
 #include "compiler/mir/module.h"
+#include "runtime/evm_instance.h"
 
 #include "llvm/Support/raw_ostream.h"
 #include <gtest/gtest.h>
@@ -108,6 +109,90 @@ TEST(EVMMirBuilderCallMemoryProofTest,
       containsRuntimeCall(*StaticCallMir, RuntimeFunctions.HandleStaticCall));
   EXPECT_FALSE(containsRuntimeCall(*StaticCallMir,
                                    RuntimeFunctions.HandleStaticCallNoExpand));
+}
+
+TEST(EVMMirBuilderPreparedMemoryProofTest,
+     KeepsGenericRangeHelpersForDynamicOffsets) {
+  const auto &RuntimeFunctions = COMPILER::getRuntimeFunctionTable();
+  const std::vector<uint8_t> CodeCopyBytecode = {
+      OP_PUSH1,        0x20, // copy size
+      OP_PUSH0,              // code offset
+      OP_PUSH0,              // calldata offset
+      OP_CALLDATALOAD,
+      OP_CODECOPY, // dynamic destination offset
+      OP_STOP,
+  };
+  const std::vector<uint8_t> KeccakBytecode = {
+      OP_PUSH1,        0x20, // hash size
+      OP_PUSH0,              // calldata offset
+      OP_CALLDATALOAD,
+      OP_KECCAK256, // dynamic memory offset
+      OP_STOP,
+  };
+  const std::vector<uint8_t> ReturnBytecode = {
+      OP_PUSH1,        0x20, // return size
+      OP_PUSH0,              // calldata offset
+      OP_CALLDATALOAD,
+      OP_RETURN, // dynamic memory offset
+  };
+  const std::vector<uint8_t> RevertBytecode = {
+      OP_PUSH1,        0x20, // revert size
+      OP_PUSH0,              // calldata offset
+      OP_CALLDATALOAD,
+      OP_REVERT, // dynamic memory offset
+  };
+
+  const auto CodeCopyMir = compileCallMemoryMir(CodeCopyBytecode);
+  const auto KeccakMir = compileCallMemoryMir(KeccakBytecode);
+  const auto ReturnMir = compileCallMemoryMir(ReturnBytecode);
+  const auto RevertMir = compileCallMemoryMir(RevertBytecode);
+  ASSERT_TRUE(CodeCopyMir.has_value());
+  ASSERT_TRUE(KeccakMir.has_value());
+  ASSERT_TRUE(ReturnMir.has_value());
+  ASSERT_TRUE(RevertMir.has_value());
+
+  EXPECT_TRUE(containsRuntimeCall(*CodeCopyMir, RuntimeFunctions.SetCodeCopy));
+  EXPECT_FALSE(
+      containsRuntimeCall(*CodeCopyMir, RuntimeFunctions.SetCodeCopyNoExpand));
+  EXPECT_TRUE(containsRuntimeCall(*KeccakMir, RuntimeFunctions.GetKeccak256));
+  EXPECT_FALSE(
+      containsRuntimeCall(*KeccakMir, RuntimeFunctions.GetKeccak256NoExpand));
+  EXPECT_TRUE(containsRuntimeCall(*ReturnMir, RuntimeFunctions.SetReturn));
+  EXPECT_FALSE(
+      containsRuntimeCall(*ReturnMir, RuntimeFunctions.SetReturnNoExpand));
+  EXPECT_TRUE(containsRuntimeCall(*RevertMir, RuntimeFunctions.SetRevert));
+  EXPECT_FALSE(
+      containsRuntimeCall(*RevertMir, RuntimeFunctions.SetRevertNoExpand));
+}
+
+TEST(EVMMirBuilderPreparedMemoryProofTest,
+     ReloadsMemoryBaseBeforeSizeAfterColdCodeCopy) {
+  const std::vector<uint8_t> Bytecode = {
+      OP_PUSH1, 0x20, OP_PUSH0, OP_PUSH1,  0x80,    OP_CODECOPY,
+      OP_PUSH1, 0x01, OP_PUSH0, OP_MSTORE, OP_STOP,
+  };
+  const auto Mir = compileCallMemoryMir(Bytecode);
+  ASSERT_TRUE(Mir.has_value());
+
+  const auto &RuntimeFunctions = COMPILER::getRuntimeFunctionTable();
+  const std::string CodeCopyCall = "target = const.i64 " +
+                                   std::to_string(COMPILER::getFunctionAddress(
+                                       RuntimeFunctions.SetCodeCopy)) +
+                                   ", ";
+  const std::string MemoryBaseLoad =
+      "offset = " +
+      std::to_string(zen::runtime::EVMInstance::getMemoryBaseOffset()) + ")";
+  const std::string MemorySizeLoad =
+      "offset = " +
+      std::to_string(zen::runtime::EVMInstance::getMemorySizeOffset()) + ")";
+
+  const size_t CallPos = Mir->find(CodeCopyCall);
+  ASSERT_NE(CallPos, std::string::npos);
+  const size_t BaseReloadPos = Mir->find(MemoryBaseLoad, CallPos);
+  const size_t SizeReloadPos = Mir->find(MemorySizeLoad, CallPos);
+  ASSERT_NE(BaseReloadPos, std::string::npos);
+  ASSERT_NE(SizeReloadPos, std::string::npos);
+  EXPECT_LT(BaseReloadPos, SizeReloadPos);
 }
 #endif
 

@@ -70,6 +70,8 @@ evmc::address computeCreateAddress(evmc::address, uint64_t nonce);
 bool readBinaryFile(path, std::vector<uint8_t>&);
 bool saveState(evmc::MockedHost const&, path);
 bool loadState(evmc::MockedHost&, path);
+EvmUpfrontGasResult applyEvmUpfrontGas(evmc::MockedHost&, evmc_message&, uint64_t, evmc_revision);
+void applyEvmPostExecutionSettlement(evmc::MockedHost&, const evmc_message&, uint64_t, const evmc::Result&, evmc_revision);
 
 // zen::utils (logging)
 std::shared_ptr<ILogger> createConsoleLogger(name, LoggerLevel);
@@ -110,7 +112,7 @@ Parsing or initialization failures return `EXIT_FAILURE` uniformly; `evmc_status
 - **EVM options**: Only under `ZEN_ENABLE_EVM`: `--format evm`, `--calldata`, `--evm-revision`, `--deploy`, `--contract-address`, `--sender`, `--save-state`, `--load-state`, etc.
 - **singlepass option**: Under `ZEN_ENABLE_EVM` build, `--mode` does not offer `singlepass`
 - **Multipass options**: Only under `ZEN_ENABLE_MULTIPASS_JIT`: `--disable-multipass-greedyra`, `--disable-multipass-multithread`, `--num-multipass-threads`, `--enable-multipass-lazy`, `--enable-evm-gas`, `--entry-hint`
-- **EVM version**: Supports `evmc_revision` from `frontier` to `osaka`; default `EVMC_CANCUN`
+- **EVM version**: Supports `evmc_revision` from `frontier` to `osaka`; default `EVMC_OSAKA`
 
 ## Cross-References
 
